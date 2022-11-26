@@ -1,0 +1,360 @@
+body {
+  font-size: 13px;
+  margin: 0;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  border-radius: 3px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+  border-radius: 3px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+// .v-application {
+//   font-family: 'Times New Roman', Times, serif;
+// }
+.tui-image-editor-controls-logo {
+  display: none !important;
+}
+
+.tui-image-editor-container.top .tui-image-editor-controls-buttons {
+  display: none !important;
+}
+
+.tui-image-editor-container.top.tui-image-editor-top-optimization .tui-image-editor-controls ul {
+  text-align: center !important;
+}
+
+.tui-image-editor-container .tui-image-editor-header {
+  display: none;
+}
+
+.timeline-item {
+  justify-content: flex-end;
+}
+
+.v-timeline--dense .v-timeline-item__body {
+  max-width: calc(100% - 32px);
+  padding-left: 10px;
+}
+
+.v-timeline-item__divider {
+  min-width: 32px;
+}
+
+.v-timeline-item__dot {
+  width: 32px;
+  height: 32px;
+}
+
+.v-timeline-item__dot .v-icon {
+  font-size: 20px;
+}
+
+.v-timeline-item--fill-dot .v-timeline-item__inner-dot {
+  -webkit-print-color-adjust: exact !important;
+}
+
+.v-timeline::before {
+  left: calc(16px - 1px) !important;
+  background: #6d28d9 !important;
+  -webkit-print-color-adjust: exact !important;
+}
+
+.vue__time-picker input.display-time {
+  border: 1px solid #d1d5db !important;
+  border-radius: 4px !important;
+  height: 32px;
+  font-size: 14px;
+}
+
+.v-input__slot {
+  min-height: 32px !important;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.v-input__slot fieldset {
+  border: 1px solid #d1d5db !important;
+  border-radius: 4px !important;
+}
+
+.label-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  line-height: 1.5rem;
+}
+
+.date-text {
+  display: flex;
+  align-items: center;
+  column-gap: 3px;
+}
+
+.date-text .v-icon {
+  font-size: 16px;
+  color: #9ca3af;
+}
+
+.date-text span {
+  font-size: 13px;
+  font-weight: 500;
+  font-style: normal;
+  color: #6b7280;
+  line-height: 16px;
+}
+
+.duration-text {
+  display: flex;
+  align-items: center;
+  column-gap: 5px;
+}
+
+.duration-text .v-icon {
+  color: #9ca3af;
+  font-size: 16px;
+}
+
+.duration-text span {
+  font-size: 13px;
+  font-weight: 500;
+  font-style: normal;
+  line-height: 16px;
+  color: #6b7280;
+}
+
+.comment-type,
+.comment-text {
+  font-size: 14px;
+  font-weight: 500;
+  font-style: normal;
+  line-height: 18px;
+  color: #6b7280;
+}
+
+.tox {
+  border-radius: 4px !important;
+  border: 1px solid #d1d5db !important;
+}
+
+.charter .tox {
+  border-top-left-radius: 0px !important;
+  border-top-right-radius: 0px !important;
+}
+
+.tox-tinymce-aux {
+  display: none;
+}
+
+.mce-content-body[data-mce-placeholder]:not(.mce-visualblocks)::before {
+  color: #6b7280;
+  font-size: 13px;
+  content: attr(data-mce-placeholder);
+  position: absolute;
+  font-weight: 500;
+}
+
+.mce-content-body {
+  color: #6b7280;
+}
+
+.v-btn {
+  font-size: 13px;
+}
+
+.control-btn {
+  border: 1px solid #d1d5db;
+  color: #6b7280;
+  background-color: #fff;
+}
+
+// .v-input--selection-controls__input {
+//   width: 16px;
+//   height: 16px;
+// }
+
+// .v-input--selection-controls__input .v-icon {
+//   font-size: 16px;
+// }
+
+.v-divider {
+  z-index: 9999;
+}
+
+.v-radio .v-label {
+  font-style: normal !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+  color: #111827 !important;
+}
+
+.input-box {
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  background: transparent;
+  max-width: 100% !important;
+}
+
+.input-box .ti-input {
+  border: none;
+}
+
+.ti-tags .ti-tag {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+  border-radius: 15px !important;
+}
+
+// dhx mindmap editor
+.dhx-container_inner {
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dhx_sample-controls {
+  border-bottom: 1px solid #d1d5db;
+  background: transparent;
+  padding: 10px;
+}
+
+.dhx_diagram_editor {
+  min-height: 300px !important;
+  flex: 1 0 auto !important;
+}
+
+.mindmap-svg {
+  height: 100%;
+  width: 100%;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.mindmap-node {
+  .node-body {
+    background-color: #fff;
+    border: 3px solid #bb199a;
+    border-radius: 15px;
+    margin-top: 30px;
+    min-height: 60px;
+    min-width: 125px;
+    padding: 5px 10px;
+
+    .options {
+      display: none;
+      position: absolute;
+      margin-top: -30px;
+
+      .option {
+        cursor: pointer;
+        font-size: 18px;
+        margin-right: 25px;
+        color: #999;
+
+        &:hover {
+          &.add-item {
+            color: #19bb19;
+          }
+          &.edit-item {
+            color: #666565;
+          }
+          &.remove-item {
+            color: #ee6969;
+          }
+        }
+      }
+    }
+
+    a {
+      color: #212121;
+      display: inline-block;
+      font-size: 22px;
+      margin: 10px;
+      padding: 5px;
+      text-align: center;
+      text-decoration: none;
+      transition: background-color 0.2s, color 0.2s ease-out;
+  
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    .input-text {
+      font-size: 22px;
+      color: #212121;
+      border: 1px solid blue;
+      width: 100%;
+      padding: 5px 10px;
+    }
+  }
+}
+
+.mindmap-node:hover {
+  .node-body {
+    .options {
+      display: flex;
+    }
+  }
+}
+
+.mindmap-node--editable {
+  cursor: all-scroll;
+
+  &>a {
+    pointer-events: none;
+  }
+
+}
+
+.mindmap-subnode-group {
+  align-items: center;
+  border-left: 4px solid #9e9e9e;
+  display: flex;
+  margin-left: 15px;
+  padding: 5px;
+
+  a {
+    color: #212121;
+    font-family: 'Raleway';
+    font-size: 16px;
+    padding: 2px 5px;
+  }
+
+}
+
+.mindmap-connection {
+  fill: transparent;
+  stroke: #9e9e9e;
+  stroke-dasharray: 10px 4px;
+  stroke-width: 3px;
+}
+
+.mindmap-emoji {
+  height: 24px;
+  vertical-align: bottom;
+  width: 24px;
+}
+
+.reddit-emoji {
+  border-radius: 50%;
+}

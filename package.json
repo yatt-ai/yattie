@@ -1,0 +1,108 @@
+{
+  "name": "yattie",
+  "version": "0.1.0",
+  "private": true,
+  "main": "background.js",
+  "engines" : { 
+    "npm" : ">=8.0.0 <9.0.0",
+    "node" : ">=16.0.0 <17.0.0"
+  },
+  "keywords": [],
+  "author": {
+    "name": "YATT",
+    "email": "contact@yatt.ai"
+  },
+  "license" : "MIT",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "test:unit": "vue-cli-service test:unit",
+    "lint": "vue-cli-service lint",
+    "dev": "vue-cli-service electron:serve",
+    "build": "vue-cli-service electron:build",
+    "postinstall": "electron-builder install-app-deps",
+    "postuninstall": "electron-builder install-app-deps",
+    "publish": "vue-cli-service electron:build -p always"
+  },
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@fortawesome/fontawesome-free": "^6.2.1",
+    "@johmun/vue-tags-input": "^2.1.0",
+    "@tinymce/tinymce-vue": "^3.2.0",
+    "@toast-ui/vue-image-editor": "^3.15.2",
+    "adm-zip": "^0.5.9",
+    "core-js": "^3.8.3",
+    "d3": "^5.14.2",
+    "dayjs": "^1.11.5",
+    "detect-file-type": "^0.2.8",
+    "extract-zip": "^2.0.1",
+    "fluent-ffmpeg": "^2.1.2",
+    "lodash": "^4.17.21",
+    "simple-json-db": "^2.0.0",
+    "tinymce": "^6.2.0",
+    "uuid": "3.3.3",
+    "v-mask": "^2.3.0",
+    "vue": "^2.6.14",
+    "vue-input-tag": "^2.0.7",
+    "vue-router": "^3.5.1",
+    "vuedraggable": "^2.24.3",
+    "vuetify": "^2.6.0",
+    "vuex": "^3.6.2",
+    "wavesurfer.js": "^6.3.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.16",
+    "@babel/eslint-parser": "^7.12.16",
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-eslint": "~5.0.0",
+    "@vue/cli-plugin-router": "^5.0.0",
+    "@vue/cli-plugin-unit-jest": "~5.0.0",
+    "@vue/cli-plugin-vuex": "^5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "@vue/server-test-utils": "^1.3.0",
+    "@vue/test-utils": "^1.3.0",
+    "@vue/vue2-jest": "^27.0.0-alpha.2",
+    "babel-jest": "^27.0.6",
+    "electron": "^13.0.0",
+    "electron-devtools-installer": "^3.1.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-vue": "^8.0.3",
+    "jest": "^27.0.5",
+    "prettier": "^2.4.1",
+    "sass": "~1.32.0",
+    "sass-loader": "^10.0.0",
+    "vue-cli-plugin-electron-builder": "~2.1.1",
+    "vue-cli-plugin-vuetify": "^2.5.8",
+    "vue-template-compiler": "^2.7.13",
+    "vuetify-loader": "^1.7.0"
+  },
+  "resolutions": {
+    "vue-cli-plugin-electron-builder/electron-builder": "^23.0.3"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "@babel/eslint-parser"
+    },
+    "rules": {},
+    "overrides": [
+      {
+        "files": [
+          "**/__tests__/*.{j,t}s?(x)",
+          "**/tests/unit/**/*.spec.{j,t}s?(x)"
+        ],
+        "env": {
+          "jest": true
+        }
+      }
+    ]
+  }
+}
