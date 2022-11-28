@@ -2,7 +2,7 @@ module.exports = {
   transpileDependencies: ["vuetify"],
   pluginOptions: {
     electronBuilder: {
-      externals: ["fluent-ffmpeg", "@ffmpeg-installer/ffmpeg"],
+      externals: ["fluent-ffmpeg", "ffmpeg-static", "ffprobe-static"],
       chainWebpackRendererProcess: (config) => {
         config.plugin("define").tap((args) => {
           args[0]["process.env.FLUENTFFMPEG_COV"] = false;
@@ -39,7 +39,7 @@ module.exports = {
           ],
           publish: [{
             provider: "github",
-            owner: "yatt-ai",
+            owner: "dacoaster",
             repo: "YATTIE",
             releaseType: 'prerelease'
           }]
@@ -49,7 +49,7 @@ module.exports = {
           category: "public.app-category.developer-tools",
           publish: [{
             provider: "github",
-            owner: "yatt-ai",
+            owner: "dacoaster",
             repo: "YATTIE",
             releaseType: 'prerelease'
           }]
@@ -59,18 +59,18 @@ module.exports = {
           target: ["nsis"],
           publish: [{
             provider: "github",
-            owner: "yatt-ai",
+            owner: "dacoaster",
             repo: "YATTIE",
             releaseType: 'prerelease'
           }]
         },
         linux: {
           icon: "icons/linux",
-          target: ["AppImage", "tar.gz"],
+          target: ["AppImage"],
           category: "Development",
           publish: [{
             provider: "github",
-            owner: "yatt-ai",
+            owner: "dacoaster",
             repo: "YATTIE",
             releaseType: 'prerelease'
           }]

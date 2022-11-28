@@ -3,16 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "main": "background.js",
-  "engines" : { 
-    "npm" : ">=8.0.0 <9.0.0",
-    "node" : ">=16.0.0 <17.0.0"
+  "engines": {
+    "npm": ">=8.0.0 <9.0.0",
+    "node": ">=16.0.0 <17.0.0"
   },
   "keywords": [],
   "author": {
     "name": "YATT",
     "email": "contact@yatt.ai"
   },
-  "license" : "MIT",
+  "license": "MIT",
   "scripts": {
     "serve": "vue-cli-service serve",
     "test:unit": "vue-cli-service test:unit",
@@ -24,7 +24,6 @@
     "publish": "vue-cli-service electron:build -p always"
   },
   "dependencies": {
-    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@fortawesome/fontawesome-free": "^6.2.1",
     "@johmun/vue-tags-input": "^2.1.0",
     "@tinymce/tinymce-vue": "^3.2.0",
@@ -35,6 +34,8 @@
     "dayjs": "^1.11.5",
     "detect-file-type": "^0.2.8",
     "extract-zip": "^2.0.1",
+    "ffmpeg-static": "^5.1.0",
+    "ffprobe-static": "^3.1.0",
     "fluent-ffmpeg": "^2.1.2",
     "lodash": "^4.17.21",
     "simple-json-db": "^2.0.0",

@@ -149,16 +149,17 @@ export default {
       this.item = value;
     },
     async handleDiscard() {
-      await window.ipc
-        .invoke(IPC_HANDLERS.CAPTURE, {
-          func: IPC_FUNCTIONS.DELETE_FILE,
-          data: { filePath: this.item.filePath },
-        })
-        .then(() => {
-          window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-            func: IPC_FUNCTIONS.CLOSE_ADD_WINDOW,
-          });
-        });
+      await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.DELETE_FILE,
+        data: { filePath: this.item.filePath },
+      });
+      await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.DELETE_FILE,
+        data: { filePath: this.item.poster },
+      });
+      window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.CLOSE_ADD_WINDOW,
+      });
     },
     handleSave() {
       this.triggerSaveEvent = !this.triggerSaveEvent;

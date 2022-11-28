@@ -115,7 +115,11 @@
               v-on="on"
               @click="pauseSession()"
             >
-              <v-icon> mdi-pause </v-icon>
+              <img
+                :src="require('../assets/icon/pause.svg')"
+                width="24"
+                height="24"
+              />
             </v-btn>
           </template>
           <span>Pause Session</span>
@@ -686,15 +690,12 @@ export default {
     },
     async startRecordVideo() {
       this.handleStream = (stream) => {
-        let recordedChunks = [];
-
-        const option = {
-          mimeType: "video/webm; codecs=vp9",
-        };
-
-        mediaRecorder = new MediaRecorder(stream, option);
+        mediaRecorder = new MediaRecorder(stream, {
+          mimeType: "video/webm;codecs=h264",
+        });
 
         let poster;
+        let frames = [];
 
         mediaRecorder.onstart = () => {
           this.recordVideoStarted = true;
@@ -718,41 +719,39 @@ export default {
                 poster = filePath;
               });
           };
-
-          mediaRecorder.ondataavailable = (e) => {
-            if (e.data.size > 0) {
-              recordedChunks.push(e.data);
-            }
-          };
-
-          mediaRecorder.onstop = async () => {
-            this.recordVideoStarted = false;
-            const blob = new Blob(recordedChunks, {
-              type: "video/webm; codecs=vp9 ",
-            });
-            const buffer = await blob.arrayBuffer();
-            if (window.ipc) {
-              await window.ipc
-                .invoke(IPC_HANDLERS.CAPTURE, {
-                  func: IPC_FUNCTIONS.CREATE_VIDEO,
-                  data: { buffer: buffer },
-                })
-                .then(({ fileName, filePath }) => {
-                  const data = {
-                    sessionType: "video",
-                    fileType: "video",
-                    fileName: fileName,
-                    filePath: filePath,
-                    poster: poster,
-                    time: this.timer,
-                  };
-                  this.openAddWindow(data);
-                });
-            }
-          };
-
-          recordedChunks = [];
         };
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            frames.push(e.data);
+          }
+        };
+
+        mediaRecorder.onstop = async () => {
+          this.recordVideoStarted = false;
+          const blob = new Blob(frames, { type: "video/webm;codecs=h264" });
+          const buffer = await blob.arrayBuffer();
+          if (window.ipc) {
+            await window.ipc
+              .invoke(IPC_HANDLERS.CAPTURE, {
+                func: IPC_FUNCTIONS.CREATE_VIDEO,
+                data: { buffer: buffer },
+              })
+              .then(({ fileName, filePath }) => {
+                const data = {
+                  sessionType: "video",
+                  fileType: "video",
+                  fileName: fileName,
+                  filePath: filePath,
+                  poster: poster,
+                  time: this.timer,
+                };
+                this.openAddWindow(data);
+              });
+          }
+        };
+
+        frames = [];
 
         mediaRecorder.start(1000);
       };

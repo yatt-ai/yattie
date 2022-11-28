@@ -12,8 +12,18 @@ const dayjs = require("dayjs");
 const detect = require("detect-file-type");
 
 const ffmpeg = require("fluent-ffmpeg");
-const ffmpegInstaller = require("@ffmpeg-installer/ffmpeg");
-ffmpeg.setFfmpegPath(ffmpegInstaller.path);
+
+const ffmpegPath = require("ffmpeg-static").replace(
+  "app.asar",
+  "app.asar.unpacked"
+);
+const ffprobePath = require("ffprobe-static").path.replace(
+  "app.asar",
+  "app.asar.unpacked"
+);
+
+ffmpeg.setFfmpegPath(ffmpegPath);
+ffmpeg.setFfprobePath(ffprobePath.path);
 
 const { STATUSES } = require("./constants");
 
