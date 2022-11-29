@@ -40,11 +40,17 @@ jobs:
         cache: 'npm'
     - name: install dependencies
       run:  yarn install
+    - name: Prep key for app notarization
+      run: |
+        mkdir -p ~/private_keys/
+        echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
     - name: publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         CSC_LINK: ${{ secrets.mac_csc_link }}
         CSC_KEY_PASSWORD: ${{ secrets.mac_csc_key_password }}
+        API_KEY_ID: ${{ secrets.api_key_id }}
+        API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
       run: npm run publish
       
   publish_on_win:
