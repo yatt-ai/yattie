@@ -22,6 +22,7 @@ module.exports = {
           output: "release",
           buildResources: "public",
         },
+        afterSign: "electron-builder-notarize",
         dmg: {
           icon: false,
           contents: [
@@ -45,6 +46,7 @@ module.exports = {
           }]
         },
         mac: {
+          hardenedRuntime: true,
           icon: "icons/icon.icns",
           category: "public.app-category.developer-tools",
           publish: [{
