@@ -98,7 +98,7 @@
 
 <script>
 import WaveSurfer from "wavesurfer.js";
-
+import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 export default {
   name: "AudioWrapper",
   props: {
@@ -106,11 +106,22 @@ export default {
       type: Object,
       default: () => {},
     },
+    triggerSave: {
+      type: Boolean,
+      default: () => false,
+    },
   },
   data: () => ({
     wavesurfer: null,
     volume: 20,
   }),
+  watch: {
+    triggerSave: function (oldValue, newValue) {
+      if (oldValue !== newValue) {
+        this.handleAudio(true);
+      }
+    },
+  },
   computed: {
     isPlaying() {
       if (!this.wavesurfer) return false;
@@ -174,6 +185,21 @@ export default {
         this.wavesurfer.setMute(false);
       }
       this.wavesurfer.setVolume(volume);
+    },
+    async handleAudio() {
+      let item;
+      const uri = this.wavesurfer.exportImage("image/png", 1, "dataURL");
+
+      await window.ipc
+        .invoke(IPC_HANDLERS.CAPTURE, {
+          func: IPC_FUNCTIONS.CREATE_IMAGE,
+          data: { url: uri },
+        })
+        .then(({ filePath }) => {
+          item = { ...this.item, poster: filePath };
+        });
+
+      this.$root.$emit("save-data", item);
     },
   },
 };

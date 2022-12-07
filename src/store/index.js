@@ -3,8 +3,8 @@ import Vuex from "vuex";
 
 import {
   SESSION_STATUSES,
-  MAP_NODES,
-  MAP_CONNECTIONS,
+  DEFAULT_CHARTER_MAP_NODES,
+  DEFAULT_CHARTER_MAP_CONNECTIONS,
 } from "../modules/constants";
 
 Vue.use(Vuex);
@@ -17,8 +17,8 @@ export default new Vuex.Store({
       text: "",
     },
     mindmap: {
-      nodes: MAP_NODES,
-      connections: MAP_CONNECTIONS,
+      nodes: DEFAULT_CHARTER_MAP_NODES,
+      connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
     },
     precondition: {
       content: "",

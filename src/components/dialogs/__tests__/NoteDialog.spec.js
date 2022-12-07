@@ -20,6 +20,17 @@ describe("NoteDialog.vue", () => {
 
     const App = localVue.component("App", {
       components: { NoteDialog },
+      propsData: {
+        configItem: {
+          commentType: "",
+          templates: [
+            {
+              precondition: { comment: "", text: "" },
+              type: "Note",
+            },
+          ],
+        },
+      },
       data() {
         return {
           dialog: false,

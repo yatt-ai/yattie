@@ -3,39 +3,20 @@
     class="d-flex flex-column"
     style="width: 100%; height: 100%; row-gap: 10px"
   >
-    <tui-image-editor
-      ref="tuiImageEditor"
-      :options="options"
-    ></tui-image-editor>
-    <div class="d-flex justify-end">
-      <v-btn class="mr-2 text-capitalize" fill small color="white">
-        Cancel
-      </v-btn>
-      <v-btn
-        class="text-capitalize"
-        fill
-        small
-        color="primary"
-        @click="() => handleImage(false)"
-      >
-        Apply
-      </v-btn>
-    </div>
+    <div class="image-editor" ref="imageEditor"></div>
   </div>
 </template>
 
 <script>
-import "tui-color-picker/dist/tui-color-picker.css";
+import ImageEditor from "tui-image-editor";
 import "tui-image-editor/dist/tui-image-editor.css";
-import { ImageEditor } from "@toast-ui/vue-image-editor";
+import "tui-color-picker/dist/tui-color-picker.css";
 
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 
 export default {
   name: "EditorPanel",
-  components: {
-    "tui-image-editor": ImageEditor,
-  },
+  components: {},
   props: {
     item: {
       type: Object,
@@ -49,6 +30,9 @@ export default {
   watch: {
     item: function (newValue) {
       this.sessionItem = newValue;
+      this.imageEditorInst.destroy();
+      this.imageEditorInst = null;
+      this.handleEditor();
     },
     triggerSave: function (oldValue, newValue) {
       if (oldValue !== newValue) {
@@ -59,34 +43,45 @@ export default {
   data() {
     return {
       sessionItem: this.item,
-      useDefaultUI: false,
-      options: {
-        cssMaxHeight: 300,
-        includeUI: {
-          loadImage: {
-            path: `file://${this.item.filePath}`,
-            name: "image",
-          },
-          uiSize: {
-            width: "100%",
-            height: "600px",
-          },
-          selectionStyle: {
-            cornerSize: 20,
-            rotatingPointOffset: 70,
-          },
-          usageStatistics: false,
-          menuBarPosition: "bottom",
-          menu: ["draw", "shape", "resize", "text", "crop"],
-          initMenu: "",
-        },
-      },
+      imageEditorInst: null,
     };
   },
-  mounted() {},
+  mounted() {
+    this.handleEditor();
+  },
   methods: {
+    handleEditor() {
+      try {
+        const imgPath = `file://${this.sessionItem.filePath}`;
+        this.imageEditorInst = new ImageEditor(
+          document.querySelector(".image-editor"),
+          {
+            includeUI: {
+              loadImage: {
+                path: imgPath,
+                name: "image",
+              },
+              menu: ["draw", "shape", "resize", "text", "icon", "crop"],
+              initMenu: "",
+              uiSize: {
+                width: "100%",
+                height: "600px",
+              },
+              menuBarPosition: "bottom",
+            },
+            cssMaxHeight: 300,
+            selectionStyle: {
+              cornerSize: 20,
+              rotatingPointOffset: 70,
+            },
+          }
+        );
+      } catch (e) {
+        console.log(e);
+      }
+    },
     async handleImage(needCallback = false) {
-      const imgURI = this.$refs.tuiImageEditor.invoke("toDataURL");
+      const imgURI = this.imageEditorInst.toDataURL();
       window.ipc
         .invoke(IPC_HANDLERS.CAPTURE, {
           func: IPC_FUNCTIONS.UPDATE_IMAGE,
@@ -94,31 +89,11 @@ export default {
         })
         .then((result) => {
           this.sessionItem = result;
+          this.$root.$emit("update-session", this.sessionItem);
           if (needCallback) {
-            this.$root.$emit("save-data", this.sessionItem);
+            this.$root.$emit("save-data");
           }
         });
-
-      // const byteString = atob(dataURL.split(",")[1]);
-      // const mimeString = dataURL.split(",")[0].split(":")[1].split(";")[0];
-      // const ab = new ArrayBuffer(byteString.length);
-      // const ia = new Uint8Array(ab);
-      // for (let i = 0; i < byteString.length; i++) {
-      //   ia[i] = byteString.charCodeAt(i);
-      // }
-      // const blob = new Blob([ab], { type: mimeString });
-      // const buffer = await blob.arrayBuffer();
-      // await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-      //   func: IPC_FUNCTIONS.UPDATE_USER_MEDIA,
-      //   data: {
-      //     buffer: buffer,
-      //     filePath: this.sessionItem.filePath,
-      //     fileName: this.sessionItem.fileName,
-      //   },
-      // });
-      // if (needCallback) {
-      //   this.$root.$emit("save-data", this.sessionItem);
-      // }
     },
   },
 };

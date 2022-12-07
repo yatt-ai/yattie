@@ -3,6 +3,7 @@ export const IPC_HANDLERS = {
   DATABASE: "database",
   FILE_SYSTEM: "fileSystem",
   STORE: "store",
+  MENU: "menu",
 };
 
 export const IPC_FUNCTIONS = {
@@ -14,6 +15,7 @@ export const IPC_FUNCTIONS = {
   UPDATE_VIDEO: "updateVideo",
   DELETE_FILE: "deleteFile",
   UPLOAD_EVIDENCE: "uploadEvidence",
+  CREATE_AUDIO: "createAudio",
   CREATE_TEMP_USER_MEDIA: "createTempUserMedia",
   SAVE_USER_MEDIA: "saveUserMedia",
   UPDATE_USER_MEDIA: "updateUserMedia",
@@ -24,6 +26,8 @@ export const IPC_FUNCTIONS = {
   CLOSE_EDIT_WINDOW: "closeEditWindow",
   OPEN_SETTING_WINDOW: "openSettingWindow",
   CLOSE_SETTING_WINDOW: "closeSettingWindow",
+  OPEN_MINIMIZE_WINDOW: "openMinimizeWindow",
+  CLOSE_MINIMIZE_WINDOW: "closeMinimizeWindow",
   SET_WINDOW_SIZE: "setWindowSize",
   GET_IMAGE_DATA: "getImageData",
   SET_APPERANCE: "setApperance",
@@ -40,6 +44,8 @@ export const IPC_FUNCTIONS = {
   SAVE_SESSION: "saveSession",
   OPEN_SESSION: "openSession",
   EXPORT_SESSION: "exportSession",
+
+  CHANGE_MENUITEM_STATUS: "changeMenuItemStatus",
 };
 
 export const STATUSES = {
@@ -57,7 +63,14 @@ export const SESSION_STATUSES = {
   END: "end",
 };
 
-export const SESSION_TYPES = ["Screenshot", "Video", "Audio", "Note"];
+export const SESSION_TYPES = [
+  "Screenshot",
+  "Video",
+  "Audio",
+  "Note",
+  "File",
+  "Mindmap",
+];
 
 export const TEXT_TYPES = [
   "Comment",
@@ -67,71 +80,69 @@ export const TEXT_TYPES = [
   "Question",
   "Concern",
   "Positive",
+  "Summary",
 ];
 
-export const MAP_NODES = [
+export const VIDEO_RESOLUTION = [
+  {
+    type: "high",
+    width: 1920,
+    height: 1080,
+  },
+  {
+    type: "standard",
+    width: 1024,
+    height: 768,
+  },
+  {
+    type: "low",
+    width: 640,
+    height: 480,
+  },
+];
+
+export const DEFAULT_CHARTER_MAP_NODES = [
   {
     id: "5e274797-4db7-4fe8-a983-8b8abf8771c5",
-    text: "Exploratory Test",
+    text: "System Under Test",
     url: "https://features.yattie.ai",
     fx: -210.9125181819311,
     fy: -583.1010883631283,
   },
   {
     id: "4763495c-62b7-4625-9083-2d40045b6550",
-    text: "Nav Dropdown",
+    text: "Feature #1",
     fx: 99.1983655368465,
     fy: -582.6407249084972,
   },
-  {
-    id: "02441b12-6ef7-4316-a560-9fff8166c50b",
-    text: "Profile",
-    fx: 401.48698934678123,
-    fy: -580.086170175959,
-  },
-  {
-    id: "ab3d94cc-59c9-43be-ac16-161d25538ba5",
-    text: "Settings",
-    fx: 404.99180349461017,
-    fy: -474.9312827698253,
-  },
-  {
-    id: "1bca0f6d-cb21-470c-b5a9-40c88b7ced6b",
-    text: "Notifications",
-    fx: 405.421819058575,
-    fy: -369.3725364319347,
-  },
-  {
-    id: "6ea5b16c-8cf5-4bc3-8338-4837971c3493",
-    text: "Logout",
-    fx: 408.2212003146785,
-    fy: -256.08161235966907,
-  },
 ];
 
-export const MAP_CONNECTIONS = [
+export const DEFAULT_CHARTER_MAP_CONNECTIONS = [
   {
     source: "5e274797-4db7-4fe8-a983-8b8abf8771c5",
     target: "4763495c-62b7-4625-9083-2d40045b6550",
   },
+];
+
+export const DEFAULT_MAP_NODES = [
   {
-    source: "4763495c-62b7-4625-9083-2d40045b6550",
-    target: "02441b12-6ef7-4316-a560-9fff8166c50b",
+    id: "5e274797-4db7-4fe8-a983-8b8abf8771c5",
+    text: "Mind Map",
+    url: "https://features.yattie.ai",
+    fx: -210.9125181819311,
+    fy: -583.1010883631283,
   },
   {
-    source: "4763495c-62b7-4625-9083-2d40045b6550",
-    target: "ab3d94cc-59c9-43be-ac16-161d25538ba5",
+    id: "4763495c-62b7-4625-9083-2d40045b6550",
+    text: "First Node",
+    fx: 99.1983655368465,
+    fy: -582.6407249084972,
   },
+];
+
+export const DEFAULT_MAP_CONNECTIONS = [
   {
-    source: "4763495c-62b7-4625-9083-2d40045b6550",
-    target: "ab3d94cc-59c9-43be-ac16-161d25538ba5",
-  },
-  {
-    source: "4763495c-62b7-4625-9083-2d40045b6550",
-    target: "1bca0f6d-cb21-470c-b5a9-40c88b7ced6b",
-  },
-  {
-    source: "4763495c-62b7-4625-9083-2d40045b6550",
-    target: "6ea5b16c-8cf5-4bc3-8338-4837971c3493",
+    source: "5e274797-4db7-4fe8-a983-8b8abf8771c5",
+    target: "4763495c-62b7-4625-9083-2d40045b6550",
   },
 ];

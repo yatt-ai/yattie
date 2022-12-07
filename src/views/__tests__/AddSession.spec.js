@@ -1,5 +1,5 @@
 import Vuetify from "vuetify";
-import EditView from "../EditView";
+import AddSession from "../AddSession";
 import ReviewWrapper from "../../components/ReviewWrapper";
 import TextEditor from "../../components/TextEditor";
 
@@ -7,9 +7,9 @@ import { mount } from "@vue/test-utils";
 
 const vuetify = new Vuetify();
 
-describe("EditView.vue", () => {
+describe("AddSession.vue", () => {
   test("loads editor view", () => {
-    const wrapper = mount(EditView, {
+    const wrapper = mount(AddSession, {
       data() {
         return {
           item: {
@@ -17,6 +17,12 @@ describe("EditView.vue", () => {
             comment: {
               type: "",
             },
+          },
+          config: {},
+          comment: {
+            type: "",
+            content: "",
+            text: "",
           },
         };
       },
@@ -43,7 +49,7 @@ describe("EditView.vue", () => {
   });
 
   test('triggers a click on "Discard" button', async () => {
-    const wrapper = mount(EditView, {
+    const wrapper = mount(AddSession, {
       data() {
         return {
           item: {
@@ -52,6 +58,13 @@ describe("EditView.vue", () => {
               type: "",
             },
           },
+          config: {},
+          comment: {
+            type: "",
+            content: "",
+            text: "",
+          },
+          processing: false,
         };
       },
       stubs: ["router-link"],
@@ -68,7 +81,7 @@ describe("EditView.vue", () => {
   });
 
   test('triggers a click on "Save" button', async () => {
-    const wrapper = mount(EditView, {
+    const wrapper = mount(AddSession, {
       data() {
         return {
           item: {
@@ -77,6 +90,13 @@ describe("EditView.vue", () => {
               type: "",
             },
           },
+          config: {},
+          comment: {
+            type: "",
+            content: "",
+            text: "",
+          },
+          processing: false,
         };
       },
       stubs: ["router-link"],
@@ -92,8 +112,8 @@ describe("EditView.vue", () => {
     expect(event).toHaveBeenCalled();
   });
 
-  it('Click on "Clear" button calls "handleClear" method', async () => {
-    const wrapper = mount(EditView, {
+  it('trigger the click event of "Clear" button', async () => {
+    const wrapper = mount(AddSession, {
       data() {
         return {
           item: {
@@ -102,6 +122,13 @@ describe("EditView.vue", () => {
               type: "",
             },
           },
+          config: {},
+          comment: {
+            type: "",
+            content: "",
+            text: "",
+          },
+          processing: false,
         };
       },
       stubs: ["router-link"],

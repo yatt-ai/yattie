@@ -2,6 +2,14 @@ import Vuetify from "vuetify";
 import Vuex from "vuex";
 
 import ControlPanel from "../ControlPanel.vue";
+import SourcePickerDialog from "../dialogs/SourcePickerDialog.vue";
+import NoteDialog from "../dialogs/NoteDialog.vue";
+import DeleteConfirmDialog from "../dialogs/DeleteConfirmDialog.vue";
+import ResetConfirmDialog from "../dialogs/ResetConfirmDialog.vue";
+import NewSessionDialog from "../dialogs/NewSessionDialog.vue";
+import DurationConfirmDialog from "../dialogs/DurationConfirmDialog.vue";
+import AudioErrorDialog from "../dialogs/AudioErrorDialog.vue";
+import EndSessionDialog from "../dialogs/EndSessionDialog.vue";
 import storeConfig from "@/store/store-config";
 
 import { mount, createLocalVue } from "@vue/test-utils";
@@ -28,6 +36,12 @@ describe("ControlPanel.vue", () => {
       data() {
         return dataInfo;
       },
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       localVue,
       store: {
         ...store,
@@ -37,6 +51,15 @@ describe("ControlPanel.vue", () => {
       },
       vuetify,
     });
+
+    expect(wrapper.findComponent(SourcePickerDialog).exists()).toBe(true);
+    expect(wrapper.findComponent(NoteDialog).exists()).toBe(true);
+    expect(wrapper.findComponent(DeleteConfirmDialog).exists()).toBe(true);
+    expect(wrapper.findComponent(ResetConfirmDialog).exists()).toBe(true);
+    expect(wrapper.findComponent(NewSessionDialog).exists()).toBe(true);
+    expect(wrapper.findComponent(DurationConfirmDialog).exists()).toBe(true);
+    expect(wrapper.findComponent(AudioErrorDialog).exists()).toBe(true);
+    expect(wrapper.findComponent(EndSessionDialog).exists()).toBe(true);
 
     expect(wrapper.find("#btn_new_session").exists()).toBe(true);
     expect(wrapper.find("#btn_new_session").text()).toContain(
@@ -50,6 +73,12 @@ describe("ControlPanel.vue", () => {
         return {
           selected: ["selected"],
         };
+      },
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
       },
       localVue,
       store: {
@@ -71,6 +100,12 @@ describe("ControlPanel.vue", () => {
         return {
           selected: ["selected"],
         };
+      },
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
       },
       localVue,
       store: {
@@ -105,6 +140,12 @@ describe("ControlPanel.vue", () => {
           selected: ["selected"],
         };
       },
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       localVue,
       store: {
         ...store,
@@ -123,6 +164,12 @@ describe("ControlPanel.vue", () => {
 
   test('trigger the click event of "new session" button', () => {
     const wrapper = mount(ControlPanel, {
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       localVue,
       store: {
         ...store,
@@ -148,6 +195,12 @@ describe("ControlPanel.vue", () => {
         return {
           selected: ["selected"],
         };
+      },
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
       },
       localVue,
       store: {
@@ -175,6 +228,12 @@ describe("ControlPanel.vue", () => {
           selected: ["selected"],
         };
       },
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       localVue,
       store: {
         ...store,
@@ -196,6 +255,12 @@ describe("ControlPanel.vue", () => {
 
   test('trigger the click event of "resume" button', () => {
     const wrapper = mount(ControlPanel, {
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       localVue,
       store: {
         ...store,
@@ -217,6 +282,12 @@ describe("ControlPanel.vue", () => {
 
   test('trigger the click event of "plus" button', () => {
     const wrapper = mount(ControlPanel, {
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       localVue,
       store: {
         ...store,
@@ -238,6 +309,12 @@ describe("ControlPanel.vue", () => {
 
   test('trigger the click event of "reset" button', () => {
     const wrapper = mount(ControlPanel, {
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       localVue,
       store: {
         ...store,
@@ -259,6 +336,12 @@ describe("ControlPanel.vue", () => {
 
   test('trigger the click event of "pause session" button', () => {
     const wrapper = mount(ControlPanel, {
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       localVue,
       store: {
         ...store,
@@ -280,6 +363,12 @@ describe("ControlPanel.vue", () => {
 
   test('trigger the click event of "resume session" button', () => {
     const wrapper = mount(ControlPanel, {
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       localVue,
       store: {
         ...store,
@@ -301,6 +390,12 @@ describe("ControlPanel.vue", () => {
 
   test('trigger the click event of "end session" button', () => {
     const wrapper = mount(ControlPanel, {
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       localVue,
       store: {
         ...store,
@@ -326,6 +421,12 @@ describe("ControlPanel.vue", () => {
         return {
           recordVideoStarted: false,
         };
+      },
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
       },
       localVue,
       store: {
@@ -353,6 +454,12 @@ describe("ControlPanel.vue", () => {
           recordVideoStarted: true,
         };
       },
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       localVue,
       store: {
         ...store,
@@ -374,6 +481,12 @@ describe("ControlPanel.vue", () => {
 
   test('trigger the click event of "screenshot" button', async () => {
     const wrapper = mount(ControlPanel, {
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       localVue,
       store: {
         ...store,
@@ -401,6 +514,12 @@ describe("ControlPanel.vue", () => {
           recordAudioStarted: false,
         };
       },
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       store: {
         ...store,
         state: {
@@ -426,6 +545,12 @@ describe("ControlPanel.vue", () => {
           recordAudioStarted: true,
         };
       },
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       localVue,
       store: {
         ...store,
@@ -447,6 +572,12 @@ describe("ControlPanel.vue", () => {
 
   test('trigger the click event of "note" button', async () => {
     const wrapper = mount(ControlPanel, {
+      propsData: {
+        postSessionData: {
+          status: true,
+          tasks: [],
+        },
+      },
       localVue,
       store: {
         ...store,

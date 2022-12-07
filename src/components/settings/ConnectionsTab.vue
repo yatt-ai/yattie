@@ -1,13 +1,13 @@
 <template>
   <v-container class="content-wrapper">
     <v-row>
-      <v-col cols="12" class="border-bottom pa-4">
+      <v-col cols="12" class="border-bottom pa-4 ext-conn-section">
         <p class="body-1">EXTERNAL CONNECTIONS</p>
         <a class="jira-link" href="#">Connect to a TestRail instance</a>
         <p></p>
         <a class="jira-link" href="#">Connect to a JIRA instance</a>
       </v-col>
-      <v-col cols="12" class="border-bottom pa-4">
+      <v-col cols="12" class="border-bottom pa-4 app-role-section">
         <div class="d-flex align-start">
           <div class="flex-grow-1">
             <p class="subtitle-1 mb-2">Use the app locally only</p>
@@ -21,12 +21,12 @@
               inset
               hide-details
               dense
-              class="mt-0 pt-0"
+              class="mt-0 pt-0 switch-control"
             ></v-switch>
           </div>
         </div>
       </v-col>
-      <v-col cols="12" class="border-bottom pa-4">
+      <!--<v-col cols="12" class="border-bottom pa-4 color-panel-section">
         <p class="subtitle-1 mb-4">YATT</p>
         <p class="body-1">Add Color</p>
         <v-text-field
@@ -56,7 +56,7 @@
           </template>
         </v-text-field>
       </v-col>
-      <v-col cols="12" class="pa-4">
+      <v-col cols="12" class="pa-4 cur-org-section">
         <p class="body-1">Current Organizations</p>
         <div class="d-flex flex-column" style="row-gap: 5px">
           <div class="d-flex align-center">
@@ -95,7 +95,7 @@
             </v-btn>
           </div>
         </div>
-      </v-col>
+      </v-col>-->
     </v-row>
   </v-container>
 </template>

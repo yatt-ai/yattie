@@ -3,7 +3,7 @@
     <v-sheet outlined color="accent" rounded>
       <v-card>
         <CheckTaskWrapper
-          :tasks="postSessionData?.tasks"
+          :tasks="tasks"
           :showError="showTaskError"
           type="postsession"
         />
@@ -11,7 +11,7 @@
           <v-btn
             block
             color="primary text-capitalize white__text"
-            class=""
+            class="btn-end"
             @click="endSession"
           >
             End Session
@@ -33,6 +33,11 @@ export default {
     postSessionData: {
       type: Object,
       default: () => {},
+    },
+  },
+  computed: {
+    tasks() {
+      return this.postSessionData ? this.postSessionData.tasks : [];
     },
   },
   data() {

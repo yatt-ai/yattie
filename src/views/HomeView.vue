@@ -45,7 +45,12 @@
 <script>
 import { VContainer, VBtn } from "vuetify/lib/components";
 import LogoWrapper from "../components/LogoWrapper.vue";
-import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
+import {
+  IPC_HANDLERS,
+  IPC_FUNCTIONS,
+  STATUSES,
+  // SESSION_STATUSES,
+} from "../modules/constants";
 export default {
   name: "HomeView",
   components: {
@@ -58,6 +63,8 @@ export default {
   },
   methods: {
     async openSession() {
+      if (!window.ipc) return;
+
       const { status, message, metadata } = await window.ipc.invoke(
         IPC_HANDLERS.FILE_SYSTEM,
         {

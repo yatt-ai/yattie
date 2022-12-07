@@ -27,7 +27,8 @@ export default {
     },
     triggerSave: function (newValue) {
       if (newValue) {
-        this.$root.$emit("save-data", this.sessionItem);
+        this.$root.$emit("update-session", this.sessionItem);
+        this.$root.$emit("save-data");
       }
     },
   },

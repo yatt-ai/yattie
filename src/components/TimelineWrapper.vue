@@ -29,7 +29,7 @@
             >
               <div v-for="(item, i) in itemLists" :key="i" :class="`drag-item`">
                 <v-timeline-item
-                  v-if="item.sessionType === 'screenshot'"
+                  v-if="item.sessionType === 'Screenshot'"
                   color="primary"
                   icon="mdi-camera-plus"
                   fill-dot
@@ -72,7 +72,7 @@
                   </div>
                 </v-timeline-item>
                 <v-timeline-item
-                  v-if="item.sessionType === 'video'"
+                  v-if="item.sessionType === 'Video'"
                   color="primary"
                   icon="mdi-video"
                   fill-dot
@@ -115,7 +115,7 @@
                   </div>
                 </v-timeline-item>
                 <v-timeline-item
-                  v-if="item.sessionType === 'audio'"
+                  v-if="item.sessionType === 'Audio'"
                   color="primary"
                   icon="mdi-microphone"
                   fill-dot
@@ -141,7 +141,7 @@
                       @click="handleItemClick(item.id)"
                     >
                       <div class="audio-wave">
-                        <span>Audio Wave</span>
+                        <img :src="item.poster" />
                       </div>
                       <div class="audio-play">
                         <v-icon medium>mdi-play-circle</v-icon>
@@ -159,7 +159,7 @@
                   </div>
                 </v-timeline-item>
                 <v-timeline-item
-                  v-if="item.sessionType === 'note'"
+                  v-if="item.sessionType === 'Note'"
                   color="primary"
                   icon="mdi-pencil"
                   fill-dot
@@ -203,7 +203,7 @@
                   </div>
                 </v-timeline-item>
                 <v-timeline-item
-                  v-if="item.sessionType === 'file'"
+                  v-if="item.sessionType === 'File'"
                   color="primary"
                   icon="mdi-file"
                   fill-dot
@@ -259,12 +259,12 @@
                   </div>
                 </v-timeline-item>
                 <v-timeline-item
-                  v-if="item.sessionType === 'mindmap'"
+                  v-if="item.sessionType === 'Mindmap'"
                   color="primary"
                   icon="mdi-camera-plus"
                   fill-dot
                 >
-                  <div class="d-flex flex-column">
+                  <div class="d-flex flex-column map-wrapper">
                     <div class="d-flex justify-space-between py-2">
                       <div class="duration-text">
                         <v-icon>mdi-clock-outline</v-icon>
@@ -297,6 +297,35 @@
                             ? item.comment.type + ": " + item.comment.text
                             : ""
                         }}
+                      </span>
+                    </div>
+                  </div>
+                </v-timeline-item>
+                <v-timeline-item
+                  v-if="item.sessionType === 'Summary' && item.comment.text"
+                  color="primary"
+                  icon="mdi-pencil"
+                  fill-dot
+                >
+                  <div class="d-flex flex-column">
+                    <div class="d-flex justify-space-between py-2">
+                      <div class="duration-text">
+                        <v-icon>mdi-clock-outline</v-icon>
+                        <span>{{ calculateTime(item.time) }}</span>
+                      </div>
+                      <div class="d-flex align-center">
+                        <input
+                          type="checkbox"
+                          class="item-select"
+                          :value="item.id"
+                          :checked="checkedItem(item.id)"
+                          @change="handleSelected($event, item.id)"
+                        />
+                      </div>
+                    </div>
+                    <div class="note-wrapper" @click="handleItemClick(item.id)">
+                      <span class="comment-type"
+                        >{{ item.comment.type + ": " + item.comment.text }}
                       </span>
                     </div>
                   </div>
@@ -413,6 +442,8 @@ export default {
   },
   methods: {
     async uploadEvidence() {
+      if (!window.ipc) return;
+
       const { status, error, result } = await window.ipc.invoke(
         IPC_HANDLERS.CAPTURE,
         {
@@ -424,7 +455,7 @@ export default {
         console.log(error);
       } else {
         const data = {
-          sessionType: "file",
+          sessionType: "File",
           fileType: result.fileType,
           fileName: result.fileName,
           filePath: result.filePath,
@@ -434,6 +465,8 @@ export default {
       }
     },
     async openEditorModal(data) {
+      if (!window.ipc) return;
+
       await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
         func: IPC_FUNCTIONS.OPEN_ADD_WINDOW,
         data: { width: 700, height: 800, data: data },
@@ -562,6 +595,9 @@ export default {
 }
 .audio-wrapper .audio-wave {
   flex-grow: 1;
+}
+.audio-wrapper .audio-wave img {
+  width: 100%;
 }
 .file-wrapper.image {
   position: relative;

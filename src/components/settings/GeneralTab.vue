@@ -1,12 +1,12 @@
 <template>
   <v-container class="content-wrapper">
     <v-row>
-      <v-col cols="12" class="border-bottom pa-4">
+      <v-col cols="12" class="border-bottom pa-4 theme-mode-section">
         <p class="body-1">Apperance</p>
         <v-radio-group
           v-model="setting.apperance"
           row
-          class="ma-0 pa-0"
+          class="ma-0 pa-0 radio-control"
           dense
           hide-details
           @change="handleApperance"
@@ -15,7 +15,60 @@
           <v-radio label="Dark mode" value="dark"></v-radio>
         </v-radio-group>
       </v-col>
-      <v-col cols="12" class="border-bottom pa-4">
+      <v-col cols="12" class="border-bottom pa-4 screen-recording-section">
+        <p class="body-1">Screen Recording</p>
+        <div class="d-flex align-start">
+          <div class="flex-grow-1">
+            <p class="subtitle-1 mb-2">Audio on screen capture</p>
+            <p class="caption mb-0">Catpure audio with screen recordings.</p>
+          </div>
+          <div class="flex-grow-0">
+            <v-switch
+              v-model="setting.audioCapture"
+              inset
+              hide-details
+              dense
+              class="mt-0 pt-0 switch-control"
+              @change="handleConfig"
+            ></v-switch>
+          </div>
+        </div>
+        <br />
+        <p class="subtitle-1 mb-2">Video capture quality</p>
+        <v-radio-group
+          v-model="setting.videoQuality"
+          class="ma-0 pa-0 radio-control"
+          dense
+          hide-details
+          @change="handleConfig"
+        >
+          <div class="d-flex align-start mb-4">
+            <div class="flex-grow-1">
+              <p class="caption mb-0">High quality Video</p>
+            </div>
+            <div class="flex-grow-0">
+              <v-radio value="high"></v-radio>
+            </div>
+          </div>
+          <div class="d-flex align-start mb-4">
+            <div class="flex-grow-1">
+              <p class="caption mb-0">Standard quality video</p>
+            </div>
+            <div class="flex-grow-0">
+              <v-radio value="standard"></v-radio>
+            </div>
+          </div>
+          <div class="d-flex align-start">
+            <div class="flex-grow-1">
+              <p class="caption mb-0">Low quality video</p>
+            </div>
+            <div class="flex-grow-0">
+              <v-radio value="low"></v-radio>
+            </div>
+          </div>
+        </v-radio-group>
+      </v-col>
+      <v-col cols="12" class="border-bottom pa-4 screenshot-section">
         <p class="body-1">Screenshots</p>
         <div class="d-flex align-start">
           <div class="flex-grow-1">
@@ -30,34 +83,14 @@
               inset
               hide-details
               dense
-              class="mt-0 pt-0"
+              class="mt-0 pt-0 switch-control"
               @change="handleConfig"
             ></v-switch>
           </div>
         </div>
       </v-col>
-      <v-col cols="12" class="border-bottom pa-4">
-        <p class="body-1">Screen Recording</p>
-        <div class="d-flex align-start"></div>
-      </v-col>
-      <v-col cols="12" class="pa-4">
+      <v-col cols="12" class="border-bottom pa-4 note-section">
         <p class="body-1">Notes</p>
-        <div class="d-flex align-start">
-          <div class="flex-grow-1">
-            <p class="subtitle-1 mb-2">Select Default note/comment type</p>
-          </div>
-          <v-select
-            :items="commentTypes"
-            v-model="setting.commentType"
-            placeholder="Comment Type"
-            solo
-            dense
-            hide-details="true"
-            @change="handleConfig"
-          ></v-select>
-        </div>
-      </v-col>
-      <v-col cols="12" class="border-bottom pa-4">
         <p class="subtitle-1 mb-2">Select Default note/comment type</p>
         <v-select
           :items="commentTypes"
@@ -68,73 +101,6 @@
           hide-details="true"
           @change="handleConfig"
         ></v-select>
-      </v-col>
-      <v-col cols="12" class="border-bottom pa-4">
-        <p class="subtitle-1 mb-4">Screen Recording</p>
-        <p class="body-1">Audio on video recording</p>
-        <div class="d-flex align-start">
-          <div class="flex-grow-1">
-            <p class="subtitle-1 mb-2">Audio on screen capture</p>
-            <p class="caption mb-0">Catpure audio with screen recordings.</p>
-          </div>
-          <div class="flex-grow-0">
-            <v-switch
-              v-model="setting.audioCapture"
-              inset
-              hide-details
-              dense
-              class="mt-0 pt-0"
-              @change="handleConfig"
-            ></v-switch>
-          </div>
-        </div>
-      </v-col>
-      <v-col cols="12" class="pa-4">
-        <p class="body-1">Video capture quality</p>
-        <v-radio-group
-          v-model="setting.videoQuality"
-          class="ma-0 pa-0"
-          dense
-          hide-details
-          @change="handleConfig"
-        >
-          <div class="d-flex align-start mb-4">
-            <div class="flex-grow-1">
-              <p class="subtitle-1 mb-2">High quality Video</p>
-              <p class="caption mb-0">
-                This will change the default color of the image annotation
-                tools.
-              </p>
-            </div>
-            <div class="flex-grow-0">
-              <v-radio value="high"></v-radio>
-            </div>
-          </div>
-          <div class="d-flex align-start mb-4">
-            <div class="flex-grow-1">
-              <p class="subtitle-1 mb-2">Standard quality video</p>
-              <p class="caption mb-0">
-                This will change the default color of the image annotation
-                tools.
-              </p>
-            </div>
-            <div class="flex-grow-0">
-              <v-radio value="standard"></v-radio>
-            </div>
-          </div>
-          <div class="d-flex align-start">
-            <div class="flex-grow-1">
-              <p class="subtitle-1 mb-2">Low quality video</p>
-              <p class="caption mb-0">
-                This will change the default color of the image annotation
-                tools.
-              </p>
-            </div>
-            <div class="flex-grow-0">
-              <v-radio value="low"></v-radio>
-            </div>
-          </div>
-        </v-radio-group>
       </v-col>
     </v-row>
   </v-container>
@@ -168,7 +134,7 @@ export default {
         content: "",
         text: "",
       },
-      commentTypes: TEXT_TYPES,
+      commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
     };
   },
   methods: {

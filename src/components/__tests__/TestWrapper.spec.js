@@ -4,6 +4,8 @@ import Vuetify from "vuetify";
 import { cloneDeep } from "lodash";
 
 import TestWrapper from "../TestWrapper";
+import TextEditor from "../TextEditor";
+import MindmapEditor from "../MindmapEditor";
 import storeConfig from "../../store/store-config";
 
 const vuetify = new Vuetify();
@@ -47,6 +49,13 @@ describe("TestWrapper.vue", () => {
     expect(wrapper.find(".timelimit .subtitle-2.label-text").text()).toContain(
       "Time limit"
     );
+
+    const charterTabWrapper = wrapper.find(".charter-tab");
+    expect(charterTabWrapper.findComponent(TextEditor).exists()).toBe(false);
+    expect(charterTabWrapper.findComponent(MindmapEditor).exists()).toBe(false);
+
+    const precondWrapper = wrapper.find(".pre-cond");
+    expect(precondWrapper.findComponent(TextEditor).exists()).toBe(true);
   });
 
   test('change the value of "Time limit" input box', async () => {
@@ -93,5 +102,28 @@ describe("TestWrapper.vue", () => {
     await titleInput.setValue("Test");
 
     expect(wrapper.vm.title).toBe("Test");
+  });
+
+  test('change the value of "Timelimit" input box', async () => {
+    const wrapper = mount(TestWrapper, {
+      data() {
+        return {
+          duration: "10:05",
+        };
+      },
+      localVue,
+      store: {
+        ...store,
+        state: {
+          ...store.state,
+        },
+      },
+      vuetify,
+    });
+
+    const timelimitInput = wrapper.find(".timelimit input");
+    await timelimitInput.setValue("10:00");
+
+    expect(wrapper.vm.duration).toBe("10:00");
   });
 });

@@ -70,7 +70,11 @@
           />
         </div>
         <div class="footer">
-          <ControlPanel :selectedItems="selected" />
+          <ControlPanel
+            :selectedItems="selected"
+            :items="items"
+            :configItem="config"
+          />
         </div>
       </v-col>
     </v-row>
@@ -104,16 +108,36 @@ export default {
   data() {
     return {
       items: [],
+      config: {},
       activeSession: {},
-      commentTypes: TEXT_TYPES,
+      commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
       type: "Comment",
       search: "",
       selected: [],
       autoSaveEvent: true,
+      postsession: {
+        tasks: [],
+      },
     };
   },
   created() {
     this.fetchItems();
+    this.getConfig();
+  },
+  mounted() {
+    this.$root.$on("submit-search", this.handleSearch);
+    this.$root.$on("update-selected", this.updateSelected);
+    this.$root.$on("save-data", this.updateActiveSession);
+    this.$root.$on("update-session", this.updateActiveSession);
+
+    if (!window.ipc) return;
+
+    window.ipc.on("DATA_CHANGE", () => {
+      this.fetchItems();
+    });
+    window.ipc.on("CONFIG_CHANGE", () => {
+      this.getConfig();
+    });
   },
   computed: {
     searchItems() {
@@ -129,14 +153,6 @@ export default {
       return tempItems;
     },
   },
-  mounted() {
-    this.$root.$on("submit-search", this.handleSearch);
-    this.$root.$on("update-selected", this.updateSelected);
-    this.$root.$on("save-data", this.updateActiveSession);
-    window.ipc.on("DATA_CHANGE", () => {
-      this.fetchItems();
-    });
-  },
   methods: {
     fetchItems() {
       if (!window.ipc) return;
@@ -147,19 +163,30 @@ export default {
           this.items = result;
         });
     },
+    async getConfig() {
+      if (!window.ipc) return;
+
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.GET_CONFIG,
+        })
+        .then((result) => {
+          this.config = result;
+        });
+    },
     handleSearch(val) {
       this.search = val;
     },
     handleComment({ content, text }) {
       this.activeSession.comment.content = content;
       this.activeSession.comment.text = text;
-      this.updateItems();
+      this.saveData();
     },
     handleCommentType(val) {
       this.activeSession.commentType = val;
-      this.updateItems();
+      this.saveData();
     },
-    updateItems() {
+    saveData() {
       this.items = this.items.map((item) => {
         let temp = Object.assign({}, item);
         if (temp.id === this.activeSession.id) {
@@ -167,6 +194,9 @@ export default {
         }
         return temp;
       });
+
+      if (!window.ipc) return;
+
       window.ipc.invoke(IPC_HANDLERS.DATABASE, {
         func: IPC_FUNCTIONS.UPDATE_ITEMS,
         data: this.items,
@@ -175,14 +205,14 @@ export default {
     handleClear() {
       this.activeSession.comment = "";
       this.activeSession.commentType = "Comment";
-      this.updateItems();
+      this.saveData();
     },
     updateSelected(value) {
       this.selected = value;
     },
     updateActiveSession(value) {
       this.activeSession = value;
-      this.updateItems();
+      this.saveData();
     },
   },
 };

@@ -4,7 +4,7 @@
       <v-card>
         <v-card-title class="dialog-title"> Take a Note</v-card-title>
         <v-divider></v-divider>
-        <v-container>
+        <v-container class="note-wrapper">
           <v-row>
             <v-col cols="12">
               <TextEditor
@@ -94,16 +94,46 @@ export default {
     TextEditor,
     VueTagsInput,
   },
-  props: {},
+  props: {
+    configItem: {
+      type: Object,
+      default: () => {},
+    },
+  },
+  watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
+
+      // set comment type by config
+      if (this.config.commentType && this.config.commentType !== "") {
+        this.comment.type = this.config.commentType;
+      }
+
+      // set templates by config
+      this.config.templates.map((item) => {
+        let temp = Object.assign({}, item);
+        if (temp.type === "Note") {
+          this.comment.content = temp.precondition.content;
+          this.comment.text = temp.precondition.text;
+        }
+      });
+    },
+  },
   data() {
     return {
+      config: this.configItem,
       comment: {
-        type: "Comment",
+        type:
+          this.conifgItem &&
+          this.configItem.commentType &&
+          this.configItem.commentType !== ""
+            ? this.configItem.commentType
+            : "Comment",
         content: "",
         text: "",
         tags: [],
       },
-      commentTypes: TEXT_TYPES,
+      commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
       tag: "",
       tags: [],
     };
@@ -116,7 +146,7 @@ export default {
       this.$root.$emit("close-notedialog");
     },
     handleSave() {
-      this.$emit("submit-note", this.comment);
+      this.$emit("submit-comment", this.comment);
     },
     handleClear() {
       this.comment.type = "Comment";

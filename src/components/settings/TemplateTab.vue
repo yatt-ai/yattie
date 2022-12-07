@@ -1,9 +1,14 @@
 <template>
   <v-container class="content-wrapper">
+    <div class="title">Note Templates</div>
+    <p class="subtitle-1 mb-4">
+      Improve your note taking and evidence labeling with pre-populated
+      templates
+    </p>
+
     <v-row>
       <v-col cols="12" class="pa-4">
-        <p class="subtitle-1 mb-4">Prefill Text for Screenshots</p>
-        <div class="mb-3">
+        <div class="mb-3 session-type">
           <p class="subtitle-1 mb-1">Apply to</p>
           <v-select
             :items="sessionTypes"
@@ -15,7 +20,7 @@
             @change="handleTemplate"
           ></v-select>
         </div>
-        <div class="mb-3">
+        <div class="mb-3 precond">
           <text-editor
             label="Preconditions"
             placeholder="Define required preconditions for this test."
@@ -24,7 +29,8 @@
             :height="150"
           />
         </div>
-        <div class="mb-3">
+        <!--
+        <div class="mb-3 issue">
           <div class="subtitle-2 label-text">Issue</div>
           <v-text-field
             placeholder="Enter a title for the project"
@@ -35,12 +41,12 @@
             hide-details="true"
           ></v-text-field>
         </div>
-        <div class="mb-7">
+        <div class="mb-7 bug">
           <div class="subtitle-2 label-text">Bug</div>
           <v-radio-group
             v-model="template.isBug"
             row
-            class="ma-0 pa-0"
+            class="ma-0 pa-0 radio-control"
             dense
             hide-details
           >
@@ -48,7 +54,8 @@
             <v-radio label="No" :value="false"></v-radio>
           </v-radio-group>
         </div>
-        <div>
+        -->
+        <div class="footer">
           <v-row>
             <v-col cols="6 pr-2">
               <v-btn

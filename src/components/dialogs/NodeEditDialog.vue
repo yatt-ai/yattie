@@ -8,7 +8,7 @@
             <v-text-field
               v-model="text"
               :rules="textRules"
-              label="Title"
+              label="Node Title"
               required
             ></v-text-field>
           </v-form>
@@ -48,7 +48,7 @@ export default {
     return {
       text: "",
       valid: false,
-      textRules: [(v) => !!v || "Title is required"],
+      textRules: [(v) => !!v || "Node title is required"],
     };
   },
   methods: {

@@ -36,6 +36,7 @@ module.exports.initializeSession = () => {
     audioCapture: false,
     videoQuality: "high",
     debugMode: false,
+    summary: false,
     templates: [
       {
         type: "Screenshot",
@@ -73,6 +74,24 @@ module.exports.initializeSession = () => {
         issue: "",
         isBug: false,
       },
+      {
+        type: "File",
+        precondition: {
+          content: "",
+          text: "",
+        },
+        issue: "",
+        isBug: false,
+      },
+      {
+        type: "Mindmap",
+        precondition: {
+          content: "",
+          text: "",
+        },
+        issue: "",
+        isBug: false,
+      },
     ],
     checklist: {
       presession: {
@@ -82,8 +101,8 @@ module.exports.initializeSession = () => {
       postsession: {
         tasks: [],
         status: false,
-      }
-    }
+      },
+    },
   };
 
   configDb = new JSONdb(path.join(configDir, "config.json"), jsonDbConfig);
@@ -168,16 +187,17 @@ module.exports.getItemById = (id) => {
 
 module.exports.getConfig = () => {
   try {
-    const config = configDb.get("config");
-    return Promise.resolve({ config: config, status: STATUSES.SUCCESS });
+    return configDb.get("config");
   } catch (error) {
-    return Promise.resolve({ config: {}, status: STATUSES.ERROR });
+    return {};
   }
 };
 
 module.exports.updateConfig = (config) => {
   try {
     configDb.set("config", config);
+    browserWindow = browserUtility.getBrowserWindow();
+    browserWindow.webContents.send("CONFIG_CHANGE");
   } catch (error) {
     console.log(error);
   }

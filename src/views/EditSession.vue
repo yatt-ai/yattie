@@ -45,6 +45,7 @@
           fill
           small
           color="white"
+          :disabled="processing"
           @click="handleDiscard"
         >
           Discard
@@ -54,6 +55,7 @@
           fill
           small
           color="primary"
+          :disabled="processing"
           @click="handleSave"
         >
           Save
@@ -79,32 +81,36 @@ export default {
     return {
       item: {},
       items: [],
+      config: {},
       comment: {
         type: "Comment",
         content: "",
         text: "",
       },
-      commentTypes: TEXT_TYPES,
+      commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
       processing: false,
       triggerSaveEvent: false,
     };
   },
   created() {
     this.fetchItems();
+    this.getConfig();
   },
   mounted() {
     if (!window.ipc) return;
 
     window.ipc.on("ACTIVE_SESSION", async (data) => {
-      const { config } = await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.GET_CONFIG,
-      });
-      const isDarkMode = config.apperance === "dark" ? true : false;
+      // set theme mode
+      const isDarkMode = this.config.apperance === "dark" ? true : false;
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode);
 
+      // set templates
       this.item = data;
+      this.processing = false;
     });
+    this.$root.$on("update-session", this.updateSession);
+    this.$root.$on("update-processing", this.updateProcessing);
     this.$root.$on("save-data", this.saveData);
   },
   methods: {
@@ -115,6 +121,25 @@ export default {
         .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_ITEMS })
         .then((result) => {
           this.items = result;
+        });
+    },
+
+    updateSession(value) {
+      this.item = value;
+    },
+    updateProcessing(value) {
+      console.log("new processing:", value);
+      this.processing = value;
+    },
+    async getConfig() {
+      if (!window.ipc) return;
+
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.GET_CONFIG,
+        })
+        .then((result) => {
+          this.config = result;
         });
     },
     updateComment({ content, text }) {
@@ -136,16 +161,11 @@ export default {
     async handleSave() {
       this.triggerSaveEvent = !this.triggerSaveEvent;
     },
-    async saveData(data) {
-      this.item = data;
+    async saveData() {
       this.items = this.items.map((item) => {
         let temp = Object.assign({}, item);
         if (temp.id === this.item.id) {
-          temp = {
-            ...this.item,
-            fileName: data.fileName,
-            filePath: data.filePath,
-          };
+          temp = this.item;
         }
         return temp;
       });

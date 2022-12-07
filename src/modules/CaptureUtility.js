@@ -4,6 +4,7 @@ const {
   dialog,
   desktopCapturer,
   BrowserWindow,
+  screen,
 } = require("electron");
 const browserUtility = require("./BrowserWindowUtility");
 const path = require("path");
@@ -29,7 +30,7 @@ const { STATUSES } = require("./constants");
 
 const configDir = (app || remote.app).getPath("userData");
 
-let addWin, editWin, settingsWin;
+let addWin, editWin, settingsWin, minimizeWin;
 module.exports.getMediaSource = async () => {
   const sources = await desktopCapturer.getSources({
     thumbnailSize: {
@@ -96,11 +97,19 @@ module.exports.createVideo = ({ buffer }) => {
 module.exports.optimizeVideo = ({ filePath }) => {
   const tempName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".mp4";
   const tempPath = path.join(configDir, "sessions", "userMedia", tempName);
+
   return new Promise(function (resolve, reject) {
     ffmpeg(filePath)
+      .videoCodec("libx264")
+      .audioCodec("aac")
       .format("mp4")
-      .outputOptions("-movflags frag_keyframe+empty_moov")
       .save(tempPath)
+      .on("start", function (commandLine) {
+        console.log("start : " + commandLine);
+      })
+      .on("progress", function (progress) {
+        console.log(progress);
+      })
       .on("end", function () {
         if (filePath && fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
@@ -142,14 +151,12 @@ module.exports.updateVideo = ({ filePath, start, end }) => {
         if (filePath && fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
         }
-        fs.rename(tempPath, filePath, function (err) {
-          if (err) {
-            console.log(err);
-            return reject({ status: STATUSES.ERROR, msg: err });
-          }
-          return resolve({
-            status: STATUSES.SUCCESS,
-          });
+        return resolve({
+          status: STATUSES.SUCCESS,
+          result: {
+            fileName: tempName,
+            filePath: tempPath,
+          },
         });
       })
       .on("error", function (err) {
@@ -157,6 +164,22 @@ module.exports.updateVideo = ({ filePath, start, end }) => {
         return reject({ status: STATUSES.ERROR, msg: err });
       });
   });
+};
+
+module.exports.createAudio = ({ buffer }) => {
+  const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".mp3";
+  const filePath = path.join(configDir, "sessions", "userMedia", fileName);
+  fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
+    if (err) {
+      console.log(err);
+    }
+  });
+  // const oldPath = path.join(configDir, "zulip.mp3");
+  // fs.copyFileSync(oldPath, filePath);
+  return {
+    fileName: fileName,
+    filePath: filePath,
+  };
 };
 
 module.exports.deleteFile = ({ filePath }) => {
@@ -321,8 +344,7 @@ module.exports.openAddWindow = ({ width, height, data }) => {
     });
 
     addWin.on("close", () => {
-      console.log("close");
-      browserWindow.webContents.send("CLOSE_CHILD_WINDOW");
+      browserWindow.webContents.send("CLOSE_CHILD_WINDOW", { data: "add" });
       addWin = null;
     });
   }
@@ -371,7 +393,7 @@ module.exports.openEditWindow = (data) => {
     });
 
     editWin.on("close", () => {
-      browserWindow.webContents.send("CLOSE_CHILD_WINDOW");
+      browserWindow.webContents.send("CLOSE_CHILD_WINDOW", { data: "edit" });
       editWin = null;
     });
   }
@@ -416,8 +438,7 @@ module.exports.openSettingWindow = () => {
     });
 
     settingsWin.on("close", () => {
-      browserWindow.webContents.send("CLOSE_CHILD_WINDOW");
-      browserWindow.webContents.send("CLOSE_SETTING_WINDOW");
+      browserWindow.webContents.send("CLOSE_CHILD_WINDOW", { data: "setting" });
       settingsWin = null;
     });
   }
@@ -425,6 +446,61 @@ module.exports.openSettingWindow = () => {
 
 module.exports.closeSettingWindow = () => {
   settingsWin.close();
+};
+
+module.exports.openMinimizeWindow = () => {
+  const browserWindow = browserUtility.getBrowserWindow();
+  browserWindow.hide();
+  const url =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:8080/#/minimize"
+      : `file://${__dirname}/index.html#minimize`;
+  console.log("minimize window:", minimizeWin);
+  if (minimizeWin == null) {
+    let display = screen.getPrimaryDisplay();
+    let displayWidth = display.bounds.width;
+    minimizeWin = new BrowserWindow({
+      width: 400,
+      height: 84,
+      minWidth: 350,
+      minHeight: 84,
+      x: displayWidth - 400,
+      y: 50,
+      transparent: true,
+      frame: false,
+      resizable: false,
+      icon: path.join(__dirname, "../public/logo.png"),
+      webPreferences: {
+        devTools: true,
+        nodeIntegration: true,
+        webSecurity: false,
+        enableRemoteModule: true,
+        preload: path.join(app.getAppPath(), "preload.js"),
+      },
+    });
+
+    minimizeWin.loadURL(url);
+    minimizeWin.setMenuBarVisibility(false);
+
+    minimizeWin.once("ready-to-show", () => {
+      // minimizeWin.webContents.openDevTools();
+      minimizeWin.show();
+    });
+
+    minimizeWin.on("close", () => {
+      minimizeWin = null;
+      browserWindow.show();
+    });
+  } else {
+    browserWindow.hide();
+    minimizeWin.show();
+  }
+};
+
+module.exports.closeMinimizeWindow = () => {
+  const browserWindow = browserUtility.getBrowserWindow();
+  minimizeWin.hide();
+  browserWindow.show();
 };
 
 module.exports.setWindowSize = ({ width, height, minWidth, minHeight }) => {

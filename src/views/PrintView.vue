@@ -6,6 +6,23 @@
     <div class="content">
       <v-row>
         <v-col class="timeline" cols="8">
+          <div class="summary">
+            <h3 class="detail-title mb-1">Summary</h3>
+            <div class="summary-content">
+              <div style="display: flex; flex-wrap: wrap; width: 30%">
+                <div
+                  style="flex: 1 1 100%; margin: 0 0.15em"
+                  v-for="(type, i) in commentTypes"
+                  :key="i"
+                >
+                  <span>{{ type.title }}:</span>
+                  <span style="float: right">{{ type.count }}</span>
+                </div>
+              </div>
+            </div>
+            <p class="summary-text">{{ summary }}</p>
+          </div>
+          <hr style="margin-bottom: 1em" />
           <v-timeline align-top dense class="pt-0">
             <v-timeline-item
               class="timeline-item"
@@ -21,7 +38,7 @@
 
             <div v-for="(item, i) in items" :key="i">
               <v-timeline-item
-                v-if="item.sessionType === 'screenshot'"
+                v-if="item.sessionType === 'Screenshot'"
                 color="primary"
                 icon="mdi-camera-plus"
                 fill-dot
@@ -33,14 +50,25 @@
                       <span>{{ calculateTime(item.time) }}</span>
                     </div>
                   </div>
-                  <img
-                    style="max-width: 100%"
-                    :src="`file://${item.filePath}`"
-                  />
+                  <div class="image-wrapper">
+                    <img
+                      style="max-width: 100%"
+                      :src="`file://${item.filePath}`"
+                    />
+                  </div>
+                  <div class="comment-wrapper mt-2">
+                    <span class="comment-type"
+                      >{{
+                        item.comment.text
+                          ? item.comment.type + ": " + item.comment.text
+                          : ""
+                      }}
+                    </span>
+                  </div>
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'video'"
+                v-if="item.sessionType === 'Video'"
                 color="primary"
                 icon="mdi-video"
                 fill-dot
@@ -59,10 +87,19 @@
                     />
                     <v-icon class="video-play" x-large>mdi-play</v-icon>
                   </div>
+                  <div class="comment-wrapper mt-2">
+                    <span class="comment-type"
+                      >{{
+                        item.comment.text
+                          ? item.comment.type + ": " + item.comment.text
+                          : ""
+                      }}
+                    </span>
+                  </div>
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'audio'"
+                v-if="item.sessionType === 'Audio'"
                 color="primary"
                 icon="mdi-microphone"
                 fill-dot
@@ -82,10 +119,19 @@
                       <v-icon medium>mdi-play-circle</v-icon>
                     </div>
                   </div>
+                  <div class="comment-wrapper mt-2">
+                    <span class="comment-type"
+                      >{{
+                        item.comment.text
+                          ? item.comment.type + ": " + item.comment.text
+                          : ""
+                      }}
+                    </span>
+                  </div>
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'note'"
+                v-if="item.sessionType === 'Note'"
                 color="primary"
                 icon="mdi-pencil"
                 fill-dot
@@ -104,7 +150,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'file'"
+                v-if="item.sessionType === 'File'"
                 color="primary"
                 icon="mdi-file"
                 fill-dot
@@ -133,6 +179,65 @@
                     <div class="file-icon">
                       <v-icon medium>mdi-file</v-icon>
                     </div>
+                  </div>
+                  <div class="comment-wrapper mt-2">
+                    <span class="comment-type"
+                      >{{
+                        item.comment.text
+                          ? item.comment.type + ": " + item.comment.text
+                          : ""
+                      }}
+                    </span>
+                  </div>
+                </div>
+              </v-timeline-item>
+              <v-timeline-item
+                v-if="item.sessionType === 'Mindmap'"
+                color="primary"
+                icon="mdi-camera-plus"
+                fill-dot
+              >
+                <div class="d-flex flex-column">
+                  <div class="d-flex justify-space-between py-2">
+                    <div class="duration-text">
+                      <v-icon>mdi-clock-outline</v-icon>
+                      <span>{{ calculateTime(item.time) }}</span>
+                    </div>
+                  </div>
+                  <div class="image-wrapper">
+                    <img
+                      class="screen-img"
+                      style="max-width: 100%"
+                      :src="`file://${item.filePath}`"
+                    />
+                  </div>
+                  <div class="comment-wrapper mt-2">
+                    <span class="comment-type"
+                      >{{
+                        item.comment.text
+                          ? item.comment.type + ": " + item.comment.text
+                          : ""
+                      }}
+                    </span>
+                  </div>
+                </div>
+              </v-timeline-item>
+              <v-timeline-item
+                v-if="item.sessionType === 'Summary' && item.comment.text"
+                color="primary"
+                icon="mdi-pencil"
+                fill-dot
+              >
+                <div class="d-flex flex-column">
+                  <div class="d-flex justify-space-between py-2">
+                    <div class="duration-text">
+                      <v-icon>mdi-clock-outline</v-icon>
+                      <span>{{ calculateTime(item.time) }}</span>
+                    </div>
+                  </div>
+                  <div class="note-wrapper">
+                    <span class="comment-type">{{ item.comment.type }}: </span>
+                    <div class="comment-text" v-html="item.comment.text"></div>
                   </div>
                 </div>
               </v-timeline-item>
@@ -202,8 +307,7 @@ import {
   VIcon,
   VDivider,
 } from "vuetify/lib/components";
-// import LogoWrapper from "../components/LogoWrapper.vue";
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
+import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
 
 export default {
   name: "PrintView",
@@ -215,7 +319,6 @@ export default {
     VTimelineItem,
     VIcon,
     VDivider,
-    // LogoWrapper,
   },
   data() {
     return {
@@ -252,6 +355,39 @@ export default {
       const hours = ("0" + (parseInt(this.timer / 3600, 10) % 24)).slice(-2);
 
       return hours + ":" + minutes + ":" + seconds;
+    },
+    commentTypes() {
+      let data = [];
+      const commentTypes = TEXT_TYPES.filter((item) => item !== "Summary");
+      commentTypes.map((type) => {
+        let temp,
+          i = 0;
+        this.items.map((item) => {
+          if (type === item.comment.type && item.comment.text) {
+            i++;
+          }
+        });
+        if (i > 0) {
+          temp = {
+            title: type,
+            count: i,
+          };
+          data.push(temp);
+        }
+      });
+      console.log(commentTypes);
+      console.log("result:", data);
+      return data;
+    },
+    summary() {
+      let summary = "";
+      this.items.map((item) => {
+        if (item.comment.type === "Summary" && item.comment.text) {
+          summary = item.comment.text;
+        }
+      });
+      console.log("summary:", summary);
+      return summary;
     },
   },
   methods: {
@@ -306,6 +442,31 @@ export default {
 .content {
   padding: 20px 0;
 }
+.summary {
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+  justify-content: flex-start;
+}
+.summary .summary-content {
+  display: flex;
+  flex-direction: row;
+  column-gap: 5px;
+}
+.summary .summary-content span {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: #6b7280;
+}
+.summary .summary-text {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: #111827;
+}
 .timeline-item {
   height: auto;
   display: flex;
@@ -314,7 +475,7 @@ export default {
 .timeline-item .v-timeline-item__body {
   max-width: calc(100% - 40px);
 }
-.screen-wrapper {
+.image-wrapper {
   position: relative;
   display: flex;
   background: #fff;
@@ -349,6 +510,13 @@ export default {
   background: #fff;
   border-radius: 6px;
   border: 1px solid #d1d5db;
+}
+.comment-wrapper {
+  display: flex;
+  background: #fff;
+}
+.comment-wrapper p {
+  margin-bottom: 0 !important;
 }
 .note-wrapper {
   display: flex;
@@ -389,7 +557,12 @@ export default {
   line-height: 16px;
   color: #6b7280;
 }
-
+.tags-wrapper .tag {
+  margin-right: 5px;
+}
+.tags-wrapper .tag:last-child {
+  margin-right: 0;
+}
 .detail-title {
   font-style: normal;
   font-weight: 600;

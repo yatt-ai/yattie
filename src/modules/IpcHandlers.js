@@ -3,6 +3,7 @@ import { IPC_HANDLERS, IPC_FUNCTIONS } from "./constants";
 const captureUtility = require("./CaptureUtility");
 const databaseUtility = require("./DatabaseUtility");
 const fileSystemUtility = require("./FileSystemUtility");
+const menuUtility = require("./MenuUtility");
 
 ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
   switch (args.func) {
@@ -24,6 +25,8 @@ ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
       return captureUtility.deleteFile(args.data);
     case IPC_FUNCTIONS.UPLOAD_EVIDENCE:
       return captureUtility.uploadEvidence(args.data);
+    case IPC_FUNCTIONS.CREATE_AUDIO:
+      return captureUtility.createAudio(args.data);
     case IPC_FUNCTIONS.CREATE_TEMP_USER_MEDIA:
       return captureUtility.createTempUserMedia(args.data);
     case IPC_FUNCTIONS.SAVE_USER_MEDIA:
@@ -43,6 +46,10 @@ ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
       return captureUtility.openSettingWindow(args.data);
     case IPC_FUNCTIONS.CLOSE_SETTING_WINDOW:
       return captureUtility.closeSettingWindow(args.data);
+    case IPC_FUNCTIONS.OPEN_MINIMIZE_WINDOW:
+      return captureUtility.openMinimizeWindow(args.data);
+    case IPC_FUNCTIONS.CLOSE_MINIMIZE_WINDOW:
+      return captureUtility.closeMinimizeWindow(args.data);
     case IPC_FUNCTIONS.SET_WINDOW_SIZE:
       return captureUtility.setWindowSize(args.data);
     case IPC_FUNCTIONS.GET_IMAGE_DATA:
@@ -87,5 +94,12 @@ ipcMain.handle(IPC_HANDLERS.FILE_SYSTEM, async (event, args) => {
       return fileSystemUtility.exportSession(args.data);
     default:
       return null;
+  }
+});
+
+ipcMain.handle(IPC_HANDLERS.MENU, async (event, args) => {
+  switch (args.func) {
+    case IPC_FUNCTIONS.CHANGE_MENUITEM_STATUS:
+      return menuUtility.changeMenuItemStatus(args.data);
   }
 });

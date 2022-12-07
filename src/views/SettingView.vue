@@ -47,7 +47,8 @@ export default {
         { id: 2, name: "Connections", route: `/settings/connections` },
         { id: 3, name: "Templates", route: `/settings/template` },
         { id: 4, name: "Checklists", route: `/settings/checklist` },
-        // { id: 5, name: "Support", route: `/settings/support` },
+        { id: 5, name: "Reports", route: `/settings/reports` },
+        // { id: 6, name: "Support", route: `/settings/support` },
       ],
       config: {},
     };
@@ -58,13 +59,20 @@ export default {
   mounted() {},
   methods: {
     async getConfig() {
-      const { config } = await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.GET_CONFIG,
-      });
-      this.config = config;
+      if (!window.ipc) return;
+
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.GET_CONFIG,
+        })
+        .then((result) => {
+          this.config = result;
+        });
     },
     updateConfig(value) {
       this.config = value;
+      if (!window.ipc) return;
+
       window.ipc.invoke(IPC_HANDLERS.DATABASE, {
         func: IPC_FUNCTIONS.UPDATE_CONFIG,
         data: this.config,

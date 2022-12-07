@@ -46,6 +46,7 @@
           fill
           small
           color="white"
+          :disabled="processing"
           @click="handleDiscard"
         >
           Discard
@@ -55,6 +56,7 @@
           fill
           small
           color="primary"
+          :disabled="processing"
           @click="handleSave"
         >
           Save
@@ -81,38 +83,57 @@ export default {
     return {
       item: {},
       items: [],
+      config: {},
       comment: {
-        type: "Comment",
+        type: "",
         content: "",
         text: "",
       },
-      commentTypes: TEXT_TYPES,
-      processing: false,
+      commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
+      processing: true,
       triggerSaveEvent: false,
       autoSaveEvent: false,
     };
   },
   created() {
     this.fetchItems();
+    this.getConfig();
   },
   mounted() {
     if (!window.ipc) return;
 
     window.ipc.on("ACTIVE_SESSION", async (data) => {
-      const { config } = await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.GET_CONFIG,
-      });
-      const isDarkMode = config.apperance === "dark" ? true : false;
+      // set theme mode
+      const isDarkMode = this.config.apperance === "dark" ? true : false;
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode);
 
       this.item = data;
+
+      // optimize video
       if (this.item.fileType === "video") {
         this.optimizeVideo();
+      } else {
+        this.processing = false;
       }
+
+      // set comment type by config
+      if (this.config.commentType && this.config.commentType !== "") {
+        console.log("comment type:", this.config.commentType);
+        this.comment.type = this.config.commentType;
+      }
+      // set templates by config
+      this.config.templates.map((item) => {
+        let temp = Object.assign({}, item);
+        if (temp.type === this.item.sessionType) {
+          this.comment.content = temp.precondition.content;
+          this.comment.text = temp.precondition.text;
+        }
+      });
     });
 
     this.$root.$on("update-session", this.updateSession);
+    this.$root.$on("update-processing", this.updateProcessing);
     this.$root.$on("save-data", this.saveData);
   },
   methods: {
@@ -123,6 +144,17 @@ export default {
         .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_ITEMS })
         .then((result) => {
           this.items = result;
+        });
+    },
+    async getConfig() {
+      if (!window.ipc) return;
+
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.GET_CONFIG,
+        })
+        .then((result) => {
+          this.config = result;
         });
     },
     async optimizeVideo() {
@@ -148,6 +180,10 @@ export default {
     updateSession(value) {
       this.item = value;
     },
+    updateProcessing(value) {
+      console.log("new processing:", value);
+      this.processing = value;
+    },
     async handleDiscard() {
       await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
         func: IPC_FUNCTIONS.DELETE_FILE,
@@ -164,8 +200,7 @@ export default {
     handleSave() {
       this.triggerSaveEvent = !this.triggerSaveEvent;
     },
-    async saveData(data) {
-      this.item = data;
+    async saveData() {
       const date = dayjs().format("MM/DD/YYYY HH:mm:ss");
       const newItem = {
         id: Date.now(),

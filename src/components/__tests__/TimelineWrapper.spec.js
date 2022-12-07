@@ -15,10 +15,11 @@ describe("TimelineWrapper.vue", () => {
   const dataInfo = {
     itemLists: [
       {
-        sessionType: "screenshot",
-      },
-      {
-        sessionType: "screenshot",
+        sessionType: "Screenshot",
+        comment: {
+          type: "",
+          text: "",
+        },
       },
     ],
     selected: [],
@@ -36,7 +37,6 @@ describe("TimelineWrapper.vue", () => {
       propsData: {
         items: [],
         selectedItems: [],
-        activeSession: {},
       },
       data() {
         return dataInfo;
@@ -65,7 +65,7 @@ describe("TimelineWrapper.vue", () => {
     );
     expect(wrapper.find("button").exists()).toBe(false);
 
-    expect(wrapper.findAll(".drag-item").length).toBe(2);
+    expect(wrapper.findAll(".drag-item").length).toBe(1);
   });
 
   test('show the "Upload evidence" button', () => {
@@ -125,9 +125,7 @@ describe("TimelineWrapper.vue", () => {
   test("render a timeline", async () => {
     const wrapper = mount(TimelineWrapper, {
       data() {
-        return {
-          itemLists: [{ sessionType: "screenshot" }],
-        };
+        return dataInfo;
       },
       localVue,
       store: {
@@ -141,24 +139,78 @@ describe("TimelineWrapper.vue", () => {
     });
 
     expect(wrapper.findAll(".drag-item").length).toBe(1);
-    expect(wrapper.findAll(".drag-item .screen-wrapper").exists()).toBe(true);
+    expect(wrapper.findAll(".drag-item .screenshot").exists()).toBe(true);
 
     await wrapper.setData({
-      itemLists: [{ sessionType: "video" }],
+      itemLists: [
+        {
+          sessionType: "Video",
+          comment: {
+            type: "",
+            text: "",
+          },
+        },
+      ],
     });
 
-    expect(wrapper.find(".drag-item video").exists()).toBe(true);
+    expect(wrapper.find(".drag-item .video-wrapper").exists()).toBe(true);
 
     await wrapper.setData({
-      itemLists: [{ sessionType: "audio" }],
+      itemLists: [
+        {
+          sessionType: "Audio",
+          comment: {
+            type: "",
+            text: "",
+          },
+        },
+      ],
     });
 
     expect(wrapper.find(".drag-item .audio-wrapper").exists()).toBe(true);
 
     await wrapper.setData({
-      itemLists: [{ sessionType: "file" }],
+      itemLists: [
+        {
+          sessionType: "File",
+          comment: {
+            type: "",
+            text: "",
+          },
+        },
+      ],
     });
 
     expect(wrapper.find(".drag-item .file-wrapper").exists()).toBe(true);
+
+    await wrapper.setData({
+      itemLists: [
+        {
+          sessionType: "Note",
+          comment: {
+            type: "",
+            text: "",
+            tags: [{ text: "" }],
+          },
+        },
+      ],
+    });
+
+    expect(wrapper.find(".drag-item .note-wrapper").exists()).toBe(true);
+    expect(wrapper.find(".drag-item .tags-wrapper").exists()).toBe(true);
+
+    await wrapper.setData({
+      itemLists: [
+        {
+          sessionType: "Mindmap",
+          comment: {
+            type: "",
+            text: "",
+          },
+        },
+      ],
+    });
+
+    expect(wrapper.find(".drag-item .map-wrapper").exists()).toBe(true);
   });
 });

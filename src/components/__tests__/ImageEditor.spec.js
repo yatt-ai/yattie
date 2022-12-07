@@ -2,7 +2,6 @@ import Vuetify from "vuetify";
 import ImageEditor from "../ImageEditor";
 
 import { mount } from "@vue/test-utils";
-import { ImageEditor as TuiImageEditor } from "@toast-ui/vue-image-editor";
 
 const vuetify = new Vuetify();
 
@@ -20,7 +19,6 @@ describe("ImageEditor.vue", () => {
   });
 
   test("render a view", () => {
-    expect(wrapper.findComponent(TuiImageEditor).exists()).toBe(true);
     expect(wrapper.findAll("button").length).toBe(2);
     expect(wrapper.find("button:first-child").text()).toContain("Cancel");
     expect(wrapper.find("button:last-child").text()).toContain("Apply");

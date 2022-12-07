@@ -16,11 +16,13 @@ const createMenu = (win, dev) => {
         },
         { label: "Open Saved Session", accelerator: "Ctrl+Shift+O" },
         { type: "separator" },
-        { label: "Save Session", accelerator: "Alt+Ctrl+S" },
-        { label: "Save As Test Charter", accelerator: "Ctrl+Shift+X" },
-        { label: "Reset Session" },
-        { type: "separator" },
-        { label: "Delete Session" },
+        { label: "Save Session", accelerator: "Alt+Ctrl+S", enabled: false },
+        {
+          label: "Save As Test Charter",
+          accelerator: "Ctrl+Shift+X",
+          enabled: false,
+        },
+        { label: "Reset Session", enabled: false },
         { type: "separator" },
         {
           label: "App Settings",

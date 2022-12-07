@@ -155,7 +155,7 @@
               small
               color="default"
               v-on="on"
-              @click="endSession()"
+              @click="summaryDialog = true"
             >
               <img
                 :src="require('../assets/icon/stop.svg')"
@@ -180,7 +180,7 @@
               @click="startRecordVideo()"
             >
               <img
-                :src="require('../assets/icon/video.svg')"
+                :src="require('../assets/icon/video-solid.svg')"
                 width="24"
                 height="24"
               />
@@ -201,7 +201,11 @@
               :disabled="status === 'pause'"
               @click="stopRecordVideo()"
             >
-              <v-icon> mdi-video-off </v-icon>
+              <img
+                :src="require('../assets/icon/video-slash-solid.svg')"
+                width="24"
+                height="24"
+              />
             </v-btn>
           </template>
           <span>Stop Video Record</span>
@@ -242,9 +246,9 @@
               @click="startRecordAudio()"
             >
               <img
-                :src="require('../assets/icon/microphone.svg')"
-                width="24"
-                height="24"
+                :src="require('../assets/icon/microphone-solid.svg')"
+                width="28"
+                height="28"
               />
             </v-btn>
           </template>
@@ -263,7 +267,11 @@
               :disabled="status === 'pause'"
               @click="stopRecordAudio()"
             >
-              <v-icon> mdi-microphone-off </v-icon>
+              <img
+                :src="require('../assets/icon/microphone-slash-solid.svg')"
+                width="28"
+                height="28"
+              />
             </v-btn>
           </template>
           <span>Stop Audio Record</span>
@@ -311,6 +319,26 @@
           </template>
           <span>Mind Map</span>
         </v-tooltip>
+        <!--<v-tooltip top>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              class="control-btn mx-1"
+              fab
+              outlined
+              small
+              color="default"
+              v-on="on"
+              @click="minimize"
+            >
+              <img
+                :src="require('../assets/icon/union.svg')"
+                width="24"
+                height="24"
+              />
+            </v-btn>
+          </template>
+          <span>Minimize</span>
+        </v-tooltip>-->
       </v-col>
     </v-row>
     <SourcePickerDialog
@@ -320,7 +348,16 @@
       :loaded="loaded"
       @submit-source="startSession"
     />
-    <NoteDialog v-model="noteDialog" @submit-note="addNote" />
+    <NoteDialog
+      v-model="noteDialog"
+      @submit-comment="addNote"
+      :configItem="config"
+    />
+    <SummaryDialog
+      v-model="summaryDialog"
+      @submit-comment="addSummary"
+      :configItem="config"
+    />
     <DeleteConfirmDialog
       v-model="deleteConfirmDialog"
       title="Confirm delete"
@@ -374,6 +411,7 @@ import { VContainer, VRow, VCol, VBtn, VIcon } from "vuetify/lib/components";
 import dayjs from "dayjs";
 import SourcePickerDialog from "./dialogs/SourcePickerDialog.vue";
 import NoteDialog from "./dialogs/NoteDialog.vue";
+import SummaryDialog from "./dialogs/SummaryDialog.vue";
 import DeleteConfirmDialog from "./dialogs/DeleteConfirmDialog.vue";
 import ResetConfirmDialog from "./dialogs/ResetConfirmDialog.vue";
 import NewSessionDialog from "./dialogs/NewSessionDialog.vue";
@@ -385,11 +423,17 @@ import {
   IPC_HANDLERS,
   IPC_FUNCTIONS,
   SESSION_STATUSES,
-  MAP_NODES,
-  MAP_CONNECTIONS,
+  VIDEO_RESOLUTION,
+} from "../modules/constants";
+
+import {
+  DEFAULT_MAP_NODES,
+  DEFAULT_MAP_CONNECTIONS,
 } from "../modules/constants";
 
 let mediaRecorder;
+let audioContext;
+let dest;
 
 export default {
   name: "ControlPanel",
@@ -401,6 +445,7 @@ export default {
     VIcon,
     SourcePickerDialog,
     NoteDialog,
+    SummaryDialog,
     DeleteConfirmDialog,
     ResetConfirmDialog,
     NewSessionDialog,
@@ -409,9 +454,17 @@ export default {
     EndSessionDialog,
   },
   props: {
+    items: {
+      type: Array,
+      default: () => [],
+    },
     selectedItems: {
       type: Array,
       default: () => [],
+    },
+    configItem: {
+      type: Object,
+      default: () => {},
     },
     checkedStatusOfPreSessionTask: {
       type: Boolean,
@@ -422,15 +475,30 @@ export default {
       default: () => {},
     },
   },
+  created() {
+    try {
+      audioContext = new AudioContext();
+      dest = audioContext.createMediaStreamDestination();
+    } catch (e) {
+      console.log(e);
+    }
+  },
   watch: {
+    items: function (newValue) {
+      this.itemLists = newValue;
+    },
     selectedItems: function (newValue) {
       this.selected = newValue;
+    },
+    configItem: function (newValue) {
+      this.config = newValue;
     },
   },
   data() {
     return {
       sourcePickerDialog: false,
       noteDialog: false,
+      summaryDialog: false,
 
       deleteConfirmDialog: false,
       resetConfirmDialog: false,
@@ -441,6 +509,8 @@ export default {
 
       sources: [],
       sourceId: "",
+      itemLists: this.items,
+      config: this.configItem,
       audioDevices: [],
       loaded: false,
       status: this.$store.state.status,
@@ -460,6 +530,10 @@ export default {
   mounted() {
     this.$root.$on("close-sourcepickerdialog", this.hideSourcePickerDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
+    this.$root.$on("close-summarydialog", () => {
+      this.summaryDialog = false;
+      this.endSession();
+    });
   },
   beforeDestroy() {
     this.$root.$off("close-sourcepickerdialog", this.hideSourcePickerDialog);
@@ -509,9 +583,6 @@ export default {
       this.updateStoreSession();
     },
     updateStoreSession() {
-      console.log(`
-        status: ${this.status}, timer: ${this.timer}, duration: ${this.duration}
-        `);
       this.$store.commit("updateSession", {
         status: this.status,
         timer: this.timer,
@@ -531,6 +602,7 @@ export default {
       this.$store.commit("setStarted", this.started);
 
       this.startInterval();
+      this.changeSessionStatus(SESSION_STATUSES.START);
 
       const currentPath = this.$router.history.current.path;
       if (currentPath !== "/main/timeline") {
@@ -539,6 +611,7 @@ export default {
     },
     pauseSession() {
       this.status = SESSION_STATUSES.PAUSE;
+      this.changeSessionStatus(SESSION_STATUSES.PAUSE);
       this.stopInterval();
     },
     resumeSession() {
@@ -562,6 +635,7 @@ export default {
       this.$store.commit("setEnded", this.ended);
 
       this.status = SESSION_STATUSES.END;
+      this.changeSessionStatus(SESSION_STATUSES.END);
       this.stopInterval();
 
       if (window.ipc) {
@@ -580,14 +654,17 @@ export default {
     },
     resume() {
       this.status = SESSION_STATUSES.PAUSE;
+      this.changeSessionStatus(SESSION_STATUSES.PAUSE);
       this.timer = this.$store.state.timer;
       this.updateStoreSession();
+      this.removeSummary();
       this.$router.push({ path: "/main/timeline" });
     },
 
     reset() {
       this.resetConfirmDialog = false;
       this.status = SESSION_STATUSES.PENDING;
+      this.changeSessionStatus(SESSION_STATUSES.PENDING);
       this.$store.commit("resetState");
 
       try {
@@ -610,11 +687,13 @@ export default {
     proceed() {
       this.durationConfirmDialog = false;
       this.status = SESSION_STATUSES.PROCEED;
+      this.changeSessionStatus(SESSION_STATUSES.PROCEED);
       this.startInterval();
     },
 
     updateStatus(value) {
       this.status = value;
+      this.changeSessionStatus(this.status);
       this.$store.commit("setStatus", this.status);
     },
     async getSourceList() {
@@ -653,7 +732,7 @@ export default {
               })
               .then(({ fileName, filePath }) => {
                 const data = {
-                  sessionType: "screenshot",
+                  sessionType: "Screenshot",
                   fileType: "image",
                   fileName: fileName,
                   filePath: filePath,
@@ -690,6 +769,9 @@ export default {
     },
     async startRecordVideo() {
       this.handleStream = (stream) => {
+        if (this.config.audioCapture && this.audioDevices.length > 0) {
+          stream.addTrack(dest.stream.getAudioTracks()[0]);
+        }
         mediaRecorder = new MediaRecorder(stream, {
           mimeType: "video/webm;codecs=h264",
         });
@@ -739,7 +821,7 @@ export default {
               })
               .then(({ fileName, filePath }) => {
                 const data = {
-                  sessionType: "video",
+                  sessionType: "Video",
                   fileType: "video",
                   fileName: fileName,
                   filePath: filePath,
@@ -761,21 +843,39 @@ export default {
       };
 
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
+        const videoQuality = this.config.videoQuality;
+        let resolution;
+        VIDEO_RESOLUTION.map((item) => {
+          let temp = Object.assign({}, item);
+          if (temp.type === videoQuality) {
+            resolution = temp;
+          }
+        });
+        const constraints = {
           audio: false,
           video: {
             mandatory: {
               chromeMediaSource: "desktop",
               chromeMediaSourceId: this.sourceId,
-              minWidth: 640,
-              maxWidth: 1920,
-              minHeight: 480,
-              maxHeight: 1080,
+              minWidth: resolution.width,
+              maxWidth: resolution.width,
+              minHeight: resolution.height,
+              maxHeight: resolution.height,
             },
           },
-        });
+        };
+
+        if (this.config.audioCapture) {
+          this.audioDevices = await this.getAudioSources();
+          if (this.audioDevices.length > 0) {
+            await this.setAudio(this.audioDevices);
+          }
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
         stream.getVideoTracks()[0].applyConstraints({ frameRate: 30 });
+
         this.handleStream(stream);
       } catch (e) {
         console.log(e);
@@ -787,6 +887,29 @@ export default {
       } catch (error) {
         console.log(error);
       }
+    },
+    async getAudioSources() {
+      return await navigator.mediaDevices.enumerateDevices().then((devices) => {
+        const audioDevices = devices.filter(
+          (d) =>
+            d.kind === "audioinput" &&
+            d.deviceId != "communications" &&
+            d.deviceId != "default"
+        );
+        return audioDevices;
+      });
+    },
+    async setAudio(source) {
+      const audioStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          deviceId: source.deviceId,
+          autoGainControl: false,
+          latency: 0.0,
+        },
+      });
+      let audioIn_01 = audioContext.createMediaStreamSource(audioStream);
+      audioIn_01.connect(dest);
+      return audioIn_01;
     },
     async startRecordAudio() {
       this.setAudioSource = async () => {
@@ -829,21 +952,23 @@ export default {
           const blob = new Blob(recordedChunks, {
             type: "audio/mpeg-3",
           });
+
           const buffer = await blob.arrayBuffer();
-          const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".mp3";
+
           if (window.ipc) {
             await window.ipc
               .invoke(IPC_HANDLERS.CAPTURE, {
-                func: IPC_FUNCTIONS.CREATE_TEMP_USER_MEDIA,
-                data: { buffer: buffer, fileName: fileName },
+                func: IPC_FUNCTIONS.CREATE_AUDIO,
+                data: { buffer: buffer },
               })
-              .then((filePath) => {
+              .then(({ fileName, filePath }) => {
                 const data = {
-                  sessionType: "audio",
+                  sessionType: "Audio",
                   fileType: "audio",
                   fileName: fileName,
                   filePath: filePath,
                   time: this.timer,
+                  poster: "",
                 };
 
                 this.openAddWindow(data);
@@ -858,6 +983,18 @@ export default {
       this.handleError = (error) => {
         console.log("Error:", error);
       };
+
+      // try {
+      //   this.audioDevices = await this.getAudioSources();
+      //   if (!this.audioDevices.length) {
+      //     this.audioErrorDialog = true;
+      //     return;
+      //   }
+      //   const stream = this.setAudio(this.audioDevices);
+      //   this.handleStream(stream);
+      // } catch (e) {
+      //   console.log(e);
+      // }
 
       await navigator.mediaDevices.enumerateDevices().then((devices) => {
         this.audioDevices = devices.filter(
@@ -888,7 +1025,7 @@ export default {
         data: { width: 700, height: 800, data: data },
       });
     },
-    async addNote(comment) {
+    async addNote(value) {
       const date = dayjs().format("MM/DD/YYYY HH:mm:ss");
       const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".txt";
 
@@ -897,16 +1034,16 @@ export default {
         await window.ipc
           .invoke(IPC_HANDLERS.CAPTURE, {
             func: IPC_FUNCTIONS.SAVE_NOTE,
-            data: { fileName: fileName, comment: comment },
+            data: { fileName: fileName, comment: value },
           })
           .then((filePath) => {
             let newItem = {
               id: Date.now(),
-              sessionType: "note",
+              sessionType: "Note",
               fileType: "text",
               fileName: fileName,
               filePath: filePath,
-              comment: comment,
+              comment: value,
               time: this.timer,
               createdAt: date,
             };
@@ -916,19 +1053,54 @@ export default {
 
       this.noteDialog = false;
     },
+    async addSummary(value) {
+      const date = dayjs().format("MM/DD/YYYY HH:mm:ss");
+
+      const data = {
+        id: Date.now(),
+        sessionType: "Summary",
+        comment: value,
+        time: this.timer,
+        createdAt: date,
+      };
+
+      this.$emit("add-item", data);
+      this.summaryDialog = false;
+      this.endSession();
+    },
+    async removeSummary() {
+      let summary = [];
+      this.items.map((item) => {
+        if (item.sessionType === "Summary") {
+          summary.push(item.id);
+        }
+      });
+      if (window.ipc) {
+        await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.DELETE_ITEMS,
+          data: summary,
+        });
+      }
+    },
     mindMap() {
       const data = {
-        sessionType: "mindmap",
+        sessionType: "Mindmap",
         fileType: "mindmap",
         fileName: "",
         filePath: "",
         content: {
-          nodes: MAP_NODES,
-          connections: MAP_CONNECTIONS,
+          nodes: DEFAULT_MAP_NODES,
+          connections: DEFAULT_MAP_CONNECTIONS,
         },
         time: this.timer,
       };
       this.openAddWindow(data);
+    },
+    async minimize() {
+      await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.OPEN_MINIMIZE_WINDOW,
+        data: { width: 700, height: 800 },
+      });
     },
     async deleteItems() {
       if (window.ipc) {
@@ -973,6 +1145,7 @@ export default {
     },
     discardSession() {
       this.$store.commit("resetState");
+      this.changeSessionStatus(SESSION_STATUSES.PENDING);
       clearInterval(this.interval);
       this.$router.push({ path: "/" });
     },
@@ -990,6 +1163,12 @@ export default {
         now.getFullYear();
 
       return currentDateTime;
+    },
+    changeSessionStatus(status) {
+      window.ipc.invoke(IPC_HANDLERS.MENU, {
+        func: IPC_FUNCTIONS.CHANGE_MENUITEM_STATUS,
+        data: { sessionStatus: status },
+      });
     },
   },
 };

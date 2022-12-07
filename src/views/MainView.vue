@@ -13,6 +13,9 @@
         <v-tab class="test-tab" to="/main" exact> Test </v-tab>
         <v-tab class="timeline-tab" to="/main/timeline" exact> Timeline </v-tab>
       </v-tabs>
+      <!--<v-btn class="mx-2" fab dark small color="primary" @click="signup">
+        <v-icon dark> mdi-account </v-icon>
+      </v-btn>-->
     </div>
     <v-divider />
     <div class="content">
@@ -38,7 +41,9 @@
     </div>
     <div class="footer">
       <ControlPanel
+        :items="items"
         @add-item="addItem"
+        :configItem="config"
         @handle-pressesion-task-error="
           (status) => {
             showTaskError = status;
@@ -100,6 +105,7 @@ export default {
       items: [],
       selected: [],
       activeSession: {},
+      config: {},
       presession: {},
       postsession: {},
       checkedStatusOfPreSessionTask: false,
@@ -112,11 +118,13 @@ export default {
   },
   mounted() {
     this.$root.$on("update-selected", this.updateSelected);
+
+    if (!window.ipc) return;
+
     window.ipc.on("DATA_CHANGE", () => {
       this.fetchItems();
     });
-    window.ipc.on("CLOSE_SETTING_WINDOW", () => {
-      console.log("child window closed");
+    window.ipc.on("CONFIG_CHANGE", () => {
       this.getConfig();
     });
   },
@@ -144,12 +152,15 @@ export default {
       this.checkedStatusOfPreSessionTask = uncheckedTasks.length === 0;
     },
     getConfig() {
+      if (!window.ipc) return;
+
       window.ipc
         .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CONFIG })
         .then((result) => {
+          this.config = result;
           this.presession = {
-            status: result.config.checklist.presession.status,
-            tasks: result.config.checklist.presession.tasks.map((task) => {
+            status: this.config.checklist.presession.status,
+            tasks: this.config.checklist.presession.tasks.map((task) => {
               return { ...task, checked: false };
             }),
           };
@@ -157,8 +168,8 @@ export default {
           this.checkStatusOfPreSessionTask();
 
           this.postsession = {
-            status: result.config.checklist.postsession.status,
-            tasks: result.config.checklist.postsession.tasks.map((task) => {
+            status: this.config.checklist.postsession.status,
+            tasks: this.config.checklist.postsession.tasks.map((task) => {
               return { ...task, checked: false };
             }),
           };
@@ -213,6 +224,9 @@ export default {
         data: data,
       });
     },
+    signup() {
+      this.$router.push({ path: "/authentication" });
+    },
   },
 };
 </script>
@@ -230,6 +244,8 @@ export default {
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
+  column-gap: 15px;
   padding: 15px 0;
 }
 .content {
@@ -244,6 +260,10 @@ export default {
   justify-content: center;
   align-items: center;
   padding: 0 5px;
+}
+.v-tabs {
+  width: auto !important;
+  flex: none !important;
 }
 .v-tab {
   background: #fff;

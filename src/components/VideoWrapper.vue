@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="preview-wrapper" v-if="isProcessing">
-      <img :src="`file://${item.poster}`" />
+      <img :src="`file://${sessionItem.poster}`" />
       <div class="progress-bar">
         <v-progress-linear
           indeterminate
@@ -20,7 +20,7 @@
           @loadedmetadata="logDuration"
           style="width: 100%"
         >
-          <source :src="`file://${item.filePath}`" type="video/webm" />
+          <source :src="`file://${sessionItem.filePath}`" type="video/webm" />
         </video>
       </div>
       <div class="video-control">
@@ -52,27 +52,13 @@
             <span class="">Length: {{ durationTime }}</span>
           </div>
         </div>
-        <div>
-          <v-btn class="mr-2 text-capitalize" fill small color="white">
-            Cancel
-          </v-btn>
-          <v-btn
-            class="text-capitalize"
-            fill
-            small
-            color="primary"
-            @click="() => handleVideo(false)"
-          >
-            Apply
-          </v-btn>
-        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
+import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
 export default {
   name: "VideoWrapper",
   components: {},
@@ -95,7 +81,6 @@ export default {
       this.sessionItem = newValue;
     },
     processing: function (newValue) {
-      console.log(newValue);
       this.isProcessing = newValue;
     },
     triggerSave: function (oldValue, newValue) {
@@ -135,20 +120,33 @@ export default {
       const temp = parseInt(endVal - startVal);
       const duration = parseInt(this.duration);
       if (temp !== duration) {
-        this.isProcessing = true;
-        await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-          func: IPC_FUNCTIONS.UPDATE_VIDEO,
-          data: {
-            filePath: this.sessionItem.filePath,
-            start: startVal,
-            end: endVal,
-          },
-        });
-        this.isProcessing = false;
+        this.handleProcessing(true);
+        const { status, result } = await window.ipc.invoke(
+          IPC_HANDLERS.CAPTURE,
+          {
+            func: IPC_FUNCTIONS.UPDATE_VIDEO,
+            data: {
+              filePath: this.sessionItem.filePath,
+              start: startVal,
+              end: endVal,
+            },
+          }
+        );
+        if (status === STATUSES.SUCCESS) {
+          this.sessionItem.fileName = result.fileName;
+          this.sessionItem.filePath = result.filePath;
+        }
+        this.handleProcessing(false);
       }
+      this.$root.$emit("update-session", this.sessionItem);
+
       if (needCallback) {
-        this.$root.$emit("save-data", this.item);
+        this.$root.$emit("save-data", this.sessionItem);
       }
+    },
+    handleProcessing(value) {
+      this.isProcessing = value;
+      this.$root.$emit("update-processing", this.isProcessing);
     },
     logDuration() {
       this.duration = this.$refs.videoPlayer.duration;

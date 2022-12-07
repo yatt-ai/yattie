@@ -101,7 +101,8 @@ export default {
           data: { item: this.sessionItem, url: value.imgURI },
         })
         .then((result) => {
-          this.$root.$emit("save-data", result);
+          this.$root.$emit("update-session", result);
+          this.$root.$emit("save-data");
         });
     },
   },

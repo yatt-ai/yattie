@@ -1,6 +1,6 @@
 {
   "name": "yattie",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "main": "background.js",
   "engines": {
@@ -27,7 +27,7 @@
     "@fortawesome/fontawesome-free": "^6.2.1",
     "@johmun/vue-tags-input": "^2.1.0",
     "@tinymce/tinymce-vue": "^3.2.0",
-    "@toast-ui/vue-image-editor": "^3.15.2",
+    "tui-image-editor": "^3.15.3", 
     "adm-zip": "^0.5.9",
     "core-js": "^3.8.3",
     "d3": "^5.14.2",
@@ -39,6 +39,7 @@
     "fluent-ffmpeg": "^2.1.2",
     "lodash": "^4.17.21",
     "simple-json-db": "^2.0.0",
+    "sinon": "^15.0.0",
     "tinymce": "^6.2.0",
     "uuid": "3.3.3",
     "v-mask": "^2.3.0",

@@ -1,6 +1,9 @@
 <template>
   <v-container class="wrapper">
     <div class="title">Session Checklists</div>
+    <p class="subtitle-1 mb-4">
+      Use pre and post testing checklists to streamline your testing process
+    </p>
     <div class="tab-bar">
       <v-tabs :height="26" hide-slider>
         <v-tab @click="tab = 'pre'" class="text-capitalize">
@@ -12,7 +15,7 @@
       </v-tabs>
     </div>
     <v-tabs-items v-model="tab">
-      <v-tab-item value="pre" :transition="false">
+      <v-tab-item class="presession-wrapper" value="pre" :transition="false">
         <div class="status">
           <v-switch
             v-model="presessionStatus"
@@ -53,7 +56,7 @@
           </div>
         </div>
       </v-tab-item>
-      <v-tab-item value="post" :transition="false">
+      <v-tab-item class="postsession-wrapper" value="post" :transition="false">
         <div class="status">
           <v-switch
             v-model="postsessionStatus"

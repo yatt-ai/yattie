@@ -9,7 +9,7 @@
         </span>
       </div>
     </div>
-    <div class="error1" v-show="showError">
+    <div class="error1" v-if="showError">
       <div class="icon">
         <img
           :src="require('../assets/icon/error.svg')"

@@ -41,6 +41,7 @@
                   :nodesData="mindmap.nodes"
                   :connectionsData="mindmap.connections"
                   :edit="true"
+                  :auto-save="true"
                   @submit-mindmap="handleMindmap"
                 />
               </div>
@@ -63,7 +64,7 @@
             <span class="timer-box-wrapper-label">minutes</span>
           </div>
         </div>
-        <div class="mt-4">
+        <div class="mt-4 pre-cond">
           <text-editor
             label="Preconditions"
             placeholder="Define required preconditions for this test."
@@ -82,7 +83,10 @@ import { VContainer, VRow, VCol, VTextField } from "vuetify/lib/components";
 import TextEditor from "./TextEditor.vue";
 import MindmapEditor from "./MindmapEditor.vue";
 
-import { MAP_NODES, MAP_CONNECTIONS } from "../modules/constants";
+import {
+  DEFAULT_CHARTER_MAP_NODES,
+  DEFAULT_CHARTER_MAP_CONNECTIONS,
+} from "../modules/constants";
 
 export default {
   name: "TestWrapper",
@@ -102,8 +106,8 @@ export default {
         text: this.$store.state.charter.text,
       },
       mindmap: {
-        nodes: MAP_NODES,
-        connections: MAP_CONNECTIONS,
+        nodes: DEFAULT_CHARTER_MAP_NODES,
+        connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
       },
       precondition: {
         content: this.$store.state.precondition.content,
@@ -164,8 +168,7 @@ export default {
         nodes: new_nodes,
         connections: new_connections,
       };
-      console.log("data;", data);
-      // this.$store.commit("setMindmap", data);
+      this.$store.commit("setMindmap", data);
     },
   },
 };
