@@ -20,7 +20,7 @@ To set up a development environment, please follow these steps:
 
 3. Run locally
    ```sh
-   yarn run electron:serve
+   yarn dev
    ```
 
 
