@@ -26,6 +26,10 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    defaultColor: {
+      type: String,
+      default: () => "#000000",
+    },
   },
   watch: {
     item: function (newValue) {
@@ -76,6 +80,63 @@ export default {
             },
           }
         );
+
+        const drawColorPicker =
+          this.imageEditorInst.ui.draw._els.drawColorPicker;
+        this.imageEditorInst.ui.draw.color = this.defaultColor;
+        drawColorPicker.colorElement.style.backgroundColor = this.defaultColor;
+        drawColorPicker.colorpickerElement.querySelector(
+          ".tui-colorpicker-palette-preview"
+        ).style.backgroundColor = this.defaultColor;
+        drawColorPicker.colorpickerElement.querySelector(
+          ".tui-colorpicker-palette-preview"
+        ).style.color = this.defaultColor;
+        this.imageEditorInst.ui.draw.colorPickerInputBox.defaultValue =
+          this.defaultColor;
+
+        const shapeColorPicker =
+          this.imageEditorInst.ui.shape.colorPickerControls[1];
+        this.imageEditorInst.ui.shape.options.stroke = this.defaultColor;
+        this.imageEditorInst.ui.shape._els.strokeColorpicker._color =
+          this.defaultColor;
+        shapeColorPicker.colorElement.style.backgroundColor = this.defaultColor;
+        shapeColorPicker.colorpickerElement.querySelector(
+          ".tui-colorpicker-palette-hex"
+        ).defaultValue = this.defaultColor;
+        shapeColorPicker.colorpickerElement.querySelector(
+          ".tui-colorpicker-palette-preview"
+        ).style.color = this.defaultColor;
+        shapeColorPicker.colorpickerElement.querySelector(
+          ".tui-colorpicker-palette-preview"
+        ).style.backgroundColor = this.defaultColor;
+
+        const textColorPicker =
+          this.imageEditorInst.ui.text._els.textColorpicker;
+        this.imageEditorInst.ui.text.colorPickerInputBox.defaultValue =
+          this.defaultColor;
+        this.imageEditorInst.ui.text._els.color = this.defaultColor;
+        textColorPicker.color = this.defaultColor;
+        textColorPicker.colorElement.style.backgroundColor = this.defaultColor;
+        textColorPicker.colorpickerElement.querySelector(
+          ".tui-colorpicker-palette-preview"
+        ).style.color = this.defaultColor;
+        textColorPicker.colorpickerElement.querySelector(
+          ".tui-colorpicker-palette-preview"
+        ).style.backgroundColor = this.defaultColor;
+
+        const iconColorPicker =
+          this.imageEditorInst.ui.icon._els.iconColorpicker;
+        this.imageEditorInst.ui.icon.color = this.defaultColor;
+        iconColorPicker.color = this.defaultColor;
+        iconColorPicker.colorElement.style.backgroundColor = this.defaultColor;
+        iconColorPicker.colorpickerElement.querySelector(
+          ".tui-colorpicker-palette-preview"
+        ).style.backgroundColor = this.defaultColor;
+        iconColorPicker.colorpickerElement.querySelector(
+          ".tui-colorpicker-palette-preview"
+        ).style.color = this.defaultColor;
+        this.imageEditorInst.ui.icon.colorPickerInputBox.defaultValue =
+          this.defaultColor;
       } catch (e) {
         console.log(e);
       }

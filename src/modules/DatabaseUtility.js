@@ -31,7 +31,7 @@ module.exports.initializeSession = () => {
     apperance: "light",
     showIssue: false,
     appLabel: false,
-    defaultColor: false,
+    defaultColor: "#1976D2FF",
     commentType: "Comment",
     audioCapture: false,
     videoQuality: "high",
@@ -112,6 +112,7 @@ module.exports.initializeSession = () => {
     if (!configDb.has("config") || !configDb.get("config").checklist) {
       configDb.set("config", config);
     }
+    
     dataDb.set("items", []);
   } catch (error) {
     console.log(error);

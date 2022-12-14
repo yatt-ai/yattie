@@ -4,6 +4,7 @@
       <div class="content-top">
         <ReviewWrapper
           :item="item"
+          :config="config"
           :processing="processing"
           :trigger-save="triggerSaveEvent"
         />

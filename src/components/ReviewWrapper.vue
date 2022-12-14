@@ -4,7 +4,11 @@
       v-if="sessionItem.fileType === 'image'"
       style="width: 100%; height: 100%"
     >
-      <ImageEditor :item="sessionItem" :trigger-save="triggerSaveEvent" />
+      <ImageEditor
+        :item="sessionItem"
+        :trigger-save="triggerSaveEvent"
+        :defaultColor="config.defaultColor"
+      />
     </div>
     <div v-else-if="sessionItem.fileType === 'video'">
       <VideoWrapper
@@ -70,6 +74,10 @@ export default {
     currentView: {
       type: String,
       default: () => "",
+    },
+    config: {
+      type: Object,
+      default: () => {},
     },
   },
   watch: {

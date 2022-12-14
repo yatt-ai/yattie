@@ -5,6 +5,7 @@
         <ReviewWrapper
           :item="item"
           :processing="processing"
+          :config="config"
           :trigger-save="triggerSaveEvent"
           :auto-save="autoSaveEvent"
         />

@@ -78,14 +78,31 @@
             </p>
           </div>
           <div class="flex-grow-0">
-            <v-switch
-              v-model="setting.defaultColor"
-              inset
+            <v-text-field
+              v-model="showColor"
               hide-details
-              dense
-              class="mt-0 pt-0 switch-control"
-              @change="handleConfig"
-            ></v-switch>
+              class="ma-0 pa-0"
+              solo
+            >
+              <template v-slot:append>
+                <v-menu
+                  v-model="menu"
+                  top
+                  nudge-bottom="105"
+                  nudge-left="16"
+                  :close-on-content-click="false"
+                >
+                  <template v-slot:activator="{ on }">
+                    <div :style="swatchStyle" v-on="on" />
+                  </template>
+                  <v-card>
+                    <v-card-text class="pa-0">
+                      <v-color-picker v-model="color" flat />
+                    </v-card-text>
+                  </v-card>
+                </v-menu>
+              </template>
+            </v-text-field>
           </div>
         </div>
       </v-col>
@@ -125,6 +142,32 @@ export default {
     config: function (newValue) {
       this.setting = newValue;
     },
+    color: function (newValue, oldValue) {
+      if (newValue === oldValue) return;
+
+      console.log(newValue, oldValue);
+
+      this.setting.defaultColor = newValue.hexa;
+      this.handleConfig();
+    },
+  },
+  computed: {
+    showColor() {
+      return this.config.defaultColor ? this.config.defaultColor : "#000000";
+    },
+    swatchStyle() {
+      const { menu } = this;
+      return {
+        backgroundColor: this.config.defaultColor
+          ? this.config.defaultColor
+          : "#000000",
+        cursor: "pointer",
+        height: "30px",
+        width: "30px",
+        borderRadius: menu ? "50%" : "4px",
+        transition: "border-radius 200ms ease-in-out",
+      };
+    },
   },
   data() {
     return {
@@ -134,6 +177,8 @@ export default {
         content: "",
         text: "",
       },
+      menu: false,
+      color: this.config.defaultColor,
       commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
     };
   },

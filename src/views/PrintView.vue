@@ -461,7 +461,7 @@ export default {
   color: #6b7280;
 }
 .summary .summary-text {
-  font-style: normal;
+  font-style: italic;
   font-weight: 500;
   font-size: 14px;
   line-height: 20px;
