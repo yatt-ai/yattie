@@ -26,8 +26,8 @@ export default {
       this.overlay = false;
       if (data === "add" || data === "edit") {
         const currentPath = this.$router.history.current.path;
-        if (currentPath !== "/main/timeline") {
-          this.$router.push({ path: "/main/timeline" });
+        if (currentPath !== "/main/workspace") {
+          this.$router.push({ path: "/main/workspace" });
         }
       }
       this.$forceUpdate();

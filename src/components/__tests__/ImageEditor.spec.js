@@ -6,9 +6,8 @@ import { mount } from "@vue/test-utils";
 const vuetify = new Vuetify();
 
 describe("ImageEditor.vue", () => {
-  let wrapper;
-  beforeEach(() => {
-    wrapper = mount(ImageEditor, {
+  test("render a view", () => {
+    const wrapper = mount(ImageEditor, {
       propsData: {
         item: {
           filePath: "",
@@ -16,5 +15,7 @@ describe("ImageEditor.vue", () => {
       },
       vuetify,
     });
+
+    expect(wrapper.find(".image-editor").exists()).toBe(true);
   });
 });

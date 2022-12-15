@@ -160,9 +160,18 @@ export default {
       });
     },
     async handleSave() {
-      this.triggerSaveEvent = !this.triggerSaveEvent;
+      if (this.item.sessionType !== "note") {
+        this.triggerSaveEvent = true;
+      } else {
+        this.saveData(this.item);
+      }
     },
-    async saveData() {
+    async saveData(data) {
+      if (data) {
+        this.item.fileName = data.fileName;
+        this.item.filePath = data.filePath;
+      }
+
       this.items = this.items.map((item) => {
         let temp = Object.assign({}, item);
         if (temp.id === this.item.id) {
@@ -171,18 +180,16 @@ export default {
         return temp;
       });
 
-      if (window.ipc) {
-        window.ipc
-          .invoke(IPC_HANDLERS.DATABASE, {
-            func: IPC_FUNCTIONS.UPDATE_ITEMS,
-            data: this.items,
-          })
-          .then(() => {
-            window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-              func: IPC_FUNCTIONS.CLOSE_EDIT_WINDOW,
-            });
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.UPDATE_ITEMS,
+          data: this.items,
+        })
+        .then(() => {
+          window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+            func: IPC_FUNCTIONS.CLOSE_EDIT_WINDOW,
           });
-      }
+        });
     },
   },
 };

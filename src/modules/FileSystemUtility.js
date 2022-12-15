@@ -8,10 +8,12 @@ const dayjs = require("dayjs");
 const configDir = (app || remote.app).getPath("userData");
 
 const databaseUtility = require("./DatabaseUtility");
+const captureUtility = require("./CaptureUtility");
 const { STATUSES } = require("./constants");
 
 module.exports.exportItems = async (ids) => {
   const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".zip";
+
   const { filePath } = await dialog.showSaveDialog({
     title: "Save Items",
     defaultPath: fileName,
@@ -31,7 +33,49 @@ module.exports.exportItems = async (ids) => {
         const data = databaseUtility.getItemById(id);
 
         if (data.filePath) {
-          zip.addLocalFile(data.filePath, data.type);
+          zip.addLocalFile(data.filePath, data.fileType);
+        }
+      });
+
+      zip.writeZip(filePath, (error) => {
+        if (error) {
+          throw error;
+        }
+
+        resolve({
+          status: STATUSES.SUCCESS,
+          message: "Project exported successfully",
+          filePath,
+        });
+      });
+    } catch (error) {
+      resolve({ status: STATUSES.ERROR, message: error.message });
+    }
+  });
+};
+
+module.exports.exportNotes = async (ids) => {
+  const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".zip";
+  const { filePath } = await dialog.showSaveDialog({
+    title: "Save Notes",
+    defaultPath: fileName,
+    filters: [{ name: "Zip archives only", extensions: ["zip"] }],
+    properties: ["createDirectory", "showOverwriteConfirmation"],
+  });
+
+  if (!filePath) {
+    return Promise.resolve({ status: "canceled" });
+  }
+
+  return new Promise((resolve) => {
+    try {
+      const zip = new AdmZip();
+
+      ids.map((id) => {
+        const data = databaseUtility.getNoteById(id);
+
+        if (data.filePath) {
+          zip.addLocalFile(data.filePath, data.fileType);
         }
       });
 
@@ -53,6 +97,16 @@ module.exports.exportItems = async (ids) => {
 };
 
 module.exports.saveSession = async (data) => {
+  const notesFileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + "-notes.txt";
+  const notes = databaseUtility.getNotes();
+  let notesFilePath = "";
+  if (notes.text !== "") {
+    notesFilePath = captureUtility.saveNote({
+      fileName: notesFileName,
+      comment: notes,
+    });
+  }
+
   const fileName = "TestSession.test";
   const { filePath } = await dialog.showSaveDialog({
     title: "Save Session",
@@ -67,6 +121,7 @@ module.exports.saveSession = async (data) => {
 
   return new Promise(function (resolve) {
     const items = databaseUtility.getItems();
+    data.notes = notes;
     data.sessions = items;
     const metaPath = path.join(configDir, "metadata.txt");
     const jsonStr = JSON.stringify(data);
@@ -85,9 +140,13 @@ module.exports.saveSession = async (data) => {
         fs.unlinkSync(metaPath);
         items.map((item) => {
           if (item.filePath) {
-            zip.addLocalFile(item.filePath, item.type);
+            zip.addLocalFile(item.filePath, item.fileType);
           }
         });
+
+        if (notesFilePath) {
+          zip.addLocalFile(notesFilePath, "text");
+        }
 
         zip.writeZip(filePath, (error) => {
           if (error) {
@@ -151,6 +210,16 @@ module.exports.openSession = async () => {
 };
 
 module.exports.exportSession = async (params) => {
+  const notesFileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + "-notes.txt";
+  const notes = databaseUtility.getNotes();
+  let notesFilePath = "";
+  if (notes.text !== "") {
+    notesFilePath = captureUtility.saveNote({
+      fileName: notesFileName,
+      comment: notes,
+    });
+  }
+
   // show save dialog
   const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".zip";
   const { filePath } = await dialog.showSaveDialog({
@@ -210,9 +279,13 @@ module.exports.exportSession = async (params) => {
 
             items.map((item) => {
               if (item.filePath) {
-                zip.addLocalFile(item.filePath, item.type);
+                zip.addLocalFile(item.filePath, item.fileType);
               }
             });
+
+            if (notesFilePath) {
+              zip.addLocalFile(notesFilePath, "text");
+            }
 
             zip.addLocalFile(pdfPath);
 

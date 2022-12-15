@@ -152,7 +152,7 @@ export default {
           this.sessionItem = result;
           this.$root.$emit("update-session", this.sessionItem);
           if (needCallback) {
-            this.$root.$emit("save-data");
+            this.$root.$emit("save-data", this.sessionItem);
           }
         });
     },

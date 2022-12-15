@@ -530,6 +530,14 @@ export default {
   mounted() {
     this.$root.$on("close-sourcepickerdialog", this.hideSourcePickerDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
+
+    if (this.status === SESSION_STATUSES.START) {
+      this.status = this.$store.state.status;
+      this.timer = this.$store.state.timer;
+      this.duration = this.$store.state.duration;
+      this.startInterval();
+    }
+
     this.$root.$on("close-summarydialog", () => {
       this.summaryDialog = false;
       this.endSession();
@@ -605,8 +613,8 @@ export default {
       this.changeSessionStatus(SESSION_STATUSES.START);
 
       const currentPath = this.$router.history.current.path;
-      if (currentPath !== "/main/timeline") {
-        this.$router.push({ path: "/main/timeline" });
+      if (currentPath !== "/main/workspace") {
+        this.$router.push({ path: "/main/workspace" });
       }
     },
     pauseSession() {
@@ -657,8 +665,9 @@ export default {
       this.changeSessionStatus(SESSION_STATUSES.PAUSE);
       this.timer = this.$store.state.timer;
       this.updateStoreSession();
+
       this.removeSummary();
-      this.$router.push({ path: "/main/timeline" });
+      this.$router.push({ path: "/main/workspace" });
     },
 
     reset() {
@@ -1103,12 +1112,15 @@ export default {
       });
     },
     async deleteItems() {
-      if (window.ipc) {
-        await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.DELETE_ITEMS,
-          data: this.selected,
-        });
-      }
+      await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.DELETE_ITEMS,
+        data: this.selected,
+      });
+
+      await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.DELETE_NOTES,
+        data: this.selected,
+      });
 
       this.selected = [];
       this.$root.$emit("update-selected", this.selected);
@@ -1168,6 +1180,12 @@ export default {
       window.ipc.invoke(IPC_HANDLERS.MENU, {
         func: IPC_FUNCTIONS.CHANGE_MENUITEM_STATUS,
         data: { sessionStatus: status },
+      });
+    },
+    async showNotePanel() {
+      await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.OPEN_NOTES_WINDOW,
+        data: { width: 700, height: 800 },
       });
     },
   },

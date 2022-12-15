@@ -114,6 +114,10 @@ module.exports.initializeSession = () => {
     }
     
     dataDb.set("items", []);
+    dataDb.set("notes", {
+      content: "",
+      text: "",
+    });
   } catch (error) {
     console.log(error);
   }
@@ -199,6 +203,25 @@ module.exports.updateConfig = (config) => {
     configDb.set("config", config);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("CONFIG_CHANGE");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.getNotes = () => {
+  try {
+    const data = dataDb.get("notes");
+    return data;
+  } catch (error) {
+    return [];
+  }
+};
+
+module.exports.updateNotes = (notes) => {
+  try {
+    dataDb.set("notes", notes);
+    browserWindow = browserUtility.getBrowserWindow();
+    browserWindow.webContents.send("DATA_CHANGE");
   } catch (error) {
     console.log(error);
   }

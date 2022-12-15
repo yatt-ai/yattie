@@ -62,7 +62,7 @@
           <SearchWrapper />
         </div>
         <div class="content my-1">
-          <TimelineWrapper
+          <WorkspaceWrapper
             :items="searchItems"
             :selectedItems="selected"
             event-type="click"
@@ -84,7 +84,7 @@
 <script>
 import SearchWrapper from "../components/SearchWrapper.vue";
 import TestWrapper from "../components/TestWrapper.vue";
-import TimelineWrapper from "../components/TimelineWrapper.vue";
+import WorkspaceWrapper from "../components/WorkspaceWrapper.vue";
 import ControlPanel from "../components/ControlPanel.vue";
 import ExportPanel from "../components/ExportPanel.vue";
 import LogoWrapper from "../components/LogoWrapper.vue";
@@ -98,7 +98,7 @@ export default {
   components: {
     SearchWrapper,
     TestWrapper,
-    TimelineWrapper,
+    WorkspaceWrapper,
     ControlPanel,
     ExportPanel,
     LogoWrapper,

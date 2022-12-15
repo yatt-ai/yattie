@@ -30,7 +30,8 @@ const { STATUSES } = require("./constants");
 
 const configDir = (app || remote.app).getPath("userData");
 
-let addWin, editWin, settingsWin, minimizeWin;
+let addWin, editWin, settingsWin, minimizeWin, notesWin;
+
 module.exports.getMediaSource = async () => {
   const sources = await desktopCapturer.getSources({
     thumbnailSize: {
@@ -350,6 +351,50 @@ module.exports.openAddWindow = ({ width, height, data }) => {
   }
 };
 
+module.exports.openAddWindow = ({ width, height, data }) => {
+  const browserWindow = browserUtility.getBrowserWindow();
+  const modalPath =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:8080/#/addSession"
+      : `file://${__dirname}/index.html#addSession`;
+
+  if (!addWin) {
+    addWin = new BrowserWindow({
+      width: width,
+      height: height,
+      minWidth: width,
+      minHeight: height,
+      center: true,
+      parent: browserWindow,
+      icon: path.join(__dirname, "../public/logo.png"),
+      webPreferences: {
+        devTools: true,
+        nodeIntegration: true,
+        webSecurity: false,
+        enableRemoteModule: true,
+        preload: path.join(app.getAppPath(), "preload.js"),
+      },
+    });
+
+    addWin.loadURL(modalPath);
+    addWin.setMenuBarVisibility(false);
+    addWin.once("ready-to-show", () => {
+      addWin.webContents.openDevTools();
+      addWin.show();
+      browserWindow.webContents.send("OPEN_CHILD_WINDOW");
+    });
+
+    addWin.webContents.on("did-finish-load", () => {
+      addWin.webContents.send("ACTIVE_SESSION", data);
+    });
+
+    addWin.on("close", () => {
+      browserWindow.webContents.send("CLOSE_CHILD_WINDOW", { data: "add" });
+      addWin = null;
+    });
+  }
+};
+
 module.exports.closeAddWindow = () => {
   addWin.close();
 };
@@ -523,3 +568,49 @@ module.exports.getImageData = (filePath) => {
 function base64_encode(file) {
   return "data:image/png;base64," + fs.readFileSync(file, "base64");
 }
+
+module.exports.openNotesWindow = (data) => {
+  const browserWindow = browserUtility.getBrowserWindow();
+  const modalPath =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:8080/#/note"
+      : `file://${__dirname}/index.html#note`;
+
+  if (!notesWin) {
+    notesWin = new BrowserWindow({
+      width: data.width,
+      height: data.height,
+      minWidth: data.width,
+      minHeight: data.height,
+      center: true,
+      parent: browserWindow,
+      icon: path.join(__dirname, "../public/logo.png"),
+      webPreferences: {
+        devTools: true,
+        nodeIntegration: true,
+        webSecurity: false,
+        enableRemoteModule: true,
+        preload: path.join(app.getAppPath(), "preload.js"),
+      },
+    });
+
+    notesWin.loadURL(modalPath);
+    notesWin.setMenuBarVisibility(false);
+    notesWin.once("ready-to-show", () => {
+      notesWin.webContents.openDevTools();
+      notesWin.show();
+      browserWindow.webContents.send("OPEN_CHILD_WINDOW");
+    });
+
+    notesWin.webContents.on("did-finish-load", () => {});
+
+    notesWin.on("close", () => {
+      browserWindow.webContents.send("CLOSE_CHILD_WINDOW", { data: "notes" });
+      notesWin = null;
+    });
+  }
+
+  module.exports.closeNotesWindow = () => {
+    notesWin.close();
+  };
+};

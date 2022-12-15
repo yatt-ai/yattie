@@ -138,20 +138,22 @@ export default {
       tags: [],
     };
   },
-  destroyed() {
-    this.handleClear();
-  },
   methods: {
     handleDiscard() {
+      this.handleClear();
       this.$root.$emit("close-notedialog");
     },
     handleSave() {
-      this.$emit("submit-comment", this.comment);
+      const data = { ...this.comment };
+      this.handleClear();
+      this.$emit("submit-comment", data);
     },
     handleClear() {
+      console.log("clear");
       this.comment.type = "Comment";
       this.comment.content = "";
       this.comment.text = "";
+      this.comment.tags = [];
     },
     updateNote({ content, text }) {
       this.comment.content = content;

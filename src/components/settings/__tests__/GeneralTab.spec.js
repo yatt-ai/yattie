@@ -47,14 +47,5 @@ describe("GeneralTab.vue", () => {
         .find(".content-wrapper .screen-recording-section .switch-control")
         .exists()
     ).toBe(true);
-
-    expect(
-      wrapper.find(".content-wrapper .capture-quality-section").exists()
-    ).toBe(true);
-    expect(
-      wrapper
-        .find(".content-wrapper .capture-quality-section .radio-control")
-        .exists()
-    ).toBe(true);
   });
 });

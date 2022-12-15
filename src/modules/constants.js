@@ -31,6 +31,8 @@ export const IPC_FUNCTIONS = {
   SET_WINDOW_SIZE: "setWindowSize",
   GET_IMAGE_DATA: "getImageData",
   SET_APPERANCE: "setApperance",
+  OPEN_NOTES_WINDOW: "openNotesWindow",
+  CLOSE_NOTES_WINDOW: "closeNotesWindow",
 
   INITIALIZE_SESSION: "initializeSession",
   GET_ITEMS: "getItems",
@@ -40,7 +42,11 @@ export const IPC_FUNCTIONS = {
   GET_CONFIG: "getConfig",
   UPDATE_CONFIG: "updateConfig",
 
+  GET_NOTES: "getNotes",
+  UPDATE_NOTES: "updateNotes",
+
   EXPORT_ITEMS: "exportItems",
+  EXPORT_NOTES: "exportNotes",
   SAVE_SESSION: "saveSession",
   OPEN_SESSION: "openSession",
   EXPORT_SESSION: "exportSession",

@@ -4,7 +4,7 @@ import VueRouter from "vue-router";
 
 import MainView from "../MainView";
 import TestWrapper from "../../components/TestWrapper";
-import TimelineWrapper from "../../components/TimelineWrapper";
+import WorkspaceWrapper from "../../components/WorkspaceWrapper";
 import TimeCounter from "../../components/TimeCounter";
 import storeConfig from "@/store/store-config";
 
@@ -67,11 +67,11 @@ describe("MainView.vue", () => {
     expect(wrapper.findComponent(TestWrapper).exists()).toBe(true);
   });
 
-  test('loads content of "timeline" tab', async () => {
+  test('loads content of "workspace" tab', async () => {
     const wrapper = mount(MainView, {
       data() {
         return {
-          activeTab: "/main/timeline",
+          activeTab: "/main/workspace",
         };
       },
       store: {
@@ -86,7 +86,7 @@ describe("MainView.vue", () => {
       vuetify,
     });
 
-    expect(wrapper.findComponent(TimelineWrapper).exists()).toBe(true);
+    expect(wrapper.findComponent(WorkspaceWrapper).exists()).toBe(true);
   });
 
   test("show the time counter by status", () => {

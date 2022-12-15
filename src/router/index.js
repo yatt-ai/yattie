@@ -7,6 +7,7 @@ import AddSession from "../views/AddSession.vue";
 import EditSession from "../views/EditSession.vue";
 import ResultView from "../views/ResultView.vue";
 import PrintView from "../views/PrintView.vue";
+import NoteView from "../views/NoteView.vue";
 import MinimizeView from "../views/MinimizeView.vue";
 
 import AuthenticationView from "../views/AuthenticationView.vue";
@@ -67,7 +68,7 @@ const routes = [
     component: MainView,
     children: [
       {
-        path: "timeline",
+        path: "workspace",
       },
     ],
   },
@@ -132,6 +133,11 @@ const routes = [
     path: "/print",
     name: "print",
     component: PrintView,
+  },
+  {
+    path: "/note",
+    name: "note",
+    component: NoteView,
   },
   {
     path: "/minimize",

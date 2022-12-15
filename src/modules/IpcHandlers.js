@@ -56,6 +56,11 @@ ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
       return captureUtility.getImageData(args.data);
     case IPC_FUNCTIONS.SET_APPERANCE:
       return captureUtility.setApperance(args.data);
+    case IPC_FUNCTIONS.OPEN_NOTES_WINDOW:
+      console.log("handler", args.data);
+      return captureUtility.openNotesWindow(args.data);
+    case IPC_FUNCTIONS.CLOSE_NOTES_WINDOW:
+      return captureUtility.closeNotesWindow();
     default:
       return null;
   }
@@ -77,6 +82,10 @@ ipcMain.handle(IPC_HANDLERS.DATABASE, async (event, args) => {
       return databaseUtility.getConfig(args.data);
     case IPC_FUNCTIONS.UPDATE_CONFIG:
       return databaseUtility.updateConfig(args.data);
+    case IPC_FUNCTIONS.UPDATE_NOTES:
+      return databaseUtility.updateNotes(args.data);
+    case IPC_FUNCTIONS.GET_NOTES:
+      return databaseUtility.getNotes();
     default:
       return null;
   }
@@ -86,6 +95,8 @@ ipcMain.handle(IPC_HANDLERS.FILE_SYSTEM, async (event, args) => {
   switch (args.func) {
     case IPC_FUNCTIONS.EXPORT_ITEMS:
       return fileSystemUtility.exportItems(args.data);
+    case IPC_FUNCTIONS.EXPORT_NOTES:
+      return fileSystemUtility.exportNotes(args.data);
     case IPC_FUNCTIONS.SAVE_SESSION:
       return fileSystemUtility.saveSession(args.data);
     case IPC_FUNCTIONS.OPEN_SESSION:

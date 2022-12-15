@@ -11,7 +11,13 @@
         hide-slider
       >
         <v-tab class="test-tab" to="/main" exact> Test </v-tab>
-        <v-tab class="timeline-tab" to="/main/timeline" exact> Timeline </v-tab>
+        <v-tab
+          class="workspace-tab"
+          :disabled="this.status === 'pending'"
+          to="/main/workspace"
+        >
+          Workspace
+        </v-tab>
       </v-tabs>
       <!--<v-btn class="mx-2" fab dark small color="primary" @click="signup">
         <v-icon dark> mdi-account </v-icon>
@@ -29,8 +35,8 @@
             type="preseesion"
           />
         </v-tab-item>
-        <v-tab-item value="/main/timeline" :transition="false">
-          <TimelineWrapper
+        <v-tab-item value="/main/workspace" :transition="false">
+          <WorkspaceWrapper
             :items="items"
             :selectedItems="selected"
             event-type="dblclick"
@@ -67,7 +73,7 @@ import {
   VTabItem,
 } from "vuetify/lib/components";
 import TestWrapper from "../components/TestWrapper.vue";
-import TimelineWrapper from "../components/TimelineWrapper.vue";
+import WorkspaceWrapper from "../components/WorkspaceWrapper.vue";
 import ControlPanel from "../components/ControlPanel.vue";
 import TimeCounter from "../components/TimeCounter.vue";
 import CheckTaskWrapper from "@/components/CheckTaskWrapper.vue";
@@ -86,7 +92,7 @@ export default {
     VTabsItems,
     VTabItem,
     TestWrapper,
-    TimelineWrapper,
+    WorkspaceWrapper,
     ControlPanel,
     TimeCounter,
     CheckTaskWrapper,
@@ -140,6 +146,12 @@ export default {
     },
   },
   methods: {
+    navigate(link) {
+      if (this.$route.path === link || this.status === SESSION_STATUSES.PENDING)
+        return;
+
+      this.$router.push({ path: link });
+    },
     checkStatusOfPreSessionTask() {
       if (!this.presession.status) {
         this.checkedStatusOfPreSessionTask = true;
