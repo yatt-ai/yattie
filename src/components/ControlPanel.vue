@@ -339,6 +339,32 @@
           </template>
           <span>Minimize</span>
         </v-tooltip>-->
+        <v-menu offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              id="btn_change_source"
+              class="control-btn mx-1"
+              fab
+              outlined
+              small
+              color="default"
+              v-on="on"
+              v-bind="attrs"
+            >
+              <v-icon>mdi-dots-vertical</v-icon>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item
+              @click="showSourcePickerDialog"
+              :disabled="
+                status === 'pause' || recordVideoStarted || recordAudioStarted
+              "
+            >
+              <v-list-item-title> Change recording target </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </v-col>
     </v-row>
     <SourcePickerDialog
@@ -600,21 +626,24 @@ export default {
     startSession(id) {
       this.sourceId = id;
       this.sourcePickerDialog = false;
-      this.status = SESSION_STATUSES.START;
-      this.timer = this.$store.state.timer;
-      this.duration = this.$store.state.duration;
-      if (this.duration > 0) {
-        this.isDuration = true;
-      }
-      this.started = this.getCurrentDateTime();
-      this.$store.commit("setStarted", this.started);
 
-      this.startInterval();
-      this.changeSessionStatus(SESSION_STATUSES.START);
+      if (this.status === SESSION_STATUSES.PENDING) {
+        this.status = SESSION_STATUSES.START;
+        this.timer = this.$store.state.timer;
+        this.duration = this.$store.state.duration;
+        if (this.duration > 0) {
+          this.isDuration = true;
+        }
+        this.started = this.getCurrentDateTime();
+        this.$store.commit("setStarted", this.started);
 
-      const currentPath = this.$router.history.current.path;
-      if (currentPath !== "/main/workspace") {
-        this.$router.push({ path: "/main/workspace" });
+        this.startInterval();
+        this.changeSessionStatus(SESSION_STATUSES.START);
+
+        const currentPath = this.$router.history.current.path;
+        if (currentPath !== "/main/workspace") {
+          this.$router.push({ path: "/main/workspace" });
+        }
       }
     },
     pauseSession() {
@@ -1012,7 +1041,7 @@ export default {
             d.deviceId != "communications" &&
             d.deviceId != "default"
         );
-        console.log("audio devices:", this.audioDevices);
+
         if (!this.audioDevices.length) {
           this.audioErrorDialog = true;
           return;
