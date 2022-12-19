@@ -155,7 +155,7 @@
               small
               color="default"
               v-on="on"
-              @click="summaryDialog = true"
+              @click="endSession()"
             >
               <img
                 :src="require('../assets/icon/stop.svg')"
@@ -421,12 +421,7 @@
     />
     <EndSessionDialog
       v-model="endSessionDialog"
-      @proceed="
-        () => {
-          endSessionDialog = false;
-          endSessionProcess();
-        }
-      "
+      @proceed="closeEndSessionDialog"
       :post-session-data="postSessionData"
     />
   </v-container>
@@ -566,7 +561,7 @@ export default {
 
     this.$root.$on("close-summarydialog", () => {
       this.summaryDialog = false;
-      this.endSession();
+      this.endSessionProcess();
     });
   },
   beforeDestroy() {
@@ -658,12 +653,12 @@ export default {
     },
     endSession() {
       if (this.postSessionData.status) {
-        // this.postsession = this.postSessionData;
         this.endSessionDialog = true;
         return;
+      } else {
+        this.summaryDialog = true;
+        return;
       }
-
-      this.endSessionProcess();
     },
     endSessionProcess() {
       this.sourceId = "";
@@ -698,7 +693,12 @@ export default {
       this.removeSummary();
       this.$router.push({ path: "/main/workspace" });
     },
-
+    closeEndSessionDialog(status) {
+      this.endSessionDialog = false;
+      if (status) {
+        this.summaryDialog = true;
+      }
+    },
     reset() {
       this.resetConfirmDialog = false;
       this.status = SESSION_STATUSES.PENDING;
@@ -1104,7 +1104,7 @@ export default {
 
       this.$emit("add-item", data);
       this.summaryDialog = false;
-      this.endSession();
+      this.endSessionProcess();
     },
     async removeSummary() {
       let summary = [];

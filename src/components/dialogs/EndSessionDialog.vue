@@ -9,12 +9,14 @@
         />
         <div class="footer">
           <v-btn
-            block
             color="primary text-capitalize white__text"
             class="btn-end"
             @click="endSession"
           >
             End Session
+          </v-btn>
+          <v-btn color="white text-capitalize" class="btn-end" @click="cancel">
+            Cancel
           </v-btn>
         </div>
       </v-card>
@@ -57,7 +59,10 @@ export default {
       }
 
       this.showTaskError = false;
-      this.$emit("proceed");
+      this.$emit("proceed", true);
+    },
+    cancel: function () {
+      this.$emit("proceed", false);
     },
   },
 };
@@ -65,5 +70,10 @@ export default {
 <style scoped>
 .footer {
   padding: 15px;
+  display: flex;
+  column-gap: 10px;
+}
+.v-btn {
+  flex: 1;
 }
 </style>
