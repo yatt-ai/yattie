@@ -1,4 +1,5 @@
 import { app, Menu } from "electron";
+import i18n from "./i18n";
 
 const createMenu = (win, dev) => {
   console.log(win, dev);
@@ -6,31 +7,35 @@ const createMenu = (win, dev) => {
   console.log(isMac);
   const template = [
     {
-      label: "File",
+      label: i18n.t("menu.file"),
       submenu: [
-        { label: "New Session", accelerator: "Ctrl+Shift+C" },
-        { label: "New Session for Existing Test", accelerator: "Ctrl+Shift+T" },
+        { label: i18n.t("menu.new_session"), accelerator: "Ctrl+Shift+C" },
+        { label: i18n.t("menu.new_session_test"), accelerator: "Ctrl+Shift+T" },
         {
-          label: "New Session for Existing Charter",
+          label: i18n.t("menu.new_session_charter"),
           accelerator: "Ctrl+Shift+B",
         },
-        { label: "Open Saved Session", accelerator: "Ctrl+Shift+O" },
+        { label: i18n.t("menu.open_session"), accelerator: "Ctrl+Shift+O" },
         { type: "separator" },
-        { label: "Save Session", accelerator: "Alt+Ctrl+S", enabled: false },
         {
-          label: "Save As Test Charter",
+          label: i18n.t("menu.save_session"),
+          accelerator: "Alt+Ctrl+S",
+          enabled: false,
+        },
+        {
+          label: i18n.t("menu.save_as_charter"),
           accelerator: "Ctrl+Shift+X",
           enabled: false,
         },
-        { label: "Reset Session", enabled: false },
+        { label: i18n.t("menu.reset_session"), enabled: false },
         { type: "separator" },
         {
-          label: "App Settings",
+          label: i18n.tc("menu.app_setting", 1),
           click: () => win.webContents.send("APP_SETTING", true),
         },
         { type: "separator" },
         {
-          label: "Exit",
+          label: i18n.t("menu.exit"),
           accelerator: "Alt+F4",
           click() {
             app.quit();
@@ -39,23 +44,23 @@ const createMenu = (win, dev) => {
       ],
     },
     {
-      label: "Edit",
+      label: i18n.t("menu.edit"),
       submenu: [
-        { label: "Undo", accelerator: "Ctrl+Z" },
-        { label: "Redo", accelerator: "Ctrl+Shift+Z" },
+        { label: i18n.t("menu.undo"), accelerator: "Ctrl+Z" },
+        { label: i18n.t("menu.redo"), accelerator: "Ctrl+Shift+Z" },
         { type: "separator" },
-        { label: "Cut", accelerator: "Ctrl+X" },
-        { label: "Copy", accelerator: "Ctrl+C" },
-        { label: "Paste", accelerator: "Ctrl+V" },
-        { label: "Select All", accelerator: "Ctrl+A" },
+        { label: i18n.t("menu.cut"), accelerator: "Ctrl+X" },
+        { label: i18n.t("menu.copy"), accelerator: "Ctrl+C" },
+        { label: i18n.t("menu.paste"), accelerator: "Ctrl+V" },
+        { label: i18n.t("menu.select_all"), accelerator: "Ctrl+A" },
       ],
     },
     {
       label: "Help",
       submenu: [
-        { label: "Online Documentation" },
-        { label: "Get Support" },
-        { label: "Check for updates" },
+        { label: i18n.t("menu.online_doc") },
+        { label: i18n.t("menu.get_support") },
+        { label: i18n.t("menu.check_update") },
       ],
     },
   ];

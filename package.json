@@ -19,10 +19,12 @@
     "lint": "vue-cli-service lint",
     "dev": "vue-cli-service electron:serve",
     "build": "vue-cli-service electron:build",
+    "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\"",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
     "publish": "vue-cli-service electron:build -p always"
   },
+  "main": "background.js",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.2.1",
     "@johmun/vue-tags-input": "^2.1.0",
@@ -44,6 +46,8 @@
     "uuid": "3.3.3",
     "v-mask": "^2.3.0",
     "vue": "^2.6.14",
+    "vue-i18n": "8",
+    "vue-i18n-bridge": "^9.2.0-beta.10",
     "vue-input-tag": "^2.0.7",
     "vue-router": "^3.5.1",
     "vuedraggable": "^2.24.3",
@@ -54,6 +58,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
+    "@intlify/vue-i18n-loader": "^3.2.0",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-plugin-router": "^5.0.0",
@@ -76,6 +81,7 @@
     "sass": "~1.32.0",
     "sass-loader": "^10.0.0",
     "vue-cli-plugin-electron-builder": "~2.1.1",
+    "vue-cli-plugin-i18n": "~2.3.1",
     "vue-cli-plugin-vuetify": "^2.5.8",
     "vue-template-compiler": "^2.7.13",
     "vuetify-loader": "^1.7.0"

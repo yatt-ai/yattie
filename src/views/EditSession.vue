@@ -18,11 +18,13 @@
           :height="250"
         />
         <div class="comment-type">
-          <div class="subtitle-2 label-text">Comment Type</div>
+          <div class="subtitle-2 label-text">
+            {{ $tc("caption.comment_type", 1) }}
+          </div>
           <v-select
             :items="commentTypes"
             v-model="item.comment.type"
-            placeholder="Comment Type"
+            :placeholder="$tc('caption.comment_type', 1)"
             solo
             dense
             hide-details="true"
@@ -38,7 +40,7 @@
         color="white"
         @click="handleClear"
       >
-        Clear
+        {{ $tc("caption.clear", 1) }}
       </v-btn>
       <div class="d-flex">
         <v-btn
@@ -49,7 +51,7 @@
           :disabled="processing"
           @click="handleDiscard"
         >
-          Discard
+          {{ $tc("caption.discard", 1) }}
         </v-btn>
         <v-btn
           class="text-capitalize"
@@ -59,7 +61,7 @@
           :disabled="processing"
           @click="handleSave"
         >
-          Save
+          {{ $tc("caption.save", 1) }}
         </v-btn>
       </div>
     </div>

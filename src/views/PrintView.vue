@@ -7,7 +7,7 @@
       <v-row>
         <v-col class="timeline" cols="8">
           <div class="summary">
-            <h3 class="detail-title mb-1">Summary</h3>
+            <h3 class="detail-title mb-1">{{ $tc("caption.summary", 1) }}</h3>
             <div class="summary-content">
               <div style="display: flex; flex-wrap: wrap; width: 30%">
                 <div
@@ -113,7 +113,7 @@
                   </div>
                   <div class="audio-wrapper">
                     <div class="audio-wave">
-                      <span>Audio Wave</span>
+                      <span>{{ $tc("caption.audio_wave", 1) }}</span>
                     </div>
                     <div class="audio-play">
                       <v-icon medium>mdi-play-circle</v-icon>
@@ -257,9 +257,9 @@
         </v-col>
         <v-divider vertical></v-divider>
         <v-col class="detail" cols="4">
-          <h3 class="detail-title">Details</h3>
+          <h3 class="detail-title">{{ $tc("caption.detail", 1) }}</h3>
           <div class="detail-item title">
-            <p class="item-title">Title</p>
+            <p class="item-title">{{ $tc("caption.title", 1) }}</p>
             <p class="item-value">{{ this.title }}</p>
           </div>
           <div class="detail-item charter">
@@ -267,27 +267,37 @@
             <p class="item-value">{{ this.charter.text }}</p>
           </div>
           <div class="detail-item pre-condition">
-            <p class="item-title">Preconditions</p>
+            <p class="item-title">{{ $tc("caption.precondition", 1) }}</p>
             <p class="item-value">{{ this.precondition.text }}</p>
           </div>
           <div class="detail-item session-time">
-            <p class="item-title">Session time</p>
+            <p class="item-title">{{ $tc("caption.session_time", 1) }}</p>
             <p class="item-value">{{ formatTime }}</p>
           </div>
           <div class="detail-item session-elapsed-time">
-            <p class="item-title">Session elapsed time</p>
+            <p class="item-title">
+              {{ $tc("caption.session_elaspsed_time", 1) }}
+            </p>
             <p class="item-value">{{ formatTime }}</p>
           </div>
           <div class="detail-item environment">
-            <p class="item-title">Environment</p>
+            <p class="item-title">{{ $tc("caption.environment", 1) }}</p>
             <p class="item-value os">
-              <span class="font-weight-bold">OS:</span> {{ os }}
+              <span class="font-weight-bold">{{ $tc("caption.os", 1) }}:</span>
+              &nbsp;
+              {{ os }}
             </p>
             <p class="item-value">
-              <span class="font-weight-bold">Window:</span> Full Screen
+              <span class="font-weight-bold">
+                {{ $tc("caption.window", 1) }}:
+              </span>
+              &nbsp;
+              {{ $tc("caption.full_screen", 1) }}
             </p>
             <p class="item-value screen-size">
-              <span class="font-weight-bold">Screensize:</span>
+              <span class="font-weight-bold">
+                {{ $tc("caption.screen_size", 1) }}:
+              </span>
               {{ screenWidth }} x {{ screenHeight }}
             </p>
           </div>

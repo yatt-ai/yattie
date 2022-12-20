@@ -8,17 +8,17 @@
             <v-text-field
               v-model="text"
               :rules="textRules"
-              label="Node Title"
+              :label="$tc('caption:note_title', 1)"
               required
             ></v-text-field>
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-btn small color="primary" class="text-capitalize" @click="save">
-            Save
+            {{ $tc("caption.save", 1) }}
           </v-btn>
           <v-btn small color="white" class="text-capitalize" @click="cancel">
-            Cancel
+            {{ $tc("caption.cancel", 1) }}
           </v-btn>
         </v-card-actions>
       </v-card>

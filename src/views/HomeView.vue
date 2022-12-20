@@ -13,7 +13,7 @@
           color="primary"
           to="main"
         >
-          New session
+          {{ $tc("caption.new_session", 1) }}
         </v-btn>
         <!-- <v-btn
           class="my-4 text-capitalize"
@@ -35,13 +35,12 @@
           class="text-capitalize open-btn"
           @click="openSession"
         >
-          Open Saved Session
+          {{ $tc("caption.open_session", 1) }}
         </v-btn>
       </div>
     </div>
   </v-container>
 </template>
-
 <script>
 import { VContainer, VBtn } from "vuetify/lib/components";
 import LogoWrapper from "../components/LogoWrapper.vue";

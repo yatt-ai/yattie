@@ -7,7 +7,7 @@
     </div>
     <div class="content">
       <div class="time-counter">
-        <span class="time-title">Time</span>
+        <span class="time-title">{{ $tc("caption.time", 1) }}</span>
         <span class="time-value">00:00:26</span>
       </div>
       <div class="control-panel">

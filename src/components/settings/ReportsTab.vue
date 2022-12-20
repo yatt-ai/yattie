@@ -2,12 +2,14 @@
   <v-container class="content-wrapper">
     <v-row>
       <v-col cols="12" class="pa-4">
-        <p class="body-1">Session Summary</p>
+        <p class="body-1">{{ $tc("caption.session_summary", 1) }}</p>
         <div class="d-flex align-start">
           <div class="flex-grow-1">
-            <p class="subtitle-1 mb-2">Mandatory session summary</p>
+            <p class="subtitle-1 mb-2">
+              {{ $tc("caption.mandatory_session_summary", 1) }}
+            </p>
             <p class="caption mb-0">
-              Make a written summary mandatory upon completing a session.
+              {{ $t("message.make_written_summary") }}.
             </p>
           </div>
           <div class="flex-grow-0">

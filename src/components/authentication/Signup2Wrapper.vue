@@ -2,10 +2,11 @@
   <v-container class="wrapper">
     <div class="header py-4">
       <v-btn class="text-capitalize pa-0 back-btn" plain to="/authentication">
-        <v-icon class="ma-0">mdi-chevron-left</v-icon>Back
+        <v-icon class="ma-0">mdi-chevron-left</v-icon>
+        {{ $tc("caption.back", 1) }}
       </v-btn>
       <div class="subtitle-1 signup-title text-center">
-        <span>Sign Up</span>
+        <span>{{ $tc("caption.sign_up", 1) }}</span>
       </div>
     </div>
     <div class="content mt-2">
@@ -13,30 +14,32 @@
         <v-col cols="12">
           <v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/yattie.png')" />
-            <div class="btn-text">Sign up with YATT</div>
+            <div class="btn-text">{{ $tc("caption.signup_yattie", 1) }}</div>
           </v-btn>
           <v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/jira.png')" />
-            <div class="btn-text">Sign up with JIRA</div>
+            <div class="btn-text">{{ $tc("caption.signup_jira", 1) }}</div>
           </v-btn>
           <v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/testrail.png')" />
-            <div class="btn-text">Sign up with TestRail</div>
+            <div class="btn-text">{{ $tc("caption.signup_testrail", 1) }}</div>
           </v-btn>
           <v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/qtest.png')" />
-            <div class="btn-text">Sign up with qTest</div>
+            <div class="btn-text">{{ $tc("caption.singup_qtest", 1) }}</div>
           </v-btn>
           <v-btn class="outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/practitest.png')" />
-            <div class="btn-text">Sign up with PractiTest</div>
+            <div class="btn-text">
+              {{ $tc("caption.signup_pratictest", 1) }}
+            </div>
           </v-btn>
         </v-col>
       </v-row>
       <v-row class="mb-1">
         <v-col cols="6">
           <v-btn class="text-capitalize btn_skip" fill small block>
-            Skip Sign Up
+            {{ $tc("caption.skip_sign_up", 1) }}
           </v-btn>
         </v-col>
         <v-col cols="6">
@@ -48,14 +51,14 @@
             block
             to="/authentication/signup3"
           >
-            Sign Up
+            {{ $tc("caption.sign_up", 1) }}
           </v-btn>
         </v-col>
       </v-row>
       <v-row>
         <v-col cols="12" class="divider">
           <span></span>
-          <div class="divider-text">Or</div>
+          <div class="divider-text">{{ $tc("caption.or", 1) }}</div>
           <span></span>
         </v-col>
       </v-row>
@@ -68,16 +71,23 @@
             plain
             to="/authentication/signin"
           >
-            Sign in
+            {{ $tc("caption.sign_in", 2) }}
           </v-btn>
         </v-col>
       </v-row>
     </div>
     <div class="footer">
       <v-alert class="terms-alert" dark>
-        By signing up, you agree to our
-        <span style="color: #000; font-weight: 500">Terms, Data Policy</span>
-        and <span style="color: #000; font-weight: 500">Cookies Policy</span>.
+        {{ $t("message.signup_policy") }}
+        <span style="color: #000; font-weight: 500">
+          {{ $tc("caption.term_data_policy", 1) }}
+        </span>
+        {{ $tc("caption.and", 1) }}
+        &nbsp;
+        <span style="color: #000; font-weight: 500">
+          {{ $tc("caption.cookie_policy", 1) }}
+        </span>
+        .
       </v-alert>
     </div>
   </v-container>

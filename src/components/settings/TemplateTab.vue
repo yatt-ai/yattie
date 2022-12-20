@@ -1,19 +1,18 @@
 <template>
   <v-container class="content-wrapper">
-    <div class="title">Note Templates</div>
+    <div class="title">{{ $tc("caption.note_template", 1) }}</div>
     <p class="subtitle-1 mb-4">
-      Improve your note taking and evidence labeling with pre-populated
-      templates
+      {{ $t("message.improve_note") }}
     </p>
 
     <v-row>
       <v-col cols="12" class="pa-4">
         <div class="mb-3 session-type">
-          <p class="subtitle-1 mb-1">Apply to</p>
+          <p class="subtitle-1 mb-1">{{ $tc("apply_to", 1) }}</p>
           <v-select
             :items="sessionTypes"
             v-model="type"
-            placeholder="Session Type"
+            :placeholder="$tc('caption.session_type', 1)"
             solo
             dense
             hide-details="true"
@@ -23,7 +22,7 @@
         <div class="mb-3 precond">
           <text-editor
             label="Preconditions"
-            placeholder="Define required preconditions for this test."
+            :placeholder="$t('message.define_required_precondition')"
             @update-data="updatePrecondition"
             :content="template.precondition.content"
             :height="150"
@@ -33,7 +32,7 @@
         <div class="mb-3 issue">
           <div class="subtitle-2 label-text">Issue</div>
           <v-text-field
-            placeholder="Enter a title for the project"
+            :placeholder="$t('message.enter_title_for_project')"
             outlined
             dense
             :height="32"
@@ -42,7 +41,7 @@
           ></v-text-field>
         </div>
         <div class="mb-7 bug">
-          <div class="subtitle-2 label-text">Bug</div>
+          <div class="subtitle-2 label-text">{{ $tc("caption.bug", 1) }}</div>
           <v-radio-group
             v-model="template.isBug"
             row
@@ -65,7 +64,7 @@
                 class="text-capitalize"
                 @click="handleCancel"
               >
-                Cancel
+                {{ $tc("caption.cancel", 1) }}
               </v-btn>
             </v-col>
             <v-col cols="6 pl-2">
@@ -76,7 +75,7 @@
                 class="text-capitalize"
                 @click="saveTemplate"
               >
-                Save Template
+                {{ $tc("caption.save_template", 1) }}
               </v-btn>
             </v-col>
           </v-row>

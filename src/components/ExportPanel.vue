@@ -3,7 +3,7 @@
     <v-row class="pa-2">
       <v-col cols="12" class="pa-1">
         <v-btn fill small block color="primary" @click="exportSession()">
-          Export Session Report
+          {{ $tc("caption.export_session_report", 1) }}
         </v-btn>
       </v-col>
     </v-row>

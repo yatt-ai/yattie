@@ -12,7 +12,7 @@
           :height="30"
           @click="showSourcePickerDialog"
         >
-          Start New Session
+          {{ $tc("caption.start_new_session", 1) }}
         </v-btn>
       </v-col>
     </v-row>
@@ -26,7 +26,7 @@
           color="primary"
           @click="deleteConfirmDialog = true"
         >
-          <v-icon left>mdi-delete</v-icon> Delete
+          <v-icon left>mdi-delete</v-icon> {{ $tc("caption.delete", 1) }}
         </v-btn>
       </v-col>
       <v-col cols="6" class="pa-1">
@@ -38,7 +38,7 @@
           color="white"
           @click="exportItems"
         >
-          <v-icon left>mdi-download</v-icon> Export
+          <v-icon left>mdi-download</v-icon> {{ $tc("caption.export", 1) }}
         </v-btn>
       </v-col>
     </v-row>
@@ -59,7 +59,7 @@
               <v-icon> mdi-play-circle </v-icon>
             </v-btn>
           </template>
-          <span>Resume Session</span>
+          <span>{{ $tc("caption.resume_session", 1) }}</span>
         </v-tooltip>
 
         <v-tooltip top v-if="status !== 'pause'">
@@ -77,7 +77,7 @@
               <v-icon> mdi-content-save </v-icon>
             </v-btn>
           </template>
-          <span>Save Session</span>
+          <span>{{ $tc("caption.save_session") }}</span>
         </v-tooltip>
         <v-tooltip top v-if="status !== 'pause'">
           <template v-slot:activator="{ on }">
@@ -94,7 +94,7 @@
               <v-icon> mdi-close-circle </v-icon>
             </v-btn>
           </template>
-          <span>Clear Session</span>
+          <span>{{ $tc("caption.clear_session", 1) }}</span>
         </v-tooltip>
       </v-col>
     </v-row>
@@ -122,7 +122,7 @@
               />
             </v-btn>
           </template>
-          <span>Pause Session</span>
+          <span>{{ $tc("caption.pause_session", 1) }}</span>
         </v-tooltip>
         <v-tooltip top v-if="status === 'pause'">
           <template v-slot:activator="{ on }">
@@ -143,7 +143,7 @@
               />
             </v-btn>
           </template>
-          <span>Resume Session</span>
+          <span>{{ $tc("caption.resume_session", 1) }}</span>
         </v-tooltip>
         <v-tooltip top>
           <template v-slot:activator="{ on }">
@@ -164,7 +164,7 @@
               />
             </v-btn>
           </template>
-          <span>End Session</span>
+          <span>{{ $tc("caption.end_session", 1) }}</span>
         </v-tooltip>
         <v-tooltip top v-if="!recordVideoStarted">
           <template v-slot:activator="{ on }">
@@ -186,7 +186,7 @@
               />
             </v-btn>
           </template>
-          <span>Start Video Record</span>
+          <span>{{ $tc("caption.start_video_record", 1) }}</span>
         </v-tooltip>
         <v-tooltip top v-if="recordVideoStarted">
           <template v-slot:activator="{ on }">
@@ -208,7 +208,7 @@
               />
             </v-btn>
           </template>
-          <span>Stop Video Record</span>
+          <span>{{ $tc("caption.stop_video_record", 1) }}</span>
         </v-tooltip>
         <v-tooltip top>
           <template v-slot:activator="{ on }">
@@ -230,7 +230,7 @@
               />
             </v-btn>
           </template>
-          <span>Screenshot</span>
+          <span>{{ $tc("caption.screenshot", 1) }}</span>
         </v-tooltip>
         <v-tooltip top v-if="!recordAudioStarted">
           <template v-slot:activator="{ on }">
@@ -252,7 +252,7 @@
               />
             </v-btn>
           </template>
-          <span>Start Audio Record</span>
+          <span>{{ $tc("caption.start_audio_record", 1) }}</span>
         </v-tooltip>
         <v-tooltip top v-if="recordAudioStarted">
           <template v-slot:activator="{ on }">
@@ -274,7 +274,7 @@
               />
             </v-btn>
           </template>
-          <span>Stop Audio Record</span>
+          <span>{{ $tc("caption.stop_audio_record", 1) }}</span>
         </v-tooltip>
         <v-tooltip top>
           <template v-slot:activator="{ on }">
@@ -296,7 +296,7 @@
               />
             </v-btn>
           </template>
-          <span>Note</span>
+          <span>{{ $tc("caption.note", 1) }}</span>
         </v-tooltip>
         <v-tooltip top>
           <template v-slot:activator="{ on }">
@@ -317,7 +317,7 @@
               />
             </v-btn>
           </template>
-          <span>Mind Map</span>
+          <span>{{ $tc("caption.mind_map", 1) }}</span>
         </v-tooltip>
         <!--<v-tooltip top>
           <template v-slot:activator="{ on }">
@@ -337,7 +337,7 @@
               />
             </v-btn>
           </template>
-          <span>Minimize</span>
+          <span>{{ $tc("caption.minimize", 1) }}</span>
         </v-tooltip>-->
         <v-menu offset-y>
           <template v-slot:activator="{ on, attrs }">
@@ -361,7 +361,9 @@
                 status === 'pause' || recordVideoStarted || recordAudioStarted
               "
             >
-              <v-list-item-title> Change recording target </v-list-item-title>
+              <v-list-item-title>{{
+                $tc("caption.change_recording_target", 1)
+              }}</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -386,37 +388,37 @@
     />
     <DeleteConfirmDialog
       v-model="deleteConfirmDialog"
-      title="Confirm delete"
-      :text="`Are you sure you want to delete?`"
+      :title="$tc('caption.confirm_delete', 1)"
+      :text="$t('message.confirm_delete')"
       @confirm="deleteItems"
       @cancel="deleteConfirmDialog = false"
     />
     <ResetConfirmDialog
       v-model="resetConfirmDialog"
-      title="Confirm Reset"
-      :text="`Are you sure you want to reset?`"
+      :title="$tc('caption.confirm_reset', 1)"
+      :text="$t('message.confirm_reset')"
       @confirm="reset"
       @cancel="resetConfirmDialog = false"
     />
     <NewSessionDialog
       v-model="newSessionDialog"
-      title="Save Current Progress"
-      :text="`Do you want save current progress?`"
+      :title="$tc('caption.save_current_progress', 1)"
+      :text="$t('message.confirm_save_progress')"
       @save="saveSession"
       @discard="discardSession"
       @cancel="newSessionDialog = false"
     />
     <DurationConfirmDialog
       v-model="durationConfirmDialog"
-      title="Session Time"
-      :text="`Do you want to proceed with testing or end the test session?`"
+      :title="$tc('caption.session_time', 1)"
+      :text="$t('message.confirm_proceed_session_time')"
       @end="end"
       @proceed="proceed"
     />
     <AudioErrorDialog
       v-model="audioErrorDialog"
-      title="Error Recording Audio"
-      :text="`An error occurred while recording the audio.`"
+      :title="$tc('caption.error_recording_audio', 1)"
+      :text="$t('message.error_recording_audio')"
       @cancel="audioErrorDialog = false"
     />
     <EndSessionDialog

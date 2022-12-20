@@ -3,9 +3,11 @@
     <v-sheet outlined color="accent" rounded>
       <v-card>
         <LogoWrapper :height="20" :width="60" />
-        <v-card-title class="title"> {{ title || "Delete" }} </v-card-title>
+        <v-card-title class="title">
+          {{ title || $tc("caption.delete", 1) }}
+        </v-card-title>
         <v-card-text class="text">
-          {{ text || "Are you sure you want to delete this?" }}
+          {{ text || $t("message.confirm_delete") }}
         </v-card-text>
         <v-card-actions>
           <v-btn
@@ -14,10 +16,10 @@
             class="text-capitalize btn"
             @click="preceed"
           >
-            Proceed
+            {{ $tc("caption.proceed", 1) }}
           </v-btn>
           <v-btn small color="white" class="text-capitalize btn" @click="end">
-            End
+            {{ $tc("caption.end", 1) }}
           </v-btn>
         </v-card-actions>
       </v-card>

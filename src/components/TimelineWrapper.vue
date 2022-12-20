@@ -2,7 +2,9 @@
   <v-container class="timeline-wrapper">
     <v-row>
       <v-col cols="12">
-        <div class="subtitle-2 label-text">Session Started</div>
+        <div class="subtitle-2 label-text">
+          {{ $tc("caption.session_started", 1) }}
+        </div>
         <div class="date-text">
           <v-icon>mdi-calendar-minus-outline</v-icon>
           <span v-if="$store.state.started">{{ $store.state.started }}</span>
@@ -355,7 +357,7 @@
           class="text-capitalize"
           @click="uploadEvidence"
         >
-          Upload evidence
+          {{ $tc("caption.upload_evidence", 1) }}
         </v-btn>
       </v-col>
     </v-row>

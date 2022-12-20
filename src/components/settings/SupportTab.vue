@@ -2,7 +2,7 @@
   <v-container class="content-wrapper">
     <v-row>
       <v-col cols="12" class="border-bottom pa-4">
-        <p class="body-1">TODO</p>
+        <p class="body-1">{{ $tc("caption.todo", 1) }}</p>
       </v-col>
     </v-row>
   </v-container>

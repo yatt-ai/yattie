@@ -2,17 +2,21 @@
   <v-container class="content-wrapper">
     <v-row>
       <v-col cols="12" class="border-bottom pa-4 ext-conn-section">
-        <p class="body-1">EXTERNAL CONNECTIONS</p>
-        <a class="jira-link" href="#">Connect to a TestRail instance</a>
+        <p class="body-1">{{ $tc("caption.external_connection", 1) }}</p>
+        <a class="jira-link" href="#">
+          {{ $t("message.connect_to_testrail") }}
+        </a>
         <p></p>
-        <a class="jira-link" href="#">Connect to a JIRA instance</a>
+        <a class="jira-link" href="#">{{ $t("message.connect_to_jira") }}</a>
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 app-role-section">
         <div class="d-flex align-start">
           <div class="flex-grow-1">
-            <p class="subtitle-1 mb-2">Use the app locally only</p>
+            <p class="subtitle-1 mb-2">
+              {{ $t("message.use_app_only_local") }}
+            </p>
             <p class="caption mb-0">
-              Don't pull or push data to external sources
+              {{ $t("message.dont_pull_push_data") }}
             </p>
           </div>
           <div class="flex-grow-0">
@@ -27,8 +31,8 @@
         </div>
       </v-col>
       <!--<v-col cols="12" class="border-bottom pa-4 color-panel-section">
-        <p class="subtitle-1 mb-4">YATT</p>
-        <p class="body-1">Add Color</p>
+        <p class="subtitle-1 mb-4">{{ $tc("caption.yatt", 1) }}</p>
+        <p class="body-1">{{ $tc("caption.add_color", 1) }}</p>
         <v-text-field
           v-model="color"
           v-mask="mask"
@@ -61,10 +65,10 @@
         <div class="d-flex flex-column" style="row-gap: 5px">
           <div class="d-flex align-center">
             <v-text-field
-              placeholder="Search"
+              :placeholder="$tc('caption.search', 1)"
               outlined
               dense
-              value="Organization name 1"
+              :value="$tc('caption.organization_name', 1) 1"
               hide-details="true"
             ></v-text-field>
             <v-btn icon color="primary" class="ml-2">
@@ -76,10 +80,10 @@
           </div>
           <div class="d-flex align-center">
             <v-text-field
-              placeholder="Search"
+              :placeholder="$tc('caption.search')"
               outlined
               dense
-              value="Organization name 1"
+              value="$tc('caption.organization_name', 1) 1"
               hide-details="true"
             ></v-text-field>
             <v-btn icon color="primary" class="ml-2">
@@ -91,7 +95,7 @@
           </div>
           <div>
             <v-btn plain color="primary" class="pa-0 add-btn">
-              Add another organization
+              {{ $tc("caption.add_another_organization", 1) }}
             </v-btn>
           </div>
         </div>

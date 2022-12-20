@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="12">
         <v-text-field
-          placeholder="Search"
+          :placeholder="$tc('caption.search', 1)"
           outlined
           dense
           v-model="search"

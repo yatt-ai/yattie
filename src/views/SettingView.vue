@@ -43,12 +43,28 @@ export default {
     return {
       activeTab: "/settings",
       tabs: [
-        { id: 1, name: "General", route: `/settings` },
-        { id: 2, name: "Connections", route: `/settings/connections` },
-        { id: 3, name: "Templates", route: `/settings/template` },
-        { id: 4, name: "Checklists", route: `/settings/checklist` },
-        { id: 5, name: "Reports", route: `/settings/reports` },
-        // { id: 6, name: "Support", route: `/settings/support` },
+        { id: 1, name: this.$tc("caption.general", 1), route: `/settings` },
+        {
+          id: 2,
+          name: this.$tc("caption.connection", 1),
+          route: `/settings/connections`,
+        },
+        {
+          id: 3,
+          name: this.$tc("caption.template", 1),
+          route: `/settings/template`,
+        },
+        {
+          id: 4,
+          name: this.$tc("caption.checklist", 1),
+          route: `/settings/checklist`,
+        },
+        {
+          id: 5,
+          name: this.$tc("caption.report", 1),
+          route: `/settings/reports`,
+        },
+        // { id: 6, name: this.$tc("caption.support", 1), route: `/settings/support` },
       ],
       config: {},
     };

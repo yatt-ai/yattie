@@ -1,16 +1,16 @@
 <template>
   <v-container class="wrapper">
-    <div class="title">Session Checklists</div>
+    <div class="title">{{ $tc("caption.session_checklist", 1) }}</div>
     <p class="subtitle-1 mb-4">
-      Use pre and post testing checklists to streamline your testing process
+      {{ $t("message.use_pre_post_test_checklist") }}
     </p>
     <div class="tab-bar">
       <v-tabs :height="26" hide-slider>
         <v-tab @click="tab = 'pre'" class="text-capitalize">
-          Pre session
+          {{ $tc("caption.pre_session", 1) }}
         </v-tab>
         <v-tab @click="tab = 'post'" class="text-capitalize">
-          Post session
+          {{ $tc("caption.post_session", 1) }}
         </v-tab>
       </v-tabs>
     </div>
@@ -25,7 +25,7 @@
             class="mt-0 pt-0"
             @change="handleStatus"
           />
-          <label>Enable checklist</label>
+          <label>{{ $tc("caption.enable_checklist", 1) }}</label>
         </div>
         <div class="content">
           <div class="overlay" v-show="!presessionStatus">&nbsp;</div>
@@ -43,7 +43,7 @@
                     class="item-select"
                     v-model="task.required"
                   />
-                  <span class="label">Required</span>
+                  <span class="label">{{ $tc("caption.required", 1) }}</span>
                 </div>
               </div>
               <div class="func-box">
@@ -52,7 +52,9 @@
             </div>
           </div>
           <div class="footer">
-            <button class="link" @click="addTask">Add another task</button>
+            <button class="link" @click="addTask">
+              {{ $tc("caption.add_another_task", 1) }}
+            </button>
           </div>
         </div>
       </v-tab-item>
@@ -66,7 +68,7 @@
             class="mt-0 pt-0"
             @change="handleStatus"
           />
-          <label>Enable checklist</label>
+          <label>{{ $tc("caption.enable_checklist", 1) }}</label>
         </div>
         <div class="content">
           <div class="overlay" v-show="!postsessionStatus">&nbsp;</div>
@@ -88,7 +90,7 @@
                     class="item-select"
                     v-model="task.required"
                   />
-                  <span class="label">Required</span>
+                  <span class="label">{{ $tc("caption.required", 1) }}</span>
                 </div>
               </div>
               <div
@@ -103,14 +105,16 @@
             </div>
           </div>
           <div class="footer">
-            <button class="link" @click="addTask">Add another task</button>
+            <button class="link" @click="addTask">
+              {{ $tc("caption.add_another_task", 1) }}
+            </button>
           </div>
         </div>
       </v-tab-item>
     </v-tabs-items>
     <!-- <div class="footer">
       <v-btn color="primary white__text text-capitalize" block>
-        End Session
+        {{ $tc("caption.end_session", 1) }}
       </v-btn>
     </div> -->
   </v-container>

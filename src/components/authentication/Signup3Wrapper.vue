@@ -6,16 +6,19 @@
         plain
         to="/authentication/signup2"
       >
-        <v-icon class="ma-0">mdi-chevron-left</v-icon>Back
+        <v-icon class="ma-0">mdi-chevron-left</v-icon>
+        {{ $tc("caption.back", 1) }}
       </v-btn>
       <div class="subtitle-1 signup-title text-center">
-        <span>Sign Up</span>
+        <span>{{ $tc("caption.sign_up", 1) }}</span>
       </div>
     </div>
     <div class="content mt-2">
       <v-row>
         <v-col cols="12">
-          <div class="subtitle-2 label-text">Start Test As</div>
+          <div class="subtitle-2 label-text">
+            {{ $tc("caption.start_test_as", 1) }}
+          </div>
           <v-radio-group
             v-model="start"
             row
@@ -30,7 +33,9 @@
       </v-row>
       <v-row>
         <v-col cols="12">
-          <div class="subtitle-2 label-text">Your Email</div>
+          <div class="subtitle-2 label-text">
+            {{ $tc("caption.your_email", 1) }}
+          </div>
           <v-text-field
             placeholder="you@example.com"
             outlined
@@ -43,7 +48,9 @@
       </v-row>
       <v-row>
         <v-col cols="12">
-          <div class="subtitle-2 label-text">Enter Service URL</div>
+          <div class="subtitle-2 label-text">
+            {{ $t("message.enter_service_url") }}
+          </div>
           <v-text-field
             placeholder="you@example.com"
             outlined
@@ -63,16 +70,23 @@
             small
             block
           >
-            Sign Up
+            {{ $tc("caption.sign_up", 1) }}
           </v-btn>
         </v-col>
       </v-row>
     </div>
     <div class="footer">
       <v-alert class="terms-alert" dark>
-        By signing up, you agree to our
-        <span style="color: #000; font-weight: 500">Terms, Data Policy</span>
-        and <span style="color: #000; font-weight: 500">Cookies Policy</span>.
+        {{ $t("message.signup_policy") }}
+        <span style="color: #000; font-weight: 500">
+          {{ $tc("caption.term_data_policy", 1) }}
+        </span>
+        {{ $tc("caption.and", 1) }}
+        &nbsp;
+        <span style="color: #000; font-weight: 500">
+          {{ $tc("caption.cookie_policy", 1) }}
+        </span>
+        .
       </v-alert>
     </div>
   </v-container>

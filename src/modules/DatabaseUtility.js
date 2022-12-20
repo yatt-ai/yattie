@@ -112,7 +112,7 @@ module.exports.initializeSession = () => {
     if (!configDb.has("config") || !configDb.get("config").checklist) {
       configDb.set("config", config);
     }
-    
+
     dataDb.set("items", []);
     dataDb.set("notes", {
       content: "",

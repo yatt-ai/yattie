@@ -2,7 +2,7 @@
   <v-container class="content-wrapper">
     <v-row>
       <v-col cols="12" class="border-bottom pa-4 theme-mode-section">
-        <p class="body-1">Apperance</p>
+        <p class="body-1">{{ $tc("caption.apperance", 1) }}</p>
         <v-radio-group
           v-model="setting.apperance"
           row
@@ -16,11 +16,13 @@
         </v-radio-group>
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 screen-recording-section">
-        <p class="body-1">Screen Recording</p>
+        <p class="body-1">{{ $tc("caption.screen_recording", 1) }}</p>
         <div class="d-flex align-start">
           <div class="flex-grow-1">
-            <p class="subtitle-1 mb-2">Audio on screen capture</p>
-            <p class="caption mb-0">Catpure audio with screen recordings.</p>
+            <p class="subtitle-1 mb-2">
+              {{ $tc("caption.audio_on_screen_capture", 1) }}
+            </p>
+            <p class="caption mb-0">{{ $t("message.capture_audio") }}.</p>
           </div>
           <div class="flex-grow-0">
             <v-switch
@@ -34,7 +36,9 @@
           </div>
         </div>
         <br />
-        <p class="subtitle-1 mb-2">Video capture quality</p>
+        <p class="subtitle-1 mb-2">
+          {{ $tc("caption.video_capture_quality", 1) }}
+        </p>
         <v-radio-group
           v-model="setting.videoQuality"
           class="ma-0 pa-0 radio-control"
@@ -44,7 +48,9 @@
         >
           <div class="d-flex align-start mb-4">
             <div class="flex-grow-1">
-              <p class="caption mb-0">High quality Video</p>
+              <p class="caption mb-0">
+                {{ $tc("caption.high_quality_video", 1) }}
+              </p>
             </div>
             <div class="flex-grow-0">
               <v-radio value="high"></v-radio>
@@ -52,7 +58,9 @@
           </div>
           <div class="d-flex align-start mb-4">
             <div class="flex-grow-1">
-              <p class="caption mb-0">Standard quality video</p>
+              <p class="caption mb-0">
+                {{ $tc("caption.standard_quality_video", 1) }}
+              </p>
             </div>
             <div class="flex-grow-0">
               <v-radio value="standard"></v-radio>
@@ -60,7 +68,9 @@
           </div>
           <div class="d-flex align-start">
             <div class="flex-grow-1">
-              <p class="caption mb-0">Low quality video</p>
+              <p class="caption mb-0">
+                {{ $tc("caption.low_quality_video", 1) }}
+              </p>
             </div>
             <div class="flex-grow-0">
               <v-radio value="low"></v-radio>
@@ -69,12 +79,14 @@
         </v-radio-group>
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 screenshot-section">
-        <p class="body-1">Screenshots</p>
+        <p class="body-1">{{ $tc("caption.screenshot") }}</p>
         <div class="d-flex align-start">
           <div class="flex-grow-1">
-            <p class="subtitle-1 mb-2">Select the default annotation color</p>
+            <p class="subtitle-1 mb-2">
+              {{ $t("message.select_default_color") }}
+            </p>
             <p class="caption mb-0">
-              This will change the default color of the image annotation tools.
+              {{ $t("message.default_color_description") }}.
             </p>
           </div>
           <div class="flex-grow-0">
@@ -108,11 +120,11 @@
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 note-section">
         <p class="body-1">Notes</p>
-        <p class="subtitle-1 mb-2">Select Default note/comment type</p>
+        <p class="subtitle-1 mb-2">{{ $t("select_default_comment_type") }}</p>
         <v-select
           :items="commentTypes"
           v-model="setting.commentType"
-          placeholder="Comment Type"
+          :placeholder="$tc('caption.comment_type')"
           solo
           dense
           hide-details="true"

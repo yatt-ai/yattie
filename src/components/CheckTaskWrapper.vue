@@ -1,6 +1,6 @@
 <template>
   <div class="task-wrapper">
-    <div class="subtitle-2 label-text">Checklist</div>
+    <div class="subtitle-2 label-text">{{ $tc("caption.checklist", 1) }}</div>
     <div class="list">
       <div class="one" v-for="task in tasks" :key="task.id">
         <input type="checkbox" v-model="task.checked" />
@@ -45,15 +45,13 @@ export default {
     errorData: function () {
       if (this.type === "preseesion") {
         return {
-          title: "Required checkboxes",
-          description:
-            "You can't begin your session without checking all required(*) pre-session checkboxes.",
+          title: this.$tc("caption.required_checkbox", 1),
+          description: this.$t("message.select_presesion_task"),
         };
       } else {
         return {
-          title: "Required checkboxes",
-          description:
-            "You can't end your session without checking all required(*) post-session checkboxes.",
+          title: this.$tc("caption.required_checkbox", 1),
+          description: this.$t("message.select_postsession_task"),
         };
       }
     },

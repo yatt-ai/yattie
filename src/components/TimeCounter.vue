@@ -4,11 +4,11 @@
       <v-col cols="12" class="pa-0">
         <div class="time-wrapper">
           <div class="time">
-            <span class="time-title">Elapsed time</span>
+            <span class="time-title">{{ $tc("caption.elapsed_time", 1) }}</span>
             <span class="time-value" color="primary">{{ elapsedTime }}</span>
           </div>
           <div class="time">
-            <span class="time-title">Remaining time</span>
+            <span class="time-title">{{ $tc("remaining_time", 1) }}</span>
             <span
               :class="`time-value ${this.$store.state.status}`"
               color="primary"

@@ -2,10 +2,11 @@
   <v-container class="wrapper">
     <div class="header py-4">
       <v-btn class="text-capitalize pa-0 back-btn" plain to="/authentication">
-        <v-icon class="ma-0">mdi-chevron-left</v-icon>Back
+        <v-icon class="ma-0">mdi-chevron-left</v-icon>
+        {{ $tc("caption.back", 1) }}
       </v-btn>
       <div class="subtitle-1 signup-title text-center">
-        <span>Sign In</span>
+        <span>{{ $tc("caption.sign_in", 1) }}</span>
       </div>
     </div>
     <div class="content mt-2">
@@ -13,27 +14,26 @@
         <v-col cols="12">
           <v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/yattie.png')" />
-            <div class="btn-text">Sign in with YATT</div>
+            <div class="btn-text">{{ $tc("caption.signin_yattie", 1) }}</div>
           </v-btn>
           <v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/jira.png')" />
-            <div class="btn-text">Sign in with JIRA</div>
+            <div class="btn-text">{{ $tc("caption.signin_jira", 1) }}</div>
           </v-btn>
-          <v-btn class="mb-4 outline-btn" block outlined color="white">
+          <!--<v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/testrail.png')" />
-            <div class="btn-text">Sign in with TestRail</div>
+            <div class="btn-text">{{ $tc("caption.signin_testrail", 1) }}</div>
           </v-btn>
           <v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/qtest.png')" />
-            <div class="btn-text">Sign in with qTest</div>
+            <div class="btn-text">{{ $tc("caption.signin_qtest", 1) }}</div>
           </v-btn>
           <v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/practitest.png')" />
-            <div class="btn-text">Sign in with PractiTest</div>
-          </v-btn>
-          <v-btn class="outline-btn" block outlined color="white">
-            <div class="btn-text">Sign in Manually</div>
-          </v-btn>
+            <div class="btn-text">
+              {{ $tc("caption.signin_practitest", 1) }}
+            </div>
+          </v-btn>-->
         </v-col>
       </v-row>
       <v-row>
@@ -52,7 +52,7 @@
             plain
             to="/authentication/signup2"
           >
-            Sign up
+            {{ $tc("caption.sign_up", 1) }}
           </v-btn>
         </v-col>
       </v-row>

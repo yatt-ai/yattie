@@ -10,13 +10,15 @@
         :height="26"
         hide-slider
       >
-        <v-tab class="test-tab" to="/main" exact> Test </v-tab>
+        <v-tab class="test-tab" to="/main" exact>
+          {{ $tc("caption.test", 1) }}
+        </v-tab>
         <v-tab
           class="workspace-tab"
           :disabled="this.status === 'pending'"
           to="/main/workspace"
         >
-          Workspace
+          {{ $tc("caption.workspace", 1) }}
         </v-tab>
       </v-tabs>
       <!--<v-btn class="mx-2" fab dark small color="primary" @click="signup">

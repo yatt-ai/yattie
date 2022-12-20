@@ -11,7 +11,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn small color="primary" class="text-capitalize" @click="cancel">
-            OK
+            {{ $tc("caption.ok", 1) }}
           </v-btn>
         </v-card-actions>
       </v-card>

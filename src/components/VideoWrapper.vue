@@ -9,7 +9,7 @@
           height="10"
           color="primary"
         ></v-progress-linear>
-        <div class="subtitle-2">Optimizing</div>
+        <div class="subtitle-2">{{ $tc("caption.optimizing", 1) }}</div>
       </div>
     </div>
     <div class="video-wrapper" v-if="!isProcessing">
@@ -26,7 +26,9 @@
       <div class="video-control">
         <div class="cut-duration">
           <div class="start-time">
-            <div class="subtitle-2 label-text">Start</div>
+            <div class="subtitle-2 label-text">
+              {{ $tc("caption.start", 1) }}
+            </div>
             <v-text-field
               placeholder="00:00"
               v-mask="'##:##'"
@@ -38,7 +40,7 @@
           </div>
           <div class="divider"><span>-</span></div>
           <div class="end-time">
-            <div class="subtitle-2 label-text">End</div>
+            <div class="subtitle-2 label-text">{{ $tc("caption.end", 1) }}</div>
             <v-text-field
               placeholder="00:00"
               v-mask="'##:##'"
@@ -49,7 +51,9 @@
             ></v-text-field>
           </div>
           <div class="duration-time">
-            <span class="">Length: {{ durationTime }}</span>
+            <span class="">
+              {{ $tc("caption.length", 1) }}: {{ durationTime }}
+            </span>
           </div>
         </div>
       </div>

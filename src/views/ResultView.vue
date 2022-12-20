@@ -31,11 +31,13 @@
             />
             <v-row class="mt-0 comment-wrapper">
               <v-col class="pr-0">
-                <div class="subtitle-2 label-text">Comment Type</div>
+                <div class="subtitle-2 label-text">
+                  {{ $tc("caption.comment_type", 1) }}
+                </div>
                 <v-select
                   :items="commentTypes"
                   v-model="activeSession.comment.type"
-                  placeholder="Comment Type"
+                  :placeholder="$tc('caption.comment_type', 1)"
                   solo
                   dense
                   @change="handleCommentType"
@@ -49,7 +51,7 @@
                   class="text-capitalize px-0"
                   @click="handleClear"
                 >
-                  Clear
+                  {{ $tc("caption.clear", 1) }}
                 </v-btn>
               </v-col>
             </v-row>

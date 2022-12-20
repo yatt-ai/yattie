@@ -6,7 +6,7 @@
       </div>
       <div class="new-section">
         <div class="subtitle-1 signup-title text-center">
-          Sign up to test apps
+          {{ $tc("caption.signup_test_app", 1) }}
         </div>
         <v-btn
           class="my-4 text-capitalize"
@@ -16,7 +16,7 @@
           color="primary"
           to="/authentication/signup2"
         >
-          Sign UP
+          ${{ $tc("caption.sign_up", 2) }}
         </v-btn>
         <v-btn
           class="my-4 text-capitalize"
@@ -26,15 +26,22 @@
           color="white"
           to="/authentication/signin"
         >
-          Sign In
+          {{ $tc("caption.sign_in", 1) }}
         </v-btn>
       </div>
     </div>
     <div class="footer">
       <v-alert class="terms-alert" dark>
-        By signing up, you agree to our
-        <span style="color: #000; font-weight: 500">Terms, Data Policy</span>
-        and <span style="color: #000; font-weight: 500">Cookies Policy</span>.
+        {{ $t("message.signup_policy") }}
+        <span style="color: #000; font-weight: 500">
+          {{ $tc("caption.term_data_policy", 1) }}
+        </span>
+        {{ $tc("caption.and", 1) }}
+        &nbsp;
+        <span style="color: #000; font-weight: 500">
+          {{ $tc("caption.cookie_policy", 1) }}
+        </span>
+        .
       </v-alert>
     </div>
   </v-container>

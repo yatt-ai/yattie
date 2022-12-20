@@ -3,9 +3,9 @@
     <v-row class="text-left">
       <v-col cols="12">
         <div class="title">
-          <div class="subtitle-2 label-text">Title</div>
+          <div class="subtitle-2 label-text">{{ $tc("caption.title", 1) }}</div>
           <v-text-field
-            placeholder="Enter a brief name for this charter"
+            :placeholder="$t('message.enter_brief_charter_name')"
             outlined
             dense
             :height="35"
@@ -15,7 +15,9 @@
           ></v-text-field>
         </div>
         <div class="mt-4">
-          <div class="subtitle-2 label-text">Charter</div>
+          <div class="subtitle-2 label-text">
+            {{ $tc("caption.charter", 1) }}
+          </div>
           <v-tabs
             class="charter-tab"
             color="cyan"
@@ -24,8 +26,12 @@
             background-color="primary"
             :height="32"
           >
-            <v-tab ripple class="text-capitalize"> Editor </v-tab>
-            <v-tab ripple class="text-capitalize"> Mindmap </v-tab>
+            <v-tab ripple class="text-capitalize">
+              {{ $tc("caption.editor", 1) }}
+            </v-tab>
+            <v-tab ripple class="text-capitalize">
+              {{ $tc("caption.mind_map", 1) }}
+            </v-tab>
             <v-tab-item :transition="false">
               <text-editor
                 class="charter"
@@ -49,7 +55,9 @@
           </v-tabs>
         </div>
         <div class="mt-4 timelimit">
-          <div class="subtitle-2 label-text">Time limit</div>
+          <div class="subtitle-2 label-text">
+            {{ $tc("caption.time_limit", 1) }}
+          </div>
           <div class="timer-box-wrapper">
             <v-text-field
               placeholder="00:00"
@@ -61,7 +69,9 @@
               hide-details="true"
               :disabled="this.$store.state.status !== 'pending' ? true : false"
             />
-            <span class="timer-box-wrapper-label">minutes</span>
+            <span class="timer-box-wrapper-label">
+              {{ $tc("caption.minute", 1) }}
+            </span>
           </div>
         </div>
         <div class="mt-4 pre-cond">
