@@ -30,7 +30,7 @@ describe("GeneralTab.vue", () => {
     );
     expect(
       wrapper
-        .find(".content-wrapper .screenshot-section .switch-control")
+        .find(".content-wrapper .screenshot-section .color-picker-wrapper")
         .exists()
     ).toBe(true);
 

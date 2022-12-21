@@ -59,7 +59,7 @@
         "
         :selectedItems="selected"
         :checkedStatusOfPreSessionTask="checkedStatusOfPreSessionTask"
-        :postSessionData="postsession"
+        view-mode="normal"
       />
       <TimeCounter v-if="$store.state.status !== 'pending'" />
     </div>
@@ -233,7 +233,7 @@ export default {
       // this.updateItems();
     },
     openEditWindow(data) {
-      window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      window.ipc.invoke(IPC_HANDLERS.WINDOW, {
         func: IPC_FUNCTIONS.OPEN_EDIT_WINDOW,
         data: data,
       });

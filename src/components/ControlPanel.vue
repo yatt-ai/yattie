@@ -1,431 +1,450 @@
 <template>
   <v-container>
-    <v-row class="text-center" v-if="status === 'pending'">
-      <v-col cols="12" class="">
-        <v-btn
-          id="btn_new_session"
-          class="text-capitalize font-weight-regular"
-          fill
-          small
-          block
-          color="primary"
-          :height="30"
-          @click="showSourcePickerDialog"
-        >
-          {{ $tc("caption.start_new_session", 1) }}
-        </v-btn>
-      </v-col>
-    </v-row>
-    <v-row class="mb-1" v-if="selected.length > 0">
-      <v-col cols="6" class="pa-1">
-        <v-btn
-          id="btn_delete"
-          fill
-          small
-          block
-          color="primary"
-          @click="deleteConfirmDialog = true"
-        >
-          <v-icon left>mdi-delete</v-icon> {{ $tc("caption.delete", 1) }}
-        </v-btn>
-      </v-col>
-      <v-col cols="6" class="pa-1">
-        <v-btn
-          id="btn_download"
-          fill
-          small
-          block
-          color="white"
-          @click="exportItems"
-        >
-          <v-icon left>mdi-download</v-icon> {{ $tc("caption.export", 1) }}
-        </v-btn>
-      </v-col>
-    </v-row>
-    <v-row class="text-center control-btn-wrapper" v-if="status === 'end'">
-      <v-col cols="12" class="d-flex justify-center px-0">
-        <v-tooltip top v-if="status !== 'pause'">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              id="btn_resume"
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              v-on="on"
-              @click="resume"
-            >
-              <v-icon> mdi-play-circle </v-icon>
-            </v-btn>
-          </template>
-          <span>{{ $tc("caption.resume_session", 1) }}</span>
-        </v-tooltip>
+    <div class="mini-ctrl-wrapper" v-if="viewMode === 'mini'">
+      <MinimizeControlWrapper
+        :p-elapsed-time="elapsedTime"
+        :p-status="status"
+        @pause-session="pauseSession()"
+        @resume-session="resumeSession()"
+        @end-session="endSession()"
+        @start-record-video="startRecordVideo()"
+        @stop-record-video="stopRecordVideo()"
+        @screenshot="screenshot()"
+        @start-record-audio="startRecordAudio()"
+        @stop-record-audio="stopRecordAudio()"
+        @show-note-dialog="showNoteDialog()"
+        @show-mindmap-dialog="mindMap()"
+        @show-source-picker="showSourcePickerDialog()"
+      />
+    </div>
+    <div className="nml-ctrl-wrapper" v-if="viewMode === 'normal'">
+      <v-row class="text-center" v-if="status === 'pending'">
+        <v-col cols="12" class="">
+          <v-btn
+            id="btn_new_session"
+            class="text-capitalize font-weight-regular"
+            fill
+            small
+            block
+            color="primary"
+            :height="30"
+            @click="startNewSession()"
+          >
+            {{ $tc("caption.start_new_session", 1) }}
+          </v-btn>
+        </v-col>
+      </v-row>
+      <v-row class="mb-1" v-if="selected.length > 0">
+        <v-col cols="6" class="pa-1">
+          <v-btn
+            id="btn_delete"
+            fill
+            small
+            block
+            color="primary"
+            @click="deleteConfirmDialog = true"
+          >
+            <v-icon left>mdi-delete</v-icon> Delete
+          </v-btn>
+        </v-col>
+        <v-col cols="6" class="pa-1">
+          <v-btn
+            id="btn_download"
+            fill
+            small
+            block
+            color="white"
+            @click="exportItems"
+          >
+            <v-icon left>mdi-download</v-icon> Export
+          </v-btn>
+        </v-col>
+      </v-row>
+      <v-row class="text-center control-btn-wrapper" v-if="status === 'end'">
+        <v-col cols="12" class="d-flex justify-center px-0">
+          <v-tooltip top v-if="status !== 'pause'">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                id="btn_resume"
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                v-on="on"
+                @click="resume"
+              >
+                <v-icon> mdi-play-circle </v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.resume_session", 1) }}</span>
+          </v-tooltip>
 
-        <v-tooltip top v-if="status !== 'pause'">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              id="btn_plus"
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              v-on="on"
-              @click="newSessionDialog = true"
-            >
-              <v-icon> mdi-content-save </v-icon>
-            </v-btn>
-          </template>
-          <span>{{ $tc("caption.save_session") }}</span>
-        </v-tooltip>
-        <v-tooltip top v-if="status !== 'pause'">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              id="btn_reset"
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              v-on="on"
-              @click="resetConfirmDialog = true"
-            >
-              <v-icon> mdi-close-circle </v-icon>
-            </v-btn>
-          </template>
-          <span>{{ $tc("caption.clear_session", 1) }}</span>
-        </v-tooltip>
-      </v-col>
-    </v-row>
-    <v-row
-      class="text-center control-btn-wrapper"
-      v-if="status !== 'pending' && status !== 'end'"
-    >
-      <v-col cols="12" class="d-flex justify-center px-0">
-        <v-tooltip top v-if="status !== 'pause'">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              id="btn_pause_session"
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              v-on="on"
-              @click="pauseSession()"
-            >
-              <img
-                :src="require('../assets/icon/pause.svg')"
-                width="24"
-                height="24"
-              />
-            </v-btn>
-          </template>
-          <span>{{ $tc("caption.pause_session", 1) }}</span>
-        </v-tooltip>
-        <v-tooltip top v-if="status === 'pause'">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              id="btn_resume_session"
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              v-on="on"
-              @click="resumeSession()"
-            >
-              <img
-                :src="require('../assets/icon/play.svg')"
-                width="24"
-                height="24"
-              />
-            </v-btn>
-          </template>
-          <span>{{ $tc("caption.resume_session", 1) }}</span>
-        </v-tooltip>
-        <v-tooltip top>
-          <template v-slot:activator="{ on }">
-            <v-btn
-              id="btn_end_session"
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              v-on="on"
-              @click="endSession()"
-            >
-              <img
-                :src="require('../assets/icon/stop.svg')"
-                width="24"
-                height="24"
-              />
-            </v-btn>
-          </template>
-          <span>{{ $tc("caption.end_session", 1) }}</span>
-        </v-tooltip>
-        <v-tooltip top v-if="!recordVideoStarted">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              id="btn_start_record_video"
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              v-on="on"
-              :disabled="status === 'pause'"
-              @click="startRecordVideo()"
-            >
-              <img
-                :src="require('../assets/icon/video-solid.svg')"
-                width="24"
-                height="24"
-              />
-            </v-btn>
-          </template>
-          <span>{{ $tc("caption.start_video_record", 1) }}</span>
-        </v-tooltip>
-        <v-tooltip top v-if="recordVideoStarted">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              id="btn_stop_record_video"
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              v-on="on"
-              :disabled="status === 'pause'"
-              @click="stopRecordVideo()"
-            >
-              <img
-                :src="require('../assets/icon/video-slash-solid.svg')"
-                width="24"
-                height="24"
-              />
-            </v-btn>
-          </template>
-          <span>{{ $tc("caption.stop_video_record", 1) }}</span>
-        </v-tooltip>
-        <v-tooltip top>
-          <template v-slot:activator="{ on }">
-            <v-btn
-              id="btn_screenshot"
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              :disabled="status === 'pause'"
-              v-on="on"
-              @click="screenshot()"
-            >
-              <img
-                :src="require('../assets/icon/camera.svg')"
-                width="24"
-                height="24"
-              />
-            </v-btn>
-          </template>
-          <span>{{ $tc("caption.screenshot", 1) }}</span>
-        </v-tooltip>
-        <v-tooltip top v-if="!recordAudioStarted">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              id="btn_start_record_audio"
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              v-on="on"
-              :disabled="status === 'pause'"
-              @click="startRecordAudio()"
-            >
-              <img
-                :src="require('../assets/icon/microphone-solid.svg')"
-                width="28"
-                height="28"
-              />
-            </v-btn>
-          </template>
-          <span>{{ $tc("caption.start_audio_record", 1) }}</span>
-        </v-tooltip>
-        <v-tooltip top v-if="recordAudioStarted">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              id="btn_stop_record_audio"
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              v-on="on"
-              :disabled="status === 'pause'"
-              @click="stopRecordAudio()"
-            >
-              <img
-                :src="require('../assets/icon/microphone-slash-solid.svg')"
-                width="28"
-                height="28"
-              />
-            </v-btn>
-          </template>
-          <span>{{ $tc("caption.stop_audio_record", 1) }}</span>
-        </v-tooltip>
-        <v-tooltip top>
-          <template v-slot:activator="{ on }">
-            <v-btn
-              id="btn_note"
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              :disabled="status === 'pause'"
-              v-on="on"
-              @click="showNoteDialog"
-            >
-              <img
-                :src="require('../assets/icon/pencil.svg')"
-                width="24"
-                height="24"
-              />
-            </v-btn>
-          </template>
-          <span>{{ $tc("caption.note", 1) }}</span>
-        </v-tooltip>
-        <v-tooltip top>
-          <template v-slot:activator="{ on }">
-            <v-btn
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              :disabled="status === 'pause'"
-              v-on="on"
-              @click="mindMap"
-            >
-              <img
-                :src="require('../assets/icon/connect.svg')"
-                width="24"
-                height="24"
-              />
-            </v-btn>
-          </template>
-          <span>{{ $tc("caption.mind_map", 1) }}</span>
-        </v-tooltip>
-        <!--<v-tooltip top>
-          <template v-slot:activator="{ on }">
-            <v-btn
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              v-on="on"
-              @click="minimize"
-            >
-              <img
-                :src="require('../assets/icon/union.svg')"
-                width="24"
-                height="24"
-              />
-            </v-btn>
-          </template>
-          <span>{{ $tc("caption.minimize", 1) }}</span>
-        </v-tooltip>-->
-        <v-menu offset-y>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              id="btn_change_source"
-              class="control-btn mx-1"
-              fab
-              outlined
-              small
-              color="default"
-              v-on="on"
-              v-bind="attrs"
-            >
-              <v-icon>mdi-dots-vertical</v-icon>
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-item
-              @click="showSourcePickerDialog"
-              :disabled="
-                status === 'pause' || recordVideoStarted || recordAudioStarted
-              "
-            >
-              <v-list-item-title>{{
-                $tc("caption.change_recording_target", 1)
-              }}</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </v-col>
-    </v-row>
-    <SourcePickerDialog
-      v-model="sourcePickerDialog"
-      :sources="sources"
-      :sourceId="sourceId"
-      :loaded="loaded"
-      @submit-source="startSession"
-    />
-    <NoteDialog
-      v-model="noteDialog"
-      @submit-comment="addNote"
-      :configItem="config"
-    />
-    <SummaryDialog
-      v-model="summaryDialog"
-      @submit-comment="addSummary"
-      :configItem="config"
-    />
-    <DeleteConfirmDialog
-      v-model="deleteConfirmDialog"
-      :title="$tc('caption.confirm_delete', 1)"
-      :text="$t('message.confirm_delete')"
-      @confirm="deleteItems"
-      @cancel="deleteConfirmDialog = false"
-    />
-    <ResetConfirmDialog
-      v-model="resetConfirmDialog"
-      :title="$tc('caption.confirm_reset', 1)"
-      :text="$t('message.confirm_reset')"
-      @confirm="reset"
-      @cancel="resetConfirmDialog = false"
-    />
-    <NewSessionDialog
-      v-model="newSessionDialog"
-      :title="$tc('caption.save_current_progress', 1)"
-      :text="$t('message.confirm_save_progress')"
-      @save="saveSession"
-      @discard="discardSession"
-      @cancel="newSessionDialog = false"
-    />
-    <DurationConfirmDialog
-      v-model="durationConfirmDialog"
-      :title="$tc('caption.session_time', 1)"
-      :text="$t('message.confirm_proceed_session_time')"
-      @end="end"
-      @proceed="proceed"
-    />
-    <AudioErrorDialog
-      v-model="audioErrorDialog"
-      :title="$tc('caption.error_recording_audio', 1)"
-      :text="$t('message.error_recording_audio')"
-      @cancel="audioErrorDialog = false"
-    />
-    <EndSessionDialog
-      v-model="endSessionDialog"
-      @proceed="closeEndSessionDialog"
-      :post-session-data="postSessionData"
-    />
+          <v-tooltip top v-if="status !== 'pause'">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                id="btn_save"
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                v-on="on"
+                @click="newSessionDialog = true"
+              >
+                <v-icon> mdi-content-save </v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.save_session") }}</span>
+          </v-tooltip>
+          <v-tooltip top v-if="status !== 'pause'">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                id="btn_reset"
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                v-on="on"
+                @click="resetConfirmDialog = true"
+              >
+                <v-icon> mdi-close-circle </v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.clear_session", 1) }}</span>
+          </v-tooltip>
+        </v-col>
+      </v-row>
+      <v-row
+        class="text-center control-btn-wrapper"
+        v-if="status !== 'pending' && status !== 'end'"
+      >
+        <v-col cols="12" class="d-flex justify-center px-0">
+          <v-tooltip top v-if="status !== 'pause'">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                id="btn_pause_session"
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                v-on="on"
+                @click="pauseSession()"
+              >
+                <img
+                  :src="require('../assets/icon/pause.svg')"
+                  width="24"
+                  height="24"
+                />
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.pause_session", 1) }}</span>
+          </v-tooltip>
+          <v-tooltip top v-if="status === 'pause'">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                id="btn_resume_session"
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                v-on="on"
+                @click="resumeSession()"
+              >
+                <img
+                  :src="require('../assets/icon/play.svg')"
+                  width="24"
+                  height="24"
+                />
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.resume_session", 1) }}</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn
+                id="btn_end_session"
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                v-on="on"
+                @click="endSession()"
+              >
+                <img
+                  :src="require('../assets/icon/stop.svg')"
+                  width="24"
+                  height="24"
+                />
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.end_session", 1) }}</span>
+          </v-tooltip>
+          <v-tooltip top v-if="!recordVideoStarted">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                id="btn_start_record_video"
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                v-on="on"
+                :disabled="status === 'pause'"
+                @click="startRecordVideo()"
+              >
+                <img
+                  :src="require('../assets/icon/video-solid.svg')"
+                  width="24"
+                  height="24"
+                />
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.start_video_record", 1) }}</span>
+          </v-tooltip>
+          <v-tooltip top v-if="recordVideoStarted">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                id="btn_stop_record_video"
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                v-on="on"
+                :disabled="status === 'pause'"
+                @click="stopRecordVideo()"
+              >
+                <img
+                  :src="require('../assets/icon/video-slash-solid.svg')"
+                  width="24"
+                  height="24"
+                />
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.stop_video_record", 1) }}</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn
+                id="btn_screenshot"
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                :disabled="status === 'pause'"
+                v-on="on"
+                @click="screenshot()"
+              >
+                <img
+                  :src="require('../assets/icon/camera.svg')"
+                  width="24"
+                  height="24"
+                />
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.screenshot", 1) }}</span>
+          </v-tooltip>
+          <v-tooltip top v-if="!recordAudioStarted">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                id="btn_start_record_audio"
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                v-on="on"
+                :disabled="status === 'pause'"
+                @click="startRecordAudio()"
+              >
+                <img
+                  :src="require('../assets/icon/microphone-solid.svg')"
+                  width="28"
+                  height="28"
+                />
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.start_audio_record", 1) }}</span>
+          </v-tooltip>
+          <v-tooltip top v-if="recordAudioStarted">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                id="btn_stop_record_audio"
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                v-on="on"
+                :disabled="status === 'pause'"
+                @click="stopRecordAudio()"
+              >
+                <img
+                  :src="require('../assets/icon/microphone-slash-solid.svg')"
+                  width="28"
+                  height="28"
+                />
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.stop_audio_record", 1) }}</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn
+                id="btn_note"
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                :disabled="status === 'pause'"
+                v-on="on"
+                @click="showNoteDialog"
+              >
+                <img
+                  :src="require('../assets/icon/pencil.svg')"
+                  width="24"
+                  height="24"
+                />
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.note", 1) }}</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                :disabled="status === 'pause'"
+                v-on="on"
+                @click="mindMap"
+              >
+                <img
+                  :src="require('../assets/icon/connect.svg')"
+                  width="24"
+                  height="24"
+                />
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.mind_map", 1) }}</span>
+          </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                v-on="on"
+                @click="minimize"
+              >
+                <img
+                  :src="require('../assets/icon/union.svg')"
+                  width="24"
+                  height="24"
+                />
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.minimize", 1) }}</span>
+          </v-tooltip>
+          <v-menu offset-y>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                id="btn_change_source"
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                v-on="on"
+                v-bind="attrs"
+              >
+                <v-icon>mdi-dots-vertical</v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item
+                @click="showSourcePickerDialog"
+                :disabled="
+                  status === 'pause' || recordVideoStarted || recordAudioStarted
+                "
+              >
+                <v-list-item-title>
+                  {{ $tc("caption.change_recording_target", 1) }}
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </v-col>
+      </v-row>
+      <SourcePickerDialog
+        v-model="sourcePickerDialog"
+        :sources="sources"
+        :sourceId="sourceId"
+        :loaded="loaded"
+        @submit-source="startSession"
+      />
+      <NoteDialog
+        v-model="noteDialog"
+        @submit-comment="addNote"
+        :configItem="config"
+      />
+      <SummaryDialog
+        v-model="summaryDialog"
+        @submit-comment="addSummary"
+        :configItem="config"
+      />
+      <DeleteConfirmDialog
+        v-model="deleteConfirmDialog"
+        :title="$tc('caption.confirm_delete', 1)"
+        :text="$t('message.confirm_delete')"
+        @confirm="deleteItems"
+        @cancel="deleteConfirmDialog = false"
+      />
+      <ResetConfirmDialog
+        v-model="resetConfirmDialog"
+        :title="$tc('caption.confirm_reset', 1)"
+        :text="$t('message.confirm_reset')"
+        @confirm="reset"
+        @cancel="resetConfirmDialog = false"
+      />
+      <NewSessionDialog
+        v-model="newSessionDialog"
+        :title="$tc('caption.save_current_progress', 1)"
+        :text="$t('message.confirm_save_progress')"
+        @save="saveSession"
+        @discard="discardSession"
+        @cancel="newSessionDialog = false"
+      />
+      <DurationConfirmDialog
+        v-model="durationConfirmDialog"
+        :title="$tc('caption.session_time', 1)"
+        :text="$t('message.confirm_proceed_session_time')"
+        @end="end"
+        @proceed="proceed"
+      />
+      <AudioErrorDialog
+        v-model="audioErrorDialog"
+        :title="$tc('caption.error_recording_audio', 1)"
+        :text="$t('message.error_recording_audio')"
+        @cancel="audioErrorDialog = false"
+      />
+      <EndSessionDialog
+        v-model="endSessionDialog"
+        @proceed="closeEndSessionDialog"
+        :post-session-data="postSessionData"
+      />
+    </div>
   </v-container>
 </template>
 
@@ -441,23 +460,21 @@ import NewSessionDialog from "./dialogs/NewSessionDialog.vue";
 import DurationConfirmDialog from "./dialogs/DurationConfirmDialog.vue";
 import AudioErrorDialog from "./dialogs/AudioErrorDialog.vue";
 import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
-
+import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
 import {
   IPC_HANDLERS,
   IPC_FUNCTIONS,
+  IPC_BIND_KEYS,
   SESSION_STATUSES,
   VIDEO_RESOLUTION,
 } from "../modules/constants";
-
 import {
   DEFAULT_MAP_NODES,
   DEFAULT_MAP_CONNECTIONS,
 } from "../modules/constants";
-
 let mediaRecorder;
 let audioContext;
 let dest;
-
 export default {
   name: "ControlPanel",
   components: {
@@ -475,6 +492,7 @@ export default {
     DurationConfirmDialog,
     AudioErrorDialog,
     EndSessionDialog,
+    MinimizeControlWrapper,
   },
   props: {
     items: {
@@ -493,9 +511,13 @@ export default {
       type: Boolean,
       default: () => false,
     },
-    postSessionData: {
-      type: Object,
-      default: () => {},
+    viewMode: {
+      type: String,
+      default: () => "normal",
+    },
+    srcId: {
+      type: String,
+      default: () => "",
     },
   },
   created() {
@@ -517,21 +539,32 @@ export default {
       this.config = newValue;
     },
   },
+  computed: {
+    postSessionData() {
+      if (this.config.checklist) return this.config.checklist.postsession;
+      else return {};
+    },
+    elapsedTime() {
+      const timer = this.timer;
+      const date = new Date(null);
+      date.setSeconds(timer);
+      const result = date.toISOString().substr(11, 8);
+      return result;
+    },
+  },
   data() {
     return {
       sourcePickerDialog: false,
       noteDialog: false,
       summaryDialog: false,
-
       deleteConfirmDialog: false,
       resetConfirmDialog: false,
       newSessionDialog: false,
       durationConfirmDialog: false,
       audioErrorDialog: false,
       endSessionDialog: false,
-
       sources: [],
-      sourceId: "",
+      sourceId: this.srcId,
       itemLists: this.items,
       config: this.configItem,
       audioDevices: [],
@@ -539,57 +572,165 @@ export default {
       status: this.$store.state.status,
       recordVideoStarted: false,
       recordAudioStarted: false,
-
       interval: null,
       timer: 0,
       duration: 0,
       isDuration: false,
       started: "",
       ended: "",
-
       selected: [],
     };
   },
   mounted() {
     this.$root.$on("close-sourcepickerdialog", this.hideSourcePickerDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
-
-    if (this.status === SESSION_STATUSES.START) {
-      this.status = this.$store.state.status;
-      this.timer = this.$store.state.timer;
-      this.duration = this.$store.state.duration;
-      this.startInterval();
-    }
-
     this.$root.$on("close-summarydialog", () => {
       this.summaryDialog = false;
       this.endSessionProcess();
     });
+
+    if (
+      this.$store.state.status === SESSION_STATUSES.START ||
+      this.$store.state.status === SESSION_STATUSES.PAUSE ||
+      this.$store.state.status === SESSION_STATUSES.RESUME
+    ) {
+      this.status = this.$store.state.status;
+      this.timer = this.$store.state.timer;
+      this.duration = this.$store.state.duration;
+      if (this.$store.state.status === SESSION_STATUSES.START) {
+        this.startSession(this.sourceId);
+      }
+    }
+
+    this.bindIPCEvent();
   },
   beforeDestroy() {
     this.$root.$off("close-sourcepickerdialog", this.hideSourcePickerDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
-
     // clear timer
     clearInterval(this.interval);
     this.timer = 0;
   },
   methods: {
-    showSourcePickerDialog() {
+    bindIPCEvent() {
+      if (!window.ipc) return;
+
+      window.ipc.on(IPC_BIND_KEYS.CLOSED_NOTE_DIALOG, (data) => {
+        this.addNote(data);
+      });
+      window.ipc.on(IPC_BIND_KEYS.CLOSED_SUMMARY_DIALOG, (data) => {
+        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+          func: IPC_FUNCTIONS.CLOSE_SESSION_AND_MINIIMIZED_WINDOW,
+          data: {
+            data: {
+              status: this.status,
+              timer: this.timer,
+              duration: this.duration,
+              sourceId: this.sourceId,
+              summary: data,
+            },
+            bindKey: IPC_BIND_KEYS.END_SESSION,
+          },
+        });
+      });
+      window.ipc.on(IPC_BIND_KEYS.CLOSED_ENDSESSION_DIALOG, (data) => {
+        if (data.passed) {
+          this.showSummaryDialog();
+        }
+      });
+      window.ipc.on(IPC_BIND_KEYS.CLOSED_SOURCEPICKER_DIALOG, (data) => {
+        if (data.sourceId) {
+          this.sourceId = data.sourceId;
+          this.$root.$emit("source-id-changed", this.sourceId);
+        }
+      });
+      window.ipc.on(IPC_BIND_KEYS.END_SESSION, (data) => {
+        if (data) {
+          this.timer = data.timer;
+          this.status = data.status;
+          this.duration = data.duration;
+          this.sourceId = data.sourceId;
+          this.updateStoreSession();
+          if (data.summary) {
+            this.addSummary(data.summary);
+          } else {
+            this.endSessionProcess();
+          }
+        } else {
+          this.endSessionProcess();
+        }
+      });
+      window.ipc.on(IPC_BIND_KEYS.CLOSED_MINIMIZE_WINDOW, (data) => {
+        this.status = data.status;
+        this.duration = data.duration;
+        this.timer = data.timer;
+        this.sourceId = data.sourceId;
+
+        if (
+          this.status !== data.status &&
+          data.status === SESSION_STATUSES.START
+        ) {
+          this.startSession(this.sourceId);
+        } else if (data.status === SESSION_STATUSES.PAUSE) {
+          this.pauseSession();
+        }
+      });
+    },
+    startNewSession() {
       if (!this.checkedStatusOfPreSessionTask) {
         this.$emit("handle-pressesion-task-error", true);
         return;
       }
 
       this.$emit("handle-pressesion-task-error", false);
-      this.sourcePickerDialog = true;
-      this.getSourceList();
+      this.showSourcePickerDialog();
+    },
+    showSourcePickerDialog() {
+      if (!window.ipc) return;
+      window.ipc
+        .invoke(IPC_HANDLERS.CAPTURE, {
+          func: IPC_FUNCTIONS.GET_MEDIA_SOURCE,
+        })
+        .then((data) => {
+          this.loaded = true;
+          this.sources = data.filter((source) => source.name !== "yattie");
+          if (this.viewMode === "normal") {
+            this.sourcePickerDialog = true;
+          } else {
+            window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+              func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
+              data: {
+                path: "sourcepicker",
+                size: {
+                  width: 600,
+                  height: 500,
+                },
+                data: this.sources,
+              },
+            });
+          }
+        });
     },
     hideSourcePickerDialog() {
       this.sourcePickerDialog = false;
     },
     showNoteDialog() {
-      this.noteDialog = true;
+      if (this.viewMode === "normal") {
+        this.noteDialog = true;
+      } else {
+        if (!window.ipc) return;
+        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+          func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
+          data: {
+            path: "noteEditor",
+            size: {
+              width: 400,
+              height: 550,
+            },
+            data: this.config,
+          },
+        });
+      }
     },
     hideNoteDialog() {
       this.noteDialog = false;
@@ -600,7 +741,6 @@ export default {
         if (this.duration > 0) {
           this.duration -= 1;
         }
-
         this.updateStoreSession();
         if (this.isDuration && this.duration === 0) {
           this.durationConfirmDialog = true;
@@ -623,20 +763,18 @@ export default {
     startSession(id) {
       this.sourceId = id;
       this.sourcePickerDialog = false;
-
-      if (this.status === SESSION_STATUSES.PENDING) {
-        this.status = SESSION_STATUSES.START;
-        this.timer = this.$store.state.timer;
-        this.duration = this.$store.state.duration;
-        if (this.duration > 0) {
-          this.isDuration = true;
-        }
-        this.started = this.getCurrentDateTime();
-        this.$store.commit("setStarted", this.started);
-
-        this.startInterval();
-        this.changeSessionStatus(SESSION_STATUSES.START);
-
+      this.status = SESSION_STATUSES.START;
+      this.timer = this.$store.state.timer;
+      this.duration = this.$store.state.duration;
+      if (this.duration > 0) {
+        this.isDuration = true;
+      }
+      this.started = this.getCurrentDateTime();
+      this.$store.commit("setStarted", this.started);
+      console.log("start interval-2");
+      this.startInterval();
+      this.changeSessionStatus(SESSION_STATUSES.START);
+      if (this.viewMode === "normal") {
         const currentPath = this.$router.history.current.path;
         if (currentPath !== "/main/workspace") {
           this.$router.push({ path: "/main/workspace" });
@@ -649,31 +787,29 @@ export default {
       this.stopInterval();
     },
     resumeSession() {
-      this.status = SESSION_STATUSES.RESUME;
+      this.status = SESSION_STATUSES.START;
       this.timer = this.$store.state.timer;
+      console.log("start interval-3");
       this.startInterval();
     },
     endSession() {
       if (this.postSessionData.status) {
-        this.endSessionDialog = true;
+        this.showEndSessionDialog();
         return;
       } else {
-        this.summaryDialog = true;
+        this.showSummaryDialog();
         return;
       }
     },
-    endSessionProcess() {
+    async endSessionProcess() {
       this.sourceId = "";
-
       this.ended = this.getCurrentDateTime();
       this.$store.commit("setEnded", this.ended);
-
       this.status = SESSION_STATUSES.END;
       this.changeSessionStatus(SESSION_STATUSES.END);
       this.stopInterval();
-
       if (window.ipc) {
-        window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
           func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
           data: {
             width: 1440,
@@ -683,17 +819,43 @@ export default {
           },
         });
       }
-
-      this.$router.push({ path: "/result" });
+      this.$router.push({ path: "/result" }).catch(() => {});
     },
-    resume() {
-      this.status = SESSION_STATUSES.PAUSE;
-      this.changeSessionStatus(SESSION_STATUSES.PAUSE);
-      this.timer = this.$store.state.timer;
-      this.updateStoreSession();
-
-      this.removeSummary();
-      this.$router.push({ path: "/main/workspace" });
+    showSummaryDialog() {
+      if (this.viewMode === "normal") {
+        this.summaryDialog = true;
+      } else {
+        if (!window.ipc) return;
+        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+          func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
+          data: {
+            path: "summaryEditor",
+            size: {
+              width: 500,
+              height: 500,
+            },
+            data: this.config,
+          },
+        });
+      }
+    },
+    showEndSessionDialog() {
+      if (this.viewMode === "normal") {
+        this.endSessionDialog = true;
+      } else {
+        if (!window.ipc) return;
+        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+          func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
+          data: {
+            path: "endsession",
+            size: {
+              width: 350,
+              height: 500,
+            },
+            data: this.config,
+          },
+        });
+      }
     },
     closeEndSessionDialog(status) {
       this.endSessionDialog = false;
@@ -701,12 +863,19 @@ export default {
         this.summaryDialog = true;
       }
     },
+    resume() {
+      this.status = SESSION_STATUSES.PAUSE;
+      this.changeSessionStatus(SESSION_STATUSES.PAUSE);
+      this.timer = this.$store.state.timer;
+      this.updateStoreSession();
+      this.removeSummary();
+      this.$router.push({ path: "/main/workspace" });
+    },
     reset() {
       this.resetConfirmDialog = false;
       this.status = SESSION_STATUSES.PENDING;
       this.changeSessionStatus(SESSION_STATUSES.PENDING);
       this.$store.commit("resetState");
-
       try {
         // reset database
         window.ipc.invoke(IPC_HANDLERS.DATABASE, {
@@ -715,11 +884,9 @@ export default {
       } catch (e) {
         console.log(e);
       }
-
       this.stopInterval();
       this.$router.push({ path: "/main" });
     },
-
     end() {
       this.durationConfirmDialog = false;
       this.endSession();
@@ -728,27 +895,13 @@ export default {
       this.durationConfirmDialog = false;
       this.status = SESSION_STATUSES.PROCEED;
       this.changeSessionStatus(SESSION_STATUSES.PROCEED);
+      console.log("start interval-1");
       this.startInterval();
     },
-
     updateStatus(value) {
       this.status = value;
       this.changeSessionStatus(this.status);
       this.$store.commit("setStatus", this.status);
-    },
-    async getSourceList() {
-      try {
-        await window.ipc
-          .invoke(IPC_HANDLERS.CAPTURE, {
-            func: IPC_FUNCTIONS.GET_MEDIA_SOURCE,
-          })
-          .then((data) => {
-            this.loaded = true;
-            this.sources = data;
-          });
-      } catch (e) {
-        console.log(e);
-      }
     },
     async screenshot() {
       this.handleStream = (stream) => {
@@ -783,11 +936,9 @@ export default {
           }
         };
       };
-
       this.handleError = (error) => {
         console.log(error);
       };
-
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: false,
@@ -815,10 +966,8 @@ export default {
         mediaRecorder = new MediaRecorder(stream, {
           mimeType: "video/webm;codecs=h264",
         });
-
         let poster;
         let frames = [];
-
         mediaRecorder.onstart = () => {
           this.recordVideoStarted = true;
           const video = document.createElement("video");
@@ -842,13 +991,11 @@ export default {
               });
           };
         };
-
         mediaRecorder.ondataavailable = (e) => {
           if (e.data.size > 0) {
             frames.push(e.data);
           }
         };
-
         mediaRecorder.onstop = async () => {
           this.recordVideoStarted = false;
           const blob = new Blob(frames, { type: "video/webm;codecs=h264" });
@@ -872,16 +1019,12 @@ export default {
               });
           }
         };
-
         frames = [];
-
         mediaRecorder.start(1000);
       };
-
       this.handleError = (error) => {
         console.log(error);
       };
-
       try {
         const videoQuality = this.config.videoQuality;
         let resolution;
@@ -904,18 +1047,14 @@ export default {
             },
           },
         };
-
         if (this.config.audioCapture) {
           this.audioDevices = await this.getAudioSources();
           if (this.audioDevices.length > 0) {
             await this.setAudio(this.audioDevices);
           }
         }
-
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
-
         stream.getVideoTracks()[0].applyConstraints({ frameRate: 30 });
-
         this.handleStream(stream);
       } catch (e) {
         console.log(e);
@@ -961,40 +1100,31 @@ export default {
               latency: 0.0,
             },
           });
-
           this.handleStream(stream);
         } catch (e) {
           this.handleError(e);
         }
       };
-
       this.handleStream = (stream) => {
         let recordedChunks = [];
-
         const option = {
           mimeType: "audio/webm",
         };
-
         mediaRecorder = new MediaRecorder(stream, option);
-
         mediaRecorder.onstart = () => {
           this.recordAudioStarted = true;
         };
-
         mediaRecorder.ondataavailable = (e) => {
           if (e.data.size > 0) {
             recordedChunks.push(e.data);
           }
         };
-
         mediaRecorder.onstop = async () => {
           this.recordAudioStarted = false;
           const blob = new Blob(recordedChunks, {
             type: "audio/mpeg-3",
           });
-
           const buffer = await blob.arrayBuffer();
-
           if (window.ipc) {
             await window.ipc
               .invoke(IPC_HANDLERS.CAPTURE, {
@@ -1010,20 +1140,16 @@ export default {
                   time: this.timer,
                   poster: "",
                 };
-
                 this.openAddWindow(data);
               });
           }
           recordedChunks = [];
         };
-
         mediaRecorder.start(1000);
       };
-
       this.handleError = (error) => {
         console.log("Error:", error);
       };
-
       // try {
       //   this.audioDevices = await this.getAudioSources();
       //   if (!this.audioDevices.length) {
@@ -1035,7 +1161,6 @@ export default {
       // } catch (e) {
       //   console.log(e);
       // }
-
       await navigator.mediaDevices.enumerateDevices().then((devices) => {
         this.audioDevices = devices.filter(
           (d) =>
@@ -1043,12 +1168,11 @@ export default {
             d.deviceId != "communications" &&
             d.deviceId != "default"
         );
-
+        console.log("audio devices:", this.audioDevices);
         if (!this.audioDevices.length) {
           this.audioErrorDialog = true;
           return;
         }
-
         this.setAudioSource();
       });
     },
@@ -1060,7 +1184,8 @@ export default {
       }
     },
     async openAddWindow(data) {
-      await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      if (!window.ipc) return;
+      await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
         func: IPC_FUNCTIONS.OPEN_ADD_WINDOW,
         data: { width: 700, height: 800, data: data },
       });
@@ -1068,7 +1193,6 @@ export default {
     async addNote(value) {
       const date = dayjs().format("MM/DD/YYYY HH:mm:ss");
       const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".txt";
-
       if (window.ipc) {
         // Save Note
         await window.ipc
@@ -1090,12 +1214,10 @@ export default {
             this.$emit("add-item", newItem);
           });
       }
-
       this.noteDialog = false;
     },
     async addSummary(value) {
       const date = dayjs().format("MM/DD/YYYY HH:mm:ss");
-
       const data = {
         id: Date.now(),
         sessionType: "Summary",
@@ -1103,7 +1225,6 @@ export default {
         time: this.timer,
         createdAt: date,
       };
-
       this.$emit("add-item", data);
       this.summaryDialog = false;
       this.endSessionProcess();
@@ -1137,22 +1258,30 @@ export default {
       this.openAddWindow(data);
     },
     async minimize() {
-      await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      const data = {
+        status: this.status,
+        timer: this.timer,
+        duration: this.duration,
+        sourceId: this.sourceId,
+      };
+      // console.log(data);
+      localStorage.setItem("state-data", JSON.stringify(data));
+      if (!window.ipc) return;
+      await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
         func: IPC_FUNCTIONS.OPEN_MINIMIZE_WINDOW,
-        data: { width: 700, height: 800 },
+        data: { width: 400, height: 84 },
       });
     },
     async deleteItems() {
+      if (!window.ipc) return;
       await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
         func: IPC_FUNCTIONS.DELETE_ITEMS,
         data: this.selected,
       });
-
       await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
         func: IPC_FUNCTIONS.DELETE_NOTES,
         data: this.selected,
       });
-
       this.selected = [];
       this.$root.$emit("update-selected", this.selected);
       this.deleteConfirmDialog = false;
@@ -1164,7 +1293,6 @@ export default {
           data: this.selected,
         });
       }
-
       this.selected = [];
       this.$root.$emit("update-selected", this.selected);
     },
@@ -1181,6 +1309,7 @@ export default {
         ended: this.$store.state.ended,
         path: this.$route.path,
       };
+      if (!window.ipc) return;
       await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
         func: IPC_FUNCTIONS.SAVE_SESSION,
         data: data,
@@ -1204,17 +1333,18 @@ export default {
         String(now.getDate()).padStart(2, "0") +
         "-" +
         now.getFullYear();
-
       return currentDateTime;
     },
     changeSessionStatus(status) {
+      if (!window.ipc) return;
       window.ipc.invoke(IPC_HANDLERS.MENU, {
         func: IPC_FUNCTIONS.CHANGE_MENUITEM_STATUS,
         data: { sessionStatus: status },
       });
     },
     async showNotePanel() {
-      await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      if (!window.ipc) return;
+      await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
         func: IPC_FUNCTIONS.OPEN_NOTES_WINDOW,
         data: { width: 700, height: 800 },
       });
@@ -1224,10 +1354,16 @@ export default {
 </script>
 
 <style scoped>
-.control-btn-wrapper {
+.mini-ctrl-wrapper {
+  display: flex;
+  flex-direction: column;
+  column-gap: 5px;
+  width: 100%;
+}
+.nml-ctrl-wrapper .control-btn-wrapper {
   background: #f3f4f6;
 }
-.v-btn--disabled img {
+.nml-ctrl-wrapper .v-btn--disabled img {
   opacity: 0.5;
 }
 </style>

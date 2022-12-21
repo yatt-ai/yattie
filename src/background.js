@@ -5,13 +5,14 @@ import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 
 import createMenu from "./menu";
+import { VIEW_MODE } from "./modules/constants";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 const browserUtility = require("./modules/BrowserWindowUtility");
 const databaseUtility = require("./modules/DatabaseUtility");
+const windowUtility = require("./modules/WindowUtility");
 
-const path = require("path");
 require("./modules/IpcHandlers");
 
 // initialize session
@@ -24,25 +25,9 @@ protocol.registerSchemesAsPrivileged([
 
 async function createWindow() {
   // Create the browser window.
-  const win = new BrowserWindow({
-    width: 800,
-    height: 600,
-    minWidth: 800,
-    minHeight: 600,
-    center: true,
-    icon: path.join(__dirname, "../public/logo.png"),
-    webPreferences: {
-      // Use pluginOptions.nodeIntegration, leave this alone
-      // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-      nodeIntegration: true,
-      webSecurity: false,
-      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
-      enableRemoteModule: true,
-      preload: path.join(app.getAppPath(), "preload.js"),
-    },
-  });
-
+  const win = windowUtility.getMainWindow();
   browserUtility.setBrowserWindow(win);
+  browserUtility.setViewMode(VIEW_MODE.NORMAL);
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode

@@ -33,7 +33,7 @@ export default {
       this.$forceUpdate();
     });
     window.ipc.on("APP_SETTING", async () => {
-      await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
         func: IPC_FUNCTIONS.OPEN_SETTING_WINDOW,
       });
     });

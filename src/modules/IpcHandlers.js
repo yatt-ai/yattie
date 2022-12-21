@@ -4,6 +4,7 @@ const captureUtility = require("./CaptureUtility");
 const databaseUtility = require("./DatabaseUtility");
 const fileSystemUtility = require("./FileSystemUtility");
 const menuUtility = require("./MenuUtility");
+const windowUtility = require("./WindowUtility");
 
 ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
   switch (args.func) {
@@ -34,33 +35,48 @@ ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
     case IPC_FUNCTIONS.UPDATE_USER_MEDIA:
       return captureUtility.updateUserMedia(args.data);
 
-    case IPC_FUNCTIONS.OPEN_ADD_WINDOW:
-      return captureUtility.openAddWindow(args.data);
-    case IPC_FUNCTIONS.CLOSE_ADD_WINDOW:
-      return captureUtility.closeAddWindow(args.data);
-    case IPC_FUNCTIONS.OPEN_EDIT_WINDOW:
-      return captureUtility.openEditWindow(args.data);
-    case IPC_FUNCTIONS.CLOSE_EDIT_WINDOW:
-      return captureUtility.closeEditWindow(args.data);
-    case IPC_FUNCTIONS.OPEN_SETTING_WINDOW:
-      return captureUtility.openSettingWindow(args.data);
-    case IPC_FUNCTIONS.CLOSE_SETTING_WINDOW:
-      return captureUtility.closeSettingWindow(args.data);
-    case IPC_FUNCTIONS.OPEN_MINIMIZE_WINDOW:
-      return captureUtility.openMinimizeWindow(args.data);
-    case IPC_FUNCTIONS.CLOSE_MINIMIZE_WINDOW:
-      return captureUtility.closeMinimizeWindow(args.data);
-    case IPC_FUNCTIONS.SET_WINDOW_SIZE:
-      return captureUtility.setWindowSize(args.data);
     case IPC_FUNCTIONS.GET_IMAGE_DATA:
       return captureUtility.getImageData(args.data);
     case IPC_FUNCTIONS.SET_APPERANCE:
       return captureUtility.setApperance(args.data);
+    default:
+      return null;
+  }
+});
+
+ipcMain.handle(IPC_HANDLERS.WINDOW, async (event, args) => {
+  switch (args.func) {
+    case IPC_FUNCTIONS.OPEN_ADD_WINDOW:
+      return windowUtility.openAddWindow(args.data);
+    case IPC_FUNCTIONS.CLOSE_ADD_WINDOW:
+      return windowUtility.closeAddWindow(args.data);
+    case IPC_FUNCTIONS.OPEN_EDIT_WINDOW:
+      return windowUtility.openEditWindow(args.data);
+    case IPC_FUNCTIONS.CLOSE_EDIT_WINDOW:
+      return windowUtility.closeEditWindow(args.data);
+    case IPC_FUNCTIONS.OPEN_SETTING_WINDOW:
+      return windowUtility.openSettingWindow(args.data);
+    case IPC_FUNCTIONS.CLOSE_SETTING_WINDOW:
+      return windowUtility.closeSettingWindow(args.data);
+    case IPC_FUNCTIONS.OPEN_MINIMIZE_WINDOW:
+      return windowUtility.openMinimizeWindow(args.data);
+    case IPC_FUNCTIONS.CLOSE_MINIMIZE_WINDOW:
+      return windowUtility.closeMinimizeWindow(args.data);
+    case IPC_FUNCTIONS.CLOSE_SESSION_AND_MINIIMIZED_WINDOW:
+      return windowUtility.closeSessionAndMinimizedWindow(args.data);
+    case IPC_FUNCTIONS.SET_WINDOW_SIZE:
+      return windowUtility.setWindowSize(args.data);
+    case IPC_FUNCTIONS.OPEN_MODAL_WINDOW:
+      return windowUtility.openModalWindow(args.data);
+    case IPC_FUNCTIONS.CLOSE_MODAL_WINDOW:
+      return windowUtility.closeModalWindow(args.data);
     case IPC_FUNCTIONS.OPEN_NOTES_WINDOW:
       console.log("handler", args.data);
-      return captureUtility.openNotesWindow(args.data);
+      return windowUtility.openNotesWindow(args.data);
     case IPC_FUNCTIONS.CLOSE_NOTES_WINDOW:
-      return captureUtility.closeNotesWindow();
+      return windowUtility.closeNotesWindow();
+    case IPC_FUNCTIONS.MOVE_WINDOW:
+      return windowUtility.moveWindow(args.data);
     default:
       return null;
   }
@@ -70,6 +86,8 @@ ipcMain.handle(IPC_HANDLERS.DATABASE, async (event, args) => {
   switch (args.func) {
     case IPC_FUNCTIONS.INITIALIZE_SESSION:
       return databaseUtility.initializeSession();
+    case IPC_FUNCTIONS.ADD_ITEM:
+      return databaseUtility.addItem(args.data);
     case IPC_FUNCTIONS.GET_ITEMS:
       return databaseUtility.getItems();
     case IPC_FUNCTIONS.UPDATE_ITEMS:

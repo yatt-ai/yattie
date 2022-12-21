@@ -155,6 +155,18 @@ module.exports.getItems = () => {
   }
 };
 
+module.exports.addItem = (item) => {
+  try {
+    let items = dataDb.get("items");
+    items.push(item);
+    dataDb.set("items", items);
+    browserWindow = browserUtility.getBrowserWindow();
+    browserWindow.webContents.send("DATA_CHANGE");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports.updateItems = (items) => {
   try {
     dataDb.set("items", items);

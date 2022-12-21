@@ -196,7 +196,7 @@ export default {
         func: IPC_FUNCTIONS.DELETE_FILE,
         data: { filePath: this.item.poster },
       });
-      window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      window.ipc.invoke(IPC_HANDLERS.WINDOW, {
         func: IPC_FUNCTIONS.CLOSE_ADD_WINDOW,
       });
     },
@@ -219,7 +219,7 @@ export default {
           data: this.items,
         })
         .then(() => {
-          window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+          window.ipc.invoke(IPC_HANDLERS.WINDOW, {
             func: IPC_FUNCTIONS.CLOSE_ADD_WINDOW,
           });
         });

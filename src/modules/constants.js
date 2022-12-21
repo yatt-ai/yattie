@@ -4,6 +4,7 @@ export const IPC_HANDLERS = {
   FILE_SYSTEM: "fileSystem",
   STORE: "store",
   MENU: "menu",
+  WINDOW: "window",
 };
 
 export const IPC_FUNCTIONS = {
@@ -28,13 +29,18 @@ export const IPC_FUNCTIONS = {
   CLOSE_SETTING_WINDOW: "closeSettingWindow",
   OPEN_MINIMIZE_WINDOW: "openMinimizeWindow",
   CLOSE_MINIMIZE_WINDOW: "closeMinimizeWindow",
+  CLOSE_SESSION_AND_MINIIMIZED_WINDOW: "closeSessionAndMinimizedWindow",
+  OPEN_MODAL_WINDOW: "openModalWindow",
+  CLOSE_MODAL_WINDOW: "closeModalWindow",
   SET_WINDOW_SIZE: "setWindowSize",
   GET_IMAGE_DATA: "getImageData",
   SET_APPERANCE: "setApperance",
   OPEN_NOTES_WINDOW: "openNotesWindow",
   CLOSE_NOTES_WINDOW: "closeNotesWindow",
+  MOVE_WINDOW: "moveWindow",
 
   INITIALIZE_SESSION: "initializeSession",
+  ADD_ITEM: "addItem",
   GET_ITEMS: "getItems",
   UPDATE_ITEMS: "updateItems",
   DELETE_ITEMS: "deleteItems",
@@ -52,6 +58,16 @@ export const IPC_FUNCTIONS = {
   EXPORT_SESSION: "exportSession",
 
   CHANGE_MENUITEM_STATUS: "changeMenuItemStatus",
+};
+
+export const IPC_BIND_KEYS = {
+  CLOSED_NOTE_DIALOG: "note_dialog_closed",
+  CLOSED_SUMMARY_DIALOG: "summary_dialog_closed",
+  MODAL_DATA: "modal_data",
+  END_SESSION: "end_session",
+  CLOSED_MINIMIZE_WINDOW: "minimize_window_closed",
+  CLOSED_ENDSESSION_DIALOG: "endsession_dialog_closed",
+  CLOSED_SOURCEPICKER_DIALOG: "sourcepicker_dialog_closed",
 };
 
 export const STATUSES = {
@@ -77,6 +93,11 @@ export const SESSION_TYPES = [
   "File",
   "Mindmap",
 ];
+
+export const VIEW_MODE = {
+  NORMAL: "normal",
+  MINI: "minimized",
+};
 
 export const TEXT_TYPES = [
   "Comment",

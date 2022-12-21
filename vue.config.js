@@ -14,6 +14,8 @@ module.exports = {
         "src/modules/CaptureUtility.js",
         "src/modules/DatabaseUtility.js",
         "src/modules/FileSystemUtility.js",
+        "src/modules/MenuUtility.js",
+        "src/modules/WindowUtility.js",
       ],
       builderOptions: {
         productName: "YATTIE",

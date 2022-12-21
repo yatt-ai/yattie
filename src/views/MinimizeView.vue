@@ -1,77 +1,121 @@
 <template>
-  <div class="wrapper">
+  <v-container>
     <div class="header">
       <v-btn class="maximize-btn" color="primary" plain @click="maximize">
         <v-icon>mdi-window-maximize</v-icon>
       </v-btn>
     </div>
-    <div class="content">
-      <div class="time-counter">
-        <span class="time-title">{{ $tc("caption.time", 1) }}</span>
-        <span class="time-value">00:00:26</span>
-      </div>
-      <div class="control-panel">
-        <v-btn icon class="icon-btn">
-          <img
-            :src="require('../assets/icon/pause-white.svg')"
-            width="19"
-            height="19"
-          />
-        </v-btn>
-        <v-btn icon class="icon-btn">
-          <img
-            :src="require('../assets/icon/stop-white.svg')"
-            width="19"
-            height="19"
-          />
-        </v-btn>
-        <v-divider vertical class="icon-divider"></v-divider>
-        <v-btn icon class="icon-btn">
-          <img
-            :src="require('../assets/icon/camera-white.svg')"
-            width="19"
-            height="17"
-          />
-        </v-btn>
-        <v-btn icon class="icon-btn">
-          <img
-            :src="require('../assets/icon/video-white.svg')"
-            width="19"
-            height="15"
-          />
-        </v-btn>
-        <v-btn icon class="icon-btn">
-          <img
-            :src="require('../assets/icon/microphone-white.svg')"
-            width="17"
-            height="21"
-          />
-        </v-btn>
-        <v-btn icon class="icon-btn">
-          <img
-            :src="require('../assets/icon/pencil-white1.svg')"
-            width="17"
-            height="17"
-          />
-        </v-btn>
-      </div>
+    <div class="body">
+      <div class="overlay" v-if="overlay"></div>
+      <ControlPanel
+        :selectedItems="selected"
+        :items="items"
+        :configItem="config"
+        :srcId="sourceId"
+        view-mode="mini"
+        @add-item="addItem"
+      />
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script>
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
+import ControlPanel from "../components/ControlPanel.vue";
+
+import {
+  IPC_HANDLERS,
+  IPC_FUNCTIONS,
+  IPC_BIND_KEYS,
+} from "../modules/constants";
+
 export default {
   name: "MinimizeView",
-  components: {},
+  components: {
+    ControlPanel,
+  },
   data() {
-    return {};
+    return {
+      status: "",
+      timer: 0,
+      duration: 0,
+      sourceId: "",
+      overlay: false,
+
+      items: [],
+      selected: [],
+      config: {},
+    };
+  },
+  created() {
+    this.$root.$on("source-id-changed", (sourceId) => {
+      this.sourceId = sourceId;
+    });
+
+    if (!window.ipc) return;
+
+    try {
+      const t = JSON.parse(localStorage.getItem("state-data"));
+      this.status = t.status;
+      this.timer = t.timer;
+      this.duration = t.duration;
+      this.sourceId = t.sourceId;
+      this.updateStoreSession();
+    } catch (e) {
+      console.log(e);
+    }
+  },
+  mounted() {
+    this.fetchConfig();
+
+    if (!window.ipc) return;
+
+    window.ipc.on("OPEN_CHILD_WINDOW", () => {
+      this.overlay = true;
+      this.$forceUpdate();
+    });
+    window.ipc.on("CLOSE_CHILD_WINDOW", () => {
+      this.overlay = false;
+      this.$forceUpdate();
+    });
   },
   methods: {
+    fetchConfig() {
+      if (!window.ipc) return;
+
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CONFIG })
+        .then((result) => {
+          this.config = result;
+        });
+    },
     maximize() {
-      console.log("maximize");
-      window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      const data = {
+        status: this.$store.state.status,
+        timer: this.$store.state.timer,
+        duration: this.$store.state.duration,
+        sourceId: this.sourceId,
+      };
+      window.ipc.invoke(IPC_HANDLERS.WINDOW, {
         func: IPC_FUNCTIONS.CLOSE_MINIMIZE_WINDOW,
+        data: {
+          data: data,
+          bindKey: IPC_BIND_KEYS.CLOSED_MINIMIZE_WINDOW,
+        },
+      });
+    },
+    updateStoreSession() {
+      this.$store.commit("updateSession", {
+        status: this.status,
+        timer: this.timer,
+        duration: this.duration,
+      });
+    },
+    addItem(data) {
+      if (!window.ipc) return;
+
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.ADD_ITEM,
+        data: data,
       });
     },
   },
@@ -81,11 +125,8 @@ export default {
 .v-application {
   background: transparent !important;
 }
-.wrapper {
-  display: flex;
-  flex-direction: column;
-  column-gap: 5px;
-  width: 100%;
+.container {
+  padding: 0;
 }
 .header {
   display: flex;
@@ -105,56 +146,15 @@ export default {
   color: #9859fb;
   font-size: 30px;
 }
-.content {
-  background-color: #4c1d95;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  height: 50px;
-  overflow: hidden;
+.body {
+  position: relative;
 }
-.time-counter {
-  width: 30%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: #7c3aed;
-}
-.time-counter .time-title {
-  font-style: normal;
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 1.2;
-  text-align: center;
-  text-transform: uppercase;
-  color: #ddd6fe;
-}
-.time-counter .time-value {
-  font-style: normal;
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 1.2;
-  text-align: center;
-  color: #fff;
-}
-.control-panel {
-  width: 70%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 15px;
-}
-.icon-btn {
-  text-align: center;
-}
-.icon-btn:hover {
-  background: #391670;
-}
-.icon-divider {
-  background: #6d28d9;
-  margin-left: 3px;
-  margin-right: 3px;
+.overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
 }
 </style>

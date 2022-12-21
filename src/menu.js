@@ -8,6 +8,7 @@ const createMenu = (win, dev) => {
   const template = [
     {
       label: i18n.t("menu.file"),
+      id: "menu_file",
       submenu: [
         { label: i18n.t("menu.new_session"), accelerator: "Ctrl+Shift+C" },
         { label: i18n.t("menu.new_session_test"), accelerator: "Ctrl+Shift+T" },
@@ -21,13 +22,19 @@ const createMenu = (win, dev) => {
           label: i18n.t("menu.save_session"),
           accelerator: "Alt+Ctrl+S",
           enabled: false,
+          id: "menu_save_session",
         },
         {
           label: i18n.t("menu.save_as_charter"),
           accelerator: "Ctrl+Shift+X",
           enabled: false,
+          id: "menu_save_as_charter",
         },
-        { label: i18n.t("menu.reset_session"), enabled: false },
+        {
+          label: i18n.t("menu.reset_session"),
+          enabled: false,
+          id: "menu_reset_session",
+        },
         { type: "separator" },
         {
           label: i18n.tc("menu.app_setting", 1),

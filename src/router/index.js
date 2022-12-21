@@ -24,6 +24,11 @@ import TemplateTab from "@/components/settings/TemplateTab.vue";
 import ConfigCheckListTab from "@/components/settings/ConfigCheckListTab.vue";
 import ReportsTab from "@/components/settings/ReportsTab.vue";
 
+import NoteEidtorview from "../views/NoteEditorView.vue";
+import SummaryEditorView from "../views/SummaryEditorView.vue";
+import EndSessionView from "../views/EndSessionView.vue";
+import SourcePickerView from "../views/SourcePickerView.vue";
+
 Vue.use(VueRouter);
 
 const routes = [
@@ -144,6 +149,26 @@ const routes = [
     name: "minimize",
     meta: { layout: "minimize" },
     component: MinimizeView,
+  },
+  {
+    path: "/noteEditor",
+    name: "noteEditor",
+    component: NoteEidtorview,
+  },
+  {
+    path: "/summaryEditor",
+    name: "summaryEditor",
+    component: SummaryEditorView,
+  },
+  {
+    path: "/endsession",
+    name: "endsession",
+    component: EndSessionView,
+  },
+  {
+    path: "/sourcepicker",
+    name: "sourcePicker",
+    component: SourcePickerView,
   },
 ];
 

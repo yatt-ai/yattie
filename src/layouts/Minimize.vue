@@ -1,5 +1,9 @@
 <template>
-  <router-view />
+  <v-app class="app">
+    <v-main>
+      <router-view />
+    </v-main>
+  </v-app>
 </template>
 
 <script>
@@ -8,3 +12,8 @@ export default {
   data: () => ({}),
 };
 </script>
+<style scoped>
+.app {
+  background-color: transparent;
+}
+</style>

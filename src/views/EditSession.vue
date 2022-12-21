@@ -157,7 +157,7 @@ export default {
     handleDiscard() {
       if (!window.ipc) return;
 
-      window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      window.ipc.invoke(IPC_HANDLERS.WINDOW, {
         func: IPC_FUNCTIONS.CLOSE_EDIT_WINDOW,
       });
     },
@@ -182,16 +182,18 @@ export default {
         return temp;
       });
 
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.UPDATE_ITEMS,
-          data: this.items,
-        })
-        .then(() => {
-          window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-            func: IPC_FUNCTIONS.CLOSE_EDIT_WINDOW,
+      if (window.ipc) {
+        window.ipc
+          .invoke(IPC_HANDLERS.DATABASE, {
+            func: IPC_FUNCTIONS.UPDATE_ITEMS,
+            data: this.items,
+          })
+          .then(() => {
+            window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+              func: IPC_FUNCTIONS.CLOSE_EDIT_WINDOW,
+            });
           });
-        });
+      }
     },
   },
 };

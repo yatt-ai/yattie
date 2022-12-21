@@ -23,36 +23,46 @@ describe("ReivewWrapper.vue", () => {
         triggerSave: false,
         autoSave: false,
         currentView: false,
+        config: {
+          defaultColor: "#000000",
+        },
+      },
+      data() {
+        return {
+          sessionItem: {
+            fileType: "mindmap",
+          },
+        };
       },
       vuetify,
     });
 
     expect(wrapper.findComponent(MindmapEditor).exists()).toBe(true);
 
-    await wrapper.setProps({
-      item: {
+    await wrapper.setData({
+      sessionItem: {
         fileType: "image",
       },
     });
 
     expect(wrapper.findComponent(ImageEditor).exists()).toBe(true);
 
-    await wrapper.setProps({
-      item: {
+    await wrapper.setData({
+      sessionItem: {
         fileType: "video",
       },
     });
     expect(wrapper.findComponent(VideoWrapper).exists()).toBe(true);
 
-    await wrapper.setProps({
-      item: {
+    await wrapper.setData({
+      sessionItem: {
         fileType: "audio",
       },
     });
     expect(wrapper.findComponent(AudioWrapper).exists()).toBe(true);
 
-    await wrapper.setProps({
-      item: {
+    await wrapper.setData({
+      sessionItem: {
         fileType: "other",
       },
     });

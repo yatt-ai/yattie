@@ -469,7 +469,7 @@ export default {
     async openEditorModal(data) {
       if (!window.ipc) return;
 
-      await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
         func: IPC_FUNCTIONS.OPEN_ADD_WINDOW,
         data: { width: 700, height: 800, data: data },
       });

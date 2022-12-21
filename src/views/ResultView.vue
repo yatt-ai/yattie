@@ -76,6 +76,7 @@
             :selectedItems="selected"
             :items="items"
             :configItem="config"
+            view-mode="normal"
           />
         </div>
       </v-col>

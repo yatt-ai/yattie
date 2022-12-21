@@ -89,7 +89,7 @@
               {{ $t("message.default_color_description") }}.
             </p>
           </div>
-          <div class="flex-grow-0">
+          <div class="flex-grow-0 color-picker-wrapper">
             <v-text-field
               v-model="showColor"
               hide-details
