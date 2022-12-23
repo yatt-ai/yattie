@@ -167,7 +167,7 @@ export default {
       const connections = d3Connections(svg, this.connections);
       const { nodes } = d3Nodes(svg, this.nodes);
 
-      nodes.append("title").text((node) => node.uid);
+      nodes.append("title").text(() => this.$tc("caption.map_node"));
 
       // Bind nodes and connections to the simulation
       this.simulation.nodes(this.nodes).force("link").links(this.connections);

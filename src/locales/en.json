@@ -121,7 +121,8 @@
     "time_limit": "Time limit",
     "minute": "Minutes",
     "workspace": "Workspace",
-    "change_recording_target": "Change recording target"
+    "change_recording_target": "Change recording target",
+    "map_node": "Map Node"
   },
   "menu": {
     "file": "File",
