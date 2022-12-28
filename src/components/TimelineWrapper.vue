@@ -29,7 +29,13 @@
               draggable=".drag-item"
               :animation="200"
             >
-              <div v-for="(item, i) in itemLists" :key="i" :class="`drag-item`">
+              <div
+                v-for="(item, i) in itemLists"
+                :key="i"
+                :class="`drag-item`"
+                draggable="true"
+                @dragstart="(event) => dragItem(event, item)"
+              >
                 <v-timeline-item
                   v-if="item.sessionType === 'Screenshot'"
                   color="primary"
@@ -527,6 +533,16 @@ export default {
           this.activeSession = data;
           this.$emit("submit-session", this.activeSession);
         });
+    },
+    dragItem(event, item) {
+      event.preventDefault();
+
+      if (!window.ipc) return;
+      console.log(item);
+      window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+        func: IPC_FUNCTIONS.DRAG_ITEM,
+        data: item,
+      });
     },
   },
 };

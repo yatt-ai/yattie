@@ -32,6 +32,10 @@ describe("ResultView.vue", () => {
 
   test("render view", () => {
     const wrapper = mount(ResultView, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return {
           items: [],
@@ -61,12 +65,18 @@ describe("ResultView.vue", () => {
 
   test('trigger the click event of "Clear" button', async () => {
     const wrapper = mount(ResultView, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return {
           items: [],
           activeSession: { comment: "" },
           commentTypes: TEXT_TYPES,
           type: "Comment",
+          search: "",
+          selected: [],
         };
       },
       localVue,

@@ -1,5 +1,4 @@
 import Vuetify from "vuetify";
-
 import CheckTaskWrapper from "../../CheckTaskWrapper.vue";
 import EndSessionDialog from "../EndSessionDialog.vue";
 
@@ -16,6 +15,7 @@ describe("EndSessionDialog.vue", () => {
     document.body.appendChild(rootDiv);
 
     localVue = createLocalVue();
+
     vuetify = new Vuetify();
 
     const App = localVue.component("App", {
@@ -38,6 +38,10 @@ describe("EndSessionDialog.vue", () => {
     });
 
     wrapper = mount(App, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       localVue,
       vuetify,
       attachTo: "#root",

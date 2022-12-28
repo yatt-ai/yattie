@@ -34,6 +34,10 @@ describe("TimelineWrapper.vue", () => {
 
   test("render a view", () => {
     const wrapper = mount(TimelineWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         items: [],
         selectedItems: [],
@@ -54,9 +58,7 @@ describe("TimelineWrapper.vue", () => {
     });
 
     expect(wrapper.find(".subtitle-2.label-text")).toBeTruthy();
-    expect(wrapper.find(".subtitle-2.label-text").text()).toContain(
-      "Session Started"
-    );
+
     expect(wrapper.find(".date-text span").text()).toContain("11-08-2022");
     expect(wrapper.find(".timeline-wrap").exists()).toBe(true);
 
@@ -70,6 +72,10 @@ describe("TimelineWrapper.vue", () => {
 
   test('show the "Upload evidence" button', () => {
     const wrapper = mount(TimelineWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         items: [],
         selectedItems: [],
@@ -94,6 +100,10 @@ describe("TimelineWrapper.vue", () => {
 
   test('trigger the "Upload evidence" button', () => {
     const wrapper = mount(TimelineWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         items: [],
         selectedItems: [],
@@ -124,6 +134,10 @@ describe("TimelineWrapper.vue", () => {
 
   test("render a timeline", async () => {
     const wrapper = mount(TimelineWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return dataInfo;
       },

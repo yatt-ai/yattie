@@ -10,6 +10,10 @@ const vuetify = new Vuetify();
 describe("CheckTaskWrapper.vue", () => {
   test("render a view", () => {
     const wrapper = mount(CheckTaskWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         showError: false,
         tasks: [
@@ -33,6 +37,10 @@ describe("CheckTaskWrapper.vue", () => {
 
   test("show a error panel", () => {
     const wrapper = mount(CheckTaskWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         showError: true,
         tasks: [
@@ -49,13 +57,11 @@ describe("CheckTaskWrapper.vue", () => {
     });
 
     expect(wrapper.find(".task-wrapper .error1").exists()).toBe(true);
-    expect(
-      wrapper.find(".task-wrapper .error1 .content .title").text()
-    ).toContain("Required checkboxes");
-    expect(
-      wrapper.find(".task-wrapper .error1 .content .desc").text()
-    ).toContain(
-      "You can't end your session without checking all required(*) post-session checkboxes."
+    expect(wrapper.find(".task-wrapper .error1 .content .title").exists()).toBe(
+      true
+    );
+    expect(wrapper.find(".task-wrapper .error1 .content .desc").exists()).toBe(
+      true
     );
   });
 });

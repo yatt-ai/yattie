@@ -10,19 +10,25 @@ describe("ExportPanel.vue", () => {
 
   test("Display buttons", () => {
     const wrapper = mount(ExportPanel, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         items: items,
       },
       vuetify,
     });
 
-    expect(wrapper.find("button.v-btn").text()).toContain(
-      "Export Session Report"
-    );
+    expect(wrapper.find("button.v-btn").exists()).toBe(true);
   });
 
   test('trigger the click event of "export session report" button', async () => {
     const wrapper = mount(ExportPanel, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       items: items,
       vuetify,
     });

@@ -10,6 +10,10 @@ describe("AudioPlayer.vue", () => {
 
   test("loads audio player", () => {
     const wrapper = mount(AudioWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         item: itemData,
       },
@@ -33,6 +37,10 @@ describe("AudioPlayer.vue", () => {
 
   test('show the "Pause" button and trigger the click event after stop', () => {
     const wrapper = mount(AudioWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         item: itemData,
       },
@@ -56,6 +64,10 @@ describe("AudioPlayer.vue", () => {
 
   test('show the "Mute On" button and trigger the click event after stop', () => {
     const wrapper = mount(AudioWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         item: itemData,
       },
@@ -79,6 +91,10 @@ describe("AudioPlayer.vue", () => {
 
   test('trigger the click event of "rewind" button', () => {
     const wrapper = mount(AudioWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         item: itemData,
       },
@@ -96,6 +112,10 @@ describe("AudioPlayer.vue", () => {
 
   test('trigger the click event of "play" button', () => {
     const wrapper = mount(AudioWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         item: itemData,
       },
@@ -113,6 +133,10 @@ describe("AudioPlayer.vue", () => {
 
   test('trigger the click event of "volumn" button', () => {
     const wrapper = mount(AudioWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         item: itemData,
       },

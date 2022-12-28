@@ -38,6 +38,10 @@ describe("ResetConfirmDialog.vue", () => {
     });
 
     wrapper = mount(App, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       localVue,
       vuetify,
       attachTo: "#root",
@@ -51,14 +55,8 @@ describe("ResetConfirmDialog.vue", () => {
 
     expect(wrapper.findComponent(LogoWrapper).exists()).toBe(true);
     expect(wrapper.find(".title").exists()).toBe(true);
-    expect(wrapper.find(".title").text()).toContain("Confirm Reset");
     expect(wrapper.find(".text").exists()).toBe(true);
-    expect(wrapper.find(".text").text()).toContain(
-      "Are you sure you want to reset?"
-    );
     expect(wrapper.findAll(".btn").length).toBe(2);
-    expect(wrapper.find(".btn:first-child").text()).toContain("Confirm");
-    expect(wrapper.find(".btn:last-child").text()).toContain("Cancel");
   });
 
   test('trigger the click event of "Confirm" button', async () => {

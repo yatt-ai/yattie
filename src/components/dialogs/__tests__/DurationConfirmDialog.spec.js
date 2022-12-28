@@ -38,6 +38,10 @@ describe("DurationConfirmDialog.vue", () => {
     });
 
     wrapper = mount(App, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       localVue,
       vuetify,
       attachTo: "#root",
@@ -53,12 +57,8 @@ describe("DurationConfirmDialog.vue", () => {
     expect(wrapper.find(".title").exists()).toBe(true);
     expect(wrapper.find(".title").text()).toContain("Session Time");
     expect(wrapper.find(".text").exists()).toBe(true);
-    expect(wrapper.find(".text").text()).toContain(
-      "Do you want to proceed with testing or end the test session?"
-    );
+
     expect(wrapper.findAll(".btn").length).toBe(2);
-    expect(wrapper.find(".btn:first-child").text()).toContain("Proceed");
-    expect(wrapper.find(".btn:last-child").text()).toContain("End");
   });
 
   test('trigger the click event of "Procced" button', async () => {

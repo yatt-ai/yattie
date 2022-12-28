@@ -38,6 +38,10 @@ describe("AudioRecordingDialog.vue", () => {
     });
 
     wrapper = mount(App, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       localVue,
       vuetify,
       attachTo: "#root",
@@ -51,14 +55,8 @@ describe("AudioRecordingDialog.vue", () => {
 
     expect(wrapper.findComponent(LogoWrapper).exists()).toBe(true);
     expect(wrapper.find(".title").exists()).toBe(true);
-    expect(wrapper.find(".title").text()).toContain("Recording Audio");
     expect(wrapper.find(".text").exists()).toBe(true);
-    expect(wrapper.find(".text").text()).toContain(
-      "An error occurred while recording the audio."
-    );
     expect(wrapper.findAll(".btn").length).toBe(2);
-    expect(wrapper.find(".btn:nth-child(1)").text()).toContain("Allow");
-    expect(wrapper.find(".btn:nth-child(2)").text()).toContain("Cancel");
   });
 
   test('trigger the click event of "Allow" button', async () => {

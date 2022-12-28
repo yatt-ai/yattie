@@ -22,7 +22,7 @@
           <v-radio-group
             v-model="start"
             row
-            class="ma-0 pa-0"
+            class="ma-0 pa-0 radio-box"
             dense
             hide-details
           >

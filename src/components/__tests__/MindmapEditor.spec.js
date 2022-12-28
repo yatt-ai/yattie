@@ -10,6 +10,10 @@ const localVue = createLocalVue();
 describe("MindmapEditor.vue", () => {
   test("render a view", () => {
     const wrapper = mount(MindmapEditor, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       localVue,
       vuetify,
     });

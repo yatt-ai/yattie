@@ -9,6 +9,10 @@ const vuetify = new Vuetify();
 describe("NotesWrapper.vue", () => {
   test("render a view", () => {
     const wrapper = mount(NotesWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return {
           notes: { text: "", content: "" },

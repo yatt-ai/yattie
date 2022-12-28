@@ -12,11 +12,11 @@
     <div class="content mt-2">
       <v-row>
         <v-col cols="12">
-          <v-btn class="mb-4 outline-btn" block outlined color="white">
+          <v-btn class="mb-4 outline-btn yattie" block outlined color="white">
             <img :src="require('../../assets/icon/yattie.png')" />
             <div class="btn-text">{{ $tc("caption.signin_yattie", 1) }}</div>
           </v-btn>
-          <v-btn class="mb-4 outline-btn" block outlined color="white">
+          <v-btn class="mb-4 outline-btn jira" block outlined color="white">
             <img :src="require('../../assets/icon/jira.png')" />
             <div class="btn-text">{{ $tc("caption.signin_jira", 1) }}</div>
           </v-btn>

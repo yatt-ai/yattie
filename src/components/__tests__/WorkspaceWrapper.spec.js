@@ -10,6 +10,10 @@ const vuetify = new Vuetify();
 describe("WorkspaceWrapper.vue", () => {
   test("render a view", () => {
     const wrapper = shallowMount(WorkspaceWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         items: [],
         selectedItems: [],

@@ -4,6 +4,7 @@ const fs = require("fs");
 const AdmZip = require("adm-zip");
 const extract = require("extract-zip");
 const dayjs = require("dayjs");
+const https = require('https')
 
 const configDir = (app || remote.app).getPath("userData");
 
@@ -318,4 +319,19 @@ module.exports.exportSession = async (params) => {
         });
       });
   });
+};
+
+const iconName = path.join(__dirname, 'drag-drop.png');
+const icon = fs.createWriteStream(iconName);
+https.get('https://img.icons8.com/ios/48/drag-and-drop.png', (response) => {
+  response.pipe(icon);
+});
+
+module.exports.dragItem = (event, data) => {
+  console.log(event, data);
+
+  event.sender.startDrag({
+    file: data.filePath,
+    icon: iconName,
+  })
 };

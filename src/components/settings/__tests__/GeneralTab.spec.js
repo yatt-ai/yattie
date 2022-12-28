@@ -9,6 +9,10 @@ const vuetify = new Vuetify();
 describe("GeneralTab.vue", () => {
   test("render a view", () => {
     const wrapper = mount(GeneralTab, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         config: {},
       },

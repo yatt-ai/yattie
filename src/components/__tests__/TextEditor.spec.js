@@ -42,6 +42,10 @@ describe("TextEditor.vue", () => {
 
   test("displays label text", () => {
     const wrapper = mount(TextEditor, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         label: "subtitle",
         placeholder: "",

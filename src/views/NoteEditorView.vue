@@ -1,13 +1,15 @@
 <template>
   <v-container>
     <v-card>
-      <v-card-title class="dialog-title"> Take a Note</v-card-title>
+      <v-card-title class="dialog-title">
+        {{ $tc("caption.take_noe", 1) }}
+      </v-card-title>
       <v-divider></v-divider>
       <v-container class="note-wrapper">
         <v-row>
           <v-col cols="12">
             <TextEditor
-              placeholder="Insert your note here"
+              :placeholder="$t('message.insert_note')"
               @update-data="updateNote"
               :content="comment.content"
               :height="200"
@@ -23,17 +25,19 @@
               :max-tags="10"
               :maxlength="20"
               @tags-changed="handleTags"
-              placeholder="Insert your tags here"
+              :placeholder="$t('message.insert_tag')"
             />
           </v-col>
         </v-row>
         <v-row class="mt-0">
           <v-col class="pr-0">
-            <div class="subtitle-2 label-text">Note Type</div>
+            <div class="subtitle-2 label-text">
+              {{ $tc("caption.note_type", 1) }}
+            </div>
             <v-select
               :items="commentTypes"
               v-model="comment.type"
-              placeholder="Comment Type"
+              :placeholder="$tc('caption.comment_type', 1)"
               solo
               dense
               hide-details="true"
@@ -46,7 +50,7 @@
               class="text-capitalize px-0 btn"
               @click="handleClear"
             >
-              Clear
+              {{ $tc("caption.clear", 1) }}
             </v-btn>
           </v-col>
         </v-row>
@@ -56,12 +60,12 @@
         <v-row class="action-wrapper">
           <v-col cols="6 pr-1">
             <v-btn class="btn" small block color="white" @click="handleDiscard">
-              Discard
+              {{ $tc("caption.discard", 1) }}
             </v-btn>
           </v-col>
           <v-col cols="6 pl-1">
             <v-btn class="btn" small block color="primary" @click="handleSave">
-              Save
+              {{ $tc("caption.save", 1) }}
             </v-btn>
           </v-col>
         </v-row>

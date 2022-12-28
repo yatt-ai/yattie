@@ -121,6 +121,8 @@ ipcMain.handle(IPC_HANDLERS.FILE_SYSTEM, async (event, args) => {
       return fileSystemUtility.openSession(args.data);
     case IPC_FUNCTIONS.EXPORT_SESSION:
       return fileSystemUtility.exportSession(args.data);
+    case IPC_FUNCTIONS.DRAG_ITEM:
+      return fileSystemUtility.dragItem(event, args.data);
     default:
       return null;
   }

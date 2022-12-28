@@ -20,6 +20,10 @@ describe("ConfigCheckListTab.vue", () => {
 
   test("render a view", () => {
     wrapper = mount(ConfigCheckListTab, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return {
           preTaskList: [],
@@ -56,6 +60,10 @@ describe("ConfigCheckListTab.vue", () => {
 
   test("show a presession tab view", async () => {
     wrapper = mount(ConfigCheckListTab, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return {
           preTaskList: [],
@@ -109,6 +117,10 @@ describe("ConfigCheckListTab.vue", () => {
 
   test("show a postsession tab view", async () => {
     wrapper = mount(ConfigCheckListTab, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return {
           preTaskList: [],

@@ -8,6 +8,10 @@ describe("FileWrapper.vue", () => {
 
   test("load a view", () => {
     const wrapper = mount(FileWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         item: {
           fileName: "test.pdf",

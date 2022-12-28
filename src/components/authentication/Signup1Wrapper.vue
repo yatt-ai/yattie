@@ -9,7 +9,7 @@
           {{ $tc("caption.signup_test_app", 1) }}
         </div>
         <v-btn
-          class="my-4 text-capitalize"
+          class="my-4 text-capitalize signup"
           fill
           block
           small
@@ -19,7 +19,7 @@
           ${{ $tc("caption.sign_up", 2) }}
         </v-btn>
         <v-btn
-          class="my-4 text-capitalize"
+          class="my-4 text-capitalize signin"
           fill
           small
           block
@@ -68,6 +68,8 @@ export default {
   },
   methods: {
     async openSession() {
+      if (!window.ipc) return;
+
       const { status, message, metadata } = await window.ipc.invoke(
         IPC_HANDLERS.FILE_SYSTEM,
         {

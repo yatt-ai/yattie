@@ -8,6 +8,10 @@ describe("VideoWrapper.vue", () => {
 
   test("render a component", () => {
     const wrapper = mount(VideoWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         item: itemData,
       },
@@ -21,6 +25,10 @@ describe("VideoWrapper.vue", () => {
 
   test("show the progress bar", () => {
     const wrapper = mount(VideoWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         item: itemData,
       },
@@ -35,6 +43,10 @@ describe("VideoWrapper.vue", () => {
 
   test("triggers an input of start time text field", async () => {
     const wrapper = mount(VideoWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         item: itemData,
       },
@@ -50,6 +62,10 @@ describe("VideoWrapper.vue", () => {
 
   test("triggers an input of end time text field", async () => {
     const wrapper = mount(VideoWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         item: itemData,
       },
@@ -65,6 +81,10 @@ describe("VideoWrapper.vue", () => {
 
   test("displays length of video", async () => {
     const wrapper = mount(VideoWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         item: itemData,
       },
@@ -85,7 +105,7 @@ describe("VideoWrapper.vue", () => {
     ).toBeTruthy();
     expect(
       wrapper.find(".video-control .cut-duration .duration-time").text()
-    ).toContain(`Length: ${durationTime}`);
+    ).toContain(`: ${durationTime}`);
 
     const endTimeInput = wrapper.find(".video-control .end-time input");
 

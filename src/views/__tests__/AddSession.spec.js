@@ -10,6 +10,10 @@ const vuetify = new Vuetify();
 describe("AddSession.vue", () => {
   test("loads editor view", () => {
     const wrapper = mount(AddSession, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return {
           item: {
@@ -33,23 +37,19 @@ describe("AddSession.vue", () => {
     expect(
       wrapper
         .find(".content-bottom .comment-type .subtitle-2.label-text")
-        .text()
-    ).toContain("Comment Type");
+        .exists()
+    ).toBe(true);
     expect(wrapper.findComponent(ReviewWrapper).exists()).toBe(true);
     expect(wrapper.findComponent(TextEditor).exists()).toBe(true);
-    expect(wrapper.find(".footer button:nth-child(1)").text()).toContain(
-      "Clear"
-    );
-    expect(wrapper.find(".footer > div button:nth-child(1)").text()).toContain(
-      "Discard"
-    );
-    expect(wrapper.find(".footer > div button:nth-child(2)").text()).toContain(
-      "Save"
-    );
+    expect(wrapper.findAll(".footer button").length).toBe(3);
   });
 
   test('triggers a click on "Discard" button', async () => {
     const wrapper = mount(AddSession, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return {
           item: {
@@ -82,6 +82,10 @@ describe("AddSession.vue", () => {
 
   test('triggers a click on "Save" button', async () => {
     const wrapper = mount(AddSession, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return {
           item: {
@@ -114,6 +118,10 @@ describe("AddSession.vue", () => {
 
   it('trigger the click event of "Clear" button', async () => {
     const wrapper = mount(AddSession, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return {
           item: {

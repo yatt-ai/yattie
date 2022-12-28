@@ -41,6 +41,10 @@ describe("AudioErrorDialog.vue", () => {
     });
 
     wrapper = mount(App, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       localVue,
       vuetify,
       attachTo: "#root",
@@ -63,9 +67,6 @@ describe("AudioErrorDialog.vue", () => {
       "An error occurred while recording the audio."
     );
     expect(wrapper.find(".v-card .v-card__actions .v-btn").exists()).toBe(true);
-    expect(wrapper.find(".v-card .v-card__actions .v-btn").text()).toContain(
-      "OK"
-    );
   });
 
   test('trigger "OK" button click event', async () => {

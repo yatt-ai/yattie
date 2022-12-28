@@ -15,6 +15,10 @@ const router = new VueRouter();
 describe("SettingView.vue", () => {
   test("loadin a view", () => {
     const wrapper = mount(SettingView, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return {
           activeTab: "/settings",

@@ -36,6 +36,10 @@ describe("NodeEditDialog.vue", () => {
     });
 
     wrapper = mount(App, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       localVue,
       vuetify,
       attachTo: "#root",
@@ -52,8 +56,6 @@ describe("NodeEditDialog.vue", () => {
     expect(wrapper.find("form input").exists()).toBe(true);
 
     expect(wrapper.findAll("button").length).toBe(2);
-    expect(wrapper.find("button:first-child").text()).toContain("Save");
-    expect(wrapper.find("button:last-child").text()).toContain("Cancel");
   });
 
   test('trigger the click event of "Save" button', async () => {

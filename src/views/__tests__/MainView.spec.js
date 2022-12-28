@@ -28,6 +28,10 @@ describe("MainView.vue", () => {
 
   test("loads tab bar", () => {
     const wrapper = mount(MainView, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       store: {
         ...store,
         state: {
@@ -47,6 +51,10 @@ describe("MainView.vue", () => {
 
   test('loads content of "test" tab', async () => {
     const wrapper = mount(MainView, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return {
           activeTab: "/main",
@@ -69,6 +77,10 @@ describe("MainView.vue", () => {
 
   test('loads content of "workspace" tab', async () => {
     const wrapper = mount(MainView, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return {
           activeTab: "/main/workspace",
@@ -91,6 +103,10 @@ describe("MainView.vue", () => {
 
   test("show the time counter by status", () => {
     const wrapper = mount(MainView, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       store: {
         ...store,
         state: {
@@ -108,6 +124,10 @@ describe("MainView.vue", () => {
 
   test("hide the time counter by status", () => {
     const wrapper = mount(MainView, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       store: {
         ...store,
         state: {

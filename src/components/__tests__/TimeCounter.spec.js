@@ -20,6 +20,10 @@ describe("TimeCounter.vue", () => {
 
   test("displays elapsed time title", () => {
     const wrapper = mount(TimeCounter, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       localVue,
       store,
       vuetify,
@@ -28,13 +32,14 @@ describe("TimeCounter.vue", () => {
     expect(
       wrapper.find(".time-wrapper .time:nth-child(1) .time-title")
     ).toBeTruthy();
-    expect(
-      wrapper.find(".time-wrapper .time:nth-child(1) .time-title").text()
-    ).toContain("Elapsed time");
   });
 
   test("displays remaining time title", () => {
     const wrapper = mount(TimeCounter, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       localVue,
       store,
       vuetify,
@@ -43,13 +48,14 @@ describe("TimeCounter.vue", () => {
     expect(
       wrapper.find(".time-wrapper .time:nth-child(2) .time-title")
     ).toBeTruthy();
-    expect(
-      wrapper.find(".time-wrapper .time:nth-child(2) .time-title").text()
-    ).toContain("Remaining time");
   });
 
   test("displays elapsed time value", () => {
     const wrapper = mount(TimeCounter, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       localVue,
       store,
       vuetify,
@@ -65,6 +71,10 @@ describe("TimeCounter.vue", () => {
 
   test("displays remaining time value", () => {
     const wrapper = mount(TimeCounter, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       localVue,
       store,
       vuetify,

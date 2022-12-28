@@ -38,6 +38,10 @@ describe("NewSessionDialog.vue", () => {
     });
 
     wrapper = mount(App, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       localVue,
       vuetify,
       attachTo: "#root",
@@ -51,14 +55,8 @@ describe("NewSessionDialog.vue", () => {
 
     expect(wrapper.findComponent(LogoWrapper).exists()).toBe(true);
     expect(wrapper.find(".title").exists()).toBe(true);
-    expect(wrapper.find(".title").text()).toContain("Save Current Progress");
     expect(wrapper.find(".text").exists()).toBe(true);
-    expect(wrapper.find(".text").text()).toContain(
-      "Do you want save current progress?"
-    );
     expect(wrapper.findAll(".btn").length).toBe(2);
-    expect(wrapper.find(".btn:first-child").text()).toContain("Save");
-    expect(wrapper.find(".btn:last-child").text()).toContain("Discard");
   });
 
   test('trigger the click event of "Save" button', async () => {

@@ -12,23 +12,23 @@
     <div class="content mt-2">
       <v-row>
         <v-col cols="12">
-          <v-btn class="mb-4 outline-btn" block outlined color="white">
+          <v-btn class="mb-4 outline-btn yattie" block outlined color="white">
             <img :src="require('../../assets/icon/yattie.png')" />
             <div class="btn-text">{{ $tc("caption.signup_yattie", 1) }}</div>
           </v-btn>
-          <v-btn class="mb-4 outline-btn" block outlined color="white">
+          <v-btn class="mb-4 outline-btn jira" block outlined color="white">
             <img :src="require('../../assets/icon/jira.png')" />
             <div class="btn-text">{{ $tc("caption.signup_jira", 1) }}</div>
           </v-btn>
-          <v-btn class="mb-4 outline-btn" block outlined color="white">
+          <v-btn class="mb-4 outline-btn testrail" block outlined color="white">
             <img :src="require('../../assets/icon/testrail.png')" />
             <div class="btn-text">{{ $tc("caption.signup_testrail", 1) }}</div>
           </v-btn>
-          <v-btn class="mb-4 outline-btn" block outlined color="white">
+          <v-btn class="mb-4 outline-btn qtest" block outlined color="white">
             <img :src="require('../../assets/icon/qtest.png')" />
             <div class="btn-text">{{ $tc("caption.singup_qtest", 1) }}</div>
           </v-btn>
-          <v-btn class="outline-btn" block outlined color="white">
+          <v-btn class="outline-btn practitest" block outlined color="white">
             <img :src="require('../../assets/icon/practitest.png')" />
             <div class="btn-text">
               {{ $tc("caption.signup_pratictest", 1) }}

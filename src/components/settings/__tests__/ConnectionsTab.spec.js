@@ -11,6 +11,10 @@ const vuetify = new Vuetify();
 describe("ConnectionsTabConnectionsTab.vue", () => {
   test("render a view", () => {
     const wrapper = mount(ConnectionsTab, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         config: {},
       },

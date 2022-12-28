@@ -2,7 +2,7 @@
   <v-container>
     <div class="wrapper">
       <div class="header">
-        <span>Select Window To Record Session</span>
+        <span>{{ $t("message.select_window_to_record_session") }}</span>
       </div>
       <div class="content">
         <v-radio-group v-model="activeSource">
@@ -31,7 +31,7 @@
       </div>
       <div class="footer">
         <v-btn class="text-capitalize" small color="white" @click="close">
-          Cancel
+          {{ $tc("caption.cancel", 1) }}
         </v-btn>
         <v-btn
           class="text-capitalize"
@@ -40,7 +40,7 @@
           :disabled="!activeSource"
           @click="select"
         >
-          Start Recording
+          {{ $tc("caption.start_recording", 1) }}
         </v-btn>
       </div>
     </div>
@@ -54,7 +54,7 @@ import {
 } from "../modules/constants";
 
 export default {
-  name: "SummaryEditor",
+  name: "SourcePickerView",
   data() {
     return {
       activeSource: "",

@@ -31,6 +31,10 @@ describe("PrintView.vue", () => {
 
   test("render view", () => {
     const wrapper = mount(PrintView, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       data() {
         return {
           items,

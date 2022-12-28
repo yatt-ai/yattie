@@ -21,6 +21,8 @@ export const IPC_FUNCTIONS = {
   SAVE_USER_MEDIA: "saveUserMedia",
   UPDATE_USER_MEDIA: "updateUserMedia",
   OPTIMIZE_VIDEO: "optimizeVideo",
+  START_DRAG: "startDrag",
+
   OPEN_ADD_WINDOW: "openAddWindow",
   CLOSE_ADD_WINDOW: "closeAddWindow",
   OPEN_EDIT_WINDOW: "openEditWindow",
@@ -56,6 +58,7 @@ export const IPC_FUNCTIONS = {
   SAVE_SESSION: "saveSession",
   OPEN_SESSION: "openSession",
   EXPORT_SESSION: "exportSession",
+  DRAG_ITEM: "dragItem",
 
   CHANGE_MENUITEM_STATUS: "changeMenuItemStatus",
 };

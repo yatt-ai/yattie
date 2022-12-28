@@ -12,10 +12,10 @@
           class="btn-end"
           @click="endSession"
         >
-          End Session
+          {{ $tc("caption.end_session)", 1) }}
         </v-btn>
         <v-btn color="white text-capitalize" class="btn-end" @click="cancel">
-          Cancel
+          {{ $tc("caption.cancel)", 1) }}
         </v-btn>
       </div>
     </v-card>

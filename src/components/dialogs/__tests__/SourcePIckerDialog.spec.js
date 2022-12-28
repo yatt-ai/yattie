@@ -34,6 +34,10 @@ describe("SourcePickerDialog", () => {
     });
 
     wrapper = mount(App, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       localVue,
       vuetify,
       attachTo: "#root",
@@ -44,19 +48,9 @@ describe("SourcePickerDialog", () => {
     await wrapper.setData({ dialog: true });
 
     expect(wrapper.find(".header span").exists()).toBe(true);
-    expect(wrapper.find(".header span").text()).toContain(
-      "Select Window To Record Session"
-    );
 
     expect(wrapper.find(".content").exists()).toBe(true);
     expect(wrapper.findAll(".footer button").length).toBe(2);
-
-    expect(wrapper.find(".footer button:first-child").text()).toContain(
-      "Cancel"
-    );
-    expect(wrapper.find(".footer button:last-child").text()).toContain(
-      "Start Recording"
-    );
   });
 
   test('trigger the click event of "Cancel" button', async () => {

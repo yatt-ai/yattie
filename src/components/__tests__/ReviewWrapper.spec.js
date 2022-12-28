@@ -14,6 +14,10 @@ const vuetify = new Vuetify();
 describe("ReivewWrapper.vue", () => {
   test("render a view", async () => {
     const wrapper = mount(ReviewWrappper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         item: {
           fileType: "mindmap",

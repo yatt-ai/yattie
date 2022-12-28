@@ -8,6 +8,10 @@ const vuetify = new Vuetify();
 describe("SearchWrapper.vue", () => {
   test("load serach box", () => {
     const wrapper = mount(SearchWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       vuetify,
     });
 
@@ -17,6 +21,10 @@ describe("SearchWrapper.vue", () => {
 
   test("change the value of searchbox", async () => {
     const wrapper = mount(SearchWrapper, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       vuetify,
     });
 

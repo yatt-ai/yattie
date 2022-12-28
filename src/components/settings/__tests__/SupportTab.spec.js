@@ -11,6 +11,10 @@ const vuetify = new Vuetify();
 describe("SupportTab.vue", () => {
   test("render a view", () => {
     const wrapper = mount(SupportTab, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       localVue,
       vuetify,
     });

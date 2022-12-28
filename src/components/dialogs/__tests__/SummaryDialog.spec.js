@@ -1,7 +1,6 @@
 import Vuetify from "vuetify";
-
-import NoteDialog from "../NoteDialog";
-import TextEditor from "../../TextEditor";
+import SummaryDialog from "../SummaryDialog.vue";
+import TextEditor from "../../TextEditor.vue";
 
 import { mount, createLocalVue } from "@vue/test-utils";
 
@@ -9,7 +8,7 @@ let vuetify;
 let wrapper;
 let localVue;
 
-describe("NoteDialog.vue", () => {
+describe("SummaryDialog.vue", () => {
   beforeEach(() => {
     const rootDiv = document.createElement("div");
     rootDiv.id = "root";
@@ -19,18 +18,7 @@ describe("NoteDialog.vue", () => {
     vuetify = new Vuetify();
 
     const App = localVue.component("App", {
-      components: { NoteDialog },
-      propsData: {
-        configItem: {
-          commentType: "",
-          templates: [
-            {
-              precondition: { comment: "", text: "" },
-              type: "Note",
-            },
-          ],
-        },
-      },
+      components: { SummaryDialog },
       data() {
         return {
           dialog: false,
@@ -38,7 +26,9 @@ describe("NoteDialog.vue", () => {
       },
       template: `
         <v-app>
-          <NoteDialog
+          <SummaryDialog
+            title="Confirm Reset"
+            text="Are you sure you want to reset?"
             ref="dialog"
             v-model="dialog"
           />
@@ -57,24 +47,27 @@ describe("NoteDialog.vue", () => {
     });
   });
 
-  test("render a dialog", async () => {
+  test("render a view", async () => {
     wrapper.setData({ dialog: true });
 
     await wrapper.vm.$nextTick();
 
-    expect(wrapper.findComponent(TextEditor).exists()).toBe(true);
     expect(wrapper.find(".dialog-title").exists()).toBe(true);
-
-    expect(wrapper.findAll(".btn").length).toBe(3);
+    expect(wrapper.findComponent(TextEditor).exists()).toBe(true);
+    expect(wrapper.find(".container").exists()).toBe(true);
+    expect(wrapper.find(".container .subtitle-2").exists()).toBe(true);
+    expect(wrapper.find(".container input").exists()).toBe(true);
+    expect(wrapper.find(".container button").exists()).toBe(true);
+    expect(wrapper.findAll(".action-wrapper button").length).toBe(2);
   });
 
-  test('trigger the click event of "Clear" button', async () => {
+  test('trigger the click event of "dicard" button', async () => {
     wrapper.setData({ dialog: true });
 
     await wrapper.vm.$nextTick();
 
-    const button = wrapper.find(".note-wrapper .btn");
     const event = jest.fn();
+    const button = wrapper.find(".action-wrapper button:first-child");
 
     button.vm.$on("click", event);
     button.trigger("click");
@@ -82,13 +75,13 @@ describe("NoteDialog.vue", () => {
     expect(event).toHaveBeenCalled();
   });
 
-  test('trigger the click event of "Discard" button', async () => {
+  test('trigger the click event of "save" button', async () => {
     wrapper.setData({ dialog: true });
 
     await wrapper.vm.$nextTick();
 
-    const button = wrapper.find(".action-wrapper > div:first-child > .btn");
     const event = jest.fn();
+    const button = wrapper.find(".action-wrapper button:last-child");
 
     button.vm.$on("click", event);
     button.trigger("click");
@@ -96,13 +89,13 @@ describe("NoteDialog.vue", () => {
     expect(event).toHaveBeenCalled();
   });
 
-  test('trigger the click event of "Save" button', async () => {
+  test('trigger the click event of "clear" button', async () => {
     wrapper.setData({ dialog: true });
 
     await wrapper.vm.$nextTick();
 
-    const button = wrapper.find(".action-wrapper > div:last-child > .btn");
     const event = jest.fn();
+    const button = wrapper.find(".container button");
 
     button.vm.$on("click", event);
     button.trigger("click");

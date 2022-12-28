@@ -1,13 +1,15 @@
 <template>
   <v-container>
     <v-card>
-      <v-card-title class="dialog-title"> Take a Summary </v-card-title>
+      <v-card-title class="dialog-title">
+        {{ $tc("caption.take_summary", 1) }}
+      </v-card-title>
       <v-divider></v-divider>
       <v-container>
         <v-row>
           <v-col cols="12">
             <TextEditor
-              placeholder="Insert your summary here"
+              :placeholder="$t('message.insert_summary')"
               @update-data="updateComment"
               :content="comment.content"
               :height="200"
@@ -16,10 +18,12 @@
         </v-row>
         <v-row class="mt-0">
           <v-col class="pr-0">
-            <div class="subtitle-2 label-text">Comment Type</div>
+            <div class="subtitle-2 label-text">
+              {{ $tc("caption.comment_type", 1) }}
+            </div>
             <v-select
               :items="commentTypes"
-              placeholder="Comment Type"
+              :placeholder="$tc('caption.comment_type', 1)"
               solo
               dense
               disabled
@@ -33,7 +37,7 @@
               class="text-capitalize px-0 btn"
               @click="handleClear"
             >
-              Clear
+              {{ $tc("caption.clear", 1) }}
             </v-btn>
           </v-col>
         </v-row>
@@ -43,12 +47,12 @@
         <v-row class="action-wrapper">
           <v-col cols="6 pr-1">
             <v-btn class="btn" small block color="white" @click="handleDiscard">
-              Discard
+              {{ $tc("caption.discard", 1) }}
             </v-btn>
           </v-col>
           <v-col cols="6 pl-1">
             <v-btn class="btn" small block color="primary" @click="handleSave">
-              Save
+              {{ $tc("caption.save", 1) }}
             </v-btn>
           </v-col>
         </v-row>

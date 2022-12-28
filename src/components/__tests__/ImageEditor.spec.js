@@ -8,6 +8,10 @@ const vuetify = new Vuetify();
 describe("ImageEditor.vue", () => {
   test("render a view", () => {
     const wrapper = mount(ImageEditor, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         item: {
           filePath: "",

@@ -10,6 +10,10 @@ const localVue = createLocalVue();
 describe("TemplateTab.vue", () => {
   test("render a view", () => {
     const wrapper = mount(TemplateTab, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         config: {
           templates: [{ precondition: {} }],
@@ -44,6 +48,10 @@ describe("TemplateTab.vue", () => {
 
   test("trigger the click event of cancel button", () => {
     const wrapper = mount(TemplateTab, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         config: {
           templates: [{ precondition: {} }],
@@ -73,6 +81,10 @@ describe("TemplateTab.vue", () => {
 
   test("trigger the click event of save button", () => {
     const wrapper = mount(TemplateTab, {
+      mocks: {
+        $t: () => {},
+        $tc: () => {},
+      },
       propsData: {
         config: {
           templates: [{ precondition: {} }],
