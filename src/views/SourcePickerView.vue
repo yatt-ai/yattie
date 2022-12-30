@@ -40,7 +40,7 @@
           :disabled="!activeSource"
           @click="select"
         >
-          {{ $tc("caption.start_recording", 1) }}
+          {{ $tc("caption.select", 1) }}
         </v-btn>
       </div>
     </div>

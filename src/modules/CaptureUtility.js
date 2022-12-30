@@ -216,16 +216,65 @@ module.exports.uploadEvidence = async () => {
           error: err,
         });
       }
+
       let fileType = "";
-      if (result.mime === "image/jpeg" || result.mime === "image/png") {
-        fileType = "image";
-      } else if (result.mime === "video/mp4") {
-        fileType = "video";
-      } else if (result.mime === "video/mp3") {
-        fileType = "audio";
+      if (result) {
+        if (result.mime === "image/jpeg" || result.mime === "image/png") {
+          fileType = "image";
+        } else if (result.mime === "video/mp4") {
+          fileType = "video";
+        } else if (result.mime === "video/mp3") {
+          fileType = "audio";
+        } else {
+          fileType = "other";
+        }
       } else {
         fileType = "other";
       }
+
+      const data = {
+        fileType: fileType,
+        fileName: fileName,
+        filePath: filePath,
+      };
+      return resolve({
+        status: STATUSES.SUCCESS,
+        result: data,
+      });
+    });
+  });
+};
+
+module.exports.dropFile = async (data) => { 
+  const fileName = data.name;
+  const filePath = path.join(configDir, "sessions", "userMedia", fileName);
+
+  fs.copyFileSync(data.path, filePath);
+
+  return new Promise(function (resolve) {
+    detect.fromFile(filePath, function (err, result) {
+      if (err) {
+        return resolve({
+          status: STATUSES.ERROR,
+          error: err,
+        });
+      }
+
+      let fileType = "";
+      if (result) {
+        if (result.mime === "image/jpeg" || result.mime === "image/png") {
+          fileType = "image";
+        } else if (result.mime === "video/mp4") {
+          fileType = "video";
+        } else if (result.mime === "video/mp3") {
+          fileType = "audio";
+        } else {
+          fileType = "other";
+        }
+      } else {
+        fileType = "other";
+      }
+
       const data = {
         fileType: fileType,
         fileName: fileName,

@@ -7,6 +7,7 @@ const menuUtility = require("./MenuUtility");
 const windowUtility = require("./WindowUtility");
 
 ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
+  console.log(args);
   switch (args.func) {
     case IPC_FUNCTIONS.GET_MEDIA_SOURCE:
       return captureUtility.getMediaSource();
@@ -34,7 +35,8 @@ ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
       return captureUtility.saveUserMedia(args.data);
     case IPC_FUNCTIONS.UPDATE_USER_MEDIA:
       return captureUtility.updateUserMedia(args.data);
-
+    case IPC_FUNCTIONS.DROP_FILE:
+      return captureUtility.dropFile(args.data);
     case IPC_FUNCTIONS.GET_IMAGE_DATA:
       return captureUtility.getImageData(args.data);
     case IPC_FUNCTIONS.SET_APPERANCE:

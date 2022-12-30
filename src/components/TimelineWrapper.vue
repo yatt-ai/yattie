@@ -10,7 +10,13 @@
           <span v-if="$store.state.started">{{ $store.state.started }}</span>
           <span v-else>{{ current }}</span>
         </div>
-        <div class="timeline-wrap pt-3">
+        <div
+          class="timeline-wrap pt-3"
+          @dragenter="dragEnter($event)"
+          @dragleave="dragLeave($event)"
+          @drop="dropFile($event)"
+          @dragover="dragOver($event)"
+        >
           <v-timeline align-top dense class="pt-0">
             <v-timeline-item
               class="timeline-item"
@@ -355,6 +361,14 @@
         </div>
       </v-col>
     </v-row>
+    <v-row
+      :class="{ 'drop-indicator': true, hidden: !isDragging }"
+      v-if="status !== 'pending' && status !== 'pause'"
+    >
+      <p>
+        <img :src="require('../assets/icon/plus.svg')" width="24" height="24" />
+      </p>
+    </v-row>
     <v-row v-if="status !== 'pending' && status !== 'pause'">
       <v-col cols="12" class="text-center">
         <v-btn
@@ -430,6 +444,7 @@ export default {
       tags: "",
       eventName: this.eventType,
       clicks: 0,
+      isDragging: false,
     };
   },
   computed: {
@@ -544,10 +559,59 @@ export default {
         data: item,
       });
     },
+    async dropFile(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (event.dataTransfer.files.length === 0 || !window.ipc) {
+        return;
+      }
+
+      const f = event.dataTransfer.files[0];
+      const { status, error, result } = await window.ipc.invoke(
+        IPC_HANDLERS.CAPTURE,
+        {
+          func: IPC_FUNCTIONS.DROP_FILE,
+          data: {
+            path: f.path,
+            name: f.name,
+          },
+        }
+      );
+
+      if (status === STATUSES.ERROR) {
+        console.log(error);
+      } else {
+        const data = {
+          sessionType: "File",
+          fileType: result.fileType,
+          fileName: result.fileName,
+          filePath: result.filePath,
+          time: this.$store.state.timer,
+        };
+        this.openEditorModal(data);
+        this.isDragging = false;
+      }
+    },
+    dragEnter(event) {
+      event.preventDefault();
+    },
+    dragLeave(event) {
+      this.isDragging = false;
+      event.preventDefault();
+    },
+    dragOver(event) {
+      this.isDragging = true;
+      event.preventDefault();
+      event.stopPropagation();
+    },
   },
 };
 </script>
 <style scoped>
+.hidden {
+  display: none;
+}
 .timeline-item {
   height: auto;
   display: flex;
@@ -599,6 +663,17 @@ export default {
 }
 .comment-wrapper p {
   margin-bottom: 0 !important;
+}
+.drop-indicator {
+  border-radius: 15px;
+  background: #eee;
+  height: 10em;
+}
+.drop-indicator p {
+  margin: auto;
+  padding: 1em 2em;
+  border-radius: 15px;
+  border: 3px dashed #aaa;
 }
 .note-wrapper {
   display: flex;

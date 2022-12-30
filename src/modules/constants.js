@@ -21,7 +21,7 @@ export const IPC_FUNCTIONS = {
   SAVE_USER_MEDIA: "saveUserMedia",
   UPDATE_USER_MEDIA: "updateUserMedia",
   OPTIMIZE_VIDEO: "optimizeVideo",
-  START_DRAG: "startDrag",
+  DROP_FILE: "dropFile",
 
   OPEN_ADD_WINDOW: "openAddWindow",
   CLOSE_ADD_WINDOW: "closeAddWindow",
