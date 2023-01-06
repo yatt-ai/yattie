@@ -57,7 +57,7 @@ import {
   // SESSION_STATUSES,
 } from "../../modules/constants";
 export default {
-  name: "Signup1Wrapper",
+  name: "SignupHomeWrapper",
   components: {
     VContainer,
     VBtn,

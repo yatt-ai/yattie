@@ -11,9 +11,9 @@ import NoteView from "../views/NoteView.vue";
 import MinimizeView from "../views/MinimizeView.vue";
 
 import AuthenticationView from "../views/AuthenticationView.vue";
-import Signup1Wrapper from "@/components/authentication/Signup1Wrapper";
-import Signup2Wrapper from "@/components/authentication/Signup2Wrapper";
-import Signup3Wrapper from "@/components/authentication/Signup3Wrapper";
+import SignupHomeWrapper from "@/components/authentication/SignupHomeWrapper";
+import SignupMainWrapper from "@/components/authentication/SignupMainWrapper";
+import SignupYattieWrapper from "@/components/authentication/SignupYattieWrapper";
 import SigninWrapper from "@/components/authentication/SigninWrapper";
 
 import SettingView from "../views/SettingView.vue";
@@ -43,20 +43,20 @@ const routes = [
     children: [
       {
         path: "/",
-        name: "signup1",
-        component: Signup1Wrapper,
+        name: "signupHome",
+        component: SignupHomeWrapper,
         props: true,
       },
       {
-        path: "signup2",
-        name: "signup2",
-        component: Signup2Wrapper,
+        path: "signupMain",
+        name: "signupMain",
+        component: SignupMainWrapper,
         props: true,
       },
       {
-        path: "signup3",
-        name: "signup3",
-        component: Signup3Wrapper,
+        path: "signupYattie",
+        name: "signupYattie",
+        component: SignupYattieWrapper,
         props: true,
       },
       {

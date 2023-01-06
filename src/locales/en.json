@@ -123,7 +123,19 @@
     "minute": "Minutes",
     "workspace": "Workspace",
     "change_recording_target": "Change recording target",
-    "map_node": "Map Node"
+    "quick_test": "@.capitalize:quick test",
+    "map_node": "Map Node",
+    "new_exploratory_session": "New Exploratory Session",
+    "open_exploratory_session": "Open Exploratory Session",
+    "sign_in_with": "Sign in with",
+    "logged_in_jira": "Logged in to Jira",
+    "logged_in_testrail": "Logged in to TestRail",
+    "logged_in_qtest": "Logged in to qTest",
+    "logged_in_practitest": "Logged in to PractiTest",
+    "not_logged_in_jira": "Not Logged in to Jira",
+    "not_logged_in_testrail": "Not Logged in to TestRail",
+    "not_logged_in_qtest": "Not Logged in to qTest",
+    "not_logged_in_practitest": "Not Logged in to PractiTest"
   },
   "menu": {
     "file": "File",

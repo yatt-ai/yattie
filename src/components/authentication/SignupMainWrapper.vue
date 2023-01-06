@@ -95,7 +95,7 @@
 
 <script>
 export default {
-  name: "Signup2Wrapper",
+  name: "SignupMainWrapper",
   components: {},
   props: {},
   data() {

@@ -1,14 +1,14 @@
 import Vuetify from "vuetify";
-import Signup2Wrapper from "../Signup2Wrapper.vue";
+import SignupMainWrapper from "../SignupMainWrapper.vue";
 
 import { mount } from "@vue/test-utils";
 
 const vuetify = new Vuetify();
 let wrapper;
 
-describe("Signup2Wrapper.vue", () => {
+describe("SignupMainWrapper.vue", () => {
   beforeEach(() => {
-    wrapper = mount(Signup2Wrapper, {
+    wrapper = mount(SignupMainWrapper, {
       mocks: {
         $t: () => {},
         $tc: () => {},

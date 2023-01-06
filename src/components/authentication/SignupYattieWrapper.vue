@@ -94,7 +94,7 @@
 
 <script>
 export default {
-  name: "Signup3Wrapper",
+  name: "SignupYattieWrapper",
   components: {},
   props: {},
   data() {

@@ -29,6 +29,7 @@ export default new Vuex.Store({
     timer: 0,
     started: "",
     ended: "",
+    quickTest: false,
   },
   getters: {},
   mutations: {
@@ -55,6 +56,9 @@ export default new Vuex.Store({
     },
     setEnded(state, payload) {
       state.ended = payload;
+    },
+    setQuickTest(state, payload) {
+      state.quickTest = payload;
     },
     updateSession(state, payload) {
       if (state.status !== payload.status) {

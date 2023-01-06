@@ -10,6 +10,7 @@ export default {
     timer: 0,
     started: "",
     ended: "",
+    quickTest: false,
   },
   getters: {},
   mutations: {
@@ -31,6 +32,9 @@ export default {
     setEnded(state, payload) {
       state.ended = payload;
     },
+    setQuickTest(state, payload) {
+      state.quickTest = payload;
+    },
     updateSession(state, payload) {
       state.status = payload.status;
       state.timer = payload.timer;
@@ -45,6 +49,7 @@ export default {
       state.duration = 0;
       state.started = "";
       state.ended = "";
+      state.quickTest = false;
     },
   },
   actions: {},

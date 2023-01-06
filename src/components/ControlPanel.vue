@@ -682,34 +682,42 @@ export default {
         return;
       }
 
+      this.$store.commit("setQuickTest", false);
       this.$emit("handle-pressesion-task-error", false);
       this.showSourcePickerDialog();
     },
+    fetchSources() {
+      return new Promise(function (resolver, reject) {
+        if (!window.ipc) return reject();
+        window.ipc
+          .invoke(IPC_HANDLERS.CAPTURE, {
+            func: IPC_FUNCTIONS.GET_MEDIA_SOURCE,
+          })
+          .then((data) => {
+            return resolver(data);
+          });
+      });
+    },
     showSourcePickerDialog() {
-      if (!window.ipc) return;
-      window.ipc
-        .invoke(IPC_HANDLERS.CAPTURE, {
-          func: IPC_FUNCTIONS.GET_MEDIA_SOURCE,
-        })
-        .then((data) => {
-          this.loaded = true;
-          this.sources = data.filter((source) => source.name !== "yattie");
-          if (this.viewMode === "normal") {
-            this.sourcePickerDialog = true;
-          } else {
-            window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-              func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-              data: {
-                path: "sourcepicker",
-                size: {
-                  width: 600,
-                  height: 500,
-                },
-                data: this.sources,
+      this.fetchSources().then((data) => {
+        this.loaded = true;
+        this.sources = data.filter((source) => source.name !== "yattie");
+        if (this.viewMode === "normal") {
+          this.sourcePickerDialog = true;
+        } else {
+          window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+            func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
+            data: {
+              path: "sourcepicker",
+              size: {
+                width: 600,
+                height: 500,
               },
-            });
-          }
-        });
+              data: this.sources,
+            },
+          });
+        }
+      });
     },
     hideSourcePickerDialog() {
       this.sourcePickerDialog = false;
@@ -763,17 +771,25 @@ export default {
     startSession(id) {
       this.sourceId = id;
       this.sourcePickerDialog = false;
-      this.status = SESSION_STATUSES.START;
+
       this.timer = this.$store.state.timer;
       this.duration = this.$store.state.duration;
       if (this.duration > 0) {
         this.isDuration = true;
       }
-      this.started = this.getCurrentDateTime();
-      this.$store.commit("setStarted", this.started);
-      console.log("start interval-2");
-      this.startInterval();
-      this.changeSessionStatus(SESSION_STATUSES.START);
+
+      if (this.started === "") {
+        this.started = this.getCurrentDateTime();
+        this.$store.commit("setStarted", this.started);
+      }
+
+      if (this.status !== SESSION_STATUSES.START) {
+        console.log("start interval-2");
+        this.status = SESSION_STATUSES.START;
+        this.startInterval();
+        this.changeSessionStatus(SESSION_STATUSES.START);
+      }
+
       if (this.viewMode === "normal") {
         const currentPath = this.$router.history.current.path;
         if (currentPath !== "/main/workspace") {
@@ -787,10 +803,17 @@ export default {
       this.stopInterval();
     },
     resumeSession() {
-      this.status = SESSION_STATUSES.START;
-      this.timer = this.$store.state.timer;
-      console.log("start interval-3");
-      this.startInterval();
+      this.fetchSources().then((data) => {
+        const list = data.filter((v) => v.id === this.sourceId);
+        if (list.length === 0) {
+          this.showSourcePickerDialog();
+        } else {
+          this.status = SESSION_STATUSES.START;
+          this.timer = this.$store.state.timer;
+          console.log("start interval-3");
+          this.startInterval();
+        }
+      });
     },
     endSession() {
       if (this.postSessionData.status) {
@@ -903,7 +926,17 @@ export default {
       this.changeSessionStatus(this.status);
       this.$store.commit("setStatus", this.status);
     },
-    async screenshot() {
+    screenshot() {
+      this.fetchSources().then((data) => {
+        const list = data.filter((v) => v.id === this.sourceId);
+        if (list.length === 0) {
+          this.showSourcePickerDialog();
+        } else {
+          this.screenshotProcess();
+        }
+      });
+    },
+    async screenshotProcess() {
       this.handleStream = (stream) => {
         const video = document.createElement("video");
         video.srcObject = stream;
@@ -958,7 +991,17 @@ export default {
         this.handleError(e);
       }
     },
-    async startRecordVideo() {
+    startRecordVideo() {
+      this.fetchSources().then((data) => {
+        const list = data.filter((v) => v.id === this.sourceId);
+        if (list.length === 0) {
+          this.showSourcePickerDialog();
+        } else {
+          this.videoRecordProcess();
+        }
+      });
+    },
+    async videoRecordProcess() {
       this.handleStream = (stream) => {
         if (this.config.audioCapture && this.audioDevices.length > 0) {
           stream.addTrack(dest.stream.getAudioTracks()[0]);

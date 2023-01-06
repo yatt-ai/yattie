@@ -1,7 +1,7 @@
 <template>
   <v-container class="wrapper">
     <div class="header py-4">
-      <v-btn class="text-capitalize pa-0 back-btn" plain to="/authentication">
+      <v-btn class="text-capitalize pa-0 back-btn" plain @click="back()">
         <v-icon class="ma-0">mdi-chevron-left</v-icon>
         {{ $tc("caption.back", 1) }}
       </v-btn>
@@ -13,7 +13,7 @@
       <v-row>
         <v-col cols="12">
           <v-btn class="mb-4 outline-btn yattie" block outlined color="white">
-            <img :src="require('../../assets/icon/yattie.png')" />
+            <img :src="require('../../assets/icon/yattie1.png')" />
             <div class="btn-text">{{ $tc("caption.signin_yattie", 1) }}</div>
           </v-btn>
           <v-btn class="mb-4 outline-btn jira" block outlined color="white">
@@ -36,7 +36,7 @@
           </v-btn>-->
         </v-col>
       </v-row>
-      <v-row>
+      <!-- <v-row>
         <v-col cols="12" class="divider">
           <span></span>
           <div class="divider-text">Or</div>
@@ -55,7 +55,7 @@
             {{ $tc("caption.sign_up", 1) }}
           </v-btn>
         </v-col>
-      </v-row>
+      </v-row> -->
     </div>
   </v-container>
 </template>
@@ -69,7 +69,11 @@ export default {
     return {};
   },
   computed: {},
-  methods: {},
+  methods: {
+    back: function () {
+      this.$router.back();
+    },
+  },
 };
 </script>
 <style scoped>

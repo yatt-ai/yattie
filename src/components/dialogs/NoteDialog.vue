@@ -3,7 +3,7 @@
     <v-sheet outlined color="accent" rounded>
       <v-card>
         <v-card-title class="dialog-title">
-          {{ $tc("caption.take_noe", 1) }}
+          {{ $tc("caption.take_note", 1) }}
         </v-card-title>
         <v-divider></v-divider>
         <v-container class="note-wrapper">
@@ -32,7 +32,9 @@
           </v-row>
           <v-row class="mt-0">
             <v-col class="pr-0">
-              <div class="subtitle-2 label-text">{{ $tc("note_type", 1) }}</div>
+              <div class="subtitle-2 label-text">
+                {{ $tc("caption.note_type", 1) }}
+              </div>
               <v-select
                 :items="commentTypes"
                 v-model="comment.type"

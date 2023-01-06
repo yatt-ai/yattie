@@ -1,14 +1,14 @@
 import Vuetify from "vuetify";
-import Signup1Wrapper from "../Signup1Wrapper.vue";
+import SignupHomeWrapper from "../SignupHomeWrapper.vue";
 import LogoWrapper from "../../LogoWrapper.vue";
 
 import { mount } from "@vue/test-utils";
 
 const vuetify = new Vuetify();
 
-describe("Signup1Wrapper.vue", () => {
+describe("SignupHomeWrapper.vue", () => {
   test("render a view", () => {
-    const wrapper = mount(Signup1Wrapper, {
+    const wrapper = mount(SignupHomeWrapper, {
       mocks: {
         $t: () => {},
         $tc: () => {},
@@ -23,7 +23,7 @@ describe("Signup1Wrapper.vue", () => {
   });
 
   test('trigger the click event of "signin" button', () => {
-    const wrapper = mount(Signup1Wrapper, {
+    const wrapper = mount(SignupHomeWrapper, {
       mocks: {
         $t: () => {},
         $tc: () => {},
@@ -42,7 +42,7 @@ describe("Signup1Wrapper.vue", () => {
   });
 
   test('trigger the click event of "signup" button', () => {
-    const wrapper = mount(Signup1Wrapper, {
+    const wrapper = mount(SignupHomeWrapper, {
       mocks: {
         $t: () => {},
         $tc: () => {},

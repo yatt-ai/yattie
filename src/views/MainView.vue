@@ -1,5 +1,11 @@
 <template>
   <v-container class="wrapper pa-0">
+    <div class="top" v-if="this.status === 'pending' || $store.state.quickTest">
+      <v-btn class="text-capitalize pa-0 back-btn" plain @click="back()">
+        <v-icon class="ma-0">mdi-chevron-left</v-icon>
+        {{ $tc("caption.back", 1) }}
+      </v-btn>
+    </div>
     <div class="header">
       <v-tabs
         class="tabs"
@@ -21,9 +27,9 @@
           {{ $tc("caption.workspace", 1) }}
         </v-tab>
       </v-tabs>
-      <!--<v-btn class="mx-2" fab dark small color="primary" @click="signup">
+      <!-- <v-btn class="mx-2" fab dark small color="primary" @click="signup">
         <v-icon dark> mdi-account </v-icon>
-      </v-btn>-->
+      </v-btn> -->
     </div>
     <v-divider />
     <div class="content">
@@ -240,6 +246,10 @@ export default {
     },
     signup() {
       this.$router.push({ path: "/authentication" });
+    },
+    back() {
+      this.$store.commit("resetState");
+      this.$router.push("/");
     },
   },
 };

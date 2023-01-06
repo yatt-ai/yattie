@@ -1,14 +1,14 @@
 import Vuetify from "vuetify";
-import Signup3Wrapper from "../Signup3Wrapper.vue";
+import SignupYattieWrapper from "../SignupYattieWrapper.vue";
 
 import { mount } from "@vue/test-utils";
 
 const vuetify = new Vuetify();
 let wrapper;
 
-describe("Signup3Wrapper.vue", () => {
+describe("SignupYattieWrapper.vue", () => {
   beforeEach(() => {
-    wrapper = mount(Signup3Wrapper, {
+    wrapper = mount(SignupYattieWrapper, {
       mocks: {
         $t: () => {},
         $tc: () => {},
