@@ -33,13 +33,29 @@
               {{ $tc("caption.mind_map", 1) }}
             </v-tab>
             <v-tab-item :transition="false">
-              <text-editor
-                class="charter"
-                placeholder="Describe your test charter!"
-                @update-data="updateCharter"
-                :content="charter.content"
-                :height="150"
-              />
+              <v-tiptap
+                v-model="charter.content"
+                :placeholder="$t('message.describe_test_charter')"
+                ref="charter"
+                :toolbar="[
+                  'headings',
+                  '|',
+                  'bold',
+                  'italic',
+                  'underline',
+                  '|',
+                  'color',
+                  '|',
+                  'bulletList',
+                  'orderedList',
+                  '|',
+                  'link',
+                  'emoji',
+                  'blockquote',
+                ]"
+                @input="updateCharter"
+              >
+              </v-tiptap>
             </v-tab-item>
             <v-tab-item :transition="false">
               <div class="mindmap-wrapper">
@@ -75,13 +91,30 @@
           </div>
         </div>
         <div class="mt-4 pre-cond">
-          <text-editor
+          <v-tiptap
+            v-model="precondition.content"
+            :placeholder="$t('message.define_required_precondition')"
             label="Preconditions"
-            placeholder="Define required preconditions for this test."
-            @update-data="updatePrecondition"
-            :content="precondition.content"
-            :height="150"
-          />
+            ref="precondition"
+            :toolbar="[
+              'headings',
+              '|',
+              'bold',
+              'italic',
+              'underline',
+              '|',
+              'color',
+              '|',
+              'bulletList',
+              'orderedList',
+              '|',
+              'link',
+              'emoji',
+              'blockquote',
+            ]"
+            @input="updatePrecondition"
+          >
+          </v-tiptap>
         </div>
       </v-col>
     </v-row>
@@ -90,7 +123,6 @@
 
 <script>
 import { VContainer, VRow, VCol, VTextField } from "vuetify/lib/components";
-import TextEditor from "./TextEditor.vue";
 import MindmapEditor from "./MindmapEditor.vue";
 
 import {
@@ -105,7 +137,6 @@ export default {
     VRow,
     VCol,
     VTextField,
-    TextEditor,
     MindmapEditor,
   },
   data() {
@@ -132,14 +163,14 @@ export default {
     updateTitle() {
       this.$store.commit("setTitle", this.title);
     },
-    updateCharter({ content, text }) {
-      this.charter.content = content;
-      this.charter.text = text;
+    updateCharter() {
+      const regex = /(<([^>]+)>)/gi;
+      this.charter.text = this.charter.content.replace(regex, "");
       this.$store.commit("setCharter", this.charter);
     },
-    updatePrecondition({ content, text }) {
-      this.precondition.content = content;
-      this.precondition.text = text;
+    updatePrecondition() {
+      const regex = /(<([^>]+)>)/gi;
+      this.precondition.text = this.precondition.content.replace(regex, "");
       this.$store.commit("setPrecondition", this.precondition);
     },
     handleDuration() {

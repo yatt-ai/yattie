@@ -1,25 +1,38 @@
 <template>
   <v-container class="wrapper">
     <div class="content">
-      <TextEditor
-        placeholder="Insert your note here"
-        @update-data="updateNotes"
-        :content="notes.content"
-        :height="250"
-      />
+      <v-tiptap
+        v-model="notes.content"
+        :placeholder="$t('message.insert_note')"
+        ref="notes"
+        :toolbar="[
+          'headings',
+          '|',
+          'bold',
+          'italic',
+          'underline',
+          '|',
+          'color',
+          '|',
+          'bulletList',
+          'orderedList',
+          '|',
+          'link',
+          'emoji',
+          'blockquote',
+        ]"
+        @input="handleNotes"
+      >
+      </v-tiptap>
     </div>
   </v-container>
 </template>
 <script>
-import TextEditor from "./TextEditor.vue";
-
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 
 export default {
   name: "NoteView",
-  components: {
-    TextEditor,
-  },
+  components: {},
   data() {
     return {
       notes: { text: "", content: "" },
@@ -40,12 +53,14 @@ export default {
           this.notes = notes;
         });
     },
-    async updateNotes(data) {
+    async handleNotes() {
+      const regex = /(<([^>]+)>)/gi;
+      this.notes.text = this.notes.content.replace(regex, "");
       if (!window.ipc) return;
 
       await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
         func: IPC_FUNCTIONS.UPDATE_NOTES,
-        data: { ...data },
+        data: this.notes,
       });
     },
   },

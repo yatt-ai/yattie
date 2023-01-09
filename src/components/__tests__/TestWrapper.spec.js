@@ -4,7 +4,6 @@ import Vuetify from "vuetify";
 import { cloneDeep } from "lodash";
 
 import TestWrapper from "../TestWrapper";
-import TextEditor from "../TextEditor";
 import MindmapEditor from "../MindmapEditor";
 import storeConfig from "../../store/store-config";
 
@@ -55,11 +54,9 @@ describe("TestWrapper.vue", () => {
     // );
 
     const charterTabWrapper = wrapper.find(".charter-tab");
-    expect(charterTabWrapper.findComponent(TextEditor).exists()).toBe(false);
     expect(charterTabWrapper.findComponent(MindmapEditor).exists()).toBe(false);
 
     const precondWrapper = wrapper.find(".pre-cond");
-    expect(precondWrapper.findComponent(TextEditor).exists()).toBe(true);
   });
 
   test('change the value of "Time limit" input box', async () => {

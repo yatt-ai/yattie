@@ -1,6 +1,5 @@
 import Vuetify from "vuetify";
 import NoteEditorView from "../NoteEditorView.vue";
-import TextEditor from "../../components/TextEditor.vue";
 
 import { mount } from "@vue/test-utils";
 import { TEXT_TYPES } from "../../modules/constants";
@@ -33,7 +32,6 @@ describe("NoteEditorView.vue", () => {
   });
 
   test("render a view", () => {
-    expect(wrapper.findComponent(TextEditor).exists()).toBe(true);
     expect(wrapper.find(".dialog-title").exists()).toBe(true);
 
     expect(wrapper.findAll(".btn").length).toBe(3);

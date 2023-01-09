@@ -4,7 +4,6 @@ import Vuex from "vuex";
 import ResultView from "../ResultView";
 import SearchWrapper from "../../components/SearchWrapper";
 import WorkspaceWrapper from "../../components/WorkspaceWrapper";
-import TextEditor from "../../components/TextEditor";
 import LogoWrapper from "../../components/LogoWrapper";
 import TestWrapper from "../../components/TestWrapper";
 import ExportPanel from "../../components/ExportPanel";
@@ -57,7 +56,6 @@ describe("ResultView.vue", () => {
     expect(wrapper.findComponent(ExportPanel).exists()).toBe(true);
     expect(wrapper.findComponent(SearchWrapper).exists()).toBe(true);
     expect(wrapper.findComponent(WorkspaceWrapper).exists()).toBe(true);
-    expect(wrapper.findComponent(TextEditor).exists()).toBe(true);
     expect(wrapper.findComponent(ControlPanel).exists()).toBe(true);
     expect(wrapper.findComponent(ReviewWrapper).exists()).toBe(true);
     expect(wrapper.find(".comment-wrapper button").exists()).toBe(true);

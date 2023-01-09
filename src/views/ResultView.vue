@@ -23,12 +23,29 @@
             <ReviewWrapper :item="activeSession" :auto-save="autoSaveEvent" />
           </div>
           <div class="flex-grow-0 mt-2">
-            <TextEditor
-              placeholder="Enter your comment here!"
-              @update-data="handleComment"
-              :content="activeSession.comment.content"
-              :height="250"
-            />
+            <v-tiptap
+              v-model="activeSession.comment.content"
+              :placeholder="$t('message.insert_comment')"
+              ref="comment"
+              :toolbar="[
+                'headings',
+                '|',
+                'bold',
+                'italic',
+                'underline',
+                '|',
+                'color',
+                '|',
+                'bulletList',
+                'orderedList',
+                '|',
+                'link',
+                'emoji',
+                'blockquote',
+              ]"
+              @input="handleComment"
+            >
+            </v-tiptap>
             <v-row class="mt-0 comment-wrapper">
               <v-col class="pr-0">
                 <div class="subtitle-2 label-text">
@@ -92,7 +109,6 @@ import ControlPanel from "../components/ControlPanel.vue";
 import ExportPanel from "../components/ExportPanel.vue";
 import LogoWrapper from "../components/LogoWrapper.vue";
 import ReviewWrapper from "../components/ReviewWrapper.vue";
-import TextEditor from "../components/TextEditor.vue";
 
 import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
 
@@ -106,7 +122,6 @@ export default {
     ExportPanel,
     LogoWrapper,
     ReviewWrapper,
-    TextEditor,
   },
   data() {
     return {
@@ -139,6 +154,10 @@ export default {
       this.fetchItems();
     });
     window.ipc.on("CONFIG_CHANGE", () => {
+      this.getConfig();
+    });
+    window.ipc.on("META_CHANGE", () => {
+      this.fetchItems();
       this.getConfig();
     });
   },
@@ -180,9 +199,10 @@ export default {
     handleSearch(val) {
       this.search = val;
     },
-    handleComment({ content, text }) {
-      this.activeSession.comment.content = content;
-      this.activeSession.comment.text = text;
+    handleComment() {
+      const regex = /(<([^>]+)>)/gi;
+      this.activeSession.comment.text =
+        this.activeSession.comment.content.replace(regex, "");
       this.saveData();
     },
     handleCommentType(val) {

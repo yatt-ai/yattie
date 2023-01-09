@@ -1,6 +1,22 @@
 <template>
   <v-container class="content-wrapper">
     <v-row>
+      <v-col cols="12" class="border-bottom pa-4">
+        <p class="body-1">{{ $tc("caption.app_setting", 1) }}</p>
+        <v-btn
+          class="text-capitalize font-weight-regular"
+          fill
+          small
+          color="primary"
+          :height="30"
+          @click="openConfigFile"
+        >
+          {{ $tc("caption.select_file", 1) }}
+        </v-btn>
+        <p class="caption mt-2 mb-0">
+          {{ meta.configPath }}
+        </p>
+      </v-col>
       <v-col cols="12" class="border-bottom pa-4 theme-mode-section">
         <p class="body-1">{{ $tc("caption.apperance", 1) }}</p>
         <v-radio-group
@@ -120,7 +136,9 @@
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 note-section">
         <p class="body-1">Notes</p>
-        <p class="subtitle-1 mb-2">{{ $t("select_default_comment_type") }}</p>
+        <p class="subtitle-1 mb-2">
+          {{ $t("message.select_default_comment_type") }}
+        </p>
         <v-select
           :items="commentTypes"
           v-model="setting.commentType"
@@ -140,17 +158,25 @@ import {
   IPC_HANDLERS,
   IPC_FUNCTIONS,
   TEXT_TYPES,
+  STATUSES,
 } from "../../modules/constants";
 export default {
   name: "GeneralTab",
   components: {},
   props: {
+    metaData: {
+      type: Object,
+      default: () => {},
+    },
     config: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
+    metaData: function (newValue) {
+      this.meta = newValue;
+    },
     config: function (newValue) {
       this.setting = newValue;
     },
@@ -183,6 +209,7 @@ export default {
   },
   data() {
     return {
+      meta: this.metaData,
       setting: this.config,
       comment: {
         type: "Comment",
@@ -207,6 +234,18 @@ export default {
         data: { apperance: this.config.apperance },
       });
       this.$emit("submit-config", this.setting);
+    },
+    async openConfigFile() {
+      const { status, message } = await window.ipc.invoke(
+        IPC_HANDLERS.FILE_SYSTEM,
+        {
+          func: IPC_FUNCTIONS.OPEN_CONFIG_FILE,
+        }
+      );
+      console.log(status, message);
+      if (status === STATUSES.SUCCESS) {
+        this.$root.$emit("change-meta");
+      }
     },
   },
 };

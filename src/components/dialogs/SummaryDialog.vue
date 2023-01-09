@@ -9,12 +9,34 @@
         <v-container>
           <v-row>
             <v-col cols="12">
-              <TextEditor
+              <v-tiptap
+                v-model="comment.content"
                 :placeholder="$t('message.insert_summary')"
-                @update-data="updateComment"
-                :content="comment.content"
-                :height="200"
-              />
+                ref="comment"
+                :toolbar="[
+                  'headings',
+                  '|',
+                  'bold',
+                  'italic',
+                  'underline',
+                  '|',
+                  'color',
+                  '|',
+                  'bulletList',
+                  'orderedList',
+                  '|',
+                  'link',
+                  'emoji',
+                  'blockquote',
+                ]"
+                @input="handleComment"
+              >
+              </v-tiptap>
+              <div class="error px-2 py-1" v-if="isEmpty">
+                <span style="color: #fff">{{
+                  $tc("caption.required_field", 1)
+                }}</span>
+              </div>
             </v-col>
           </v-row>
           <v-row class="mt-0">
@@ -47,25 +69,8 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-row class="action-wrapper">
-            <v-col cols="6 pr-1">
-              <v-btn
-                class="btn"
-                small
-                block
-                color="white"
-                @click="handleDiscard"
-              >
-                {{ $tc("caption.discard", 1) }}
-              </v-btn>
-            </v-col>
-            <v-col cols="6 pl-1">
-              <v-btn
-                class="btn"
-                small
-                block
-                color="primary"
-                @click="handleSave"
-              >
+            <v-col cols="12" class="d-flex justify-end">
+              <v-btn class="btn px-8" small color="primary" @click="handleSave">
                 {{ $tc("caption.save", 1) }}
               </v-btn>
             </v-col>
@@ -77,15 +82,16 @@
 </template>
 
 <script>
-import TextEditor from "../TextEditor.vue";
 import { TEXT_TYPES } from "../../modules/constants";
 export default {
   name: "SummaryDialog",
-  components: {
-    TextEditor,
-  },
+  components: {},
   props: {
     configItem: {
+      type: Object,
+      default: () => {},
+    },
+    summary: {
       type: Object,
       default: () => {},
     },
@@ -93,6 +99,13 @@ export default {
   watch: {
     configItem: function (newValue) {
       this.config = newValue;
+      this.isRequired = this.config.summary;
+    },
+    summary: function (newValue) {
+      if (Object.keys(newValue).length) {
+        this.comment.content = newValue.comment.content;
+        this.comment.text = newValue.comment.text;
+      }
     },
   },
   data() {
@@ -104,6 +117,8 @@ export default {
         text: "",
       },
       commentTypes: TEXT_TYPES,
+      isRequired: this.configItem.summary,
+      isEmpty: false,
     };
   },
   destroyed() {
@@ -114,6 +129,11 @@ export default {
       this.$root.$emit("close-summarydialog");
     },
     handleSave() {
+      if (this.isRequired && !this.validate()) {
+        this.isEmpty = true;
+        return;
+      }
+      this.handleClear();
       this.$emit("submit-comment", this.comment);
     },
     handleClear() {
@@ -121,9 +141,20 @@ export default {
       this.comment.content = "";
       this.comment.text = "";
     },
-    updateComment({ content, text }) {
-      this.comment.content = content;
-      this.comment.text = text;
+    handleComment() {
+      const regex = /(<([^>]+)>)/gi;
+      this.comment.text = this.comment.content.replace(regex, "");
+      if (this.isRequired && !this.validate()) {
+        this.isEmpty = true;
+      } else {
+        this.isEmpty = false;
+      }
+    },
+    validate() {
+      if (!this.comment.text || this.comment.text === "") {
+        return false;
+      }
+      return true;
     },
   },
 };

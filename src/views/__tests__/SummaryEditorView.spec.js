@@ -1,6 +1,5 @@
 import Vuetify from "vuetify";
 import SummaryEditorView from "../SummaryEditorView.vue";
-import TextEditor from "../../components/TextEditor.vue";
 
 import { mount } from "@vue/test-utils";
 
@@ -20,7 +19,6 @@ describe("SummaryEditoryView.vue", () => {
 
   test("render a view", () => {
     expect(wrapper.find(".dialog-title").exists()).toBe(true);
-    expect(wrapper.findComponent(TextEditor).exists()).toBe(true);
     expect(wrapper.find(".container").exists()).toBe(true);
     expect(wrapper.find(".container .subtitle-2").exists()).toBe(true);
     expect(wrapper.find(".container input").exists()).toBe(true);

@@ -147,31 +147,11 @@ body {
   line-height: 18px;
   color: #6b7280;
 }
-
-.tox {
-  border-radius: 4px !important;
-  border: 1px solid #d1d5db !important;
-}
-
-.charter .tox {
-  border-top-left-radius: 0px !important;
-  border-top-right-radius: 0px !important;
-}
-
-.tox-tinymce-aux {
-  display: none;
-}
-
-.mce-content-body[data-mce-placeholder]:not(.mce-visualblocks)::before {
-  color: #6b7280;
-  font-size: 13px;
-  content: attr(data-mce-placeholder);
-  position: absolute;
-  font-weight: 500;
-}
-
-.mce-content-body {
-  color: #6b7280;
+.v-tiptap .v-label {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #111827 !important;
+  line-height: 1.5rem !important;
 }
 
 .v-btn {

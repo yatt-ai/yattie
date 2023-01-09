@@ -8,12 +8,29 @@
       <v-container class="note-wrapper">
         <v-row>
           <v-col cols="12">
-            <TextEditor
+            <v-tiptap
+              v-model="comment.content"
               :placeholder="$t('message.insert_note')"
-              @update-data="updateNote"
-              :content="comment.content"
-              :height="200"
-            />
+              ref="notes"
+              :toolbar="[
+                'headings',
+                '|',
+                'bold',
+                'italic',
+                'underline',
+                '|',
+                'color',
+                '|',
+                'bulletList',
+                'orderedList',
+                '|',
+                'link',
+                'emoji',
+                'blockquote',
+              ]"
+              @input="handleNote"
+            >
+            </v-tiptap>
           </v-col>
         </v-row>
         <v-row class="mt-0">
@@ -74,7 +91,6 @@
   </v-container>
 </template>
 <script>
-import TextEditor from "../components/TextEditor";
 import VueTagsInput from "@johmun/vue-tags-input";
 
 import {
@@ -87,7 +103,6 @@ import {
 export default {
   name: "NoteEditor",
   components: {
-    TextEditor,
     VueTagsInput,
   },
   data() {
@@ -125,9 +140,9 @@ export default {
     });
   },
   methods: {
-    updateNote({ content, text }) {
-      this.comment.content = content;
-      this.comment.text = text;
+    handleNote() {
+      const regex = /(<([^>]+)>)/gi;
+      this.comment.text = this.comment.content.replace(regex, "");
     },
     handleTags(newTags) {
       this.comment.tags = newTags;

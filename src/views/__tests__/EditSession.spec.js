@@ -1,7 +1,6 @@
 import Vuetify from "vuetify";
 import EditSession from "../EditSession";
 import ReviewWrapper from "../../components/ReviewWrapper";
-import TextEditor from "../../components/TextEditor";
 
 import { mount } from "@vue/test-utils";
 
@@ -34,7 +33,6 @@ describe("EditSession.vue", () => {
         .exists()
     ).toBe(true);
     expect(wrapper.findComponent(ReviewWrapper).exists()).toBe(true);
-    expect(wrapper.findComponent(TextEditor).exists()).toBe(true);
     expect(wrapper.findAll(".footer button").length).toBe(3);
   });
 

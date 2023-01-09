@@ -72,6 +72,8 @@
     "search": "Search",
     "organization_name": "Organization name",
     "add_another_organization": "Add another organization",
+    "app_setting": "App Setting",
+    "select_file": "Select a file",
     "apperance": "Apperance",
     "screen_recording": "Screen recording",
     "audio_on_screen_capture": "Audio on screen capture",
@@ -89,6 +91,7 @@
     "save_template": "Save template",
     "checklist": "Checklist",
     "required_checkbox": "Required checkboxes",
+    "required_field": "This field is required",
     "start_new_session": "Start new session",
     "export": "Export",
     "resume_session": "Resume session",
@@ -170,6 +173,7 @@
     "insert_tag": "Insert your tags here",
     "select_window_to_record_session": "Select window to record session",
     "insert_summary": "Insert your summary here",
+    "insert_comment": "Insert your comment here",
     "use_pre_post_test_checklist": "Use pre and post testing checklists to streamline your testing process",
     "connect_to_testrail": "Connect to a TestRail instance",
     "connect_to_jira": "Connect to a JIRA instance",
@@ -185,6 +189,7 @@
     "enter_title_for_project": "Enter a title for the project",
     "select_presession_task": "You can't begin your session without checking all required(*) pre-session checkboxes.",
     "error_recording_audio": "An error occurred while recording the audio.",
-    "enter_brief_charter_name": "Enter a brief name for this charter"
+    "enter_brief_charter_name": "Enter a brief name for this charter",
+    "describe_test_charter": "Describe your test charter"
   }
 }

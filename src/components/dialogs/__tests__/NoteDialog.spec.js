@@ -1,7 +1,6 @@
 import Vuetify from "vuetify";
 
 import NoteDialog from "../NoteDialog";
-import TextEditor from "../../TextEditor";
 
 import { mount, createLocalVue } from "@vue/test-utils";
 
@@ -62,7 +61,6 @@ describe("NoteDialog.vue", () => {
 
     await wrapper.vm.$nextTick();
 
-    expect(wrapper.findComponent(TextEditor).exists()).toBe(true);
     expect(wrapper.find(".dialog-title").exists()).toBe(true);
 
     expect(wrapper.findAll(".btn").length).toBe(3);

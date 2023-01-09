@@ -132,6 +132,7 @@ export default {
   },
   mounted() {
     this.$root.$on("update-selected", this.updateSelected);
+    this.$root.$on("save-session", this.saveSession);
 
     if (!window.ipc) return;
 
@@ -139,6 +140,10 @@ export default {
       this.fetchItems();
     });
     window.ipc.on("CONFIG_CHANGE", () => {
+      this.getConfig();
+    });
+    window.ipc.on("META_CHANGE", () => {
+      this.fetchItems();
       this.getConfig();
     });
   },
@@ -206,13 +211,7 @@ export default {
     },
     addItem(newItem) {
       this.items.push(newItem);
-
-      if (!window.ipc) return;
-
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_ITEMS,
-        data: this.items,
-      });
+      this.saveSession(this.items);
     },
     updateItems() {
       this.items = this.items.map((item) => {
@@ -222,12 +221,14 @@ export default {
         }
         return temp;
       });
-
+      this.saveSession(this.items);
+    },
+    saveSession(items) {
       if (!window.ipc) return;
 
       window.ipc.invoke(IPC_HANDLERS.DATABASE, {
         func: IPC_FUNCTIONS.UPDATE_ITEMS,
-        data: this.items,
+        data: items,
       });
     },
     updateSelected(value) {

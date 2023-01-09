@@ -8,12 +8,29 @@
       <v-container>
         <v-row>
           <v-col cols="12">
-            <TextEditor
+            <v-tiptap
+              v-model="comment.content"
               :placeholder="$t('message.insert_summary')"
-              @update-data="updateComment"
-              :content="comment.content"
-              :height="200"
-            />
+              ref="comment"
+              :toolbar="[
+                'headings',
+                '|',
+                'bold',
+                'italic',
+                'underline',
+                '|',
+                'color',
+                '|',
+                'bulletList',
+                'orderedList',
+                '|',
+                'link',
+                'emoji',
+                'blockquote',
+              ]"
+              @input="handleComment"
+            >
+            </v-tiptap>
           </v-col>
         </v-row>
         <v-row class="mt-0">
@@ -61,7 +78,6 @@
   </v-container>
 </template>
 <script>
-import TextEditor from "../components/TextEditor.vue";
 import {
   IPC_HANDLERS,
   IPC_FUNCTIONS,
@@ -71,9 +87,7 @@ import {
 
 export default {
   name: "SummaryEditor",
-  components: {
-    TextEditor,
-  },
+  components: {},
   data() {
     return {
       config: {},
@@ -119,9 +133,9 @@ export default {
       this.comment.content = "";
       this.comment.text = "";
     },
-    updateComment({ content, text }) {
-      this.comment.content = content;
-      this.comment.text = text;
+    handleComment() {
+      const regex = /(<([^>]+)>)/gi;
+      this.comment.text = this.comment.content.replace(regex, "");
     },
   },
 };
