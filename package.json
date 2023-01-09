@@ -27,7 +27,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.2.1",
     "@johmun/vue-tags-input": "^2.1.0",
-    "@tinymce/tinymce-vue": "^3.2.0",
+    "@peepi/vuetify-tiptap": "^1.2.3",
     "tui-image-editor": "^3.15.3", 
     "adm-zip": "^0.5.9",
     "core-js": "^3.8.3",
@@ -41,7 +41,6 @@
     "lodash": "^4.17.21",
     "simple-json-db": "^2.0.0",
     "sinon": "^15.0.0",
-    "tinymce": "^6.2.0",
     "uuid": "3.3.3",
     "v-mask": "^2.3.0",
     "vue": "^2.6.14",
