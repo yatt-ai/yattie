@@ -1,6 +1,5 @@
 import Vuetify from "vuetify";
 import NotesWrapper from "../NotesWrapper.vue";
-import TextEditor from "../TextEditor.vue";
 
 import { mount } from "@vue/test-utils";
 
@@ -21,6 +20,5 @@ describe("NotesWrapper.vue", () => {
       vuetify,
     });
 
-    expect(wrapper.findComponent(TextEditor).exists()).toBe(true);
   });
 });

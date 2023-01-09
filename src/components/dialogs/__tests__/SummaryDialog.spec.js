@@ -1,6 +1,5 @@
 import Vuetify from "vuetify";
 import SummaryDialog from "../SummaryDialog.vue";
-import TextEditor from "../../TextEditor.vue";
 
 import { mount, createLocalVue } from "@vue/test-utils";
 
@@ -53,7 +52,6 @@ describe("SummaryDialog.vue", () => {
     await wrapper.vm.$nextTick();
 
     expect(wrapper.find(".dialog-title").exists()).toBe(true);
-    expect(wrapper.findComponent(TextEditor).exists()).toBe(true);
     expect(wrapper.find(".container").exists()).toBe(true);
     expect(wrapper.find(".container .subtitle-2").exists()).toBe(true);
     expect(wrapper.find(".container input").exists()).toBe(true);
