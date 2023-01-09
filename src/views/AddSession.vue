@@ -12,12 +12,29 @@
       </div>
       <v-divider></v-divider>
       <div class="content-bottom">
-        <TextEditor
-          placeholder="Insert your note here"
-          @update-data="updateComment"
-          :content="comment.content"
-          :height="250"
-        />
+        <v-tiptap
+          v-model="comment.content"
+          :placeholder="$t('message.insert_comment')"
+          ref="comment"
+          :toolbar="[
+            'headings',
+            '|',
+            'bold',
+            'italic',
+            'underline',
+            '|',
+            'color',
+            '|',
+            'bulletList',
+            'orderedList',
+            '|',
+            'link',
+            'emoji',
+            'blockquote',
+          ]"
+          @input="updateComment"
+        >
+        </v-tiptap>
         <div class="comment-type">
           <div class="subtitle-2 label-text">
             {{ $tc("caption.comment_type", 1) }}
@@ -71,7 +88,6 @@
 
 <script>
 import ReviewWrapper from "../components/ReviewWrapper.vue";
-import TextEditor from "../components/TextEditor.vue";
 import dayjs from "dayjs";
 
 import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
@@ -80,7 +96,6 @@ export default {
   name: "AddSession",
   components: {
     ReviewWrapper,
-    TextEditor,
   },
   data() {
     return {
@@ -176,9 +191,9 @@ export default {
           this.processing = false;
         });
     },
-    updateComment({ content, text }) {
-      this.comment.content = content;
-      this.comment.text = text;
+    updateComment() {
+      const regex = /(<([^>]+)>)/gi;
+      this.comment.text = this.comment.content.replace(regex, "");
     },
     updateSession(value) {
       this.item = value;

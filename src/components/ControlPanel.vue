@@ -403,6 +403,7 @@
         v-model="summaryDialog"
         @submit-comment="addSummary"
         :configItem="config"
+        :summary="summary"
       />
       <DeleteConfirmDialog
         v-model="deleteConfirmDialog"
@@ -550,6 +551,15 @@ export default {
       date.setSeconds(timer);
       const result = date.toISOString().substr(11, 8);
       return result;
+    },
+    summary() {
+      let summary = {};
+      this.items.map((item) => {
+        if (item.sessionType === "Summary") {
+          summary = item;
+        }
+      });
+      return summary;
     },
   },
   data() {
@@ -891,7 +901,6 @@ export default {
       this.changeSessionStatus(SESSION_STATUSES.PAUSE);
       this.timer = this.$store.state.timer;
       this.updateStoreSession();
-      this.removeSummary();
       this.$router.push({ path: "/main/workspace" });
     },
     reset() {
@@ -1268,23 +1277,20 @@ export default {
         time: this.timer,
         createdAt: date,
       };
-      this.$emit("add-item", data);
+      if (Object.keys(this.summary).length) {
+        const items = this.items.map((item) => {
+          let temp = Object.assign({}, item);
+          if (temp.sessionType === "Summary") {
+            temp = data;
+          }
+          return temp;
+        });
+        this.$root.$emit("save-session", items);
+      } else {
+        this.$emit("add-item", data);
+      }
       this.summaryDialog = false;
       this.endSessionProcess();
-    },
-    async removeSummary() {
-      let summary = [];
-      this.items.map((item) => {
-        if (item.sessionType === "Summary") {
-          summary.push(item.id);
-        }
-      });
-      if (window.ipc) {
-        await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.DELETE_ITEMS,
-          data: summary,
-        });
-      }
     },
     mindMap() {
       const data = {

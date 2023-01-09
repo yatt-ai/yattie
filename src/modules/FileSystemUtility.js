@@ -4,7 +4,7 @@ const fs = require("fs");
 const AdmZip = require("adm-zip");
 const extract = require("extract-zip");
 const dayjs = require("dayjs");
-const https = require('https')
+const https = require("https");
 
 const configDir = (app || remote.app).getPath("userData");
 
@@ -321,9 +321,46 @@ module.exports.exportSession = async (params) => {
   });
 };
 
-const iconName = path.join(__dirname, 'drag-drop.png');
+module.exports.openConfigFile = async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ["openFile"],
+    filters: [{ name: "Config File", extensions: ["json"] }],
+  });
+
+  if (canceled) {
+    return Promise.resolve({
+      status: STATUSES.ERROR,
+      message: "no file selected",
+    });
+  }
+
+  const filePath = filePaths[0];
+  try {
+    fs.readFile(filePath, "utf8", (err, jsonString) => {
+      if (err) {
+        console.log("File read failed:", err);
+        return;
+      }
+      console.log("File data:", jsonString);
+    });
+
+    const metaData = databaseUtility.getMetaData();
+    metaData.configPath = filePath;
+    databaseUtility.updateMetaData(metaData);
+    return Promise.resolve({
+      status: STATUSES.SUCCESS,
+      message: "Config file imported successfully",
+    });
+  } catch (err) {
+    return Promise.resolve({
+      status: STATUSES.ERROR,
+      message: "Config file imported failed",
+    });
+  }
+};
+const iconName = path.join(__dirname, "drag-drop.png");
 const icon = fs.createWriteStream(iconName);
-https.get('https://img.icons8.com/ios/48/drag-and-drop.png', (response) => {
+https.get("https://img.icons8.com/ios/48/drag-and-drop.png", (response) => {
   response.pipe(icon);
 });
 
@@ -333,5 +370,5 @@ module.exports.dragItem = (event, data) => {
   event.sender.startDrag({
     file: data.filePath,
     icon: iconName,
-  })
+  });
 };

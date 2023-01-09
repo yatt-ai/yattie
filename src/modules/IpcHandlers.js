@@ -102,6 +102,10 @@ ipcMain.handle(IPC_HANDLERS.DATABASE, async (event, args) => {
       return databaseUtility.getConfig(args.data);
     case IPC_FUNCTIONS.UPDATE_CONFIG:
       return databaseUtility.updateConfig(args.data);
+    case IPC_FUNCTIONS.GET_METADATA:
+      return databaseUtility.getMetaData(args.data);
+    case IPC_FUNCTIONS.UPDATE_METADATA:
+      return databaseUtility.updateMetaData(args.data);
     case IPC_FUNCTIONS.UPDATE_NOTES:
       return databaseUtility.updateNotes(args.data);
     case IPC_FUNCTIONS.GET_NOTES:
@@ -123,6 +127,8 @@ ipcMain.handle(IPC_HANDLERS.FILE_SYSTEM, async (event, args) => {
       return fileSystemUtility.openSession(args.data);
     case IPC_FUNCTIONS.EXPORT_SESSION:
       return fileSystemUtility.exportSession(args.data);
+    case IPC_FUNCTIONS.OPEN_CONFIG_FILE:
+      return fileSystemUtility.openConfigFile(args.data);
     case IPC_FUNCTIONS.DRAG_ITEM:
       return fileSystemUtility.dragItem(event, args.data);
     default:

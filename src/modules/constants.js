@@ -49,6 +49,8 @@ export const IPC_FUNCTIONS = {
   GET_ITEM_BY_ID: "getItemById",
   GET_CONFIG: "getConfig",
   UPDATE_CONFIG: "updateConfig",
+  GET_METADATA: "getMetaData",
+  UPDATE_METADATA: "updateMetaData",
 
   GET_NOTES: "getNotes",
   UPDATE_NOTES: "updateNotes",
@@ -58,6 +60,7 @@ export const IPC_FUNCTIONS = {
   SAVE_SESSION: "saveSession",
   OPEN_SESSION: "openSession",
   EXPORT_SESSION: "exportSession",
+  OPEN_CONFIG_FILE: "openConfigFile",
   DRAG_ITEM: "dragItem",
 
   CHANGE_MENUITEM_STATUS: "changeMenuItemStatus",

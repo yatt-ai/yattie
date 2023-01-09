@@ -1,6 +1,7 @@
 import Vue from "vue";
 import App from "./App.vue";
 import vuetify from "./plugins/vuetify";
+import VTiptap from "@peepi/vuetify-tiptap";
 import router from "./router";
 import store from "./store";
 
@@ -10,6 +11,7 @@ import MinimizeLayout from "./layouts/Minimize.vue";
 import VueMask from "v-mask";
 import i18n from "./i18n";
 
+Vue.use(VTiptap);
 Vue.use(VueMask);
 
 Vue.component("default-layout", DefaultLayout);

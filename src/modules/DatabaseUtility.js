@@ -10,7 +10,7 @@ const jsonDbConfig = {
   jsonSpaces: 2,
 };
 
-let configDb, dataDb;
+let metaDb, configDb, dataDb;
 let browserWindow;
 
 module.exports.initializeSession = () => {
@@ -25,6 +25,11 @@ module.exports.initializeSession = () => {
   } else {
     createSessionDirectory();
   }
+
+  const meta = {
+    configPath: path.join(configDir, "config.json"),
+    dataPath: path.join(configDir, "data.json"),
+  };
 
   const config = {
     useLocal: true,
@@ -105,10 +110,14 @@ module.exports.initializeSession = () => {
     },
   };
 
+  metaDb = new JSONdb(path.join(configDir, "meta.json"), jsonDbConfig);
   configDb = new JSONdb(path.join(configDir, "config.json"), jsonDbConfig);
   dataDb = new JSONdb(path.join(configDir, "data.json"), jsonDbConfig);
 
   try {
+    if (!metaDb.has("meta")) {
+      metaDb.set("meta", meta);
+    }
     if (!configDb.has("config") || !configDb.get("config").checklist) {
       configDb.set("config", config);
     }
@@ -215,6 +224,26 @@ module.exports.updateConfig = (config) => {
     configDb.set("config", config);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("CONFIG_CHANGE");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.getMetaData = () => {
+  try {
+    return metaDb.get("meta");
+  } catch (error) {
+    return {};
+  }
+};
+
+module.exports.updateMetaData = (meta) => {
+  try {
+    metaDb.set("meta", meta);
+    configDb = new JSONdb(meta.configPath, jsonDbConfig);
+    dataDb = new JSONdb(meta.dataPath, jsonDbConfig);
+    browserWindow = browserUtility.getBrowserWindow();
+    browserWindow.webContents.send("META_CHANGE");
   } catch (error) {
     console.log(error);
   }

@@ -9,12 +9,29 @@
         <v-container class="note-wrapper">
           <v-row>
             <v-col cols="12">
-              <TextEditor
+              <v-tiptap
+                v-model="comment.content"
                 :placeholder="$t('message.insert_note')"
-                @update-data="updateNote"
-                :content="comment.content"
-                :height="200"
-              />
+                ref="comment"
+                :toolbar="[
+                  'headings',
+                  '|',
+                  'bold',
+                  'italic',
+                  'underline',
+                  '|',
+                  'color',
+                  '|',
+                  'bulletList',
+                  'orderedList',
+                  '|',
+                  'link',
+                  'emoji',
+                  'blockquote',
+                ]"
+                @input="handleComment"
+              >
+              </v-tiptap>
             </v-col>
           </v-row>
           <v-row class="mt-0">
@@ -89,13 +106,11 @@
 </template>
 
 <script>
-import TextEditor from "../TextEditor.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { TEXT_TYPES } from "../../modules/constants";
 export default {
   name: "NoteDialog",
   components: {
-    TextEditor,
     VueTagsInput,
   },
   props: {
@@ -153,15 +168,14 @@ export default {
       this.$emit("submit-comment", data);
     },
     handleClear() {
-      console.log("clear");
       this.comment.type = "Comment";
       this.comment.content = "";
       this.comment.text = "";
       this.comment.tags = [];
     },
-    updateNote({ content, text }) {
-      this.comment.content = content;
-      this.comment.text = text;
+    handleComment() {
+      const regex = /(<([^>]+)>)/gi;
+      this.comment.text = this.comment.content.replace(regex, "");
     },
     handleTags(newTags) {
       this.comment.tags = newTags;

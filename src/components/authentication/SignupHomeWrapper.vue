@@ -50,12 +50,6 @@
 <script>
 import { VContainer, VBtn } from "vuetify/lib/components";
 import LogoWrapper from "../LogoWrapper.vue";
-import {
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
-  STATUSES,
-  // SESSION_STATUSES,
-} from "../../modules/constants";
 export default {
   name: "SignupHomeWrapper",
   components: {
@@ -66,25 +60,7 @@ export default {
   data() {
     return {};
   },
-  methods: {
-    async openSession() {
-      if (!window.ipc) return;
-
-      const { status, message, metadata } = await window.ipc.invoke(
-        IPC_HANDLERS.FILE_SYSTEM,
-        {
-          func: IPC_FUNCTIONS.OPEN_SESSION,
-        }
-      );
-      if (status === STATUSES.ERROR) {
-        console.log(message);
-      } else {
-        // restore vuex state
-        this.$store.commit("restoreState", metadata);
-        this.$router.push({ path: metadata.path });
-      }
-    },
-  },
+  methods: {},
 };
 </script>
 

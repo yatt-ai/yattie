@@ -24,6 +24,7 @@
             :transition="false"
           >
             <router-view
+              :meta-data="metadata"
               :config="config"
               @submit-config="updateConfig"
             ></router-view>
@@ -66,14 +67,32 @@ export default {
         },
         // { id: 6, name: this.$tc("caption.support", 1), route: `/settings/support` },
       ],
+      metadata: {},
       config: {},
     };
   },
   created() {
+    this.getMetaData();
     this.getConfig();
   },
-  mounted() {},
+  mounted() {
+    this.$root.$on("change-meta", () => {
+      this.getMetaData();
+      this.getConfig();
+    });
+  },
   methods: {
+    async getMetaData() {
+      if (!window.ipc) return;
+
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.GET_METADATA,
+        })
+        .then((result) => {
+          this.metadata = result;
+        });
+    },
     async getConfig() {
       if (!window.ipc) return;
 

@@ -11,12 +11,29 @@
       </div>
       <v-divider></v-divider>
       <div class="content-bottom">
-        <TextEditor
-          placeholder="Insert your note here"
-          @update-data="updateComment"
-          :content="item.comment.content"
-          :height="250"
-        />
+        <v-tiptap
+          v-model="item.comment.content"
+          :placeholder="$t('message.insert_comment')"
+          ref="comment"
+          :toolbar="[
+            'headings',
+            '|',
+            'bold',
+            'italic',
+            'underline',
+            '|',
+            'color',
+            '|',
+            'bulletList',
+            'orderedList',
+            '|',
+            'link',
+            'emoji',
+            'blockquote',
+          ]"
+          @input="updateComment"
+        >
+        </v-tiptap>
         <div class="comment-type">
           <div class="subtitle-2 label-text">
             {{ $tc("caption.comment_type", 1) }}
@@ -70,7 +87,6 @@
 
 <script>
 import ReviewWrapper from "../components/ReviewWrapper.vue";
-import TextEditor from "../components/TextEditor.vue";
 
 import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
 
@@ -78,7 +94,6 @@ export default {
   name: "EditSession",
   components: {
     ReviewWrapper,
-    TextEditor,
   },
   data() {
     return {
@@ -145,9 +160,9 @@ export default {
           this.config = result;
         });
     },
-    updateComment({ content, text }) {
-      this.item.comment.content = content;
-      this.item.comment.text = text;
+    updateComment() {
+      const regex = /(<([^>]+)>)/gi;
+      this.item.comment.text = this.item.comment.content.replace(regex, "");
     },
     handleClear() {
       this.item.comment.type = "Comment";

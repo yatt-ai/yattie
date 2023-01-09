@@ -20,13 +20,30 @@
           ></v-select>
         </div>
         <div class="mb-3 precond">
-          <text-editor
+          <v-tiptap
             label="Preconditions"
-            :placeholder="$t('message.define_required_precondition')"
-            @update-data="updatePrecondition"
-            :content="template.precondition.content"
-            :height="150"
-          />
+            v-model="template.precondition.content"
+            :placeholder="$t('define_required_precondition.insert_summary')"
+            ref="precondition"
+            :toolbar="[
+              'headings',
+              '|',
+              'bold',
+              'italic',
+              'underline',
+              '|',
+              'color',
+              '|',
+              'bulletList',
+              'orderedList',
+              '|',
+              'link',
+              'emoji',
+              'blockquote',
+            ]"
+            @input="updatePrecondition"
+          >
+          </v-tiptap>
         </div>
         <!--
         <div class="mb-3 issue">
@@ -86,13 +103,10 @@
 </template>
 
 <script>
-import TextEditor from "../TextEditor.vue";
 import { SESSION_TYPES } from "../../modules/constants";
 export default {
   name: "TemplateTab",
-  components: {
-    TextEditor,
-  },
+  components: {},
   props: {
     config: {
       type: Object,
@@ -115,9 +129,10 @@ export default {
   },
   mounted() {},
   methods: {
-    updatePrecondition({ content, text }) {
-      this.template.precondition.content = content;
-      this.template.precondition.text = text;
+    updatePrecondition() {
+      const regex = /(<([^>]+)>)/gi;
+      this.template.precondition.text =
+        this.template.precondition.content.replace(regex, "");
     },
     handleTemplate() {
       this.templates.map((item) => {
