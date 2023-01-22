@@ -358,17 +358,13 @@ module.exports.openConfigFile = async () => {
     });
   }
 };
-const iconName = path.join(__dirname, "drag-drop.png");
-const icon = fs.createWriteStream(iconName);
-https.get("https://img.icons8.com/ios/48/drag-and-drop.png", (response) => {
-  response.pipe(icon);
-});
+const iconPath = path.join(__dirname, "../assets/icon/drag-drop.png");
 
 module.exports.dragItem = (event, data) => {
   console.log(event, data);
 
   event.sender.startDrag({
     file: data.filePath,
-    icon: iconName,
+    icon: iconPath,
   });
 };

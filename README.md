@@ -112,6 +112,7 @@ If you want to say **thank you** or/and support active development of YATTIE:
 
 - Add a [GitHub Star](https://github.com/dacoaster/yattie) to the project.
 - Tweet about YATTIE.
+- Fill out our [user survey](https://yatt.ai/yattie-survey) so we can improve YATTIE!
 - Write interesting articles about the project on [Dev.to](https://dev.to/), [Medium](https://medium.com/) or your personal blog.
 
 Together, we can make YATTIE **better**!
