@@ -4,7 +4,7 @@
       <div class="content-top">
         <ReviewWrapper
           :item="item"
-          :config="config"
+          :configItem="config"
           :processing="processing"
           :trigger-save="triggerSaveEvent"
         />
@@ -34,6 +34,15 @@
           @input="updateComment"
         >
         </v-tiptap>
+        <vue-tags-input
+          class="input-box"
+          v-model="tag"
+          :tags="item.tags"
+          :max-tags="10"
+          :maxlength="20"
+          @tags-changed="handleTags"
+          :placeholder="$t('message.insert_tag')"
+        />
         <div class="comment-type">
           <div class="subtitle-2 label-text">
             {{ $tc("caption.comment_type", 1) }}
@@ -87,6 +96,7 @@
 
 <script>
 import ReviewWrapper from "../components/ReviewWrapper.vue";
+import VueTagsInput from "@johmun/vue-tags-input";
 
 import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
 
@@ -94,6 +104,7 @@ export default {
   name: "EditSession",
   components: {
     ReviewWrapper,
+    VueTagsInput,
   },
   data() {
     return {
@@ -105,6 +116,7 @@ export default {
         content: "",
         text: "",
       },
+      tag: "",
       commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
       processing: false,
       triggerSaveEvent: false,
@@ -182,6 +194,9 @@ export default {
       } else {
         this.saveData(this.item);
       }
+    },
+    handleTags(newTags) {
+      this.item.tags = newTags;
     },
     async saveData(data) {
       if (data) {

@@ -147,12 +147,7 @@
 <script>
 import { VContainer, VBtn } from "vuetify/lib/components";
 import LogoWrapper from "../components/LogoWrapper.vue";
-import {
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
-  STATUSES,
-  SESSION_STATUSES,
-} from "../modules/constants";
+import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
 export default {
   name: "HomeView",
   components: {
@@ -187,11 +182,6 @@ export default {
       }
     },
     quickTest() {
-      this.$store.commit("updateSession", {
-        status: SESSION_STATUSES.PAUSE,
-        timer: 0,
-        duration: 0,
-      });
       this.$store.commit("setQuickTest", true);
       this.$router.push("/main/workspace");
     },

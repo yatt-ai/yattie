@@ -133,7 +133,6 @@ export default {
         this.isEmpty = true;
         return;
       }
-      this.handleClear();
       this.$emit("submit-comment", this.comment);
     },
     handleClear() {

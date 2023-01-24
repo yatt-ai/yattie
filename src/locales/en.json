@@ -16,6 +16,8 @@
     "precondition": "Preconditions",
     "session_time": "Session time",
     "session_elapsed_time": "Elapsed time",
+    "notes": "Notes",
+    "tags": "Tags",
     "environment": "Environment",
     "os": "@.upper:os",
     "window": "Window",
@@ -54,6 +56,7 @@
     "proceed": "Proceed",
     "end": "End",
     "end_session": "End session",
+    "session_saved": "Session Saved",
     "note_title": "Note title",
     "take_note": "Take a Note",
     "note_type": "Note type",
@@ -92,7 +95,8 @@
     "checklist": "Checklist",
     "required_checkbox": "Required checkboxes",
     "required_field": "This field is required",
-    "start_new_session": "Start new session",
+    "start_session": "Start session",
+    "start_quick_test": "Start Quick Test",
     "export": "Export",
     "resume_session": "Resume session",
     "save_session": "Save session",
@@ -150,6 +154,7 @@
     "save_as_charter": "Save test charter",
     "reset_session": "Reset session",
     "app_setting": "App settings",
+    "take_survey": "Take the YATTIE Survey",
     "exit": "Exit",
     "edit": "Edit",
     "undo": "Undo",
@@ -190,6 +195,7 @@
     "select_presession_task": "You can't begin your session without checking all required(*) pre-session checkboxes.",
     "error_recording_audio": "An error occurred while recording the audio.",
     "enter_brief_charter_name": "Enter a brief name for this charter",
-    "describe_test_charter": "Describe your test charter"
+    "describe_test_charter": "Describe your test charter",
+    "confirm_session_saved": "Session successfully saved on your computer."
   }
 }

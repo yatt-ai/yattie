@@ -39,7 +39,7 @@
               <vue-tags-input
                 class="input-box"
                 v-model="tag"
-                :tags="comment.tags"
+                :tags="tags"
                 :max-tags="10"
                 :maxlength="20"
                 @tags-changed="handleTags"
@@ -150,7 +150,6 @@ export default {
             : "Comment",
         content: "",
         text: "",
-        tags: [],
       },
       commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
       tag: "",
@@ -163,22 +162,24 @@ export default {
       this.$root.$emit("close-notedialog");
     },
     handleSave() {
-      const data = { ...this.comment };
-      this.handleClear();
+      const data = {
+        comment: this.comment,
+        tags: this.tags,
+      };
       this.$emit("submit-comment", data);
     },
     handleClear() {
       this.comment.type = "Comment";
       this.comment.content = "";
       this.comment.text = "";
-      this.comment.tags = [];
+      this.tags = [];
     },
     handleComment() {
       const regex = /(<([^>]+)>)/gi;
       this.comment.text = this.comment.content.replace(regex, "");
     },
     handleTags(newTags) {
-      this.comment.tags = newTags;
+      this.tags = newTags;
     },
   },
 };

@@ -8,15 +8,30 @@
         <v-col class="timeline" cols="8">
           <div class="summary">
             <h3 class="detail-title mb-1">{{ $tc("caption.summary", 1) }}</h3>
-            <div class="summary-content">
-              <div style="display: flex; flex-wrap: wrap; width: 30%">
-                <div
-                  style="flex: 1 1 100%; margin: 0 0.15em"
-                  v-for="(type, i) in commentTypes"
-                  :key="i"
-                >
-                  <span>{{ type.title }}:</span>
-                  <span style="float: right">{{ type.count }}</span>
+            <div
+              class="summary-content mb-1"
+              style="display: flex; flex-direction: column"
+            >
+              <p class="item-title mb-0" style="line-height: 1.5">
+                {{ $tc("caption.notes", 1) }}
+              </p>
+              <div style="display: flex; column-gap: 10px">
+                <div v-for="(type, i) in commentTypes" :key="i">
+                  <span class="text-capitalize" style="line-height: 1">{{
+                    type.title
+                  }}</span
+                  >:
+                  {{ type.count }}
+                </div>
+              </div>
+              <p class="item-title mt-2 mb-0" style="line-height: 1.5">
+                {{ $tc("caption.tags", 1) }}
+              </p>
+              <div style="display: flex; column-gap: 10px">
+                <div v-for="(tag, i) in tags" :key="i">
+                  <span class="text-capitalize">{{ tag.title }}</span
+                  >:
+                  {{ tag.count }}
                 </div>
               </div>
             </div>
@@ -385,8 +400,32 @@ export default {
           data.push(temp);
         }
       });
-      console.log(commentTypes);
-      console.log("result:", data);
+      return data;
+    },
+    tags() {
+      let data = [];
+      this.items.map((item) => {
+        if (item.tags) {
+          item.tags.map((tag) => {
+            const exist = data.some((el) => el.title === tag.text);
+            if (exist) {
+              data = data.map((obj) => {
+                let temp = Object.assign({}, obj);
+                if (temp.title === tag.text) {
+                  temp.count += 1;
+                }
+                return temp;
+              });
+            } else {
+              const temp = {
+                title: tag.text,
+                count: 1,
+              };
+              data.push(temp);
+            }
+          });
+        }
+      });
       return data;
     },
     summary() {
@@ -396,7 +435,6 @@ export default {
           summary = item.comment.text;
         }
       });
-      console.log("summary:", summary);
       return summary;
     },
   },
@@ -592,7 +630,7 @@ export default {
   margin-bottom: 0;
 }
 
-.detail-item .item-title {
+.item-title {
   font-style: normal;
   font-weight: 600;
   font-size: 12px;
@@ -601,7 +639,7 @@ export default {
   color: #111827;
 }
 
-.detail-item .item-value {
+.item-value {
   font-style: normal;
   font-weight: 400;
   font-size: 12px;

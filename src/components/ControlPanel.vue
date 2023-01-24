@@ -21,6 +21,20 @@
       <v-row class="text-center" v-if="status === 'pending'">
         <v-col cols="12" class="">
           <v-btn
+            v-if="$store.state.quickTest"
+            id="btn_new_quick_test"
+            class="text-capitalize font-weight-regular"
+            fill
+            small
+            block
+            color="primary"
+            :height="30"
+            @click="showSourcePickerDialog()"
+          >
+            {{ $tc("caption.start_quick_test", 1) }}
+          </v-btn>
+          <v-btn
+            v-else
             id="btn_new_session"
             class="text-capitalize font-weight-regular"
             fill
@@ -30,7 +44,7 @@
             :height="30"
             @click="startNewSession()"
           >
-            {{ $tc("caption.start_new_session", 1) }}
+            {{ $tc("caption.start_session", 1) }}
           </v-btn>
         </v-col>
       </v-row>
@@ -416,16 +430,21 @@
         v-model="resetConfirmDialog"
         :title="$tc('caption.confirm_reset', 1)"
         :text="$t('message.confirm_reset')"
-        @confirm="reset"
+        @confirm="resetSession"
         @cancel="resetConfirmDialog = false"
+      />
+      <SaveConfirmDialog
+        v-model="saveConfirmDialog"
+        :title="$tc('caption.session_saved', 1)"
+        :text="$t('message.confirm_session_saved')"
+        @confirm="saveConfirmDialog = false"
       />
       <NewSessionDialog
         v-model="newSessionDialog"
         :title="$tc('caption.save_current_progress', 1)"
         :text="$t('message.confirm_save_progress')"
-        @save="saveSession"
-        @discard="discardSession"
-        @cancel="newSessionDialog = false"
+        @save="saveSession(callback)"
+        @discard="discardSession(callback)"
       />
       <DurationConfirmDialog
         v-model="durationConfirmDialog"
@@ -457,6 +476,7 @@ import NoteDialog from "./dialogs/NoteDialog.vue";
 import SummaryDialog from "./dialogs/SummaryDialog.vue";
 import DeleteConfirmDialog from "./dialogs/DeleteConfirmDialog.vue";
 import ResetConfirmDialog from "./dialogs/ResetConfirmDialog.vue";
+import SaveConfirmDialog from "./dialogs/SaveConfirmDialog.vue";
 import NewSessionDialog from "./dialogs/NewSessionDialog.vue";
 import DurationConfirmDialog from "./dialogs/DurationConfirmDialog.vue";
 import AudioErrorDialog from "./dialogs/AudioErrorDialog.vue";
@@ -489,6 +509,7 @@ export default {
     SummaryDialog,
     DeleteConfirmDialog,
     ResetConfirmDialog,
+    SaveConfirmDialog,
     NewSessionDialog,
     DurationConfirmDialog,
     AudioErrorDialog,
@@ -539,6 +560,33 @@ export default {
     configItem: function (newValue) {
       this.config = newValue;
     },
+    "$store.state.status": {
+      deep: true,
+      handler(newValue) {
+        this.status = newValue;
+        if (
+          this.status === SESSION_STATUSES.START ||
+          this.status === SESSION_STATUSES.RESUME ||
+          this.status === SESSION_STATUSES.PROCEED
+        ) {
+          this.startInterval();
+        } else {
+          this.stopInterval();
+        }
+      },
+    },
+    "$store.state.timer": {
+      deep: true,
+      handler(newValue) {
+        this.timer = newValue;
+      },
+    },
+    "$store.state.duration": {
+      deep: true,
+      handler(newValue) {
+        this.duration = newValue;
+      },
+    },
   },
   computed: {
     postSessionData() {
@@ -569,6 +617,7 @@ export default {
       summaryDialog: false,
       deleteConfirmDialog: false,
       resetConfirmDialog: false,
+      saveConfirmDialog: false,
       newSessionDialog: false,
       durationConfirmDialog: false,
       audioErrorDialog: false,
@@ -583,15 +632,32 @@ export default {
       recordVideoStarted: false,
       recordAudioStarted: false,
       interval: null,
-      timer: 0,
-      duration: 0,
+      timer: this.$store.state.timer,
+      duration: this.$store.state.duration,
       isDuration: false,
       started: "",
       ended: "",
       selected: [],
+      callback: null,
     };
   },
   mounted() {
+    // new session
+    window.ipc.on("NEW_SESSION", () => {
+      this.callback = () => this.clearSession();
+      this.newSessionDialog = true;
+    });
+
+    // save session
+    window.ipc.on("SAVE_SESSION", () => {
+      this.saveSession(() => (this.saveConfirmDialog = true));
+    });
+
+    // reset session
+    window.ipc.on("RESET_SESSION", () => {
+      this.resetConfirmDialog = true;
+    });
+
     this.$root.$on("close-sourcepickerdialog", this.hideSourcePickerDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
     this.$root.$on("close-summarydialog", () => {
@@ -601,7 +667,7 @@ export default {
 
     if (
       this.$store.state.status === SESSION_STATUSES.START ||
-      this.$store.state.status === SESSION_STATUSES.PAUSE ||
+      this.$store.state.status === SESSION_STATUSES.PROCEED ||
       this.$store.state.status === SESSION_STATUSES.RESUME
     ) {
       this.status = this.$store.state.status;
@@ -610,8 +676,15 @@ export default {
       if (this.$store.state.status === SESSION_STATUSES.START) {
         this.startSession(this.sourceId);
       }
+      this.startInterval();
     }
 
+    if (
+      this.$store.state.quickTest &&
+      this.$store.state.status === SESSION_STATUSES.PENDING
+    ) {
+      this.showSourcePickerDialog();
+    }
     this.bindIPCEvent();
   },
   beforeDestroy() {
@@ -754,21 +827,25 @@ export default {
       this.noteDialog = false;
     },
     startInterval() {
-      this.interval = setInterval(() => {
-        this.timer += 1;
-        if (this.duration > 0) {
-          this.duration -= 1;
-        }
-        this.updateStoreSession();
-        if (this.isDuration && this.duration === 0) {
-          this.durationConfirmDialog = true;
-          this.isDuration = false;
-          this.stopInterval();
-        }
-      }, 1000);
+      console.log("start interval");
+      if (!this.interval) {
+        this.interval = setInterval(() => {
+          this.timer += 1;
+          if (this.duration > 0) {
+            this.duration -= 1;
+          }
+          this.updateStoreSession();
+          if (this.isDuration && this.duration === 0) {
+            this.durationConfirmDialog = true;
+            this.isDuration = false;
+            this.stopInterval();
+          }
+        }, 1000);
+      }
     },
     stopInterval() {
       clearInterval(this.interval);
+      this.interval = null;
       this.updateStoreSession();
     },
     updateStoreSession() {
@@ -847,8 +924,6 @@ export default {
           data: {
             width: 1440,
             height: 900,
-            minWidth: 1440,
-            minHeight: 900,
           },
         });
       }
@@ -897,27 +972,22 @@ export default {
       }
     },
     resume() {
-      this.status = SESSION_STATUSES.PAUSE;
-      this.changeSessionStatus(SESSION_STATUSES.PAUSE);
+      this.pauseSession();
       this.timer = this.$store.state.timer;
       this.updateStoreSession();
-      this.$router.push({ path: "/main/workspace" });
-    },
-    reset() {
-      this.resetConfirmDialog = false;
-      this.status = SESSION_STATUSES.PENDING;
-      this.changeSessionStatus(SESSION_STATUSES.PENDING);
-      this.$store.commit("resetState");
-      try {
-        // reset database
-        window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.INITIALIZE_SESSION,
-        });
-      } catch (e) {
-        console.log(e);
+      const currentPath = this.$router.history.current.path;
+      if (currentPath !== "/main/workspace") {
+        this.$router.push({ path: "/main/workspace" });
       }
-      this.stopInterval();
-      this.$router.push({ path: "/main" });
+      if (window.ipc) {
+        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+          func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
+          data: {
+            width: 800,
+            height: 600,
+          },
+        });
+      }
     },
     end() {
       this.durationConfirmDialog = false;
@@ -1242,7 +1312,7 @@ export default {
         data: { width: 700, height: 800, data: data },
       });
     },
-    async addNote(value) {
+    async addNote({ comment, tags }) {
       const date = dayjs().format("MM/DD/YYYY HH:mm:ss");
       const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".txt";
       if (window.ipc) {
@@ -1250,7 +1320,7 @@ export default {
         await window.ipc
           .invoke(IPC_HANDLERS.CAPTURE, {
             func: IPC_FUNCTIONS.SAVE_NOTE,
-            data: { fileName: fileName, comment: value },
+            data: { fileName: fileName, comment: comment },
           })
           .then((filePath) => {
             let newItem = {
@@ -1259,7 +1329,8 @@ export default {
               fileType: "text",
               fileName: fileName,
               filePath: filePath,
-              comment: value,
+              comment: comment,
+              tags: tags,
               time: this.timer,
               createdAt: date,
             };
@@ -1345,7 +1416,7 @@ export default {
       this.selected = [];
       this.$root.$emit("update-selected", this.selected);
     },
-    async saveSession() {
+    async saveSession(callback = null) {
       this.newSessionDialog = false;
       const data = {
         title: this.$store.state.title,
@@ -1356,19 +1427,95 @@ export default {
         timer: this.$store.state.timer,
         started: this.$store.state.started,
         ended: this.$store.state.ended,
+        quickTest: this.$store.state.quickTest,
         path: this.$route.path,
       };
       if (!window.ipc) return;
-      await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-        func: IPC_FUNCTIONS.SAVE_SESSION,
-        data: data,
-      });
+      await window.ipc
+        .invoke(IPC_HANDLERS.FILE_SYSTEM, {
+          func: IPC_FUNCTIONS.SAVE_SESSION,
+          data: data,
+        })
+        .then(() => {
+          if (callback) {
+            callback();
+          }
+        });
     },
-    discardSession() {
-      this.$store.commit("resetState");
+    discardSession(callback = null) {
+      this.newSessionDialog = false;
+      if (callback) {
+        callback();
+      }
+    },
+    async clearSession() {
+      console.log("clear session");
+      this.$root.$emit("new-session");
+
+      this.status = SESSION_STATUSES.PENDING;
       this.changeSessionStatus(SESSION_STATUSES.PENDING);
-      clearInterval(this.interval);
-      this.$router.push({ path: "/" });
+
+      this.timer = 0;
+      this.isDuration = false;
+      this.duration = 0;
+
+      this.$store.commit("clearState");
+
+      if (!window.ipc) return;
+      await window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.RESET_DATA,
+        })
+        .then(() => {
+          window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+            func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
+            data: {
+              width: 800,
+              height: 600,
+            },
+          });
+          this.stopInterval();
+          // const currentPath = this.$router.history.current.path;
+          // if (currentPath !== "/main") {
+          //   this.$router.push({ path: "/main" });
+          // }
+        });
+    },
+    async resetSession() {
+      if (this.resetConfirmDialog) {
+        this.resetConfirmDialog = false;
+      }
+
+      this.$root.$emit("reset-duration");
+
+      this.status = SESSION_STATUSES.PENDING;
+      this.changeSessionStatus(SESSION_STATUSES.PENDING);
+
+      this.timer = 0;
+      this.isDuration = false;
+      this.duration = 0;
+
+      this.$store.commit("resetState");
+
+      if (!window.ipc) return;
+      await window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.RESET_DATA,
+        })
+        .then(() => {
+          window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+            func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
+            data: {
+              width: 800,
+              height: 600,
+            },
+          });
+          this.stopInterval();
+          const currentPath = this.$router.history.current.path;
+          if (currentPath !== "/main") {
+            this.$router.push({ path: "/main" });
+          }
+        });
     },
     getCurrentDateTime() {
       const now = new Date();
@@ -1412,7 +1559,7 @@ export default {
 .nml-ctrl-wrapper .control-btn-wrapper {
   background: #f3f4f6;
 }
-.nml-ctrl-wrapper .v-btn--disabled img {
+.v-btn--disabled img {
   opacity: 0.5;
 }
 </style>

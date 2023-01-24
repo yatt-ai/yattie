@@ -157,8 +157,40 @@ export default {
       duration: "",
     };
   },
-  created() {},
-  mounted() {},
+  watch: {
+    "$store.state.title": {
+      deep: true,
+      handler(newValue) {
+        this.title = newValue;
+      },
+    },
+    "$store.state.charter": {
+      deep: true,
+      handler(newValue) {
+        this.charter.content = newValue.content;
+        this.charter.text = newValue.text;
+      },
+    },
+    "$store.state.precondition": {
+      deep: true,
+      handler(newValue) {
+        this.precondition.content = newValue.content;
+        this.precondition.text = newValue.text;
+      },
+    },
+    "$store.state.mindmap": {
+      deep: true,
+      handler(newValue) {
+        this.mindmap.nodes = newValue.nodes;
+        this.mindmap.connections = newValue.connections;
+      },
+    },
+  },
+  mounted() {
+    this.$root.$on("new-session", () => {
+      this.duration = "";
+    });
+  },
   methods: {
     updateTitle() {
       this.$store.commit("setTitle", this.title);

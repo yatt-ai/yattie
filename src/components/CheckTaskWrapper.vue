@@ -46,7 +46,7 @@ export default {
       if (this.type === "preseesion") {
         return {
           title: this.$tc("caption.required_checkbox", 1),
-          description: this.$t("message.select_presesion_task"),
+          description: this.$t("message.select_presession_task"),
         };
       } else {
         return {

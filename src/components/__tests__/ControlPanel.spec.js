@@ -35,7 +35,7 @@ describe("ControlPanel.vue", () => {
     store = new Vuex.Store(cloneDeep(storeConfig));
   });
 
-  test('displays "Start New Session" button', () => {
+  test('displays "Start Session" button', () => {
     const wrapper = mount(ControlPanel, {
       mocks: {
         $t: () => {},
