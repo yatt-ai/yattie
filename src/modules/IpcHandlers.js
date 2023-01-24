@@ -109,7 +109,9 @@ ipcMain.handle(IPC_HANDLERS.DATABASE, async (event, args) => {
     case IPC_FUNCTIONS.UPDATE_NOTES:
       return databaseUtility.updateNotes(args.data);
     case IPC_FUNCTIONS.GET_NOTES:
-      return databaseUtility.getNotes();
+      return databaseUtility.getNotes(args.data);
+    case IPC_FUNCTIONS.RESET_DATA:
+      return databaseUtility.resetData(args.data);
     default:
       return null;
   }

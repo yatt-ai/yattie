@@ -40,44 +40,52 @@ module.exports = {
               type: "file",
             },
           ],
-          publish: [{
-            provider: "github",
-            owner: "dacoaster",
-            repo: "YATTIE",
-            releaseType: 'prerelease'
-          }]
+          publish: [
+            {
+              provider: "github",
+              owner: "dacoaster",
+              repo: "YATTIE",
+              releaseType: 'prerelease'
+            },
+          ],
         },
         mac: {
           hardenedRuntime: true,
           icon: "icons/icon.icns",
           category: "public.app-category.developer-tools",
-          publish: [{
-            provider: "github",
-            owner: "dacoaster",
-            repo: "YATTIE",
-            releaseType: 'prerelease'
-          }]
+          publish: [
+            {
+              provider: "github",
+              owner: "dacoaster",
+              repo: "YATTIE",
+              releaseType: 'prerelease',
+            },
+          ],
         },
         win: {
           icon: "icons/icon.ico",
           target: ["nsis"],
-          publish: [{
-            provider: "github",
-            owner: "dacoaster",
-            repo: "YATTIE",
-            releaseType: 'prerelease'
-          }]
+          publish: [
+            {
+              provider: "github",
+              owner: "dacoaster",
+              repo: "YATTIE",
+              releaseType: 'prerelease',
+            },
+          ],
         },
         linux: {
           icon: "icons/linux",
           target: ["AppImage"],
           category: "Development",
-          publish: [{
-            provider: "github",
-            owner: "dacoaster",
-            repo: "YATTIE",
-            releaseType: 'prerelease'
-          }]
+          publish: [
+            {
+              provider: "github",
+              owner: "dacoaster",
+              repo: "YATTIE",
+              releaseType: 'prerelease',
+            },
+          ],
         },
       },
     },

@@ -38,7 +38,7 @@
             <vue-tags-input
               class="input-box"
               v-model="tag"
-              :tags="comment.tags"
+              :tags="tags"
               :max-tags="10"
               :maxlength="20"
               @tags-changed="handleTags"
@@ -111,7 +111,6 @@ export default {
       comment: {
         type: "",
         content: "",
-        tags: [],
       },
       tag: "",
       tags: [],
@@ -145,7 +144,7 @@ export default {
       this.comment.text = this.comment.content.replace(regex, "");
     },
     handleTags(newTags) {
-      this.comment.tags = newTags;
+      this.tags = newTags;
     },
     handleClear() {
       this.comment.type = "Comment";
@@ -159,7 +158,7 @@ export default {
         func: IPC_FUNCTIONS.CLOSE_MODAL_WINDOW,
         data: {
           bindKey: IPC_BIND_KEYS.CLOSED_NOTE_DIALOG,
-          data: this.comment,
+          data: { comment: this.comment, tags: this.tags },
         },
       });
     },

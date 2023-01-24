@@ -1,5 +1,7 @@
 const { app, BrowserWindow, screen } = require("electron");
 
+const isDevelopment = process.env.NODE_ENV !== "production";
+
 let addWin, editWin, settingsWin, notesWin, modalWin;
 
 const browserUtility = require("./BrowserWindowUtility");
@@ -84,7 +86,6 @@ module.exports.openMinimizeWindow = (data) => {
     minimizeWin.setAlwaysOnTop(true);
 
     minimizeWin.once("ready-to-show", () => {
-      // minimizeWin.webContents.openDevTools();
       minimizeWin.webContents.send("STATE_DATA", data.data);
       minimizeWin.show();
     });
@@ -152,7 +153,9 @@ module.exports.openAddWindow = ({ width, height, data }) => {
     addWin.loadURL(modalPath);
     addWin.setMenuBarVisibility(false);
     addWin.once("ready-to-show", () => {
-      addWin.webContents.openDevTools();
+      if (isDevelopment){
+          addWin.webContents.openDevTools();
+      }
       addWin.show();
 
       parentWindow.webContents.send("OPEN_CHILD_WINDOW");
@@ -202,7 +205,9 @@ module.exports.openEditWindow = (data) => {
     editWin.setMenuBarVisibility(false);
 
     editWin.once("ready-to-show", () => {
-      editWin.webContents.openDevTools();
+      if (isDevelopment){
+          editWin.webContents.openDevTools();
+      }
       editWin.show();
       browserWindow.webContents.send("OPEN_CHILD_WINDOW");
     });
@@ -251,7 +256,9 @@ module.exports.openSettingWindow = () => {
     settingsWin.setMenuBarVisibility(false);
 
     settingsWin.once("ready-to-show", () => {
-      settingsWin.webContents.openDevTools();
+      if (isDevelopment){
+          settingsWin.webContents.openDevTools();
+      }
       settingsWin.show();
       browserWindow.webContents.send("OPEN_CHILD_WINDOW");
     });
@@ -267,10 +274,9 @@ module.exports.closeSettingWindow = () => {
   settingsWin.close();
 };
 
-module.exports.setWindowSize = ({ width, height, minWidth, minHeight }) => {
+module.exports.setWindowSize = ({ width, height }) => {
   const browserWindow = browserUtility.getBrowserWindow();
   browserWindow.setSize(width, height);
-  browserWindow.setMinimumSize(minWidth, minHeight);
   browserWindow.center();
 };
 
@@ -304,7 +310,9 @@ module.exports.openModalWindow = (data) => {
     modalWin.setMenuBarVisibility(false);
 
     modalWin.once("ready-to-show", () => {
-      modalWin.webContents.openDevTools();
+      if (isDevelopment){
+          modalWin.webContents.openDevTools();
+      }
       modalWin.webContents.send(IPC_BIND_KEYS.MODAL_DATA, data.data);
       modalWin.show();
       parentWindow.webContents.send("OPEN_CHILD_WINDOW");
@@ -353,7 +361,9 @@ module.exports.openNotesWindow = (data) => {
     notesWin.loadURL(modalPath);
     notesWin.setMenuBarVisibility(false);
     notesWin.once("ready-to-show", () => {
-      notesWin.webContents.openDevTools();
+      if (isDevelopment){
+          notesWin.webContents.openDevTools();
+      }
       notesWin.show();
       browserWindow.webContents.send("OPEN_CHILD_WINDOW");
     });

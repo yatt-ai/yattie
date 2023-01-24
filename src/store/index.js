@@ -71,13 +71,34 @@ export default new Vuex.Store({
         state.duration = payload.duration;
       }
     },
-    resetState(state) {
+    clearState(state) {
       state.title = "";
-      state.charter = "";
-      state.precondition = "";
+      state.charter = {
+        content: "",
+        text: "",
+      };
+      state.precondition = {
+        content: "",
+        text: "",
+      };
+      state.mindmap = {
+        nodes: DEFAULT_CHARTER_MAP_NODES,
+        connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
+      };
+
+      state.duration = 0;
       state.status = SESSION_STATUSES.PENDING;
       state.timer = 0;
+
+      state.started = "";
+      state.ended = "";
+      state.quickTest = false;
+    },
+    resetState(state) {
       state.duration = 0;
+      state.status = SESSION_STATUSES.PENDING;
+      state.timer = 0;
+
       state.started = "";
       state.ended = "";
     },

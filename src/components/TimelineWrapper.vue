@@ -14,8 +14,8 @@
           class="timeline-wrap pt-3"
           @dragenter="dragEnter($event)"
           @dragleave="dragLeave($event)"
-          @drop="dropFile($event)"
           @dragover="dragOver($event)"
+          @drop="dropFile($event)"
         >
           <v-timeline align-top dense class="pt-0">
             <v-timeline-item
@@ -29,323 +29,362 @@
                 <span>{{ formatTime }}</span>
               </div>
             </v-timeline-item>
-            <draggable
-              v-if="itemLists.length"
-              v-model="itemLists"
-              draggable=".drag-item"
-              :animation="200"
+
+            <div
+              v-for="(item, i) in itemLists"
+              :key="i"
+              :class="`drag-item`"
+              draggable="true"
+              @dragstart="(event) => dragItem(event, item)"
             >
-              <div
-                v-for="(item, i) in itemLists"
-                :key="i"
-                :class="`drag-item`"
-                draggable="true"
-                @dragstart="(event) => dragItem(event, item)"
+              <v-timeline-item
+                v-if="item.sessionType === 'Screenshot'"
+                color="primary"
+                icon="mdi-camera-plus"
+                fill-dot
               >
-                <v-timeline-item
-                  v-if="item.sessionType === 'Screenshot'"
-                  color="primary"
-                  icon="mdi-camera-plus"
-                  fill-dot
-                >
-                  <div class="d-flex flex-column screenshot">
-                    <div class="d-flex justify-space-between py-2">
-                      <div class="duration-text">
-                        <v-icon>mdi-clock-outline</v-icon>
-                        <span>{{ calculateTime(item.time) }}</span>
-                      </div>
-                      <div class="d-flex align-center">
-                        <input
-                          type="checkbox"
-                          class="item-select"
-                          :value="item.id"
-                          :checked="checkedItem(item.id)"
-                          @change="handleSelected($event, item.id)"
-                        />
-                      </div>
+                <div class="d-flex flex-column screenshot">
+                  <div class="d-flex justify-space-between py-2">
+                    <div class="duration-text">
+                      <v-icon>mdi-clock-outline</v-icon>
+                      <span>{{ calculateTime(item.time) }}</span>
                     </div>
-                    <div
-                      class="image-wrapper"
-                      @click="handleItemClick(item.id)"
-                    >
-                      <img
-                        class="screen-img"
-                        style="max-width: 100%"
-                        :src="`file://${item.filePath}`"
+                    <div class="d-flex align-center">
+                      <input
+                        type="checkbox"
+                        class="item-select"
+                        :value="item.id"
+                        :checked="checkedItem(item.id)"
+                        @change="handleSelected($event, item.id)"
                       />
                     </div>
-                    <div class="comment-wrapper mt-2">
-                      <span class="comment-type"
-                        >{{
-                          item.comment.text
-                            ? item.comment.type + ": " + item.comment.text
-                            : ""
-                        }}
-                      </span>
-                    </div>
                   </div>
-                </v-timeline-item>
-                <v-timeline-item
-                  v-if="item.sessionType === 'Video'"
-                  color="primary"
-                  icon="mdi-video"
-                  fill-dot
-                >
-                  <div class="d-flex flex-column">
-                    <div class="d-flex justify-space-between py-2">
-                      <div class="duration-text">
-                        <v-icon>mdi-clock-outline</v-icon>
-                        <span>{{ calculateTime(item.time) }}</span>
-                      </div>
-                      <div class="d-flex align-center">
-                        <input
-                          type="checkbox"
-                          class="item-select"
-                          :value="item.id"
-                          :checked="checkedItem(item.id)"
-                          @change="handleSelected($event, item.id)"
-                        />
-                      </div>
-                    </div>
-                    <div
-                      class="video-wrapper"
-                      @click="handleItemClick(item.id)"
-                    >
-                      <video
-                        controls
-                        style="width: 100%"
-                        :src="`file://${item.filePath}`"
-                      ></video>
-                    </div>
-                    <div class="comment-wrapper mt-2">
-                      <span class="comment-type"
-                        >{{
-                          item.comment.text
-                            ? item.comment.type + ": " + item.comment.text
-                            : ""
-                        }}
-                      </span>
-                    </div>
+                  <div class="image-wrapper" @click="handleItemClick(item.id)">
+                    <img
+                      class="screen-img"
+                      style="max-width: 100%"
+                      :src="`file://${item.filePath}`"
+                    />
                   </div>
-                </v-timeline-item>
-                <v-timeline-item
-                  v-if="item.sessionType === 'Audio'"
-                  color="primary"
-                  icon="mdi-microphone"
-                  fill-dot
-                >
-                  <div class="d-flex flex-column">
-                    <div class="d-flex justify-space-between py-2">
-                      <div class="duration-text">
-                        <v-icon>mdi-clock-outline</v-icon>
-                        <span>{{ calculateTime(item.time) }}</span>
-                      </div>
-                      <div class="d-flex align-center">
-                        <input
-                          type="checkbox"
-                          class="item-select"
-                          :value="item.id"
-                          :checked="checkedItem(item.id)"
-                          @change="handleSelected($event, item.id)"
-                        />
-                      </div>
-                    </div>
-                    <div
-                      class="audio-wrapper"
-                      @click="handleItemClick(item.id)"
-                    >
-                      <div class="audio-wave">
-                        <img :src="item.poster" />
-                      </div>
-                      <div class="audio-play">
-                        <v-icon medium>mdi-play-circle</v-icon>
-                      </div>
-                    </div>
-                    <div class="comment-wrapper mt-2">
-                      <span class="comment-type"
-                        >{{
-                          item.comment.text
-                            ? item.comment.type + ": " + item.comment.text
-                            : ""
-                        }}
-                      </span>
-                    </div>
+                  <div class="comment-wrapper mt-2">
+                    <span class="comment-type"
+                      >{{
+                        item.comment.text
+                          ? item.comment.type + ": " + item.comment.text
+                          : ""
+                      }}
+                    </span>
                   </div>
-                </v-timeline-item>
-                <v-timeline-item
-                  v-if="item.sessionType === 'Note'"
-                  color="primary"
-                  icon="mdi-pencil"
-                  fill-dot
-                >
-                  <div class="d-flex flex-column">
-                    <div class="d-flex justify-space-between py-2">
-                      <div class="duration-text">
-                        <v-icon>mdi-clock-outline</v-icon>
-                        <span>{{ calculateTime(item.time) }}</span>
-                      </div>
-                      <div class="d-flex align-center">
-                        <input
-                          type="checkbox"
-                          class="item-select"
-                          :value="item.id"
-                          :checked="checkedItem(item.id)"
-                          @change="handleSelected($event, item.id)"
-                        />
-                      </div>
-                    </div>
-                    <div class="note-wrapper" @click="handleItemClick(item.id)">
-                      <span class="comment-type"
-                        >{{ item.comment.type + ": " + item.comment.text }}
-                      </span>
-                    </div>
-                    <div
-                      v-if="item.comment.tags.length"
-                      class="tags-wrapper my-2"
+                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                    <v-chip
+                      v-for="(tag, i) in item.tags"
+                      :key="i"
+                      class="tag"
+                      small
+                      color="#fee2e2"
+                      text-color="#991b1b"
                     >
-                      <v-chip
-                        v-for="(tag, i) in item.comment.tags"
-                        :key="i"
-                        class="tag"
-                        small
-                        color="#fee2e2"
-                        text-color="#991b1b"
-                      >
-                        {{ tag.text }}
-                      </v-chip>
-                    </div>
+                      {{ tag.text }}
+                    </v-chip>
                   </div>
-                </v-timeline-item>
-                <v-timeline-item
-                  v-if="item.sessionType === 'File'"
-                  color="primary"
-                  icon="mdi-file"
-                  fill-dot
-                >
-                  <div class="d-flex flex-column">
-                    <div class="d-flex justify-space-between py-2">
-                      <div class="duration-text">
-                        <v-icon>mdi-clock-outline</v-icon>
-                        <span>{{ calculateTime(item.time) }}</span>
-                      </div>
-                      <div class="d-flex align-center">
-                        <input
-                          type="checkbox"
-                          class="item-select"
-                          :value="item.id"
-                          :checked="checkedItem(item.id)"
-                          @change="handleSelected($event, item.id)"
-                        />
-                      </div>
+                </div>
+              </v-timeline-item>
+              <v-timeline-item
+                v-if="item.sessionType === 'Video'"
+                color="primary"
+                icon="mdi-video"
+                fill-dot
+              >
+                <div class="d-flex flex-column">
+                  <div class="d-flex justify-space-between py-2">
+                    <div class="duration-text">
+                      <v-icon>mdi-clock-outline</v-icon>
+                      <span>{{ calculateTime(item.time) }}</span>
                     </div>
-                    <div
-                      v-if="item.fileType === 'image'"
-                      class="file-wrapper image"
-                      @click="handleItemClick(item.id)"
-                    >
-                      <img
-                        class="screen-img"
-                        style="max-width: 100%"
-                        :src="`file://${item.filePath}`"
+                    <div class="d-flex align-center">
+                      <input
+                        type="checkbox"
+                        class="item-select"
+                        :value="item.id"
+                        :checked="checkedItem(item.id)"
+                        @change="handleSelected($event, item.id)"
                       />
                     </div>
-                    <div
-                      v-else
-                      class="file-wrapper file"
-                      @click="handleItemClick(item.id)"
-                    >
-                      <div class="file-name">
-                        <span>{{ item.fileName }}</span>
-                      </div>
-                      <div class="file-icon">
-                        <v-icon medium>mdi-file</v-icon>
-                      </div>
-                    </div>
-                    <div class="comment-wrapper mt-2">
-                      <span class="comment-type"
-                        >{{
-                          item.comment.text
-                            ? item.comment.type + ": " + item.comment.text
-                            : ""
-                        }}
-                      </span>
-                    </div>
                   </div>
-                </v-timeline-item>
-                <v-timeline-item
-                  v-if="item.sessionType === 'Mindmap'"
-                  color="primary"
-                  icon="mdi-camera-plus"
-                  fill-dot
-                >
-                  <div class="d-flex flex-column map-wrapper">
-                    <div class="d-flex justify-space-between py-2">
-                      <div class="duration-text">
-                        <v-icon>mdi-clock-outline</v-icon>
-                        <span>{{ calculateTime(item.time) }}</span>
-                      </div>
-                      <div class="d-flex align-center">
-                        <input
-                          type="checkbox"
-                          class="item-select"
-                          :value="item.id"
-                          :checked="checkedItem(item.id)"
-                          @change="handleSelected($event, item.id)"
-                        />
-                      </div>
-                    </div>
-                    <div
-                      class="image-wrapper"
-                      @click="handleItemClick(item.id)"
+                  <div class="video-wrapper" @click="handleItemClick(item.id)">
+                    <video
+                      controls
+                      style="width: 100%"
+                      :src="`file://${item.filePath}`"
+                    ></video>
+                  </div>
+                  <div class="comment-wrapper mt-2">
+                    <span class="comment-type"
+                      >{{
+                        item.comment.text
+                          ? item.comment.type + ": " + item.comment.text
+                          : ""
+                      }}
+                    </span>
+                  </div>
+                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                    <v-chip
+                      v-for="(tag, i) in item.tags"
+                      :key="i"
+                      class="tag"
+                      small
+                      color="#fee2e2"
+                      text-color="#991b1b"
                     >
-                      <img
-                        class="screen-img"
-                        style="max-width: 100%"
-                        :src="`file://${item.filePath}`"
+                      {{ tag.text }}
+                    </v-chip>
+                  </div>
+                </div>
+              </v-timeline-item>
+              <v-timeline-item
+                v-if="item.sessionType === 'Audio'"
+                color="primary"
+                icon="mdi-microphone"
+                fill-dot
+              >
+                <div class="d-flex flex-column">
+                  <div class="d-flex justify-space-between py-2">
+                    <div class="duration-text">
+                      <v-icon>mdi-clock-outline</v-icon>
+                      <span>{{ calculateTime(item.time) }}</span>
+                    </div>
+                    <div class="d-flex align-center">
+                      <input
+                        type="checkbox"
+                        class="item-select"
+                        :value="item.id"
+                        :checked="checkedItem(item.id)"
+                        @change="handleSelected($event, item.id)"
                       />
                     </div>
-                    <div class="comment-wrapper mt-2">
-                      <span class="comment-type"
-                        >{{
-                          item.comment.text
-                            ? item.comment.type + ": " + item.comment.text
-                            : ""
-                        }}
-                      </span>
+                  </div>
+                  <div class="audio-wrapper" @click="handleItemClick(item.id)">
+                    <div class="audio-wave">
+                      <img :src="item.poster" />
+                    </div>
+                    <div class="audio-play">
+                      <v-icon medium>mdi-play-circle</v-icon>
                     </div>
                   </div>
-                </v-timeline-item>
-                <v-timeline-item
-                  v-if="item.sessionType === 'Summary' && item.comment.text"
-                  color="primary"
-                  icon="mdi-pencil"
-                  fill-dot
-                >
-                  <div class="d-flex flex-column">
-                    <div class="d-flex justify-space-between py-2">
-                      <div class="duration-text">
-                        <v-icon>mdi-clock-outline</v-icon>
-                        <span>{{ calculateTime(item.time) }}</span>
-                      </div>
-                      <div class="d-flex align-center">
-                        <input
-                          type="checkbox"
-                          class="item-select"
-                          :value="item.id"
-                          :checked="checkedItem(item.id)"
-                          @change="handleSelected($event, item.id)"
-                        />
-                      </div>
+                  <div class="comment-wrapper mt-2">
+                    <span class="comment-type"
+                      >{{
+                        item.comment.text
+                          ? item.comment.type + ": " + item.comment.text
+                          : ""
+                      }}
+                    </span>
+                  </div>
+                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                    <v-chip
+                      v-for="(tag, i) in item.tags"
+                      :key="i"
+                      class="tag"
+                      small
+                      color="#fee2e2"
+                      text-color="#991b1b"
+                    >
+                      {{ tag.text }}
+                    </v-chip>
+                  </div>
+                </div>
+              </v-timeline-item>
+              <v-timeline-item
+                v-if="item.sessionType === 'Note'"
+                color="primary"
+                icon="mdi-pencil"
+                fill-dot
+              >
+                <div class="d-flex flex-column">
+                  <div class="d-flex justify-space-between py-2">
+                    <div class="duration-text">
+                      <v-icon>mdi-clock-outline</v-icon>
+                      <span>{{ calculateTime(item.time) }}</span>
                     </div>
-                    <div class="note-wrapper" @click="handleItemClick(item.id)">
-                      <span class="comment-type"
-                        >{{ item.comment.type + ": " + item.comment.text }}
-                      </span>
+                    <div class="d-flex align-center">
+                      <input
+                        type="checkbox"
+                        class="item-select"
+                        :value="item.id"
+                        :checked="checkedItem(item.id)"
+                        @change="handleSelected($event, item.id)"
+                      />
                     </div>
                   </div>
-                </v-timeline-item>
-              </div>
-            </draggable>
+                  <div class="note-wrapper" @click="handleItemClick(item.id)">
+                    <span class="comment-type"
+                      >{{ item.comment.type + ": " + item.comment.text }}
+                    </span>
+                  </div>
+                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                    <v-chip
+                      v-for="(tag, i) in item.tags"
+                      :key="i"
+                      class="tag"
+                      small
+                      color="#fee2e2"
+                      text-color="#991b1b"
+                    >
+                      {{ tag.text }}
+                    </v-chip>
+                  </div>
+                </div>
+              </v-timeline-item>
+              <v-timeline-item
+                v-if="item.sessionType === 'File'"
+                color="primary"
+                icon="mdi-file"
+                fill-dot
+              >
+                <div class="d-flex flex-column">
+                  <div class="d-flex justify-space-between py-2">
+                    <div class="duration-text">
+                      <v-icon>mdi-clock-outline</v-icon>
+                      <span>{{ calculateTime(item.time) }}</span>
+                    </div>
+                    <div class="d-flex align-center">
+                      <input
+                        type="checkbox"
+                        class="item-select"
+                        :value="item.id"
+                        :checked="checkedItem(item.id)"
+                        @change="handleSelected($event, item.id)"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    v-if="item.fileType === 'image'"
+                    class="file-wrapper image"
+                    @click="handleItemClick(item.id)"
+                  >
+                    <img
+                      class="screen-img"
+                      style="max-width: 100%"
+                      :src="`file://${item.filePath}`"
+                    />
+                  </div>
+                  <div
+                    v-else
+                    class="file-wrapper file"
+                    @click="handleItemClick(item.id)"
+                  >
+                    <div class="file-name">
+                      <span>{{ item.fileName }}</span>
+                    </div>
+                    <div class="file-icon">
+                      <v-icon medium>mdi-file</v-icon>
+                    </div>
+                  </div>
+                  <div class="comment-wrapper mt-2">
+                    <span class="comment-type"
+                      >{{
+                        item.comment.text
+                          ? item.comment.type + ": " + item.comment.text
+                          : ""
+                      }}
+                    </span>
+                  </div>
+                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                    <v-chip
+                      v-for="(tag, i) in item.tags"
+                      :key="i"
+                      class="tag"
+                      small
+                      color="#fee2e2"
+                      text-color="#991b1b"
+                    >
+                      {{ tag.text }}
+                    </v-chip>
+                  </div>
+                </div>
+              </v-timeline-item>
+              <v-timeline-item
+                v-if="item.sessionType === 'Mindmap'"
+                color="primary"
+                icon="mdi-camera-plus"
+                fill-dot
+              >
+                <div class="d-flex flex-column map-wrapper">
+                  <div class="d-flex justify-space-between py-2">
+                    <div class="duration-text">
+                      <v-icon>mdi-clock-outline</v-icon>
+                      <span>{{ calculateTime(item.time) }}</span>
+                    </div>
+                    <div class="d-flex align-center">
+                      <input
+                        type="checkbox"
+                        class="item-select"
+                        :value="item.id"
+                        :checked="checkedItem(item.id)"
+                        @change="handleSelected($event, item.id)"
+                      />
+                    </div>
+                  </div>
+                  <div class="image-wrapper" @click="handleItemClick(item.id)">
+                    <img
+                      class="screen-img"
+                      style="max-width: 100%"
+                      :src="`file://${item.filePath}`"
+                    />
+                  </div>
+                  <div class="comment-wrapper mt-2">
+                    <span class="comment-type"
+                      >{{
+                        item.comment.text
+                          ? item.comment.type + ": " + item.comment.text
+                          : ""
+                      }}
+                    </span>
+                  </div>
+                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                    <v-chip
+                      v-for="(tag, i) in item.tags"
+                      :key="i"
+                      class="tag"
+                      small
+                      color="#fee2e2"
+                      text-color="#991b1b"
+                    >
+                      {{ tag.text }}
+                    </v-chip>
+                  </div>
+                </div>
+              </v-timeline-item>
+              <v-timeline-item
+                v-if="item.sessionType === 'Summary' && item.comment.text"
+                color="primary"
+                icon="mdi-pencil"
+                fill-dot
+              >
+                <div class="d-flex flex-column">
+                  <div class="d-flex justify-space-between py-2">
+                    <div class="duration-text">
+                      <v-icon>mdi-clock-outline</v-icon>
+                      <span>{{ calculateTime(item.time) }}</span>
+                    </div>
+                    <div class="d-flex align-center">
+                      <input
+                        type="checkbox"
+                        class="item-select"
+                        :value="item.id"
+                        :checked="checkedItem(item.id)"
+                        @change="handleSelected($event, item.id)"
+                      />
+                    </div>
+                  </div>
+                  <div class="note-wrapper" @click="handleItemClick(item.id)">
+                    <span class="comment-type"
+                      >{{ item.comment.type + ": " + item.comment.text }}
+                    </span>
+                  </div>
+                </div>
+              </v-timeline-item>
+            </div>
             <v-timeline-item
               class="timeline-item pb-0"
               color="primary"
@@ -362,7 +401,7 @@
       </v-col>
     </v-row>
     <v-row
-      :class="{ 'drop-indicator': true, hidden: !isDragging }"
+      :class="{ 'drop-indicator': true, hidden: !isDragging || itemDragging }"
       v-if="status !== 'pending' && status !== 'pause'"
     >
       <p>
@@ -394,7 +433,6 @@ import {
   VTimelineItem,
   VBtn,
 } from "vuetify/lib/components";
-import Draggable from "vuedraggable";
 import dayjs from "dayjs";
 
 import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
@@ -409,7 +447,6 @@ export default {
     VTimeline,
     VTimelineItem,
     VBtn,
-    Draggable,
   },
   props: {
     items: {
@@ -445,6 +482,7 @@ export default {
       eventName: this.eventType,
       clicks: 0,
       isDragging: false,
+      itemDragging: false,
     };
   },
   computed: {
@@ -551,46 +589,51 @@ export default {
     },
     dragItem(event, item) {
       event.preventDefault();
-
+      this.itemDragging = true;
       if (!window.ipc) return;
-      console.log(item);
-      window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-        func: IPC_FUNCTIONS.DRAG_ITEM,
-        data: item,
-      });
+      window.ipc
+        .invoke(IPC_HANDLERS.FILE_SYSTEM, {
+          func: IPC_FUNCTIONS.DRAG_ITEM,
+          data: item,
+        })
+        .then(() => {
+          this.itemDragging = false;
+        });
     },
     async dropFile(event) {
       event.preventDefault();
       event.stopPropagation();
-
-      if (event.dataTransfer.files.length === 0 || !window.ipc) {
-        return;
-      }
-
-      const f = event.dataTransfer.files[0];
-      const { status, error, result } = await window.ipc.invoke(
-        IPC_HANDLERS.CAPTURE,
-        {
-          func: IPC_FUNCTIONS.DROP_FILE,
-          data: {
-            path: f.path,
-            name: f.name,
-          },
+      this.isDragging = false;
+      if (!this.itemDragging) {
+        if (event.dataTransfer.files.length === 0 || !window.ipc) {
+          return;
         }
-      );
 
-      if (status === STATUSES.ERROR) {
-        console.log(error);
-      } else {
-        const data = {
-          sessionType: "File",
-          fileType: result.fileType,
-          fileName: result.fileName,
-          filePath: result.filePath,
-          time: this.$store.state.timer,
-        };
-        this.openEditorModal(data);
-        this.isDragging = false;
+        const f = event.dataTransfer.files[0];
+        const { status, error, result } = await window.ipc.invoke(
+          IPC_HANDLERS.CAPTURE,
+          {
+            func: IPC_FUNCTIONS.DROP_FILE,
+            data: {
+              path: f.path,
+              name: f.name,
+            },
+          }
+        );
+
+        if (status === STATUSES.ERROR) {
+          console.log(error);
+        } else {
+          const data = {
+            sessionType: "File",
+            fileType: result.fileType,
+            fileName: result.fileName,
+            filePath: result.filePath,
+            time: this.$store.state.timer,
+          };
+          this.openEditorModal(data);
+          this.isDragging = false;
+        }
       }
     },
     dragEnter(event) {

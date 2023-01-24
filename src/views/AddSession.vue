@@ -5,7 +5,7 @@
         <ReviewWrapper
           :item="item"
           :processing="processing"
-          :config="config"
+          :configItem="config"
           :trigger-save="triggerSaveEvent"
           :auto-save="autoSaveEvent"
         />
@@ -35,6 +35,15 @@
           @input="updateComment"
         >
         </v-tiptap>
+        <vue-tags-input
+          class="input-box"
+          v-model="tag"
+          :tags="tags"
+          :max-tags="10"
+          :maxlength="20"
+          @tags-changed="handleTags"
+          :placeholder="$t('message.insert_tag')"
+        />
         <div class="comment-type">
           <div class="subtitle-2 label-text">
             {{ $tc("caption.comment_type", 1) }}
@@ -88,6 +97,8 @@
 
 <script>
 import ReviewWrapper from "../components/ReviewWrapper.vue";
+import VueTagsInput from "@johmun/vue-tags-input";
+
 import dayjs from "dayjs";
 
 import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
@@ -96,6 +107,7 @@ export default {
   name: "AddSession",
   components: {
     ReviewWrapper,
+    VueTagsInput,
   },
   data() {
     return {
@@ -107,6 +119,8 @@ export default {
         content: "",
         text: "",
       },
+      tag: "",
+      tags: [],
       commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
       processing: true,
       triggerSaveEvent: false,
@@ -218,12 +232,16 @@ export default {
     handleSave() {
       this.triggerSaveEvent = !this.triggerSaveEvent;
     },
+    handleTags(newTags) {
+      this.tags = newTags;
+    },
     async saveData() {
       const date = dayjs().format("MM/DD/YYYY HH:mm:ss");
       const newItem = {
         id: Date.now(),
         ...this.item,
         comment: this.comment,
+        tags: this.tags,
         time: this.item.time,
         createdAt: date,
       };

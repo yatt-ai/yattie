@@ -133,7 +133,13 @@ export default {
   mounted() {
     this.$root.$on("update-selected", this.updateSelected);
     this.$root.$on("save-session", this.saveSession);
-
+    this.$root.$on("new-session", () => {
+      this.presession.tasks = this.presession.tasks.map((item) => {
+        let temp = Object.assign({}, item);
+        temp.checked = false;
+        return temp;
+      });
+    });
     if (!window.ipc) return;
 
     window.ipc.on("DATA_CHANGE", () => {

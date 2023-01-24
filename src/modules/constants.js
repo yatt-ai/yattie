@@ -54,6 +54,7 @@ export const IPC_FUNCTIONS = {
 
   GET_NOTES: "getNotes",
   UPDATE_NOTES: "updateNotes",
+  RESET_DATA: "resetData",
 
   EXPORT_ITEMS: "exportItems",
   EXPORT_NOTES: "exportNotes",

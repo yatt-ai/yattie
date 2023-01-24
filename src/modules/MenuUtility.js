@@ -11,17 +11,17 @@ module.exports.changeMenuItemStatus = ({ sessionStatus }) => {
     fileSubMenus.find(
       (item) => item.id === "menu_save_session"
     ).enabled = false;
-    fileSubMenus.find(
-      (item) => item.id === "menu_save_as_charter"
-    ).enabled = false;
+    // fileSubMenus.find(
+    //   (item) => item.id === "menu_save_as_charter"
+    // ).enabled = false;
     fileSubMenus.find(
       (item) => item.id === "menu_reset_session"
     ).enabled = false;
   } else {
     fileSubMenus.find((item) => item.id === "menu_save_session").enabled = true;
-    fileSubMenus.find(
-      (item) => item.id === "menu_save_as_charter"
-    ).enabled = true;
+    // fileSubMenus.find(
+    //   (item) => item.id === "menu_save_as_charter"
+    // ).enabled = true;
     fileSubMenus.find(
       (item) => item.id === "menu_reset_session"
     ).enabled = true;

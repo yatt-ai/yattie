@@ -4,7 +4,6 @@ const fs = require("fs");
 const AdmZip = require("adm-zip");
 const extract = require("extract-zip");
 const dayjs = require("dayjs");
-const https = require("https");
 
 const configDir = (app || remote.app).getPath("userData");
 
@@ -141,12 +140,12 @@ module.exports.saveSession = async (data) => {
         fs.unlinkSync(metaPath);
         items.map((item) => {
           if (item.filePath) {
-            zip.addLocalFile(item.filePath, item.fileType);
+            zip.addLocalFile(item.filePath);
           }
         });
 
         if (notesFilePath) {
-          zip.addLocalFile(notesFilePath, "text");
+          zip.addLocalFile(notesFilePath);
         }
 
         zip.writeZip(filePath, (error) => {
@@ -358,11 +357,9 @@ module.exports.openConfigFile = async () => {
     });
   }
 };
-const iconPath = path.join(__dirname, "../assets/icon/drag-drop.png");
 
 module.exports.dragItem = (event, data) => {
-  console.log(event, data);
-
+  const iconPath = path.join(__dirname, "../assets/icon/drag-drop.png");
   event.sender.startDrag({
     file: data.filePath,
     icon: iconPath,

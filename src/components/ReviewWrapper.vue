@@ -75,7 +75,7 @@ export default {
       type: String,
       default: () => "",
     },
-    config: {
+    configItem: {
       type: Object,
       default: () => {},
     },
@@ -90,6 +90,9 @@ export default {
     autoSave: function (newValue) {
       this.autoSaveEvent = newValue;
     },
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
   },
   data() {
     return {
@@ -97,7 +100,11 @@ export default {
       triggerSaveEvent: this.triggerSave,
       autoSaveEvent: this.autoSave,
       currentViewName: this.currentView,
+      config: this.configItem,
     };
+  },
+  mounted() {
+    console.log(this.config);
   },
   methods: {
     handleMindmap(value) {

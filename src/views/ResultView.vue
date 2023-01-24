@@ -20,7 +20,11 @@
           style="height: 100%"
         >
           <div class="flex-grow-1">
-            <ReviewWrapper :item="activeSession" :auto-save="autoSaveEvent" />
+            <ReviewWrapper
+              :item="activeSession"
+              :auto-save="autoSaveEvent"
+              :configItem="config"
+            />
           </div>
           <div class="flex-grow-0 mt-2">
             <v-tiptap
@@ -46,6 +50,15 @@
               @input="handleComment"
             >
             </v-tiptap>
+            <vue-tags-input
+              class="input-box mt-2"
+              v-model="tag"
+              :tags="activeSession.tags"
+              :max-tags="10"
+              :maxlength="20"
+              @tags-changed="handleTags"
+              :placeholder="$t('message.insert_tag')"
+            />
             <v-row class="mt-0 comment-wrapper">
               <v-col class="pr-0">
                 <div class="subtitle-2 label-text">
@@ -110,6 +123,8 @@ import ExportPanel from "../components/ExportPanel.vue";
 import LogoWrapper from "../components/LogoWrapper.vue";
 import ReviewWrapper from "../components/ReviewWrapper.vue";
 
+import VueTagsInput from "@johmun/vue-tags-input";
+
 import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
 
 export default {
@@ -122,6 +137,7 @@ export default {
     ExportPanel,
     LogoWrapper,
     ReviewWrapper,
+    VueTagsInput,
   },
   data() {
     return {
@@ -136,6 +152,7 @@ export default {
       postsession: {
         tasks: [],
       },
+      tag: "",
     };
   },
   created() {
@@ -204,6 +221,9 @@ export default {
       this.activeSession.comment.text =
         this.activeSession.comment.content.replace(regex, "");
       this.saveData();
+    },
+    handleTags(newTags) {
+      this.activeSession.tags = newTags;
     },
     handleCommentType(val) {
       this.activeSession.commentType = val;

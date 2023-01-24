@@ -267,3 +267,17 @@ module.exports.updateNotes = (notes) => {
     console.log(error);
   }
 };
+
+module.exports.resetData = () => {
+  try {
+    dataDb.set("items", []);
+    dataDb.set("notes", {
+      content: "",
+      text: "",
+    });
+    browserWindow = browserUtility.getBrowserWindow();
+    browserWindow.webContents.send("DATA_CHANGE");
+  } catch (error) {
+    console.log(error);
+  }
+};
