@@ -55,8 +55,7 @@ describe("TestWrapper.vue", () => {
 
     const charterTabWrapper = wrapper.find(".charter-tab");
     expect(charterTabWrapper.findComponent(MindmapEditor).exists()).toBe(false);
-
-    const precondWrapper = wrapper.find(".pre-cond");
+    expect(wrapper.find(".pre-cond").exists()).toBe(true);
   });
 
   test('change the value of "Time limit" input box', async () => {

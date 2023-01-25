@@ -58,7 +58,7 @@
             color="primary"
             @click="deleteConfirmDialog = true"
           >
-            <v-icon left>mdi-delete</v-icon> Delete
+            <v-icon left>mdi-delete</v-icon> {{ $tc("caption.delete", 1) }}
           </v-btn>
         </v-col>
         <v-col cols="6" class="pa-1">
@@ -70,8 +70,16 @@
             color="white"
             @click="exportItems"
           >
-            <v-icon left>mdi-download</v-icon> Export
+            <v-icon left>mdi-download</v-icon> {{ $tc("caption.export", 1) }}
           </v-btn>
+        </v-col>
+        <v-col cols="12" class="pa-1" v-if="checkAuth">
+          <jira-export-session
+            :title="$tc(`caption.export_to_jira`, 1)"
+            :credential-item="credential"
+            :items="items"
+            :selected="selected"
+          />
         </v-col>
       </v-row>
       <v-row class="text-center control-btn-wrapper" v-if="status === 'end'">
@@ -482,12 +490,16 @@ import DurationConfirmDialog from "./dialogs/DurationConfirmDialog.vue";
 import AudioErrorDialog from "./dialogs/AudioErrorDialog.vue";
 import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
 import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
+
+import JiraExportSession from "./jira/JiraExportSession";
+
 import {
   IPC_HANDLERS,
   IPC_FUNCTIONS,
   IPC_BIND_KEYS,
   SESSION_STATUSES,
   VIDEO_RESOLUTION,
+  STATUSES,
 } from "../modules/constants";
 import {
   DEFAULT_MAP_NODES,
@@ -515,6 +527,7 @@ export default {
     AudioErrorDialog,
     EndSessionDialog,
     MinimizeControlWrapper,
+    JiraExportSession,
   },
   props: {
     items: {
@@ -528,6 +541,14 @@ export default {
     configItem: {
       type: Object,
       default: () => {},
+    },
+    credentialItem: {
+      type: Object,
+      default: () => {},
+    },
+    isAuthenticated: {
+      type: Boolean,
+      default: () => false,
     },
     checkedStatusOfPreSessionTask: {
       type: Boolean,
@@ -559,6 +580,12 @@ export default {
     },
     configItem: function (newValue) {
       this.config = newValue;
+    },
+    credentialItem: function (newValue) {
+      this.credential = newValue;
+    },
+    isAuthenticated: function (newValue) {
+      this.checkAuth = newValue;
     },
     "$store.state.status": {
       deep: true,
@@ -626,6 +653,8 @@ export default {
       sourceId: this.srcId,
       itemLists: this.items,
       config: this.configItem,
+      credential: this.credentialItem,
+      checkAuth: this.isAuthenticated,
       audioDevices: [],
       loaded: false,
       status: this.$store.state.status,
@@ -997,7 +1026,6 @@ export default {
       this.durationConfirmDialog = false;
       this.status = SESSION_STATUSES.PROCEED;
       this.changeSessionStatus(SESSION_STATUSES.PROCEED);
-      console.log("start interval-1");
       this.startInterval();
     },
     updateStatus(value) {
@@ -1384,7 +1412,6 @@ export default {
         duration: this.duration,
         sourceId: this.sourceId,
       };
-      // console.log(data);
       localStorage.setItem("state-data", JSON.stringify(data));
       if (!window.ipc) return;
       await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
@@ -1431,16 +1458,13 @@ export default {
         path: this.$route.path,
       };
       if (!window.ipc) return;
-      await window.ipc
-        .invoke(IPC_HANDLERS.FILE_SYSTEM, {
-          func: IPC_FUNCTIONS.SAVE_SESSION,
-          data: data,
-        })
-        .then(() => {
-          if (callback) {
-            callback();
-          }
-        });
+      const { status } = await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+        func: IPC_FUNCTIONS.SAVE_SESSION,
+        data: data,
+      });
+      if (status === STATUSES.SUCCESS && callback) {
+        callback();
+      }
     },
     discardSession(callback = null) {
       this.newSessionDialog = false;
@@ -1449,7 +1473,6 @@ export default {
       }
     },
     async clearSession() {
-      console.log("clear session");
       this.$root.$emit("new-session");
 
       this.status = SESSION_STATUSES.PENDING;
@@ -1475,10 +1498,10 @@ export default {
             },
           });
           this.stopInterval();
-          // const currentPath = this.$router.history.current.path;
-          // if (currentPath !== "/main") {
-          //   this.$router.push({ path: "/main" });
-          // }
+          const currentPath = this.$router.history.current.path;
+          if (currentPath !== "/main") {
+            this.$router.push({ path: "/main" });
+          }
         });
     },
     async resetSession() {

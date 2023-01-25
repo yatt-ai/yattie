@@ -10,13 +10,27 @@
       </div>
     </div>
     <div class="content mt-2">
+      <div class="loading-wrapper" v-if="loading">
+        <v-progress-circular
+          :size="70"
+          :width="7"
+          color="primary"
+          indeterminate
+        ></v-progress-circular>
+      </div>
       <v-row>
         <v-col cols="12">
-          <v-btn class="mb-4 outline-btn yattie" block outlined color="white">
+          <!--<v-btn class="mb-4 outline-btn yattie" block outlined color="white">
             <img :src="require('../../assets/icon/yattie1.png')" />
             <div class="btn-text">{{ $tc("caption.signin_yattie", 1) }}</div>
-          </v-btn>
-          <v-btn class="mb-4 outline-btn jira" block outlined color="white">
+          </v-btn>-->
+          <v-btn
+            class="mb-4 outline-btn jira"
+            block
+            outlined
+            color="white"
+            @click="callJiraAPI"
+          >
             <img :src="require('../../assets/icon/jira.png')" />
             <div class="btn-text">{{ $tc("caption.signin_jira", 1) }}</div>
           </v-btn>
@@ -50,28 +64,180 @@
             class="text-capitalize pa-0 signup-btn"
             color="primary"
             plain
-            to="/authentication/signup2"
+            to="/authentication/signupMain"
           >
             {{ $tc("caption.sign_up", 1) }}
           </v-btn>
         </v-col>
       </v-row> -->
     </div>
+    <v-snackbar v-model="snackBar.enabled" timeout="3000">
+      {{ snackBar.message }}
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          color="primary"
+          text
+          v-bind="attrs"
+          @click="snackBar.enabled = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 
 <script>
+import axios from "axios";
+import { IPC_HANDLERS, IPC_FUNCTIONS } from "../../modules/constants";
+import dayjs from "dayjs";
+
 export default {
   name: "SigninWrapper",
   components: {},
-  props: {},
+  props: {
+    configItem: {
+      type: Object,
+      default: () => {},
+    },
+    credentialItem: {
+      type: Object,
+      default: () => {},
+    },
+    prevRoute: {
+      type: Object,
+      default: () => {},
+    },
+  },
+  watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
+    credentialItem: function (newValue) {
+      this.credential = newValue;
+    },
+    prevRoute: function (newValue) {
+      this.previousRoute = newValue;
+    },
+  },
   data() {
-    return {};
+    return {
+      config: this.configItem,
+      credential: this.credentialItem,
+      previousRoute: this.prevRoute,
+      loading: false,
+      snackBar: {
+        enabled: false,
+        message: "",
+      },
+    };
   },
   computed: {},
+  mounted() {
+    window.ipc.on("JIRA_LOGIN", (data) => {
+      this.jiraLogin(data);
+    });
+  },
   methods: {
     back: function () {
       this.$router.back();
+    },
+    async callJiraAPI() {
+      await window.ipc
+        .invoke(IPC_HANDLERS.SERVER, {
+          func: IPC_FUNCTIONS.START_SERVER,
+        })
+        .then(async () => {
+          this.loading = true;
+          this.$root.$emit("overlay", true);
+          const url = `http://localhost:${process.env.VUE_APP_SERVER_PORT}/oauth2/atlassian`;
+          await axios
+            .get(url)
+            .then((response) => {
+              this.loading = false;
+              this.$root.$emit("overlay", false);
+              if (response.status !== 200) {
+                this.snackBar.enabled = true;
+                this.snackBar.message = response.data.message
+                  ? response.data.message
+                  : "API Error";
+              }
+            })
+            .catch((error) => {
+              this.loading = false;
+              this.$root.$emit("overlay", false);
+              this.snackBar.enabled = true;
+              this.snackBar.message = error.message
+                ? error.message
+                : "API Error";
+            });
+        })
+        .catch((error) => {
+          this.snackBar.enabled = true;
+          this.snackBar.message = error ? error : "Failed start server";
+        });
+    },
+    async jiraLogin(data) {
+      this.loading = true;
+      this.$root.$emit("overlay", true);
+      const header = {
+        headers: {
+          Authorization: `Bearer ${data.access_token}`,
+          Accept: "application/json",
+        },
+      };
+
+      await axios
+        .get(
+          "https://api.atlassian.com/oauth/token/accessible-resources",
+          header
+        )
+        .then(async (response) => {
+          await axios
+            .get("https://api.atlassian.com/me", header)
+            .then((user) => {
+              const date = dayjs().format("MM/DD/YYYY HH:mm:ss");
+              const jiraData = {
+                ...data,
+                loggedAt: date,
+                resource: response.data[0],
+                profile: user.data,
+              };
+
+              if (!this.credential) {
+                this.credential = {};
+              }
+
+              this.credential.type = "jira";
+              this.credential.jira = jiraData;
+
+              window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+                func: IPC_FUNCTIONS.UPDATE_CREDENTIAL,
+                data: this.credential,
+              });
+
+              setTimeout(() => {
+                this.loading = false;
+                this.$root.$emit("overlay", false);
+
+                window.ipc.invoke(IPC_HANDLERS.SERVER, {
+                  func: IPC_FUNCTIONS.STOP_SERVER,
+                });
+
+                this.$router.push({ path: this.previousRoute.path });
+              }, 1000);
+            })
+            .catch((error) => {
+              this.snackBar.enabled = true;
+              this.snackBar.message = error.message
+                ? error.message
+                : "API Error";
+            });
+        })
+        .catch((error) => {
+          this.snackBar.enabled = true;
+          this.snackBar.message = error.message ? error.message : "API Error";
+        });
     },
   },
 };
@@ -112,6 +278,7 @@ export default {
   margin-left: -50px;
 }
 .content {
+  position: relative;
   background-color: #fff;
   border-radius: 8px;
   padding: 32px 40px;
@@ -167,5 +334,14 @@ export default {
   font-style: normal;
   font-weight: 500;
   color: #6d28d9;
+}
+
+.loading-wrapper {
+  position: absolute;
+  overflow: hidden;
+  z-index: 9999999;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>

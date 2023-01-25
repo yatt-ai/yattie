@@ -183,8 +183,6 @@ export default {
     color: function (newValue, oldValue) {
       if (newValue === oldValue) return;
 
-      console.log(newValue, oldValue);
-
       this.setting.defaultColor = newValue.hexa;
       this.handleConfig();
     },

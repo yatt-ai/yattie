@@ -1,4 +1,4 @@
-const { app, remote, dialog, BrowserWindow } = require("electron");
+const { app, remote, dialog, shell, BrowserWindow } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const AdmZip = require("adm-zip");
@@ -116,7 +116,10 @@ module.exports.saveSession = async (data) => {
   });
 
   if (!filePath) {
-    return Promise.resolve({ status: "canceled", message: "No path selected" });
+    return Promise.resolve({
+      status: STATUSES.ERROR,
+      message: "No path selected",
+    });
   }
 
   return new Promise(function (resolve) {
@@ -364,4 +367,9 @@ module.exports.dragItem = (event, data) => {
     file: data.filePath,
     icon: iconPath,
   });
+};
+
+module.exports.openExternalLink = async (url = "") => {
+  if (url === "") return;
+  return shell.openExternal(url);
 };

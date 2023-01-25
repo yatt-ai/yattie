@@ -80,7 +80,7 @@ If you have an idea about how we can better meet that goal, please let us know b
 
 If you looking to contribute - please checkout the [contributing guidelines](docs/CONTRIBUTING.md).
 
-If you're just looking to take it for a spin, check out the pre-built [packages](https://github.com/dacoaster/yattie/releases) and find the one built for your platform.  Can't find the platform you're looking for? Let us know you'd like a new one supported at the [feature requests](https://features.yattie.ai) page!
+If you're just looking to take it for a spin, check out the pre-built [packages](https://yatt.ai/downloads) and find the one built for your platform.  Can't find the platform you're looking for? Let us know you'd like a new one supported at the [feature requests](https://features.yattie.ai) page!
 
 ### Installation
 
@@ -88,7 +88,7 @@ TODO - This section could use some love (and screenshots!)
 
 ## Usage
 
-TODO - This section could use some love (and screenshots!)
+Check out our [docs](https://docs.yattie.ai).
 
 ## Roadmap
 

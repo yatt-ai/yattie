@@ -151,7 +151,6 @@ export default {
 
       // set comment type by config
       if (this.config.commentType && this.config.commentType !== "") {
-        console.log("comment type:", this.config.commentType);
         this.comment.type = this.config.commentType;
       }
       // set templates by config
@@ -213,7 +212,6 @@ export default {
       this.item = value;
     },
     updateProcessing(value) {
-      console.log("new processing:", value);
       this.processing = value;
     },
     async handleDiscard() {

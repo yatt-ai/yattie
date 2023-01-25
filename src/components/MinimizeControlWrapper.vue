@@ -251,7 +251,6 @@ export default {
         y: event.screenY,
       };
 
-      console.log(deltaPos);
       if (!window.ipc) return;
 
       window.ipc.invoke(IPC_HANDLERS.WINDOW, {

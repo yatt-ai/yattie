@@ -158,7 +158,6 @@ export default {
       this.item = value;
     },
     updateProcessing(value) {
-      console.log("new processing:", value);
       this.processing = value;
     },
     async getConfig() {

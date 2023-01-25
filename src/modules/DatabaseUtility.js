@@ -10,7 +10,7 @@ const jsonDbConfig = {
   jsonSpaces: 2,
 };
 
-let metaDb, configDb, dataDb;
+let metaDb, configDb, credentialDb, dataDb;
 let browserWindow;
 
 module.exports.initializeSession = () => {
@@ -28,6 +28,7 @@ module.exports.initializeSession = () => {
 
   const meta = {
     configPath: path.join(configDir, "config.json"),
+    credentialPath: path.join(configDir, "credential.json"),
     dataPath: path.join(configDir, "data.json"),
   };
 
@@ -111,8 +112,36 @@ module.exports.initializeSession = () => {
   };
 
   metaDb = new JSONdb(path.join(configDir, "meta.json"), jsonDbConfig);
-  configDb = new JSONdb(path.join(configDir, "config.json"), jsonDbConfig);
-  dataDb = new JSONdb(path.join(configDir, "data.json"), jsonDbConfig);
+  if (metaDb.has("meta")) {
+    const metaPath = metaDb.get("meta");
+    if (metaPath.configPath) {
+      configDb = new JSONdb(metaPath.configPath, jsonDbConfig);
+    } else {
+      configDb = new JSONdb(path.join(configDir, "config.json"), jsonDbConfig);
+    }
+
+    if (metaPath.credentialPath) {
+      credentialDb = new JSONdb(metaPath.credentialPath, jsonDbConfig);
+    } else {
+      credentialDb = new JSONdb(
+        path.join(configDir, "credential.json"),
+        jsonDbConfig
+      );
+    }
+
+    if (metaPath.configPath) {
+      dataDb = new JSONdb(metaPath.dataPath, jsonDbConfig);
+    } else {
+      dataDb = new JSONdb(path.join(configDir, "data.json"), jsonDbConfig);
+    }
+  } else {
+    configDb = new JSONdb(path.join(configDir, "config.json"), jsonDbConfig);
+    credentialDb = new JSONdb(
+      path.join(configDir, "credential.json"),
+      jsonDbConfig
+    );
+    dataDb = new JSONdb(path.join(configDir, "data.json"), jsonDbConfig);
+  }
 
   try {
     if (!metaDb.has("meta")) {
@@ -120,6 +149,10 @@ module.exports.initializeSession = () => {
     }
     if (!configDb.has("config") || !configDb.get("config").checklist) {
       configDb.set("config", config);
+    }
+
+    if (!credentialDb.has("credential")) {
+      credentialDb.set("credential", {});
     }
 
     dataDb.set("items", []);
@@ -224,6 +257,24 @@ module.exports.updateConfig = (config) => {
     configDb.set("config", config);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("CONFIG_CHANGE");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.getCredential = () => {
+  try {
+    return credentialDb.get("credential");
+  } catch (error) {
+    return {};
+  }
+};
+
+module.exports.updateCredential = (credential) => {
+  try {
+    credentialDb.set("credential", credential);
+    browserWindow = browserUtility.getBrowserWindow();
+    browserWindow.webContents.send("CREDENTIAL_CHANGE");
   } catch (error) {
     console.log(error);
   }
