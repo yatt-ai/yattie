@@ -9,7 +9,12 @@
           <TestWrapper />
         </div>
         <div class="footer">
-          <ExportPanel :items="items" />
+          <ExportPanel
+            :items="items"
+            :configItem="config"
+            :credentialItem="credential"
+            :isAuthenticated="checkAuth"
+          />
         </div>
       </v-col>
       <v-divider vertical></v-divider>
@@ -106,6 +111,7 @@
             :selectedItems="selected"
             :items="items"
             :configItem="config"
+            :credentialItem="credential"
             view-mode="normal"
           />
         </div>
@@ -139,10 +145,23 @@ export default {
     ReviewWrapper,
     VueTagsInput,
   },
+  props: {
+    isAuthenticated: {
+      type: Boolean,
+      default: () => false,
+    },
+  },
+  watch: {
+    isAuthenticated: function (newValue) {
+      this.checkAuth = newValue;
+    },
+  },
   data() {
     return {
       items: [],
       config: {},
+      credential: {},
+      checkAuth: this.isAuthenticated,
       activeSession: {},
       commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
       type: "Comment",
@@ -158,6 +177,7 @@ export default {
   created() {
     this.fetchItems();
     this.getConfig();
+    this.getCredential();
   },
   mounted() {
     this.$root.$on("submit-search", this.handleSearch);
@@ -173,9 +193,13 @@ export default {
     window.ipc.on("CONFIG_CHANGE", () => {
       this.getConfig();
     });
+    window.ipc.on("CREDENTIAL_CHANGE", () => {
+      this.getCredential();
+    });
     window.ipc.on("META_CHANGE", () => {
       this.fetchItems();
       this.getConfig();
+      this.getCredential();
     });
   },
   computed: {
@@ -202,7 +226,7 @@ export default {
           this.items = result;
         });
     },
-    async getConfig() {
+    getConfig() {
       if (!window.ipc) return;
 
       window.ipc
@@ -211,6 +235,17 @@ export default {
         })
         .then((result) => {
           this.config = result;
+        });
+    },
+    getCredential() {
+      if (!window.ipc) return;
+
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.GET_CREDENTIAL,
+        })
+        .then((result) => {
+          this.credential = result;
         });
     },
     handleSearch(val) {

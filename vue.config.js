@@ -16,6 +16,7 @@ module.exports = {
         "src/modules/FileSystemUtility.js",
         "src/modules/MenuUtility.js",
         "src/modules/WindowUtility.js",
+        "src/modules/ServerUtility.js",
       ],
       builderOptions: {
         productName: "YATTIE",

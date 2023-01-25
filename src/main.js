@@ -4,6 +4,7 @@ import vuetify from "./plugins/vuetify";
 import VTiptap from "@peepi/vuetify-tiptap";
 import router from "./router";
 import store from "./store";
+import integrationHelpers from "./integrations/IntegrationHelpers";
 
 import DefaultLayout from "./layouts/Default.vue";
 import MinimizeLayout from "./layouts/Minimize.vue";
@@ -18,6 +19,14 @@ Vue.component("default-layout", DefaultLayout);
 Vue.component("minimize-layout", MinimizeLayout);
 
 Vue.config.productionTip = false;
+
+const plugins = {
+  install() {
+    Vue.integrationHelpers = integrationHelpers;
+    Vue.prototype.$integrationHelpers = integrationHelpers;
+  },
+};
+Vue.use(plugins);
 
 new Vue({
   vuetify,

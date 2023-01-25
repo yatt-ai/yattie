@@ -19,6 +19,6 @@ describe("NotesWrapper.vue", () => {
       },
       vuetify,
     });
-
+    expect(wrapper.find(".content").exists()).toBe(true);
   });
 });

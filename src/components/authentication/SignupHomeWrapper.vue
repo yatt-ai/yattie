@@ -5,7 +5,7 @@
         <LogoWrapper :height="34" :width="120" />
       </div>
       <div class="new-section">
-        <div class="subtitle-1 signup-title text-center">
+        <!--<div class="subtitle-1 signup-title text-center">
           {{ $tc("caption.signup_test_app", 1) }}
         </div>
         <v-btn
@@ -14,10 +14,10 @@
           block
           small
           color="primary"
-          to="/authentication/signup2"
+          to="/authentication/signupMain"
         >
-          ${{ $tc("caption.sign_up", 2) }}
-        </v-btn>
+          {{ $tc("caption.sign_up", 1) }}
+        </v-btn>-->
         <v-btn
           class="my-4 text-capitalize signin"
           fill
@@ -34,12 +34,12 @@
       <v-alert class="terms-alert" dark>
         {{ $t("message.signup_policy") }}
         <span style="color: #000; font-weight: 500">
-          {{ $tc("caption.term_data_policy", 1) }}
+          {{ $tc("caption.signup_term_data_policy", 1) }}
         </span>
         {{ $tc("caption.and", 1) }}
         &nbsp;
         <span style="color: #000; font-weight: 500">
-          {{ $tc("caption.cookie_policy", 1) }}
+          {{ $tc("caption.signup_cookie_policy", 1) }}
         </span>
         .
       </v-alert>

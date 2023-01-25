@@ -4,7 +4,7 @@
       <v-btn
         class="text-capitalize pa-0 back-btn"
         plain
-        to="/authentication/signup2"
+        to="/authentication/signupMain"
       >
         <v-icon class="ma-0">mdi-chevron-left</v-icon>
         {{ $tc("caption.back", 1) }}
@@ -79,12 +79,12 @@
       <v-alert class="terms-alert" dark>
         {{ $t("message.signup_policy") }}
         <span style="color: #000; font-weight: 500">
-          {{ $tc("caption.term_data_policy", 1) }}
+          {{ $tc("caption.signup_term_data_policy", 1) }}
         </span>
         {{ $tc("caption.and", 1) }}
         &nbsp;
         <span style="color: #000; font-weight: 500">
-          {{ $tc("caption.cookie_policy", 1) }}
+          {{ $tc("caption.signup_cookie_policy", 1) }}
         </span>
         .
       </v-alert>

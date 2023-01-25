@@ -5,9 +5,9 @@ const databaseUtility = require("./DatabaseUtility");
 const fileSystemUtility = require("./FileSystemUtility");
 const menuUtility = require("./MenuUtility");
 const windowUtility = require("./WindowUtility");
+const serverUtility = require("./ServerUtility");
 
 ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
-  console.log(args);
   switch (args.func) {
     case IPC_FUNCTIONS.GET_MEDIA_SOURCE:
       return captureUtility.getMediaSource();
@@ -73,7 +73,6 @@ ipcMain.handle(IPC_HANDLERS.WINDOW, async (event, args) => {
     case IPC_FUNCTIONS.CLOSE_MODAL_WINDOW:
       return windowUtility.closeModalWindow(args.data);
     case IPC_FUNCTIONS.OPEN_NOTES_WINDOW:
-      console.log("handler", args.data);
       return windowUtility.openNotesWindow(args.data);
     case IPC_FUNCTIONS.CLOSE_NOTES_WINDOW:
       return windowUtility.closeNotesWindow();
@@ -102,6 +101,10 @@ ipcMain.handle(IPC_HANDLERS.DATABASE, async (event, args) => {
       return databaseUtility.getConfig(args.data);
     case IPC_FUNCTIONS.UPDATE_CONFIG:
       return databaseUtility.updateConfig(args.data);
+    case IPC_FUNCTIONS.GET_CREDENTIAL:
+      return databaseUtility.getCredential(args.data);
+    case IPC_FUNCTIONS.UPDATE_CREDENTIAL:
+      return databaseUtility.updateCredential(args.data);
     case IPC_FUNCTIONS.GET_METADATA:
       return databaseUtility.getMetaData(args.data);
     case IPC_FUNCTIONS.UPDATE_METADATA:
@@ -133,6 +136,8 @@ ipcMain.handle(IPC_HANDLERS.FILE_SYSTEM, async (event, args) => {
       return fileSystemUtility.openConfigFile(args.data);
     case IPC_FUNCTIONS.DRAG_ITEM:
       return fileSystemUtility.dragItem(event, args.data);
+    case IPC_FUNCTIONS.OPEN_EXTERNAL_LINK:
+      return fileSystemUtility.openExternalLink(args.data);
     default:
       return null;
   }
@@ -142,5 +147,14 @@ ipcMain.handle(IPC_HANDLERS.MENU, async (event, args) => {
   switch (args.func) {
     case IPC_FUNCTIONS.CHANGE_MENUITEM_STATUS:
       return menuUtility.changeMenuItemStatus(args.data);
+  }
+});
+
+ipcMain.handle(IPC_HANDLERS.SERVER, async (event, args) => {
+  switch (args.func) {
+    case IPC_FUNCTIONS.START_SERVER:
+      return serverUtility.startServer(args.data);
+    case IPC_FUNCTIONS.STOP_SERVER:
+      return serverUtility.stopServer(args.data);
   }
 });

@@ -5,6 +5,7 @@ export const IPC_HANDLERS = {
   STORE: "store",
   MENU: "menu",
   WINDOW: "window",
+  SERVER: "server",
 };
 
 export const IPC_FUNCTIONS = {
@@ -49,6 +50,8 @@ export const IPC_FUNCTIONS = {
   GET_ITEM_BY_ID: "getItemById",
   GET_CONFIG: "getConfig",
   UPDATE_CONFIG: "updateConfig",
+  GET_CREDENTIAL: "getCredential",
+  UPDATE_CREDENTIAL: "updateCredential",
   GET_METADATA: "getMetaData",
   UPDATE_METADATA: "updateMetaData",
 
@@ -63,8 +66,12 @@ export const IPC_FUNCTIONS = {
   EXPORT_SESSION: "exportSession",
   OPEN_CONFIG_FILE: "openConfigFile",
   DRAG_ITEM: "dragItem",
+  OPEN_EXTERNAL_LINK: "openExternalLink",
 
   CHANGE_MENUITEM_STATUS: "changeMenuItemStatus",
+
+  START_SERVER: "startServer",
+  STOP_SERVER: "stopServer",
 };
 
 export const IPC_BIND_KEYS = {

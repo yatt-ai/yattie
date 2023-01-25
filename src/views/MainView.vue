@@ -7,29 +7,62 @@
       </v-btn>
     </div>
     <div class="header">
-      <v-tabs
-        class="tabs"
-        centered
-        v-model="activeTab"
-        color="primary"
-        background-color="transparent"
-        :height="26"
-        hide-slider
-      >
-        <v-tab class="test-tab" to="/main" exact>
-          {{ $tc("caption.test", 1) }}
-        </v-tab>
-        <v-tab
-          class="workspace-tab"
-          :disabled="this.status === 'pending'"
-          to="/main/workspace"
+      <div class="tabs">
+        <v-tabs
+          class="tabs"
+          centered
+          v-model="activeTab"
+          color="primary"
+          background-color="transparent"
+          :height="26"
+          hide-slider
         >
-          {{ $tc("caption.workspace", 1) }}
-        </v-tab>
-      </v-tabs>
-      <!-- <v-btn class="mx-2" fab dark small color="primary" @click="signup">
-        <v-icon dark> mdi-account </v-icon>
-      </v-btn> -->
+          <v-tab class="test-tab" to="/main" exact>
+            {{ $tc("caption.test", 1) }}
+          </v-tab>
+          <v-tab
+            class="workspace-tab"
+            :disabled="this.status === 'pending'"
+            to="/main/workspace"
+          >
+            {{ $tc("caption.workspace", 1) }}
+          </v-tab>
+        </v-tabs>
+      </div>
+      <div class="avatar">
+        <div v-if="checkAuth">
+          <MenuPopover
+            :credential-item="credential"
+            :isAuthenticated="checkAuth"
+          />
+        </div>
+        <div v-else>
+          <v-menu :nudge-width="100" bottom z-index="99999" offset-y>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                fab
+                dark
+                small
+                color="primary"
+                height="32"
+                width="32"
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon dark> mdi-account </v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item link to="/authentication/signin">
+                <v-list-item-title>Log In</v-list-item-title>
+              </v-list-item>
+              <v-list-item link to="/authentication/signupMain">
+                <v-list-item-title>Register</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </div>
+      </div>
     </div>
     <v-divider />
     <div class="content">
@@ -58,6 +91,8 @@
         :items="items"
         @add-item="addItem"
         :configItem="config"
+        :credentialItem="credential"
+        :isAuthenticated="checkAuth"
         @handle-pressesion-task-error="
           (status) => {
             showTaskError = status;
@@ -85,6 +120,8 @@ import WorkspaceWrapper from "../components/WorkspaceWrapper.vue";
 import ControlPanel from "../components/ControlPanel.vue";
 import TimeCounter from "../components/TimeCounter.vue";
 import CheckTaskWrapper from "@/components/CheckTaskWrapper.vue";
+import MenuPopover from "@/components/MenuPopover.vue";
+
 import {
   IPC_HANDLERS,
   IPC_FUNCTIONS,
@@ -104,8 +141,18 @@ export default {
     ControlPanel,
     TimeCounter,
     CheckTaskWrapper,
+    MenuPopover,
+  },
+  props: {
+    isAuthenticated: {
+      type: Boolean,
+      default: () => false,
+    },
   },
   watch: {
+    isAuthenticated: function (newValue) {
+      this.checkAuth = newValue;
+    },
     presession: {
       handler: function () {
         this.checkStatusOfPreSessionTask();
@@ -120,15 +167,19 @@ export default {
       selected: [],
       activeSession: {},
       config: {},
+      credential: {},
+      checkAuth: this.isAuthenticated,
       presession: {},
       postsession: {},
       checkedStatusOfPreSessionTask: false,
       showTaskError: false,
+      showMenu: false,
     };
   },
   created() {
     this.fetchItems();
     this.getConfig();
+    this.getCredential();
   },
   mounted() {
     this.$root.$on("update-selected", this.updateSelected);
@@ -148,9 +199,13 @@ export default {
     window.ipc.on("CONFIG_CHANGE", () => {
       this.getConfig();
     });
+    window.ipc.on("CREDENTIAL_CHANGE", () => {
+      this.getCredential();
+    });
     window.ipc.on("META_CHANGE", () => {
       this.fetchItems();
       this.getConfig();
+      this.getCredential();
     });
   },
   computed: {
@@ -206,6 +261,15 @@ export default {
           };
         });
     },
+    getCredential() {
+      if (!window.ipc) return;
+
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIAL })
+        .then((result) => {
+          this.credential = result;
+        });
+    },
     fetchItems() {
       if (!window.ipc) return;
 
@@ -251,9 +315,6 @@ export default {
         data: data,
       });
     },
-    signup() {
-      this.$router.push({ path: "/authentication" });
-    },
     back() {
       this.$store.commit("resetState");
       this.$router.push("/");
@@ -270,6 +331,8 @@ export default {
   width: 100%;
   max-width: 600px;
   overflow-y: auto;
+  border-left: 1px solid rgba(0, 0, 0, 0.12);
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
 }
 .header {
   width: 100%;
@@ -277,7 +340,19 @@ export default {
   align-items: center;
   justify-content: center;
   column-gap: 15px;
-  padding: 15px 0;
+  padding: 15px;
+}
+.header .tabs {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.header .avatar {
+  flex-grow: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .content {
   flex-grow: 1;
@@ -290,7 +365,7 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 0 5px;
+  padding: 0;
 }
 .v-tabs {
   width: auto !important;

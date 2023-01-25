@@ -1,5 +1,12 @@
 <template>
-  <v-dialog v-bind="$attrs" v-on="$listeners" persistent width="100%" eager>
+  <v-dialog
+    v-bind="$attrs"
+    v-on="$listeners"
+    persistent
+    width="100%"
+    max-width="500px"
+    eager
+  >
     <v-sheet outlined color="accent" rounded>
       <v-card>
         <v-card-title class="dialog-title">

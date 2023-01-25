@@ -245,7 +245,7 @@ module.exports.uploadEvidence = async () => {
   });
 };
 
-module.exports.dropFile = async (data) => { 
+module.exports.dropFile = async (data) => {
   const fileName = data.name;
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
 

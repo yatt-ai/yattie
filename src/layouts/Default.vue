@@ -2,7 +2,7 @@
   <v-app>
     <v-main>
       <v-overlay :absolute="true" :value="overlay"> </v-overlay>
-      <router-view />
+      <router-view :isAuthenticated="checkAuth" />
     </v-main>
   </v-app>
 </template>
@@ -14,8 +14,19 @@ export default {
 
   data: () => ({
     overlay: false,
+    config: {},
+    credential: {},
+    checkAuth: false,
   }),
+  created() {
+    this.getConfig();
+    this.getCredential();
+  },
   mounted() {
+    this.$root.$on("overlay", (value) => {
+      this.overlay = value;
+    });
+
     if (!window.ipc) return;
 
     window.ipc.on("OPEN_CHILD_WINDOW", () => {
@@ -81,6 +92,33 @@ export default {
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode);
     });
+
+    window.ipc.on("CONFIG_CHANGE", () => {
+      this.getConfig();
+    });
+
+    window.ipc.on("CREDENTIAL_CHANGE", () => {
+      this.getCredential();
+    });
+  },
+  methods: {
+    getConfig() {
+      if (!window.ipc) return;
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CONFIG })
+        .then((result) => {
+          this.config = result;
+        });
+    },
+    getCredential() {
+      if (!window.ipc) return;
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIAL })
+        .then((result) => {
+          this.credential = result;
+          this.checkAuth = this.$integrationHelpers.checkAuth(this.credential);
+        });
+    },
   },
 };
 </script>
