@@ -27,6 +27,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: yarn publish
+      working-directory: ../
 
   publish_on_mac:
     runs-on: macos-latest
@@ -58,6 +59,7 @@ jobs:
         API_KEY_ID: ${{ secrets.api_key_id }}
         API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
       run: yarn publish
+      working-directory: ../
       
   publish_on_win:
     runs-on: windows-latest
@@ -81,3 +83,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: yarn publish
+      working-directory: ../
