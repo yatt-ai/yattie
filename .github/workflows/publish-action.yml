@@ -23,11 +23,12 @@ jobs:
     - name: install oauth server dependencies
       run: yarn install
       working-directory: ./server
+    - run: ls -l
+      working-directory: ../
     - name: publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: yarn publish
-      working-directory: ../
 
   publish_on_mac:
     runs-on: macos-latest
