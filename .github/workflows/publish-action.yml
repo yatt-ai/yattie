@@ -20,11 +20,12 @@ jobs:
         cache: 'npm'
     - name: install dependencies
       run: yarn install
+    - run: ls -lR
+      working-directory: ./server
     - name: install oauth server dependencies
       run: yarn install
       working-directory: ./server
-    - run: ls -l
-      working-directory: ../
+    - run: ls -lR
     - name: publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
