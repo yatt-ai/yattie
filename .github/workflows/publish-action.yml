@@ -26,7 +26,7 @@ jobs:
     - name: Publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: yarn publish
+      run: npm run publish
 
   publish_on_mac:
     runs-on: macos-latest
@@ -57,7 +57,7 @@ jobs:
         CSC_KEY_PASSWORD: ${{ secrets.mac_csc_key_password }}
         API_KEY_ID: ${{ secrets.api_key_id }}
         API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
-      run: yarn publish
+      run: npm run publish
       
   publish_on_win:
     runs-on: windows-latest
@@ -80,4 +80,4 @@ jobs:
     - name: Publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: yarn publish
+      run: npm run publish
