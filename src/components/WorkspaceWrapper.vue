@@ -19,7 +19,11 @@
           />
         </v-tab-item>
         <v-tab-item value="notes" :transition="false">
-          <NotesWrapper />
+          <NotesWrapper
+            :items="itemLists"
+            :selectedItems="selected"
+            @submit-session="updateActiveSession"
+          />
         </v-tab-item>
       </v-tabs-items>
     </div>
@@ -28,6 +32,7 @@
 <script>
 import NotesWrapper from "./NotesWrapper.vue";
 import TimelineWrapper from "./TimelineWrapper.vue";
+
 export default {
   name: "WrokspaceWrapper",
   components: {

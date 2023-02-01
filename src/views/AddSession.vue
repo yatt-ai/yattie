@@ -401,6 +401,19 @@ export default {
   font-size: 18px;
   line-height: 1;
 }
+.check-box {
+  display: flex;
+  align-items: center;
+}
+.check-box > label {
+  display: flex;
+  column-gap: 5px;
+  font-size: 13px;
+  align-items: center;
+  font-weight: 500;
+  line-height: 20px;
+  color: #6b7280;
+}
 .footer {
   width: 100%;
   display: flex;
