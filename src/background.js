@@ -12,6 +12,7 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 const browserUtility = require("./modules/BrowserWindowUtility");
 const databaseUtility = require("./modules/DatabaseUtility");
 const windowUtility = require("./modules/WindowUtility");
+const serverUtility = require("./modules/ServerUtility");
 
 require("./modules/IpcHandlers");
 
@@ -46,6 +47,8 @@ async function createWindow() {
 
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
+  serverUtility.stopServer();
+
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== "darwin") {

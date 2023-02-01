@@ -140,6 +140,10 @@ export default {
   },
   methods: {
     back: function () {
+      window.ipc.invoke(IPC_HANDLERS.SERVER, {
+        func: IPC_FUNCTIONS.STOP_SERVER,
+      });
+
       this.$router.back();
     },
     async callJiraAPI() {
