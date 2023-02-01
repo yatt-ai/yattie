@@ -18,15 +18,12 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - name: install dependencies
+    - name: Install dependencies
       run: yarn install
-    - run: ls -lR
-      working-directory: ./server
-    - name: install oauth server dependencies
+    - name: Install OAuth server dependencies
       run: yarn install
       working-directory: ./server
-    - run: ls -lR
-    - name: publish
+    - name: Publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: yarn publish
@@ -44,16 +41,16 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - name: install dependencies
+    - name: Install dependencies
       run:  yarn install
-    - name: install oauth server dependencies
+    - name: Install OAuth server dependencies
       run: yarn install
       working-directory: ./server
     - name: Prep key for app notarization
       run: |
         mkdir -p ~/private_keys/
         echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
-    - name: publish
+    - name: Publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         CSC_LINK: ${{ secrets.mac_csc_link }}
@@ -61,7 +58,6 @@ jobs:
         API_KEY_ID: ${{ secrets.api_key_id }}
         API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
       run: yarn publish
-      working-directory: ../
       
   publish_on_win:
     runs-on: windows-latest
@@ -76,13 +72,12 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - name: install dependencies
+    - name: Install dependencies
       run:  yarn install
-    - name: install oauth server dependencies
+    - name: Install OAuth server dependencies
       run: yarn install
       working-directory: ./server
-    - name: publish
+    - name: Publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: yarn publish
-      working-directory: ../

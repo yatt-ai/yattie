@@ -2,6 +2,7 @@
   "name": "yattie-oauth-backend",
   "version": "0.1.0",
   "description": "Express backend for YATTIE OAuth",
+  "private": true,
   "main": "server.js",
   "scripts": {
     "server": "node server.js",
