@@ -103,9 +103,6 @@ export default {
       config: this.configItem,
     };
   },
-  mounted() {
-    console.log(this.config);
-  },
   methods: {
     handleMindmap(value) {
       this.sessionItem.content.nodes = value.nodes;

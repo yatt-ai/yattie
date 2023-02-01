@@ -1,0 +1,25 @@
+{
+  "name": "yattie-oauth-backend",
+  "version": "0.1.0",
+  "description": "Express backend for YATTIE OAuth",
+  "main": "server.js",
+  "scripts": {
+    "server": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node.js",
+    "express",
+    "oauth2"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.1",
+    "client-oauth2": "^4.3.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "open": "^8.4.0",
+    "path": "^0.12.7"
+  }
+}

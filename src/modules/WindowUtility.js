@@ -16,7 +16,7 @@ module.exports.getMainWindow = () => {
     minWidth: 800,
     minHeight: 600,
     center: true,
-    icon: path.join(__dirname, "../public/logo.png"),
+    icon: path.join(__static, "logo.png"),
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
@@ -53,7 +53,7 @@ module.exports.openMinimizeWindow = (data) => {
       frame: false,
       transparent: true,
       resizable: false,
-      icon: path.join(__dirname, "../public/logo.png"),
+      icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: false,
         nodeIntegration: true,
@@ -62,24 +62,6 @@ module.exports.openMinimizeWindow = (data) => {
         preload: path.join(app.getAppPath(), "preload.js"),
       },
     });
-
-    // let minimizeWin = new BrowserWindow({
-    //   width: 800,
-    //   height: 600,
-    //   minWidth: 800,
-    //   minHeight: 600,
-    //   center: true,
-    //   icon: path.join(__dirname, "../public/logo.png"),
-    //   webPreferences: {
-    //     // Use pluginOptions.nodeIntegration, leave this alone
-    //     // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-    //     nodeIntegration: true,
-    //     webSecurity: false,
-    //     contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
-    //     enableRemoteModule: true,
-    //     preload: path.join(app.getAppPath(), "preload.js"),
-    //   },
-    // });
 
     minimizeWin.loadURL(url);
     minimizeWin.setMenuBarVisibility(false);
@@ -140,7 +122,7 @@ module.exports.openAddWindow = ({ width, height, data }) => {
       minHeight: height,
       center: true,
       parent: parentWindow,
-      icon: path.join(__dirname, "../public/logo.png"),
+      icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,
         nodeIntegration: true,
@@ -191,7 +173,7 @@ module.exports.openEditWindow = (data) => {
       minHeight: 800,
       center: true,
       parent: browserWindow,
-      icon: path.join(__dirname, "../public/logo.png"),
+      icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,
         nodeIntegration: true,
@@ -242,7 +224,7 @@ module.exports.openSettingWindow = () => {
       minHeight: 600,
       center: true,
       parent: browserWindow,
-      icon: path.join(__dirname, "../public/logo.png"),
+      icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,
         nodeIntegration: true,
@@ -296,7 +278,7 @@ module.exports.openModalWindow = (data) => {
       center: true,
       parent: parentWindow,
       resizable: false,
-      icon: path.join(__dirname, "../public/logo.png"),
+      icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,
         nodeIntegration: true,
@@ -348,7 +330,7 @@ module.exports.openNotesWindow = (data) => {
       minHeight: data.height,
       center: true,
       parent: browserWindow,
-      icon: path.join(__dirname, "../public/logo.png"),
+      icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,
         nodeIntegration: true,

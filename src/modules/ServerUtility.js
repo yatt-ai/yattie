@@ -8,9 +8,10 @@ module.exports.startServer = async () => {
   const isDevelopment = process.env.NODE_ENV !== "production";
   serverProcess = fork(
     isDevelopment
-      ? path.resolve(__dirname, "../public/server/Server.js")
-      : path.resolve(__dirname, "./server/Server.js")
+      ? path.resolve(__dirname, "../server/server.js")
+      : path.resolve(process.resourcesPath, "./server/server.js")
   );
+
   const browserWindow = browserUtility.getBrowserWindow();
 
   serverProcess.on("message", (data) => {

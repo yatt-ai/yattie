@@ -72,7 +72,6 @@
           <CheckTaskWrapper
             v-if="showCheckList"
             :tasks="presession.tasks"
-            :showError="showTaskError"
             type="preseesion"
           />
         </v-tab-item>
@@ -93,11 +92,6 @@
         :configItem="config"
         :credentialItem="credential"
         :isAuthenticated="checkAuth"
-        @handle-pressesion-task-error="
-          (status) => {
-            showTaskError = status;
-          }
-        "
         :selectedItems="selected"
         :checkedStatusOfPreSessionTask="checkedStatusOfPreSessionTask"
         view-mode="normal"

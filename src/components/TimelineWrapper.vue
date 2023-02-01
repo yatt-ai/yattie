@@ -87,6 +87,79 @@
                       {{ tag.text }}
                     </v-chip>
                   </div>
+                  <div class="actions-wrapper">
+                    <template v-if="item.emoji.length">
+                      <v-btn
+                        rounded
+                        color="primary"
+                        dark
+                        class="pa-0 mb-1"
+                        height="26"
+                        min-width="45"
+                        style=""
+                        v-for="(emoji, i) in item.emoji"
+                        :key="i"
+                        @click="removeEmoji(item.id, emoji)"
+                      >
+                        <span class="emoji-icon">{{ emoji.data }}</span>
+                        <v-icon x-small>mdi-close</v-icon>
+                      </v-btn>
+                    </template>
+
+                    <v-menu
+                      v-model="emojiMenu[`menu-${item.id}`]"
+                      :close-on-content-click="false"
+                      right
+                      bottom
+                      nudge-bottom="4"
+                      offset-y
+                    >
+                      <template v-slot:activator="{ on: menu }">
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on: tooltip }">
+                            <v-btn
+                              rounded
+                              class="pa-0 mb-1"
+                              height="26"
+                              min-width="35"
+                              v-on="{
+                                ...menu,
+                                ...tooltip,
+                              }"
+                              @click="handleSelectedItem(item.id)"
+                            >
+                              <img
+                                :src="
+                                  require('../assets/icon/add-emoticon.svg')
+                                "
+                                width="24"
+                                height="24"
+                              />
+                            </v-btn>
+                          </template>
+                          <span>{{ $tc("caption.add_reaction", 1) }}</span>
+                        </v-tooltip>
+                      </template>
+                      <v-card class="emoji-lookup">
+                        <VEmojiPicker
+                          labelSearch="Search"
+                          lang="en-US"
+                          @select="selectEmoji"
+                        />
+                      </v-card>
+                    </v-menu>
+                  </div>
+                  <div class="check-box mt-1">
+                    <label
+                      ><input
+                        type="checkbox"
+                        name="follow_up"
+                        class="item-select"
+                        v-model="item.followUp"
+                        @change="handleFollowUp($event, item.id)"
+                      />{{ $tc("caption.required_follow_up", 1) }}
+                    </label>
+                  </div>
                 </div>
               </v-timeline-item>
               <v-timeline-item
@@ -138,6 +211,79 @@
                     >
                       {{ tag.text }}
                     </v-chip>
+                  </div>
+                  <div class="actions-wrapper">
+                    <template v-if="item.emoji.length">
+                      <v-btn
+                        rounded
+                        color="primary"
+                        dark
+                        class="pa-0 mb-1"
+                        height="26"
+                        min-width="45"
+                        style=""
+                        v-for="(emoji, i) in item.emoji"
+                        :key="i"
+                        @click="removeEmoji(item.id, emoji)"
+                      >
+                        <span class="emoji-icon">{{ emoji.data }}</span>
+                        <v-icon x-small>mdi-close</v-icon>
+                      </v-btn>
+                    </template>
+
+                    <v-menu
+                      v-model="emojiMenu[`menu-${item.id}`]"
+                      :close-on-content-click="false"
+                      right
+                      bottom
+                      nudge-bottom="4"
+                      offset-y
+                    >
+                      <template v-slot:activator="{ on: menu }">
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on: tooltip }">
+                            <v-btn
+                              rounded
+                              class="pa-0 mb-1"
+                              height="26"
+                              min-width="35"
+                              v-on="{
+                                ...menu,
+                                ...tooltip,
+                              }"
+                              @click="handleSelectedItem(item.id)"
+                            >
+                              <img
+                                :src="
+                                  require('../assets/icon/add-emoticon.svg')
+                                "
+                                width="24"
+                                height="24"
+                              />
+                            </v-btn>
+                          </template>
+                          <span>{{ $tc("caption.add_reaction", 1) }}</span>
+                        </v-tooltip>
+                      </template>
+                      <v-card class="emoji-lookup">
+                        <VEmojiPicker
+                          labelSearch="Search"
+                          lang="en-US"
+                          @select="selectEmoji"
+                        />
+                      </v-card>
+                    </v-menu>
+                  </div>
+                  <div class="check-box mt-1">
+                    <label
+                      ><input
+                        type="checkbox"
+                        name="follow_up"
+                        class="item-select"
+                        v-model="item.followUp"
+                        @change="handleFollowUp($event, item.id)"
+                      />{{ $tc("caption.required_follow_up", 1) }}
+                    </label>
                   </div>
                 </div>
               </v-timeline-item>
@@ -192,6 +338,79 @@
                       {{ tag.text }}
                     </v-chip>
                   </div>
+                  <div class="actions-wrapper">
+                    <template v-if="item.emoji.length">
+                      <v-btn
+                        rounded
+                        color="primary"
+                        dark
+                        class="pa-0 mb-1"
+                        height="26"
+                        min-width="45"
+                        style=""
+                        v-for="(emoji, i) in item.emoji"
+                        :key="i"
+                        @click="removeEmoji(item.id, emoji)"
+                      >
+                        <span class="emoji-icon">{{ emoji.data }}</span>
+                        <v-icon x-small>mdi-close</v-icon>
+                      </v-btn>
+                    </template>
+
+                    <v-menu
+                      v-model="emojiMenu[`menu-${item.id}`]"
+                      :close-on-content-click="false"
+                      right
+                      bottom
+                      nudge-bottom="4"
+                      offset-y
+                    >
+                      <template v-slot:activator="{ on: menu }">
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on: tooltip }">
+                            <v-btn
+                              rounded
+                              class="pa-0 mb-1"
+                              height="26"
+                              min-width="35"
+                              v-on="{
+                                ...menu,
+                                ...tooltip,
+                              }"
+                              @click="handleSelectedItem(item.id)"
+                            >
+                              <img
+                                :src="
+                                  require('../assets/icon/add-emoticon.svg')
+                                "
+                                width="24"
+                                height="24"
+                              />
+                            </v-btn>
+                          </template>
+                          <span>{{ $tc("caption.add_reaction", 1) }}</span>
+                        </v-tooltip>
+                      </template>
+                      <v-card class="emoji-lookup">
+                        <VEmojiPicker
+                          labelSearch="Search"
+                          lang="en-US"
+                          @select="selectEmoji"
+                        />
+                      </v-card>
+                    </v-menu>
+                  </div>
+                  <div class="check-box mt-1">
+                    <label
+                      ><input
+                        type="checkbox"
+                        name="follow_up"
+                        class="item-select"
+                        v-model="item.followUp"
+                        @change="handleFollowUp($event, item.id)"
+                      />{{ $tc("caption.required_follow_up", 1) }}
+                    </label>
+                  </div>
                 </div>
               </v-timeline-item>
               <v-timeline-item
@@ -232,6 +451,17 @@
                     >
                       {{ tag.text }}
                     </v-chip>
+                  </div>
+                  <div class="check-box mt-1">
+                    <label
+                      ><input
+                        type="checkbox"
+                        name="follow_up"
+                        class="item-select"
+                        v-model="item.followUp"
+                        @change="handleFollowUp($event, item.id)"
+                      />{{ $tc("caption.required_follow_up", 1) }}
+                    </label>
                   </div>
                 </div>
               </v-timeline-item>
@@ -301,6 +531,17 @@
                       {{ tag.text }}
                     </v-chip>
                   </div>
+                  <div class="check-box mt-1">
+                    <label
+                      ><input
+                        type="checkbox"
+                        name="follow_up"
+                        class="item-select"
+                        v-model="item.followUp"
+                        @change="handleFollowUp($event, item.id)"
+                      />{{ $tc("caption.required_follow_up", 1) }}
+                    </label>
+                  </div>
                 </div>
               </v-timeline-item>
               <v-timeline-item
@@ -352,6 +593,17 @@
                     >
                       {{ tag.text }}
                     </v-chip>
+                  </div>
+                  <div class="check-box mt-1">
+                    <label
+                      ><input
+                        type="checkbox"
+                        name="follow_up"
+                        class="item-select"
+                        v-model="item.followUp"
+                        @change="handleFollowUp($event, item.id)"
+                      />{{ $tc("caption.required_follow_up", 1) }}
+                    </label>
                   </div>
                 </div>
               </v-timeline-item>
@@ -433,6 +685,8 @@ import {
   VTimelineItem,
   VBtn,
 } from "vuetify/lib/components";
+import { VEmojiPicker } from "v-emoji-picker";
+
 import dayjs from "dayjs";
 
 import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
@@ -447,6 +701,7 @@ export default {
     VTimeline,
     VTimelineItem,
     VBtn,
+    VEmojiPicker,
   },
   props: {
     items: {
@@ -465,6 +720,9 @@ export default {
   watch: {
     items: function (newValue) {
       this.itemLists = newValue;
+      this.itemLists.map((item) => {
+        this.emojiMenu[`menu-${item.id}`] = false;
+      });
     },
     selectedItems: function (newValue) {
       this.selected = newValue;
@@ -483,6 +741,8 @@ export default {
       clicks: 0,
       isDragging: false,
       itemDragging: false,
+      emojiMenu: {},
+      selectedId: null,
     };
   },
   computed: {
@@ -500,6 +760,11 @@ export default {
     current() {
       return dayjs().format("MM-DD-YYYY");
     },
+  },
+  mounted() {
+    this.itemLists.map((item) => {
+      this.emojiMenu[`menu-${item.id}`] = false;
+    });
   },
   methods: {
     async uploadEvidence() {
@@ -576,6 +841,16 @@ export default {
         );
       }
     },
+    handleFollowUp($event, id) {
+      this.itemLists = this.itemLists.map((item) => {
+        let temp = Object.assign({}, item);
+        if (temp.id === id) {
+          temp.followUp = $event.target.checked;
+        }
+        return temp;
+      });
+      this.saveData();
+    },
     handleActiveSession(id) {
       window.ipc
         .invoke(IPC_HANDLERS.DATABASE, {
@@ -647,6 +922,43 @@ export default {
       this.isDragging = true;
       event.preventDefault();
       event.stopPropagation();
+    },
+    handleSelectedItem(id) {
+      this.selectedId = id;
+    },
+    selectEmoji(emoji) {
+      this.emojiMenu[`menu-${this.selectedId}`] = false;
+
+      this.itemLists = this.itemLists.map((item) => {
+        let temp = Object.assign({}, item);
+        if (temp.id === this.selectedId) {
+          if (temp.emoji.filter((item) => item.data === emoji.data).length) {
+            temp.emoji = temp.emoji.filter((item) => item.data !== emoji.data);
+          } else {
+            temp.emoji.push(emoji);
+          }
+        }
+        return temp;
+      });
+      this.saveData();
+    },
+    removeEmoji(id, emoji) {
+      this.itemLists = this.itemLists.map((item) => {
+        let temp = Object.assign({}, item);
+        if (temp.id === id) {
+          temp.emoji = temp.emoji.filter((item) => item.data !== emoji.data);
+        }
+        return temp;
+      });
+      this.saveData();
+    },
+    saveData() {
+      if (window.ipc) {
+        window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.UPDATE_ITEMS,
+          data: this.itemLists,
+        });
+      }
     },
   },
 };
@@ -766,5 +1078,28 @@ export default {
 }
 .tags-wrapper .tag:last-child {
   margin-right: 0;
+}
+
+.actions-wrapper {
+  display: flex;
+  column-gap: 3px;
+  flex-wrap: wrap;
+}
+.emoji-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+.check-box {
+  display: flex;
+  align-items: center;
+}
+.check-box > label {
+  display: flex;
+  column-gap: 5px;
+  font-size: 13px;
+  align-items: center;
+  font-weight: 500;
+  line-height: 20px;
+  color: #6b7280;
 }
 </style>

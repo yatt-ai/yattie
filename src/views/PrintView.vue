@@ -12,27 +12,46 @@
               class="summary-content mb-1"
               style="display: flex; flex-direction: column"
             >
-              <p class="item-title mb-0" style="line-height: 1.5">
-                {{ $tc("caption.notes", 1) }}
-              </p>
-              <div style="display: flex; column-gap: 10px">
-                <div v-for="(type, i) in commentTypes" :key="i">
-                  <span class="text-capitalize" style="line-height: 1">{{
-                    type.title
-                  }}</span
-                  >:
-                  {{ type.count }}
+              <div v-if="commentTypes.length">
+                <p class="item-title mb-0" style="line-height: 1.5">
+                  {{ $tc("caption.notes", 1) }}
+                </p>
+                <div style="display: flex; column-gap: 10px">
+                  <div v-for="(type, i) in commentTypes" :key="i">
+                    <span class="text-capitalize" style="line-height: 1"
+                      >{{ type.title }}: {{ type.count }}
+                    </span>
+                  </div>
                 </div>
               </div>
-              <p class="item-title mt-2 mb-0" style="line-height: 1.5">
-                {{ $tc("caption.tags", 1) }}
-              </p>
-              <div style="display: flex; column-gap: 10px">
-                <div v-for="(tag, i) in tags" :key="i">
-                  <span class="text-capitalize">{{ tag.title }}</span
-                  >:
-                  {{ tag.count }}
+              <div v-if="tags.length">
+                <p class="item-title mt-2 mb-0" style="line-height: 1.5">
+                  {{ $tc("caption.tags", 1) }}
+                </p>
+                <div style="display: flex; column-gap: 10px">
+                  <div v-for="(tag, i) in tags" :key="i">
+                    <span class="text-capitalize"
+                      >{{ tag.title }}: {{ tag.count }}
+                    </span>
+                  </div>
                 </div>
+              </div>
+              <div v-if="emojis.length">
+                <p class="item-title mt-2 mb-0" style="line-height: 1.5">
+                  {{ $tc("caption.reactions", 1) }}
+                </p>
+                <div style="display: flex; column-gap: 10px">
+                  <div v-for="(emoji, i) in emojis" :key="i">
+                    <span class="text-capitalize">{{ emoji.data }}</span
+                    >:
+                    {{ emoji.count }}
+                  </div>
+                </div>
+              </div>
+              <div v-if="followUp">
+                <p class="item-title mt-2 mb-0" style="line-height: 1.5">
+                  {{ $tc("caption.required_follow_up", 1) }}: {{ followUp }}
+                </p>
               </div>
             </div>
             <p class="summary-text">{{ summary }}</p>
@@ -291,7 +310,7 @@
           </div>
           <div class="detail-item session-elapsed-time">
             <p class="item-title">
-              {{ $tc("caption.session_elaspsed_time", 1) }}
+              {{ $tc("caption.session_elapsed_time", 1) }}
             </p>
             <p class="item-value">{{ formatTime }}</p>
           </div>
@@ -421,6 +440,39 @@ export default {
                 title: tag.text,
                 count: 1,
               };
+              data.push(temp);
+            }
+          });
+        }
+      });
+      return data;
+    },
+    followUp() {
+      let data = 0;
+      this.items.map((item) => {
+        if (item.followUp) {
+          data++;
+        }
+      });
+      return data;
+    },
+    emojis() {
+      let data = [];
+      this.items.map((item) => {
+        if (item.emoji) {
+          item.emoji.map((emoji) => {
+            const exist = data.some((el) => el.data === emoji.data);
+            if (exist) {
+              data = data.map((obj) => {
+                let temp = Object.assign({}, obj);
+                if (temp.data === emoji.data) {
+                  temp.count++;
+                }
+                return temp;
+              });
+            } else {
+              let temp = Object.assign({}, emoji);
+              temp.count = 1;
               data.push(temp);
             }
           });

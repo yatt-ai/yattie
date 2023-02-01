@@ -1,10 +1,12 @@
 const open = require("open");
 const path = require("path");
 const ClientOAuth2 = require("client-oauth2");
-const port = process.env.VUE_APP_SERVER_PORT;
+const port = process.env.VUE_APP_SERVER_PORT || 64064;
+
 const auth = new ClientOAuth2({
-  clientId: process.env.VUE_APP_JIRA_CLIENT_ID,
-  clientSecret: process.env.VUE_APP_JIRA_CLIENT_SECRET,
+  clientId: "3tPI6y3UgOxjUUVd2ELL3mhZr6cGAatt",
+  clientSecret:
+    "ATOAHCxhe5I4NKjvZo_hnzLSS6N038CmfyUsdnoXHCI0e8el_dY_xrFmMFJVHMAfa14d8502F3BF",
   accessTokenUri: "https://auth.atlassian.com/oauth/token",
   authorizationUri:
     "https://auth.atlassian.com/authorize?audience=api.atlassian.com&prompt=consent",

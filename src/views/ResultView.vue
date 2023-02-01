@@ -32,6 +32,83 @@
             />
           </div>
           <div class="flex-grow-0 mt-2">
+            <div
+              class="actions-wrapper mt-1 mb-2"
+              v-if="
+                activeSession.fileType === 'image' ||
+                activeSession.fileType === 'video' ||
+                activeSession.fileType === 'audio'
+              "
+            >
+              <template v-if="activeSession.emoji.length">
+                <v-btn
+                  rounded
+                  color="primary"
+                  dark
+                  class="pa-0 mb-1"
+                  height="26"
+                  min-width="45"
+                  style=""
+                  v-for="(emoji, i) in activeSession.emoji"
+                  :key="i"
+                  @click="removeEmoji(emoji)"
+                >
+                  <span class="emoji-icon">{{ emoji.data }}</span>
+                  <v-icon x-small>mdi-close</v-icon>
+                </v-btn>
+              </template>
+
+              <v-menu
+                v-model="emojiMenu"
+                :close-on-content-click="false"
+                right
+                bottom
+                nudge-bottom="4"
+                offset-y
+              >
+                <template v-slot:activator="{ on: emojiMenu }">
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on: tooltip }">
+                      <v-btn
+                        rounded
+                        class="pa-0 mb-1"
+                        height="26"
+                        min-width="35"
+                        v-on="{
+                          ...emojiMenu,
+                          ...tooltip,
+                        }"
+                      >
+                        <img
+                          :src="require('../assets/icon/add-emoticon.svg')"
+                          width="24"
+                          height="24"
+                        />
+                      </v-btn>
+                    </template>
+                    <span>{{ $tc("caption.add_reaction", 1) }}</span>
+                  </v-tooltip>
+                </template>
+                <v-card class="emoji-lookup">
+                  <VEmojiPicker
+                    labelSearch="Search"
+                    lang="en-US"
+                    @select="selectEmoji"
+                  />
+                </v-card>
+              </v-menu>
+            </div>
+            <div class="check-box mb-2">
+              <label
+                ><input
+                  type="checkbox"
+                  name="follow_up"
+                  class="item-select"
+                  v-model="activeSession.followUp"
+                  @change="handleFollowUp($event)"
+                />{{ $tc("caption.required_follow_up", 1) }}
+              </label>
+            </div>
             <v-tiptap
               v-model="activeSession.comment.content"
               :placeholder="$t('message.insert_comment')"
@@ -130,6 +207,7 @@ import LogoWrapper from "../components/LogoWrapper.vue";
 import ReviewWrapper from "../components/ReviewWrapper.vue";
 
 import VueTagsInput from "@johmun/vue-tags-input";
+import { VEmojiPicker } from "v-emoji-picker";
 
 import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
 
@@ -144,6 +222,7 @@ export default {
     LogoWrapper,
     ReviewWrapper,
     VueTagsInput,
+    VEmojiPicker,
   },
   props: {
     isAuthenticated: {
@@ -165,6 +244,7 @@ export default {
       activeSession: {},
       commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
       type: "Comment",
+      emojiMenu: false,
       search: "",
       selected: [],
       autoSaveEvent: true,
@@ -248,6 +328,26 @@ export default {
           this.credential = result;
         });
     },
+    selectEmoji(emoji) {
+      this.emojiMenu = false;
+      if (
+        this.activeSession.emoji.filter((item) => item.data === emoji.data)
+          .length
+      ) {
+        this.activeSession.emoji = this.activeSession.emoji.filter(
+          (item) => item.data !== emoji.data
+        );
+      } else {
+        this.activeSession.emoji.push(emoji);
+      }
+      this.saveData();
+    },
+    removeEmoji(emoji) {
+      this.activeSession.emoji = this.activeSession.emoji.filter(
+        (item) => item.data !== emoji.data
+      );
+      this.saveData();
+    },
     handleSearch(val) {
       this.search = val;
     },
@@ -259,6 +359,11 @@ export default {
     },
     handleTags(newTags) {
       this.activeSession.tags = newTags;
+      this.saveData();
+    },
+    handleFollowUp($event) {
+      this.activeSession.followUp = $event.target.checked;
+      this.saveData();
     },
     handleCommentType(val) {
       this.activeSession.commentType = val;
@@ -317,7 +422,28 @@ export default {
   flex-grow: 1;
   overflow: auto;
 }
-
+.actions-wrapper {
+  display: flex;
+  column-gap: 3px;
+  flex-wrap: wrap;
+}
+.emoji-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+.check-box {
+  display: flex;
+  align-items: center;
+}
+.check-box > label {
+  display: flex;
+  column-gap: 5px;
+  font-size: 13px;
+  align-items: center;
+  font-weight: 500;
+  line-height: 20px;
+  color: #6b7280;
+}
 .footer {
   width: 100%;
   display: flex;

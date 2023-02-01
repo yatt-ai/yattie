@@ -789,13 +789,11 @@ export default {
       });
     },
     startNewSession() {
+      this.$root.$emit("start-new-session");
       if (!this.checkedStatusOfPreSessionTask) {
-        this.$emit("handle-pressesion-task-error", true);
         return;
       }
-
       this.$store.commit("setQuickTest", false);
-      this.$emit("handle-pressesion-task-error", false);
       this.showSourcePickerDialog();
     },
     fetchSources() {
@@ -1359,6 +1357,8 @@ export default {
               filePath: filePath,
               comment: comment,
               tags: tags,
+              emoji: [],
+              followUp: false,
               time: this.timer,
               createdAt: date,
             };

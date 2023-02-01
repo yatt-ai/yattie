@@ -10,7 +10,6 @@ const corsOptions = {
   origin: `http://localhost:${port}`,
 };
 
-app.use(cors());
 app.use(cors(corsOptions));
 
 // parse requests of content-type - application/json

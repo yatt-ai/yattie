@@ -5,6 +5,7 @@
     "test": "Test",
     "timeline": "Timeline",
     "comment_type": "Comment type",
+    "add_reaction": "Add reaction...",
     "clear": "Clear",
     "discard": "Discard",
     "save": "Save",
@@ -18,6 +19,7 @@
     "session_elapsed_time": "Elapsed time",
     "notes": "Notes",
     "tags": "Tags",
+    "reactions": "Reactions",
     "environment": "Environment",
     "os": "@.upper:os",
     "window": "Window",
@@ -71,6 +73,7 @@
     "enable_checklist": "Enable checklist",
     "add_another_task": "Add another task",
     "required": "Required",
+    "required_follow_up": "Follow up required",
     "external_connection": "@.upper:external connections",
     "yatt": "@.upper:yatt",
     "add_color": "Add color",
@@ -148,7 +151,8 @@
     "not_logged_in_jira": "Not Logged in to Jira",
     "not_logged_in_testrail": "Not Logged in to TestRail",
     "not_logged_in_qtest": "Not Logged in to qTest",
-    "not_logged_in_practitest": "Not Logged in to PractiTest"
+    "not_logged_in_practitest": "Not Logged in to PractiTest",
+    "required_checkbox": "This checkbox is required to continue"
   },
   "menu": {
     "file": "File",

@@ -26,6 +26,12 @@ module.exports = {
           buildResources: "public",
         },
         afterSign: "electron-builder-notarize",
+        extraResources: [
+          {
+            from: "server",
+            to: "server",
+          },
+        ],
         dmg: {
           icon: false,
           contents: [

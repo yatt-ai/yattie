@@ -12,6 +12,83 @@
       </div>
       <v-divider></v-divider>
       <div class="content-bottom">
+        <div
+          class="actions-wrapper"
+          v-if="
+            item.fileType === 'image' ||
+            item.fileType === 'video' ||
+            item.fileType === 'audio'
+          "
+        >
+          <template v-if="emojis.length">
+            <v-btn
+              rounded
+              color="primary"
+              dark
+              class="pa-0 mb-1"
+              height="26"
+              min-width="45"
+              style=""
+              v-for="(emoji, i) in emojis"
+              :key="i"
+              @click="removeEmoji(emoji)"
+            >
+              <span class="emoji-icon">{{ emoji.data }}</span>
+              <v-icon x-small>mdi-close</v-icon>
+            </v-btn>
+          </template>
+
+          <v-menu
+            v-model="emojiMenu"
+            :close-on-content-click="false"
+            right
+            bottom
+            nudge-bottom="4"
+            offset-y
+          >
+            <template v-slot:activator="{ on: emojiMenu }">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on: tooltip }">
+                  <v-btn
+                    rounded
+                    class="pa-0 mb-1"
+                    height="26"
+                    min-width="35"
+                    v-on="{
+                      ...emojiMenu,
+                      ...tooltip,
+                    }"
+                  >
+                    <img
+                      :src="require('../assets/icon/add-emoticon.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </v-btn>
+                </template>
+                <span>{{ $tc("caption.add_reaction", 1) }}</span>
+              </v-tooltip>
+            </template>
+            <v-card class="emoji-lookup">
+              <VEmojiPicker
+                labelSearch="Search"
+                lang="en-US"
+                @select="selectEmoji"
+              />
+            </v-card>
+          </v-menu>
+        </div>
+        <div class="check-box">
+          <label
+            ><input
+              type="checkbox"
+              name="follow_up"
+              class="item-select"
+              v-model="item.followUp"
+              @change="handleFollowUp($event)"
+            />{{ $tc("caption.required_follow_up", 1) }}
+          </label>
+        </div>
         <v-tiptap
           v-model="comment.content"
           :placeholder="$t('message.insert_comment')"
@@ -78,7 +155,7 @@
           :disabled="processing"
           @click="handleDiscard"
         >
-          {{ $tc("caption.clear", 1) }}
+          {{ $tc("caption.discard", 1) }}
         </v-btn>
         <v-btn
           class="text-capitalize"
@@ -98,6 +175,7 @@
 <script>
 import ReviewWrapper from "../components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
+import { VEmojiPicker } from "v-emoji-picker";
 
 import dayjs from "dayjs";
 
@@ -108,6 +186,7 @@ export default {
   components: {
     ReviewWrapper,
     VueTagsInput,
+    VEmojiPicker,
   },
   data() {
     return {
@@ -121,6 +200,8 @@ export default {
       },
       tag: "",
       tags: [],
+      emojiMenu: false,
+      emojis: [],
       commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
       processing: true,
       triggerSaveEvent: false,
@@ -233,6 +314,20 @@ export default {
     handleTags(newTags) {
       this.tags = newTags;
     },
+    handleFollowUp($event) {
+      this.item.followUp = $event.target.checked;
+    },
+    selectEmoji(emoji) {
+      this.emojiMenu = false;
+      if (this.emojis.filter((item) => item.data === emoji.data).length) {
+        this.emojis = this.emojis.filter((item) => item.data !== emoji.data);
+      } else {
+        this.emojis.push(emoji);
+      }
+    },
+    removeEmoji(emoji) {
+      this.emojis = this.emojis.filter((item) => item.data !== emoji.data);
+    },
     async saveData() {
       const date = dayjs().format("MM/DD/YYYY HH:mm:ss");
       const newItem = {
@@ -240,6 +335,8 @@ export default {
         ...this.item,
         comment: this.comment,
         tags: this.tags,
+        emoji: this.emojis,
+        followUp: false,
         time: this.item.time,
         createdAt: date,
       };
@@ -294,6 +391,15 @@ export default {
   display: flex;
   flex-direction: column;
   row-gap: 10px;
+}
+.actions-wrapper {
+  display: flex;
+  column-gap: 3px;
+  flex-wrap: wrap;
+}
+.emoji-icon {
+  font-size: 18px;
+  line-height: 1;
 }
 .footer {
   width: 100%;

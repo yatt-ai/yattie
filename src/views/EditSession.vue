@@ -11,6 +11,83 @@
       </div>
       <v-divider></v-divider>
       <div class="content-bottom">
+        <div
+          class="actions-wrapper"
+          v-if="
+            item.fileType === 'image' ||
+            item.fileType === 'video' ||
+            item.fileType === 'audio'
+          "
+        >
+          <template v-if="item.emoji.length">
+            <v-btn
+              rounded
+              color="primary"
+              dark
+              class="pa-0 mb-1"
+              height="26"
+              min-width="45"
+              style=""
+              v-for="(emoji, i) in item.emoji"
+              :key="i"
+              @click="removeEmoji(emoji)"
+            >
+              <span class="emoji-icon">{{ emoji.data }}</span>
+              <v-icon x-small>mdi-close</v-icon>
+            </v-btn>
+          </template>
+
+          <v-menu
+            v-model="emojiMenu"
+            :close-on-content-click="false"
+            right
+            bottom
+            nudge-bottom="4"
+            offset-y
+          >
+            <template v-slot:activator="{ on: emojiMenu }">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on: tooltip }">
+                  <v-btn
+                    rounded
+                    class="pa-0 mb-1"
+                    height="26"
+                    min-width="35"
+                    v-on="{
+                      ...emojiMenu,
+                      ...tooltip,
+                    }"
+                  >
+                    <img
+                      :src="require('../assets/icon/add-emoticon.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </v-btn>
+                </template>
+                <span>{{ $tc("caption.add_reaction", 1) }}</span>
+              </v-tooltip>
+            </template>
+            <v-card class="emoji-lookup">
+              <VEmojiPicker
+                labelSearch="Search"
+                lang="en-US"
+                @select="selectEmoji"
+              />
+            </v-card>
+          </v-menu>
+        </div>
+        <div class="check-box">
+          <label
+            ><input
+              type="checkbox"
+              name="follow_up"
+              class="item-select"
+              v-model="item.followUp"
+              @change="handleFollowUp($event)"
+            />{{ $tc("caption.required_follow_up", 1) }}
+          </label>
+        </div>
         <v-tiptap
           v-model="item.comment.content"
           :placeholder="$t('message.insert_comment')"
@@ -97,6 +174,7 @@
 <script>
 import ReviewWrapper from "../components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
+import { VEmojiPicker } from "v-emoji-picker";
 
 import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
 
@@ -105,6 +183,7 @@ export default {
   components: {
     ReviewWrapper,
     VueTagsInput,
+    VEmojiPicker,
   },
   data() {
     return {
@@ -117,6 +196,7 @@ export default {
         text: "",
       },
       tag: "",
+      emojiMenu: false,
       commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
       processing: false,
       triggerSaveEvent: false,
@@ -175,6 +255,21 @@ export default {
       const regex = /(<([^>]+)>)/gi;
       this.item.comment.text = this.item.comment.content.replace(regex, "");
     },
+    selectEmoji(emoji) {
+      this.emojiMenu = false;
+      if (this.item.emoji.filter((item) => item.data === emoji.data).length) {
+        this.item.emoji = this.item.emoji.filter(
+          (item) => item.data !== emoji.data
+        );
+      } else {
+        this.item.emoji.push(emoji);
+      }
+    },
+    removeEmoji(emoji) {
+      this.item.emoji = this.item.emoji.filter(
+        (item) => item.data !== emoji.data
+      );
+    },
     handleClear() {
       this.item.comment.type = "Comment";
       this.item.comment.content = "";
@@ -196,6 +291,9 @@ export default {
     },
     handleTags(newTags) {
       this.item.tags = newTags;
+    },
+    handleFollowUp($event) {
+      this.item.followUp = $event.target.checked;
     },
     async saveData(data) {
       if (data) {
@@ -281,6 +379,28 @@ export default {
   display: flex;
   flex-direction: column;
   row-gap: 10px;
+}
+.actions-wrapper {
+  display: flex;
+  column-gap: 3px;
+  flex-wrap: wrap;
+}
+.emoji-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+.check-box {
+  display: flex;
+  align-items: center;
+}
+.check-box > label {
+  display: flex;
+  column-gap: 5px;
+  font-size: 13px;
+  align-items: center;
+  font-weight: 500;
+  line-height: 20px;
+  color: #6b7280;
 }
 .footer {
   width: 100%;
