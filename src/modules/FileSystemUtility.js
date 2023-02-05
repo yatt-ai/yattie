@@ -238,7 +238,7 @@ module.exports.exportSession = async (params) => {
 
   const pdfWin = new BrowserWindow({
     show: false,
-    icon: path.join(__dirname, "../public/logo.png"),
+    icon: path.join(__static, "./logo.png"),
     webPreferences: {
       devTools: true,
       nodeIntegration: true,
