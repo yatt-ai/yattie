@@ -10,7 +10,7 @@
     "name": "YATT",
     "email": "contact@yatt.ai"
   },
-  "license": "GPLv3",
+  "license": "GPL-3.0-only",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service electron:build",
