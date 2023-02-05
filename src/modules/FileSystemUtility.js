@@ -362,7 +362,7 @@ module.exports.openConfigFile = async () => {
 };
 
 module.exports.dragItem = (event, data) => {
-  const iconPath = path.join(__dirname, "../public/drag-drop.png");
+  const iconPath = path.join(__static, "./drag-drop.png");
   event.sender.startDrag({
     file: data.filePath,
     icon: iconPath,
