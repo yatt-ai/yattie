@@ -5,59 +5,59 @@ on:
     types: [created]
 
 jobs:
-  publish_on_linux:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node-version: [16.x]
-    steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - name: Install dependencies
-      run: yarn install
-    - name: Install OAuth server dependencies
-      run: yarn install
-      working-directory: ./server
-    - name: Publish
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: npm run publish
-
-  publish_on_mac:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        os: [macos-latest]
-        node-version: [16.x]
-    steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - name: Install dependencies
-      run:  yarn install
-    - name: Install OAuth server dependencies
-      run: yarn install
-      working-directory: ./server
-    - name: Prep key for app notarization
-      run: |
-        mkdir -p ~/private_keys/
-        echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
-    - name: Publish
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        CSC_LINK: ${{ secrets.mac_csc_link }}
-        CSC_KEY_PASSWORD: ${{ secrets.mac_csc_key_password }}
-        API_KEY_ID: ${{ secrets.api_key_id }}
-        API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
-      run: npm run publish
+#  publish_on_linux:
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        os: [ubuntu-latest]
+#        node-version: [16.x]
+#    steps:
+#    - uses: actions/checkout@v3
+#    - name: Use Node.js ${{ matrix.node-version }}
+#      uses: actions/setup-node@v3
+#      with:
+#        node-version: ${{ matrix.node-version }}
+#        cache: 'npm'
+#    - name: Install dependencies
+#      run: yarn install
+#    - name: Install OAuth server dependencies
+#      run: yarn install
+#      working-directory: ./server
+#    - name: Publish
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      run: npm run publish
+#
+#  publish_on_mac:
+#    runs-on: macos-latest
+#    strategy:
+#      matrix:
+#        os: [macos-latest]
+#        node-version: [16.x]
+#    steps:
+#    - uses: actions/checkout@v3
+#    - name: Use Node.js ${{ matrix.node-version }}
+#      uses: actions/setup-node@v3
+#      with:
+#        node-version: ${{ matrix.node-version }}
+#        cache: 'npm'
+#    - name: Install dependencies
+#      run:  yarn install
+#    - name: Install OAuth server dependencies
+#      run: yarn install
+#      working-directory: ./server
+#    - name: Prep key for app notarization
+#      run: |
+#        mkdir -p ~/private_keys/
+#        echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
+#    - name: Publish
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        CSC_LINK: ${{ secrets.mac_csc_link }}
+#        CSC_KEY_PASSWORD: ${{ secrets.mac_csc_key_password }}
+#        API_KEY_ID: ${{ secrets.api_key_id }}
+#        API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
+#      run: npm run publish
       
   publish_on_win:
     runs-on: windows-latest
@@ -65,6 +65,8 @@ jobs:
       matrix:
         os: [windows-latest]
         node-version: [16.x]
+    env:
+      INSTALL_DIR: C:\Users\runneradmin\CodeSignTool
     steps:
     - uses: actions/checkout@v3  
     - name: Use Node.js ${{ matrix.node-version }}
@@ -77,7 +79,17 @@ jobs:
     - name: Install OAuth server dependencies
       run: yarn install
       working-directory: ./server
+    - name: Download and Unzip eSignerCKA Setup
+      run: | 
+        Invoke-WebRequest -OutFile CodeSignTool.zip "https://www.ssl.com/download/codesigntool-for-windows"
+        Expand-Archive -Force CodeSignTool.zip
+        Remove-Item CodeSignTool.zip
     - name: Publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        WINDOWS_SIGN_USER_NAME: ${{ secrets.WINDOWS_SIGN_USER_NAME }}
+        WINDOWS_SIGN_USER_PASSWORD: ${{ secrets.WINDOWS_SIGN_USER_PASSWORD }}
+        WINDOWS_SIGN_CREDENTIAL_ID: ${{ secrets.WINDOWS_SIGN_CREDENTIAL_ID }}
+        WINDOWS_SIGN_USER_TOTP: ${{ secrets.WINDOWS_SIGN_USER_TOTP }}
       run: npm run publish
+
