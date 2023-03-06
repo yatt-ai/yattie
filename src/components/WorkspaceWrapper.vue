@@ -90,4 +90,7 @@ export default {
   border: 1px solid #d1d5db;
   text-transform: capitalize;
 }
+.theme--dark .v-tab {
+  border-color: #4b5563;
+}
 </style>

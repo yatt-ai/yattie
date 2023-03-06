@@ -9,7 +9,13 @@
           v-model="activeTab"
           vertical
         >
-          <v-tab v-for="tab of tabs" :key="tab.id" :to="tab.route" exact>
+          <v-tab
+            v-for="tab of tabs"
+            :key="tab.id"
+            :to="tab.route"
+            :style="{ color: currentTheme.secondary }"
+            exact
+          >
             {{ tab.name }}
           </v-tab>
         </v-tabs>
@@ -40,6 +46,15 @@ import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 export default {
   name: "SettingView",
   components: {},
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
+  },
   data() {
     return {
       activeTab: "/settings",
@@ -130,7 +145,6 @@ export default {
   font-style: normal;
   font-weight: 500;
   line-height: 20px;
-  color: #000 !important;
   text-transform: capitalize;
   padding: 10px 35px;
   justify-content: flex-start;

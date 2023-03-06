@@ -18,7 +18,9 @@
         </p>
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 theme-mode-section">
-        <p class="body-1">{{ $tc("caption.apperance", 1) }}</p>
+        <p class="body-1" :style="{ color: currentTheme.default }">
+          {{ $tc("caption.apperance", 1) }}
+        </p>
         <v-radio-group
           v-model="setting.apperance"
           row
@@ -27,18 +29,30 @@
           hide-details
           @change="handleApperance"
         >
-          <v-radio label="Light mode" value="light"></v-radio>
-          <v-radio label="Dark mode" value="dark"></v-radio>
+          <v-radio
+            :label="$tc('caption.light_mode', 1)"
+            :style="{ color: currentTheme.secondary }"
+            value="light"
+          ></v-radio>
+          <v-radio
+            :label="$tc('caption.dark_mode', 1)"
+            color="secondary"
+            value="dark"
+          ></v-radio>
         </v-radio-group>
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 screen-recording-section">
-        <p class="body-1">{{ $tc("caption.screen_recording", 1) }}</p>
+        <p class="body-1" :style="{ color: currentTheme.default }">
+          {{ $tc("caption.screen_recording", 1) }}
+        </p>
         <div class="d-flex align-start">
           <div class="flex-grow-1">
             <p class="subtitle-1 mb-2">
               {{ $tc("caption.audio_on_screen_capture", 1) }}
             </p>
-            <p class="caption mb-0">{{ $t("message.capture_audio") }}.</p>
+            <p class="caption mb-0" :style="{ color: currentTheme.default }">
+              {{ $t("message.capture_audio") }}.
+            </p>
           </div>
           <div class="flex-grow-0">
             <v-switch
@@ -52,7 +66,7 @@
           </div>
         </div>
         <br />
-        <p class="subtitle-1 mb-2">
+        <p class="subtitle-1 mb-2" :style="{ color: currentTheme.secondary }">
           {{ $tc("caption.video_capture_quality", 1) }}
         </p>
         <v-radio-group
@@ -64,7 +78,7 @@
         >
           <div class="d-flex align-start mb-4">
             <div class="flex-grow-1">
-              <p class="caption mb-0">
+              <p class="caption mb-0" :style="{ color: currentTheme.default }">
                 {{ $tc("caption.high_quality_video", 1) }}
               </p>
             </div>
@@ -74,7 +88,7 @@
           </div>
           <div class="d-flex align-start mb-4">
             <div class="flex-grow-1">
-              <p class="caption mb-0">
+              <p class="caption mb-0" :style="{ color: currentTheme.default }">
                 {{ $tc("caption.standard_quality_video", 1) }}
               </p>
             </div>
@@ -84,7 +98,7 @@
           </div>
           <div class="d-flex align-start">
             <div class="flex-grow-1">
-              <p class="caption mb-0">
+              <p class="caption mb-0" :style="{ color: currentTheme.default }">
                 {{ $tc("caption.low_quality_video", 1) }}
               </p>
             </div>
@@ -95,13 +109,15 @@
         </v-radio-group>
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 screenshot-section">
-        <p class="body-1">{{ $tc("caption.screenshot") }}</p>
+        <p class="body-1" :style="{ color: currentTheme.default }">
+          {{ $tc("caption.screenshot") }}
+        </p>
         <div class="d-flex align-start">
           <div class="flex-grow-1">
             <p class="subtitle-1 mb-2">
               {{ $t("message.select_default_color") }}
             </p>
-            <p class="caption mb-0">
+            <p class="caption mb-0" :style="{ color: currentTheme.default }">
               {{ $t("message.default_color_description") }}.
             </p>
           </div>
@@ -135,12 +151,13 @@
         </div>
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 note-section">
-        <p class="body-1">Notes</p>
+        <p class="body-1">{{ $tc("caption.note", 2) }}</p>
         <p class="subtitle-1 mb-2">
           {{ $t("message.select_default_comment_type") }}
         </p>
         <v-select
           :items="commentTypes"
+          color="secondary"
           v-model="setting.commentType"
           :placeholder="$tc('caption.comment_type')"
           solo
@@ -204,6 +221,13 @@ export default {
         transition: "border-radius 200ms ease-in-out",
       };
     },
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
   },
   data() {
     return {
@@ -261,30 +285,32 @@ export default {
   line-height: 16px !important;
   letter-spacing: 0.05em !important;
   text-transform: uppercase !important;
-  color: #6b7280 !important;
 }
 .subtitle-1 {
   font-style: normal !important;
   font-weight: 500 !important;
   font-size: 14px !important;
   line-height: 20px !important;
-  color: #111827 !important;
 }
 .caption {
   font-style: normal !important;
   font-weight: 500 !important;
   font-size: 13px !important;
   line-height: 16px !important;
-  color: #6b7280;
 }
 .v-radio .v-label {
   font-style: normal !important;
   font-weight: 500 !important;
   font-size: 14px !important;
   line-height: 20px !important;
-  color: #111827 !important;
 }
 .border-bottom {
   border-bottom: 1px solid #e5e7eb;
+}
+.theme--dark .border-bottom {
+  border-color: #374151;
+}
+.theme--light .border-bottom {
+  border-color: #e5e7eb;
 }
 </style>

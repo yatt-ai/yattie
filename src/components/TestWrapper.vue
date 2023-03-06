@@ -3,7 +3,12 @@
     <v-row class="text-left">
       <v-col cols="12">
         <div class="title">
-          <div class="subtitle-2 label-text">{{ $tc("caption.title", 1) }}</div>
+          <div
+            class="subtitle-2 label-text"
+            :style="{ color: currentTheme.secondary }"
+          >
+            {{ $tc("caption.title", 1) }}
+          </div>
           <v-text-field
             :placeholder="$t('message.enter_brief_charter_name')"
             outlined
@@ -15,13 +20,15 @@
           ></v-text-field>
         </div>
         <div class="mt-4">
-          <div class="subtitle-2 label-text">
+          <div
+            class="subtitle-2 label-text"
+            :style="{ color: currentTheme.secondary }"
+          >
             {{ $tc("caption.charter", 1) }}
           </div>
           <v-tabs
             class="charter-tab"
             color="cyan"
-            dark
             hide-slider
             background-color="primary"
             :height="32"
@@ -71,7 +78,10 @@
           </v-tabs>
         </div>
         <div class="mt-4 timelimit">
-          <div class="subtitle-2 label-text">
+          <div
+            class="subtitle-2 label-text"
+            :style="{ color: currentTheme.secondary }"
+          >
             {{ $tc("caption.time_limit", 1) }}
           </div>
           <div class="timer-box-wrapper">
@@ -94,7 +104,7 @@
           <v-tiptap
             v-model="precondition.content"
             :placeholder="$t('message.define_required_precondition')"
-            label="Preconditions"
+            :label="$tc('caption.precondition', 1)"
             ref="precondition"
             :toolbar="[
               'headings',
@@ -156,6 +166,15 @@ export default {
       },
       duration: "",
     };
+  },
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
   },
   watch: {
     "$store.state.title": {

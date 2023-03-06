@@ -121,7 +121,7 @@
           :placeholder="$t('message.insert_tag')"
         />
         <div class="comment-type">
-          <div class="subtitle-2 label-text">
+          <div :style="{ color: currentTheme.secondary }">
             {{ $tc("caption.comment_type", 1) }}
           </div>
           <v-select
@@ -141,6 +141,7 @@
         fill
         small
         color="white"
+        :style="{ color: currentTheme.black }"
         @click="handleClear"
       >
         {{ $tc("caption.clear", 1) }}
@@ -152,6 +153,7 @@
           small
           color="white"
           :disabled="processing"
+          :style="{ color: currentTheme.black }"
           @click="handleDiscard"
         >
           {{ $tc("caption.discard", 1) }}
@@ -205,6 +207,15 @@ export default {
   created() {
     this.fetchItems();
     this.getConfig();
+  },
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
   },
   mounted() {
     if (!window.ipc) return;

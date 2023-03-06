@@ -2,10 +2,13 @@
   <v-container class="timeline-wrapper">
     <v-row>
       <v-col cols="12">
-        <div class="subtitle-2 label-text">
+        <div
+          class="subtitle-2 label-text"
+          :style="{ color: currentTheme.secondary }"
+        >
           {{ $tc("caption.session_started", 1) }}
         </div>
-        <div class="date-text">
+        <div class="mt-2 date-text">
           <v-icon>mdi-calendar-minus-outline</v-icon>
           <span v-if="$store.state.started">{{ $store.state.started }}</span>
           <span v-else>{{ current }}</span>
@@ -759,6 +762,13 @@ export default {
     },
     current() {
       return dayjs().format("MM-DD-YYYY");
+    },
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
     },
   },
   mounted() {

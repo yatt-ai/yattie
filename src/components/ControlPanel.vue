@@ -68,6 +68,7 @@
             small
             block
             color="white"
+            :style="{ color: currentTheme.black }"
             @click="exportItems"
           >
             <v-icon left>mdi-download</v-icon> {{ $tc("caption.export", 1) }}
@@ -96,7 +97,10 @@
                 v-on="on"
                 @click="resume"
               >
-                <v-icon> mdi-play-circle </v-icon>
+                <v-icon v-if="$vuetify.theme.dark === false">
+                  mdi-play-circle
+                </v-icon>
+                <v-icon color="#D1D5DB" v-else>mdi-play-circle</v-icon>
               </v-btn>
             </template>
             <span>{{ $tc("caption.resume_session", 1) }}</span>
@@ -114,7 +118,10 @@
                 v-on="on"
                 @click="newSessionDialog = true"
               >
-                <v-icon> mdi-content-save </v-icon>
+                <v-icon v-if="$vuetify.theme.dark === false">
+                  mdi-content-save
+                </v-icon>
+                <v-icon color="#D1D5DB" v-else>mdi-content-save</v-icon>
               </v-btn>
             </template>
             <span>{{ $tc("caption.save_session") }}</span>
@@ -131,7 +138,10 @@
                 v-on="on"
                 @click="resetConfirmDialog = true"
               >
-                <v-icon> mdi-close-circle </v-icon>
+                <v-icon v-if="$vuetify.theme.dark === false">
+                  mdi-close-circle
+                </v-icon>
+                <v-icon color="#D1D5DB" v-else>mdi-close-circle</v-icon>
               </v-btn>
             </template>
             <span>{{ $tc("caption.clear_session", 1) }}</span>
@@ -156,7 +166,14 @@
                 @click="pauseSession()"
               >
                 <img
+                  v-if="$vuetify.theme.dark === false"
                   :src="require('../assets/icon/pause.svg')"
+                  width="24"
+                  height="24"
+                />
+                <img
+                  v-else
+                  :src="require('../assets/icon/pause-gray.svg')"
                   width="24"
                   height="24"
                 />
@@ -177,7 +194,14 @@
                 @click="resumeSession()"
               >
                 <img
+                  v-if="$vuetify.theme.dark === false"
                   :src="require('../assets/icon/play.svg')"
+                  width="24"
+                  height="24"
+                />
+                <img
+                  v-else
+                  :src="require('../assets/icon/play-gray.svg')"
                   width="24"
                   height="24"
                 />
@@ -198,7 +222,14 @@
                 @click="endSession()"
               >
                 <img
+                  v-if="$vuetify.theme.dark === false"
                   :src="require('../assets/icon/stop.svg')"
+                  width="24"
+                  height="24"
+                />
+                <img
+                  v-else
+                  :src="require('../assets/icon/stop-gray.svg')"
                   width="24"
                   height="24"
                 />
@@ -220,7 +251,14 @@
                 @click="startRecordVideo()"
               >
                 <img
+                  v-if="$vuetify.theme.dark === false"
                   :src="require('../assets/icon/video-solid.svg')"
+                  width="24"
+                  height="24"
+                />
+                <img
+                  v-else
+                  :src="require('../assets/icon/video-solid-gray.svg')"
                   width="24"
                   height="24"
                 />
@@ -242,7 +280,14 @@
                 @click="stopRecordVideo()"
               >
                 <img
+                  v-if="$vuetify.theme.dark === false"
                   :src="require('../assets/icon/video-slash-solid.svg')"
+                  width="24"
+                  height="24"
+                />
+                <img
+                  v-else
+                  :src="require('../assets/icon/video-slash-solid-gray.svg')"
                   width="24"
                   height="24"
                 />
@@ -264,7 +309,14 @@
                 @click="screenshot()"
               >
                 <img
+                  v-if="$vuetify.theme.dark === false"
                   :src="require('../assets/icon/camera.svg')"
+                  width="24"
+                  height="24"
+                />
+                <img
+                  v-else
+                  :src="require('../assets/icon/camera-gray.svg')"
                   width="24"
                   height="24"
                 />
@@ -286,7 +338,14 @@
                 @click="startRecordAudio()"
               >
                 <img
+                  v-if="$vuetify.theme.dark === false"
                   :src="require('../assets/icon/microphone-solid.svg')"
+                  width="28"
+                  height="28"
+                />
+                <img
+                  v-else
+                  :src="require('../assets/icon/microphone-solid-gray.svg')"
                   width="28"
                   height="28"
                 />
@@ -308,7 +367,16 @@
                 @click="stopRecordAudio()"
               >
                 <img
+                  v-if="$vuetify.theme.dark === false"
                   :src="require('../assets/icon/microphone-slash-solid.svg')"
+                  width="28"
+                  height="28"
+                />
+                <img
+                  v-else
+                  :src="
+                    require('../assets/icon/microphone-slash-solid-gray.svg')
+                  "
                   width="28"
                   height="28"
                 />
@@ -330,7 +398,14 @@
                 @click="showNoteDialog"
               >
                 <img
+                  v-if="$vuetify.theme.dark === false"
                   :src="require('../assets/icon/pencil.svg')"
+                  width="24"
+                  height="24"
+                />
+                <img
+                  v-else
+                  :src="require('../assets/icon/pencil-gray.svg')"
                   width="24"
                   height="24"
                 />
@@ -351,7 +426,14 @@
                 @click="mindMap"
               >
                 <img
+                  v-if="$vuetify.theme.dark === false"
                   :src="require('../assets/icon/connect.svg')"
+                  width="24"
+                  height="24"
+                />
+                <img
+                  v-else
+                  :src="require('../assets/icon/connect-gray.svg')"
                   width="24"
                   height="24"
                 />
@@ -371,7 +453,14 @@
                 @click="minimize"
               >
                 <img
+                  v-if="$vuetify.theme.dark === false"
                   :src="require('../assets/icon/union.svg')"
+                  width="24"
+                  height="24"
+                />
+                <img
+                  v-else
+                  :src="require('../assets/icon/union-gray.svg')"
                   width="24"
                   height="24"
                 />
@@ -391,7 +480,10 @@
                 v-on="on"
                 v-bind="attrs"
               >
-                <v-icon>mdi-dots-vertical</v-icon>
+                <v-icon v-if="$vuetify.theme.dark === false">
+                  mdi-dots-vertical
+                </v-icon>
+                <v-icon color="#D1D5DB" v-else>mdi-dots-vertical</v-icon>
               </v-btn>
             </template>
             <v-list>
@@ -627,6 +719,13 @@ export default {
       const result = date.toISOString().substr(11, 8);
       return result;
     },
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
     summary() {
       let summary = {};
       this.items.map((item) => {
@@ -842,7 +941,7 @@ export default {
           data: {
             path: "noteEditor",
             size: {
-              width: 400,
+              width: 500,
               height: 550,
             },
             data: this.config,
@@ -984,7 +1083,7 @@ export default {
           data: {
             path: "endsession",
             size: {
-              width: 350,
+              width: 450,
               height: 500,
             },
             data: this.config,
@@ -1584,5 +1683,12 @@ export default {
 }
 .v-btn--disabled img {
   opacity: 0.5;
+}
+.theme--dark .control-btn-wrapper {
+  background-color: #374151;
+}
+.theme--dark .control-btn {
+  background-color: #4b5563;
+  border-color: #4b5563;
 }
 </style>

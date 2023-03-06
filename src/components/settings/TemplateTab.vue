@@ -1,14 +1,16 @@
 <template>
   <v-container class="content-wrapper">
     <div class="title">{{ $tc("caption.note_template", 1) }}</div>
-    <p class="subtitle-1 mb-4">
+    <p class="subtitle-1 mb-4" :style="{ color: currentTheme.default }">
       {{ $t("message.improve_note") }}
     </p>
 
     <v-row>
       <v-col cols="12" class="pa-4">
         <div class="mb-3 session-type">
-          <p class="subtitle-1 mb-1">{{ $tc("apply_to", 1) }}</p>
+          <p class="subtitle-1 mb-1" :style="{ color: currentTheme.secondary }">
+            {{ $tc("caption.apply_to", 1) }}
+          </p>
           <v-select
             :items="sessionTypes"
             v-model="type"
@@ -79,6 +81,7 @@
                 block
                 color="white"
                 class="text-capitalize"
+                :style="{ color: currentTheme.black }"
                 @click="handleCancel"
               >
                 {{ $tc("caption.cancel", 1) }}
@@ -116,6 +119,15 @@ export default {
   watch: {
     config: function (newValue) {
       this.setting = newValue;
+    },
+  },
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
     },
   },
   data() {
@@ -180,7 +192,6 @@ export default {
   font-weight: 500 !important;
   font-size: 14px !important;
   line-height: 20px !important;
-  color: #111827 !important;
 }
 .caption {
   font-style: normal !important;

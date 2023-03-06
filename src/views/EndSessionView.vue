@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-card>
+    <v-card :style="{ backgroundColor: currentTheme.background }">
       <CheckTaskWrapper
         :tasks="tasks"
         :showError="showTaskError"
@@ -12,10 +12,15 @@
           class="btn-end"
           @click="endSession"
         >
-          {{ $tc("caption.end_session)", 1) }}
+          {{ $tc("caption.end_session", 1) }}
         </v-btn>
-        <v-btn color="white text-capitalize" class="btn-end" @click="cancel">
-          {{ $tc("caption.cancel)", 1) }}
+        <v-btn
+          color="white text-capitalize"
+          class="btn-end"
+          :style="{ color: currentTheme.black }"
+          @click="cancel"
+        >
+          {{ $tc("caption.cancel", 1) }}
         </v-btn>
       </div>
     </v-card>
@@ -49,6 +54,15 @@ export default {
         checked: false,
       }));
     });
+  },
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
   },
   methods: {
     cancel() {
@@ -114,5 +128,8 @@ export default {
 }
 .v-btn {
   flex: 1;
+}
+.theme--dark .v-sheet.v-card {
+  box-shadow: none;
 }
 </style>

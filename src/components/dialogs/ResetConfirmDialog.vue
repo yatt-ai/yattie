@@ -1,9 +1,9 @@
 <template>
   <v-dialog v-bind="$attrs" v-on="$listeners" persistent width="350">
-    <v-sheet outlined color="accent" rounded>
-      <v-card>
+    <v-sheet rounded>
+      <v-card :style="{ backgroundColor: currentTheme.background }">
         <LogoWrapper :height="20" :width="60" />
-        <v-card-title class="title">
+        <v-card-title class="title" :style="{ color: currentTheme.secondary }">
           {{ title || $tc("caption.delete", 1) }}
         </v-card-title>
         <v-card-text class="text">
@@ -22,6 +22,7 @@
             small
             color="white"
             class="text-capitalize btn"
+            :style="{ color: currentTheme.black }"
             @click="cancel"
           >
             {{ $tc("cancel", 1) }}
@@ -42,6 +43,15 @@ export default {
   props: {
     title: String,
     text: String,
+  },
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
   },
   methods: {
     cancel() {
@@ -65,7 +75,6 @@ export default {
   font-weight: 600;
   font-size: 14px;
   line-height: 20px;
-  color: #111827;
 }
 .v-card__text {
   padding: 0;
