@@ -2,20 +2,27 @@
   <v-container class="content-wrapper">
     <v-row>
       <v-col cols="12" class="border-bottom pa-4 ext-conn-section">
-        <p class="body-1">{{ $tc("caption.external_connection", 1) }}</p>
-        <a class="jira-link" href="#">
+        <p class="body-1" :style="{ color: currentTheme.default }">
+          {{ $tc("caption.external_connection", 1) }}
+        </p>
+        <a class="jira-link" href="#" :style="{ color: currentTheme.primary }">
           {{ $t("message.connect_to_testrail") }}
         </a>
         <p></p>
-        <a class="jira-link" href="#">{{ $t("message.connect_to_jira") }}</a>
+        <a class="jira-link" href="#" :style="{ color: currentTheme.primary }">
+          {{ $t("message.connect_to_jira") }}
+        </a>
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 app-role-section">
         <div class="d-flex align-start">
           <div class="flex-grow-1">
-            <p class="subtitle-1 mb-2">
+            <p
+              class="subtitle-1 mb-2"
+              :style="{ color: currentTheme.secondary }"
+            >
               {{ $t("message.use_app_only_local") }}
             </p>
-            <p class="caption mb-0">
+            <p class="caption mb-0" :style="{ color: currentTheme.default }">
               {{ $t("message.dont_pull_push_data") }}
             </p>
           </div>
@@ -31,8 +38,15 @@
         </div>
       </v-col>
       <!--<v-col cols="12" class="border-bottom pa-4 color-panel-section">
-        <p class="subtitle-1 mb-4">{{ $tc("caption.yatt", 1) }}</p>
-        <p class="body-1">{{ $tc("caption.add_color", 1) }}</p>
+        <p
+          class="subtitle-1 mb-4"
+          :style="{ color: currentTheme.secondary }"
+        >
+          {{ $tc("caption.yatt", 1) }}
+        </p>
+        <p class="body-1" :style="{ color: currentTheme.default }">
+          {{ $tc("caption.add_color", 1) }}
+        </p>
         <v-text-field
           v-model="color"
           v-mask="mask"
@@ -61,7 +75,9 @@
         </v-text-field>
       </v-col>
       <v-col cols="12" class="pa-4 cur-org-section">
-        <p class="body-1">Current Organizations</p>
+        <p class="body-1" :style="{ color: currentTheme.default }">
+          Current Organizations
+        </p>
         <div class="d-flex flex-column" style="row-gap: 5px">
           <div class="d-flex align-center">
             <v-text-field
@@ -140,6 +156,13 @@ export default {
         transition: "border-radius 200ms ease-in-out",
       };
     },
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
   },
   methods: {},
 };
@@ -157,31 +180,30 @@ export default {
   line-height: 16px !important;
   letter-spacing: 0.05em !important;
   text-transform: uppercase !important;
-  color: #6b7280 !important;
 }
 .subtitle-1 {
   font-style: normal !important;
   font-weight: 500 !important;
   font-size: 14px !important;
   line-height: 20px !important;
-  color: #111827 !important;
 }
 .caption {
   font-style: normal !important;
   font-weight: 500 !important;
   font-size: 13px !important;
   line-height: 16px !important;
-  color: #6b7280;
 }
 .jira-link {
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
   line-height: 20px;
-  color: #6d28d9;
   text-decoration: none;
 }
 .border-bottom {
   border-bottom: 1px solid #e5e7eb;
+}
+.theme--dark .border-bottom {
+  border-color: #374151;
 }
 </style>

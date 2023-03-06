@@ -1,6 +1,7 @@
 {
   "caption": {
     "new_session": "New session",
+    "end_session": "End session",
     "open_session": "Open saved session",
     "test": "Test",
     "timeline": "Timeline",
@@ -114,7 +115,7 @@
     "screenshot": "Screenshot",
     "start_audio_record": "Start audio record",
     "stop_audio_record": "Stop audio record",
-    "note": "Note",
+    "note": "Note|Notes",
     "mind_map": "Mind map",
     "minimize": "Minimize",
     "confirm_delete": "Confirm delete",
@@ -137,6 +138,10 @@
     "minute": "Minutes",
     "workspace": "Workspace",
     "change_recording_target": "Change recording target",
+    "map_node": "Map Node",
+    "light_mode": "Light mode",
+    "dark_mode": "Dark mode",
+    "apply_to": "Apply To",
     "export_item_to_jira": "Export Item to JIRA",
     "issues": "ISSUES",
     "quick_test": "@.capitalize:quick test",

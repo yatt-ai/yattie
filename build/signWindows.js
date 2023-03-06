@@ -16,14 +16,16 @@ function sign(configuration) {
   const USER_TOTP = process.env.WINDOWS_SIGN_USER_TOTP;
   if (USER_NAME && USER_PASSWORD && USER_TOTP && CREDENTIAL_ID) {
     console.log(`Signing ${configuration.path}`);
-    const { base, dir } = path.parse(configuration.path);
+    const { name, dir } = path.parse(configuration.path);
     // CodeSignTool can't sign in place without verifying the overwrite with a
     // y/m interaction so we are creating a new file in a temp directory and
     // then replacing the original file with the signed file.
-    const tempFile = path.join(TEMP_DIR, base);
-    const signFile = `build/CodeSignTool-v1.2.7/CodeSignTool.sh sign -input_file_path="${configuration.path}" -output_dir_path="${TEMP_DIR}" -credential_id="${CREDENTIAL_ID}" -username="${USER_NAME}" -password="${USER_PASSWORD}" -totp_secret="${USER_TOTP}"`;
+    const tempFile = path.join(TEMP_DIR, name);
+    const setDir = `cd CodeSignTool/CodeSignTool-v1.2.7-windows`;
+    const signFile = `"CodeSignTool" sign -input_file_path="${configuration.path}" -output_dir_path="${TEMP_DIR}" -credential_id="${CREDENTIAL_ID}" -username="${USER_NAME}" -password="${USER_PASSWORD}" -totp_secret="${USER_TOTP}"`;
     const moveFile = `mv "${tempFile}" "${dir}"`;
-    childProcess.execSync(`${signFile} && ${moveFile}`, { stdio: 'inherit' });
+    childProcess.execSync(`${setDir} && ${signFile}`, { stdio: 'inherit' });
+    childProcess.execSync(`${moveFile}`, { stdio: 'inherit' });
   } else {
     console.warn(`sign.js - Can't sign file ${configuration.path}, missing value for:
 ${USER_NAME ? '' : 'WINDOWS_SIGN_USER_NAME'}

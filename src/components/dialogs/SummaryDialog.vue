@@ -7,9 +7,12 @@
     max-width="500px"
     eager
   >
-    <v-sheet outlined color="accent" rounded>
-      <v-card>
-        <v-card-title class="dialog-title">
+    <v-sheet outlined rounded>
+      <v-card :style="{ backgroundColor: currentTheme.background }">
+        <v-card-title
+          class="dialog-title"
+          :style="{ color: currentTheme.secondary }"
+        >
           {{ $tc("caption.take_summary", 1) }}
         </v-card-title>
         <v-divider></v-divider>
@@ -48,7 +51,7 @@
           </v-row>
           <v-row class="mt-0">
             <v-col class="pr-0">
-              <div class="subtitle-2 label-text">
+              <div :style="{ color: currentTheme.secondary }">
                 {{ $tc("caption.comment_type", 1) }}
               </div>
               <v-select
@@ -131,6 +134,15 @@ export default {
   destroyed() {
     this.handleClear();
   },
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
+  },
   methods: {
     handleDiscard() {
       this.$root.$emit("close-summarydialog");
@@ -173,7 +185,6 @@ export default {
   font-style: normal;
   font-weight: 600;
   line-height: 20px;
-  color: #111827;
   padding: 12px;
 }
 .dialog-content {

@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :style="{ backgroundColor: currentTheme.background }">
     <v-main>
       <v-overlay :absolute="true" :value="overlay"> </v-overlay>
       <router-view :isAuthenticated="checkAuth" />
@@ -118,6 +118,15 @@ export default {
           this.credential = result;
           this.checkAuth = this.$integrationHelpers.checkAuth(this.credential);
         });
+    },
+  },
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
     },
   },
 };

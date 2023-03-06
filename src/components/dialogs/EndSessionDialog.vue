@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-bind="$attrs" v-on="$listeners" persistent width="350">
-    <v-sheet outlined color="accent" rounded>
-      <v-card>
+    <v-sheet rounded>
+      <v-card :style="{ backgroundColor: currentTheme.background }">
         <CheckTaskWrapper
           :tasks="tasks"
           :showError="showTaskError"
@@ -15,7 +15,12 @@
           >
             {{ $tc("caption.end_session", 1) }}
           </v-btn>
-          <v-btn color="white text-capitalize" class="btn-end" @click="cancel">
+          <v-btn
+            color="white text-capitalize"
+            class="btn-end"
+            :style="{ color: currentTheme.black }"
+            @click="cancel"
+          >
             {{ $tc("caption.cancel", 1) }}
           </v-btn>
         </div>
@@ -40,6 +45,13 @@ export default {
   computed: {
     tasks() {
       return this.postSessionData ? this.postSessionData.tasks : [];
+    },
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
     },
   },
   data() {

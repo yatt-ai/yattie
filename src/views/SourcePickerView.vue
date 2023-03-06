@@ -2,7 +2,9 @@
   <v-container>
     <div class="wrapper">
       <div class="header">
-        <span>{{ $t("message.select_window_to_record_session") }}</span>
+        <span :style="{ color: currentTheme.secondary }">
+          {{ $t("message.select_window_to_record_session") }}
+        </span>
       </div>
       <div class="content">
         <v-radio-group v-model="activeSource">
@@ -20,7 +22,9 @@
                 <img :src="item.thumbnail" :alt="item.name" />
               </div>
               <div class="session-name">
-                <p>{{ item.name }}</p>
+                <p :style="{ color: currentTheme.secondary }">
+                  {{ item.name }}
+                </p>
               </div>
               <div class="session-radio">
                 <v-radio dense :value="item.id" :ripple="false"></v-radio>
@@ -30,7 +34,13 @@
         </v-radio-group>
       </div>
       <div class="footer">
-        <v-btn class="text-capitalize" small color="white" @click="close">
+        <v-btn
+          class="text-capitalize"
+          small
+          color="white"
+          :style="{ color: currentTheme.black }"
+          @click="close"
+        >
           {{ $tc("caption.cancel", 1) }}
         </v-btn>
         <v-btn
@@ -67,6 +77,15 @@ export default {
     window.ipc.on(IPC_BIND_KEYS.MODAL_DATA, (data) => {
       this.sources = data;
     });
+  },
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
   },
   methods: {
     close() {
@@ -112,12 +131,15 @@ export default {
   border-bottom: 1px solid #e5e7eb;
 }
 
+.theme--dark .header {
+  border-color: #374151;
+}
+
 .header span {
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
   line-height: 20px;
-  color: #111827;
 }
 
 .content {
@@ -134,6 +156,10 @@ export default {
   align-items: center;
   justify-content: flex-end;
   column-gap: 12px;
+}
+
+.theme--dark .footer {
+  border-color: #374151;
 }
 
 .session-list .session-item {
@@ -170,7 +196,6 @@ export default {
   font-size: 13px;
   line-height: 16px;
   text-align: center;
-  color: #111827;
   margin-bottom: 0px;
   overflow: hidden;
   text-overflow: ellipsis;
