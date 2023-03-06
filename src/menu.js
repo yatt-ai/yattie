@@ -61,10 +61,10 @@ const createMenu = (win, dev) => {
         {
           label: i18n.tc("menu.take_survey", 1),
           click() {
-            open('https://yatt.ai/yattie-survey/', (err) => {
+            open("https://yatt.ai/yattie-survey/", (err) => {
               console.log(err);
             });
-          }
+          },
         },
         { type: "separator" },
         {
@@ -92,15 +92,15 @@ const createMenu = (win, dev) => {
         {
           label: i18n.t("menu.online_doc"),
           click() {
-            open('https://docs.yattie.ai/', (err) => {
+            open("https://docs.yattie.ai/", (err) => {
               console.log(err);
             });
-          }
+          },
         },
         {
           label: i18n.t("menu.get_support"),
           click() {
-            open('https://github.com/dacoaster/yattie/issues/', (err) => {
+            open("https://github.com/dacoaster/yattie/issues/", (err) => {
               console.log(err);
             });
           },

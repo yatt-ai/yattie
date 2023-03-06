@@ -135,8 +135,8 @@ module.exports.openAddWindow = ({ width, height, data }) => {
     addWin.loadURL(modalPath);
     addWin.setMenuBarVisibility(false);
     addWin.once("ready-to-show", () => {
-      if (isDevelopment){
-          addWin.webContents.openDevTools();
+      if (isDevelopment) {
+        addWin.webContents.openDevTools();
       }
       addWin.show();
 
@@ -187,8 +187,8 @@ module.exports.openEditWindow = (data) => {
     editWin.setMenuBarVisibility(false);
 
     editWin.once("ready-to-show", () => {
-      if (isDevelopment){
-          editWin.webContents.openDevTools();
+      if (isDevelopment) {
+        editWin.webContents.openDevTools();
       }
       editWin.show();
       browserWindow.webContents.send("OPEN_CHILD_WINDOW");
@@ -238,8 +238,8 @@ module.exports.openSettingWindow = () => {
     settingsWin.setMenuBarVisibility(false);
 
     settingsWin.once("ready-to-show", () => {
-      if (isDevelopment){
-          settingsWin.webContents.openDevTools();
+      if (isDevelopment) {
+        settingsWin.webContents.openDevTools();
       }
       settingsWin.show();
       browserWindow.webContents.send("OPEN_CHILD_WINDOW");
@@ -292,8 +292,8 @@ module.exports.openModalWindow = (data) => {
     modalWin.setMenuBarVisibility(false);
 
     modalWin.once("ready-to-show", () => {
-      if (isDevelopment){
-          modalWin.webContents.openDevTools();
+      if (isDevelopment) {
+        modalWin.webContents.openDevTools();
       }
       modalWin.webContents.send(IPC_BIND_KEYS.MODAL_DATA, data.data);
       modalWin.show();
@@ -343,8 +343,8 @@ module.exports.openNotesWindow = (data) => {
     notesWin.loadURL(modalPath);
     notesWin.setMenuBarVisibility(false);
     notesWin.once("ready-to-show", () => {
-      if (isDevelopment){
-          notesWin.webContents.openDevTools();
+      if (isDevelopment) {
+        notesWin.webContents.openDevTools();
       }
       notesWin.show();
       browserWindow.webContents.send("OPEN_CHILD_WINDOW");

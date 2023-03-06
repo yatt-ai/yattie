@@ -300,6 +300,9 @@ export default {
   padding: 20px 0;
   border-top: 1px solid #e5e7eb;
 }
+.theme--dark .open-section {
+  border-color: rgba(255, 255, 255, 0.15);
+}
 .open-section.social {
   display: flex;
   align-items: center;
@@ -334,5 +337,8 @@ export default {
   top: 0;
   bottom: 0;
   background-color: rgba(255, 255, 255, 0.8);
+}
+.theme--dark .overlay {
+  background-color: rgba(31, 41, 55, 0.8);
 }
 </style>

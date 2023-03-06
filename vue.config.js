@@ -71,6 +71,10 @@ module.exports = {
         },
         win: {
           icon: "icons/icon.ico",
+          publisherName: "YATT, Inc",
+          certificateSubjectName: "YATT, Inc",
+          rfc3161TimeStampServer: "http://ts.ssl.com",
+          sign: "./build/signWindows.js",
           target: ["nsis"],
           publish: [
             {

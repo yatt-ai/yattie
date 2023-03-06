@@ -6,10 +6,12 @@
     width="100%"
     max-width="600px"
   >
-    <v-sheet outlined color="white" rounded>
+    <v-sheet rounded :style="{ backgroundColor: currentTheme.background }">
       <div class="wrapper">
         <div class="header">
-          <span>{{ $tc("message.select_window_to_record_session", 1) }}</span>
+          <span :style="{ color: currentTheme.secondary }">
+            {{ $tc("message.select_window_to_record_session", 1) }}
+          </span>
         </div>
         <div class="content">
           <v-radio-group v-model="activeSource">
@@ -27,7 +29,9 @@
                   <img :src="item.thumbnail" :alt="item.name" />
                 </div>
                 <div class="session-name">
-                  <p>{{ item.name }}</p>
+                  <p :style="{ color: currentTheme.secondary }">
+                    {{ item.name }}
+                  </p>
                 </div>
                 <div class="session-radio">
                   <v-radio dense :value="item.id" :ripple="false"></v-radio>
@@ -37,7 +41,13 @@
           </v-radio-group>
         </div>
         <div class="footer">
-          <v-btn class="text-capitalize" small color="white" @click="close">
+          <v-btn
+            class="text-capitalize"
+            small
+            color="white"
+            :style="{ color: currentTheme.black }"
+            @click="close"
+          >
             {{ $tc("caption.cancel", 1) }}
           </v-btn>
           <v-btn
@@ -78,6 +88,15 @@ export default {
       this.activeSource = this.sourceId;
     },
   },
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
+  },
   methods: {
     close() {
       this.activeSource = "";
@@ -108,6 +127,10 @@ export default {
   border-bottom: 1px solid #e5e7eb;
 }
 
+.theme--dark .header {
+  border-color: #374151;
+}
+
 .header span {
   font-style: normal;
   font-weight: 600;
@@ -130,6 +153,10 @@ export default {
   align-items: center;
   justify-content: flex-end;
   column-gap: 12px;
+}
+
+.theme--dark .footer {
+  border-color: #374151;
 }
 
 .session-list .session-item {

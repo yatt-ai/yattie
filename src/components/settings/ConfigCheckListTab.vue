@@ -1,7 +1,7 @@
 <template>
   <v-container class="wrapper">
     <div class="title">{{ $tc("caption.session_checklist", 1) }}</div>
-    <p class="subtitle-1 mb-4">
+    <p class="mt-2 mb-4">
       {{ $t("message.use_pre_post_test_checklist") }}
     </p>
     <div class="tab-bar">
@@ -311,7 +311,7 @@ export default {
   top: 0;
   bottom: 0;
   z-index: 1;
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0);
 }
 .check-list {
   display: flex;
@@ -351,6 +351,11 @@ export default {
   font-size: 13px;
   line-height: 16px;
   color: #6b7280;
+}
+.theme--dark .check-list > .one > .input-box > input[type="text"] {
+  background-color: #6b7280;
+  border: 0;
+  color: white;
 }
 .check-list > .one > .input-box > .check-box {
   display: flex;

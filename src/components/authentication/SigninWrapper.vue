@@ -5,7 +5,10 @@
         <v-icon class="ma-0">mdi-chevron-left</v-icon>
         {{ $tc("caption.back", 1) }}
       </v-btn>
-      <div class="subtitle-1 signup-title text-center">
+      <div
+        class="subtitle-1 signup-title text-center"
+        :style="{ color: currentTheme.secondary }"
+      >
         <span>{{ $tc("caption.sign_in", 1) }}</span>
       </div>
     </div>
@@ -22,7 +25,9 @@
         <v-col cols="12">
           <!--<v-btn class="mb-4 outline-btn yattie" block outlined color="white">
             <img :src="require('../../assets/icon/yattie1.png')" />
-            <div class="btn-text">{{ $tc("caption.signin_yattie", 1) }}</div>
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_yattie", 1) }}
+            </div>
           </v-btn>-->
           <v-btn
             class="mb-4 outline-btn jira"
@@ -32,19 +37,25 @@
             @click="callJiraAPI"
           >
             <img :src="require('../../assets/icon/jira.png')" />
-            <div class="btn-text">{{ $tc("caption.signin_jira", 1) }}</div>
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_jira", 1) }}
+            </div>
           </v-btn>
           <!--<v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/testrail.png')" />
-            <div class="btn-text">{{ $tc("caption.signin_testrail", 1) }}</div>
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_testrail", 1) }}
+            </div>
           </v-btn>
           <v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/qtest.png')" />
-            <div class="btn-text">{{ $tc("caption.signin_qtest", 1) }}</div>
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_qtest", 1) }}
+            </div>
           </v-btn>
           <v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/practitest.png')" />
-            <div class="btn-text">
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
               {{ $tc("caption.signin_practitest", 1) }}
             </div>
           </v-btn>-->
@@ -132,7 +143,15 @@ export default {
       },
     };
   },
-  computed: {},
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
+  },
   mounted() {
     window.ipc.on("JIRA_LOGIN", (data) => {
       this.jiraLogin(data);
@@ -275,7 +294,6 @@ export default {
   font-weight: 600;
   font-size: 16px;
   line-height: 24px;
-  color: #111827;
   text-align: center;
 }
 .header .signup-title span {
@@ -287,6 +305,9 @@ export default {
   border-radius: 8px;
   padding: 32px 40px;
 }
+.theme--dark .content {
+  background-color: #374151 !important;
+}
 .outline-btn {
   display: flex;
   border: 1px solid #d1d5db;
@@ -297,12 +318,15 @@ export default {
 .outline-btn:hover {
   background-color: #d1d5db;
 }
+.theme--dark .outline-btn {
+  background-color: #4b5563;
+  border: 0;
+}
 .outline-btn .btn-text {
   flex-grow: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #111827;
   font-size: 13px;
   font-weight: 500;
   line-height: 16px;

@@ -388,4 +388,10 @@ export default {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 }
+.theme--dark.v-tabs .v-tabs-bar .v-tab--disabled,
+.theme--dark.v-tabs .v-tabs-bar .v-tab:not(.v-tab--active) {
+  border-color: #4b5563;
+  background-color: #374151;
+  color: #ffffff;
+}
 </style>

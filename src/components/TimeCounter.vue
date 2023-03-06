@@ -81,4 +81,9 @@ export default {
 .time-wrapper .time .time-value.proceed {
   color: #ff6000;
 }
+
+.theme--dark .timecounter-wrapper {
+  background-color: #374151;
+  border-top: 1px solid #4b5563;
+}
 </style>

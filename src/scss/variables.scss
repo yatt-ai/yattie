@@ -182,7 +182,7 @@ body {
   font-weight: 500 !important;
   font-size: 14px !important;
   line-height: 20px !important;
-  color: #111827 !important;
+  color: inherit;
 }
 
 .input-box {
@@ -338,3 +338,37 @@ body {
 .reddit-emoji {
   border-radius: 50%;
 }
+
+.v-tabs > .v-tabs-bar,
+.v-tabs-items {
+  background-color: var(--v-background-base) !important;
+}
+.theme--dark {
+  .v-text-field,
+  .v-text-field--solo {
+    .v-input__control > .v-input__slot {
+      background-color: #6B7280;
+      border-color: #6B7280;
+    }
+  }
+  .v-icon {
+    color: white;
+  }
+  .v-input__control > .v-input__slot > fieldset {
+    border: 0 !important;
+  }
+  .v-tiptap {
+    .v-label {
+      color: white !important;
+    }
+    .v-input__control > .v-input__slot {
+      header {
+        background-color: #6B7280!important;
+      }
+      .ProseMirror {
+        background-color: #4B5563;
+      }
+    }
+  }
+}
+

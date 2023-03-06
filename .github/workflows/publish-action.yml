@@ -77,7 +77,17 @@ jobs:
     - name: Install OAuth server dependencies
       run: yarn install
       working-directory: ./server
+    - name: Download and Unzip eSignerCKA Setup
+      run: | 
+        Invoke-WebRequest -OutFile CodeSignTool.zip "https://www.ssl.com/download/codesigntool-for-windows"
+        Expand-Archive -Force CodeSignTool.zip
+        Remove-Item CodeSignTool.zip
     - name: Publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        WINDOWS_SIGN_USER_NAME: ${{ secrets.WINDOWS_SIGN_USER_NAME }}
+        WINDOWS_SIGN_USER_PASSWORD: ${{ secrets.WINDOWS_SIGN_USER_PASSWORD }}
+        WINDOWS_SIGN_CREDENTIAL_ID: ${{ secrets.WINDOWS_SIGN_CREDENTIAL_ID }}
+        WINDOWS_SIGN_USER_TOTP: ${{ secrets.WINDOWS_SIGN_USER_TOTP }}
       run: npm run publish
+

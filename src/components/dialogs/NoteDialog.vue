@@ -8,7 +8,7 @@
     eager
   >
     <v-sheet outlined color="accent" rounded>
-      <v-card>
+      <v-card :style="{ backgroundColor: currentTheme.background }">
         <v-card-title class="dialog-title">
           {{ $tc("caption.take_note", 1) }}
         </v-card-title>
@@ -56,7 +56,7 @@
           </v-row>
           <v-row class="mt-0">
             <v-col class="pr-0">
-              <div class="subtitle-2 label-text">
+              <div :style="{ color: currentTheme.secondary }">
                 {{ $tc("caption.note_type", 1) }}
               </div>
               <v-select
@@ -89,6 +89,7 @@
                 small
                 block
                 color="white"
+                :style="{ color: currentTheme.black }"
                 @click="handleDiscard"
               >
                 {{ $tc("caption.discard", 1) }}
@@ -163,6 +164,15 @@ export default {
       tags: [],
     };
   },
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
+  },
   methods: {
     handleDiscard() {
       this.handleClear();
@@ -199,7 +209,6 @@ export default {
   font-style: normal;
   font-weight: 600;
   line-height: 20px;
-  color: #111827;
   padding: 12px;
 }
 .dialog-content {

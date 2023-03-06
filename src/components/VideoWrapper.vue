@@ -26,7 +26,10 @@
       <div class="video-control">
         <div class="cut-duration">
           <div class="start-time">
-            <div class="subtitle-2 label-text">
+            <div
+              class="subtitle-2 label-text"
+              :style="{ color: currentTheme.secondary }"
+            >
               {{ $tc("caption.start", 1) }}
             </div>
             <v-text-field
@@ -40,7 +43,12 @@
           </div>
           <div class="divider"><span>-</span></div>
           <div class="end-time">
-            <div class="subtitle-2 label-text">{{ $tc("caption.end", 1) }}</div>
+            <div
+              class="subtitle-2 label-text"
+              :style="{ color: currentTheme.secondary }"
+            >
+              {{ $tc("caption.end", 1) }}
+            </div>
             <v-text-field
               placeholder="00:00"
               v-mask="'##:##'"
@@ -114,6 +122,13 @@ export default {
         return result;
       } catch (e) {
         return "Infinite";
+      }
+    },
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
       }
     },
   },

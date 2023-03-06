@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-card>
+    <v-card :style="{ backgroundColor: currentTheme.background }">
       <v-card-title class="dialog-title">
         {{ $tc("caption.take_summary", 1) }}
       </v-card-title>
@@ -35,7 +35,10 @@
         </v-row>
         <v-row class="mt-0">
           <v-col class="pr-0">
-            <div class="subtitle-2 label-text">
+            <div
+              class="subtitle-2 label-text"
+              :style="{ color: currentTheme.secondary }"
+            >
               {{ $tc("caption.comment_type", 1) }}
             </div>
             <v-select
@@ -63,7 +66,14 @@
       <v-card-actions>
         <v-row class="action-wrapper">
           <v-col cols="6 pr-1">
-            <v-btn class="btn" small block color="white" @click="handleDiscard">
+            <v-btn
+              class="btn"
+              small
+              block
+              color="white"
+              :style="{ color: currentTheme.black }"
+              @click="handleDiscard"
+            >
               {{ $tc("caption.discard", 1) }}
             </v-btn>
           </v-col>
@@ -106,6 +116,15 @@ export default {
       this.config = data;
     });
   },
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
+  },
   methods: {
     handleDiscard() {
       if (!window.ipc) return;
@@ -140,4 +159,8 @@ export default {
   },
 };
 </script>
-<style scoped></style>
+<style scoped>
+.theme--dark .v-sheet.v-card {
+  box-shadow: none;
+}
+</style>
