@@ -57,7 +57,7 @@ YATTIE exists to help make tester's lives easier.  Ideally, it should remove fri
 
 Our view is that testing is an art as varied and complex as those who undertake it.  So our goal is to create a flexible, extensible toolset to raise the bar for what each member of the testing community can accomplish.
 
-If you have an idea about how we can better meet that goal, please let us know by [requesting a feature](https://features.yattie.ai) or, better yet, [put in a pull request!](docs/CONTRIBUTING.md).
+If you have an idea about how we can better meet that goal, please let us know by [requesting a feature](https://github.com/dacoaster/yattie/labels/enhancement) or, better yet, [put in a pull request!](docs/CONTRIBUTING.md).
 
 <details>
 <summary>Screenshots</summary>
@@ -80,7 +80,7 @@ If you have an idea about how we can better meet that goal, please let us know b
 
 If you looking to contribute - please checkout the [contributing guidelines](docs/CONTRIBUTING.md).
 
-If you're just looking to take it for a spin, check out the pre-built [packages](https://yatt.ai/downloads) and find the one built for your platform.  Can't find the platform you're looking for? Let us know you'd like a new one supported at the [feature requests](https://features.yattie.ai) page!
+If you're just looking to take it for a spin, check out the pre-built [packages](https://yatt.ai/downloads) and find the one built for your platform.  Can't find the platform you're looking for? Let us know you'd like a new one supported by submitting a [feature requests](https://github.com/dacoaster/yattie/labels/enhancement)!
 
 ### Installation
 
@@ -93,9 +93,9 @@ Check out our [docs](https://docs.yattie.ai).
 ## Roadmap
 
 See the [open issues](https://github.com/dacoaster/yattie/issues) for a list of known issues.
-See the [open feature requests](https://features.yattie.ai) for a list of current feature requests.
+See the [open feature requests](https://github.com/dacoaster/yattie/labels/enhancement) for a list of current feature requests.
 
-- [Top Feature Requests](https://features.yattie.ai) (Add your votes using the up or down arrows!)
+- [Top Feature Requests](https://github.com/dacoaster/yattie/labels/enhancement) (Add your votes using the a thumbs up or down!)
 - [Top Bugs](https://github.com/dacoaster/yattie/issues?q=is%3Aissue+is%3Aopen+label%3Abug+sort%3Areactions-%2B1-desc) (Add your votes using the 👍 reaction)
 - [Newest Bugs](https://github.com/dacoaster/yattie/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
 
