@@ -28,7 +28,7 @@ module.exports.initializeSession = () => {
 
   const meta = {
     configPath: path.join(configDir, "config.json"),
-    credentialPath: path.join(configDir, "credential.json"),
+    credentialPath: path.join(configDir, "credentials.json"),
     dataPath: path.join(configDir, "data.json"),
   };
 
@@ -124,7 +124,7 @@ module.exports.initializeSession = () => {
       credentialDb = new JSONdb(metaPath.credentialPath, jsonDbConfig);
     } else {
       credentialDb = new JSONdb(
-        path.join(configDir, "credential.json"),
+        path.join(configDir, "credentials.json"),
         jsonDbConfig
       );
     }
@@ -137,7 +137,7 @@ module.exports.initializeSession = () => {
   } else {
     configDb = new JSONdb(path.join(configDir, "config.json"), jsonDbConfig);
     credentialDb = new JSONdb(
-      path.join(configDir, "credential.json"),
+      path.join(configDir, "credentials.json"),
       jsonDbConfig
     );
     dataDb = new JSONdb(path.join(configDir, "data.json"), jsonDbConfig);
