@@ -101,6 +101,7 @@ export default new Vuex.Store({
 
       state.started = "";
       state.ended = "";
+      state.quickTest = false;
     },
     restoreState(state, payload) {
       state.title = payload.title;

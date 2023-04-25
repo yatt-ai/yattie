@@ -14,6 +14,8 @@ const databaseUtility = require("./modules/DatabaseUtility");
 const windowUtility = require("./modules/WindowUtility");
 const serverUtility = require("./modules/ServerUtility");
 
+import { session } from "electron";
+
 require("./modules/IpcHandlers");
 
 // initialize session
@@ -66,6 +68,11 @@ app.on("activate", () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", async () => {
+  // Changing the User-Agent is required for JIRA token integration to work.
+  session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+    details.requestHeaders["User-Agent"] = "YATTIE";
+    callback({ cancel: false, requestHeaders: details.requestHeaders });
+  });
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
     try {

@@ -1,14 +1,14 @@
 import Vuetify from "vuetify";
-import EditSession from "../EditSession";
+import EditEvidence from "../EditEvidence";
 import ReviewWrapper from "../../components/ReviewWrapper";
 
 import { mount } from "@vue/test-utils";
 
 const vuetify = new Vuetify();
 
-describe("EditSession.vue", () => {
+describe("EditEvidence.vue", () => {
   test("loads editor view", () => {
-    const wrapper = mount(EditSession, {
+    const wrapper = mount(EditEvidence, {
       mocks: {
         $t: () => {},
         $tc: () => {},
@@ -37,7 +37,7 @@ describe("EditSession.vue", () => {
   });
 
   test('triggers a click on "Discard" button', async () => {
-    const wrapper = mount(EditSession, {
+    const wrapper = mount(EditEvidence, {
       mocks: {
         $t: () => {},
         $tc: () => {},
@@ -66,7 +66,7 @@ describe("EditSession.vue", () => {
   });
 
   test('triggers a click on "Save" button', async () => {
-    const wrapper = mount(EditSession, {
+    const wrapper = mount(EditEvidence, {
       mocks: {
         $t: () => {},
         $tc: () => {},
@@ -95,7 +95,7 @@ describe("EditSession.vue", () => {
   });
 
   it('Click on "Clear" button calls "handleClear" method', async () => {
-    const wrapper = mount(EditSession, {
+    const wrapper = mount(EditEvidence, {
       mocks: {
         $t: () => {},
         $tc: () => {},

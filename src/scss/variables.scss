@@ -339,9 +339,10 @@ body {
   border-radius: 50%;
 }
 
-.v-tabs > .v-tabs-bar,
-.v-tabs-items {
-  background-color: var(--v-background-base) !important;
+.theme--light {
+  .v-tabs > .v-tabs-bar .v-tab:not(.v-tab--active), .v-tabs > .v-tabs-bar .v-tab:not(.v-tab--active) > .v-icon, .v-tabs > .v-tabs-bar .v-tab:not(.v-tab--active) > .v-btn, .v-tabs > .v-tabs-bar .v-tab--disabled {
+    color: rgba(255, 255, 255, 0.6);
+  }
 }
 .theme--dark {
   .v-text-field,

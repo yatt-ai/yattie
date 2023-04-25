@@ -10,8 +10,8 @@
       <ControlPanel
         :selectedItems="selected"
         :items="items"
-        :configItem="config"
-        :credentialItem="credential"
+        :config-item="config"
+        :credential-items="credentials"
         :srcId="sourceId"
         view-mode="mini"
         @add-item="addItem"
@@ -45,7 +45,7 @@ export default {
       items: [],
       selected: [],
       config: {},
-      credential: {},
+      credentials: {},
     };
   },
   created() {
@@ -67,8 +67,8 @@ export default {
     }
   },
   mounted() {
-    this.fetchConfig();
-    this.fetchCredential();
+    this.getConfig();
+    this.getCredentials();
 
     if (!window.ipc) return;
 
@@ -82,7 +82,7 @@ export default {
     });
   },
   methods: {
-    fetchConfig() {
+    getConfig() {
       if (!window.ipc) return;
 
       window.ipc
@@ -91,13 +91,13 @@ export default {
           this.config = result;
         });
     },
-    fetchCredential() {
+    getCredentials() {
       if (!window.ipc) return;
 
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIAL })
+        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
         .then((result) => {
-          this.credential = result;
+          this.credentials = result;
         });
     },
     maximize() {

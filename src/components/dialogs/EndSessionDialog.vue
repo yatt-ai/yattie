@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-bind="$attrs" v-on="$listeners" persistent width="350">
-    <v-sheet rounded>
+    <v-sheet outlined rounded>
       <v-card :style="{ backgroundColor: currentTheme.background }">
         <CheckTaskWrapper
           :tasks="tasks"

@@ -124,7 +124,9 @@ export default {
       },
       tag: "",
       tags: [],
-      commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
+      commentTypes: Object.keys(TEXT_TYPES).filter(
+        (item) => item !== "Summary"
+      ),
     };
   },
   created() {

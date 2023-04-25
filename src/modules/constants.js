@@ -1,4 +1,5 @@
 export const IPC_HANDLERS = {
+  BROWSER: "browser",
   CAPTURE: "capture",
   DATABASE: "database",
   FILE_SYSTEM: "fileSystem",
@@ -19,7 +20,7 @@ export const IPC_FUNCTIONS = {
   UPLOAD_EVIDENCE: "uploadEvidence",
   CREATE_AUDIO: "createAudio",
   CREATE_TEMP_USER_MEDIA: "createTempUserMedia",
-  SAVE_USER_MEDIA: "saveUserMedia",
+  //  SAVE_USER_MEDIA: "saveUserMedia",
   UPDATE_USER_MEDIA: "updateUserMedia",
   OPTIMIZE_VIDEO: "optimizeVideo",
   DROP_FILE: "dropFile",
@@ -50,8 +51,8 @@ export const IPC_FUNCTIONS = {
   GET_ITEM_BY_ID: "getItemById",
   GET_CONFIG: "getConfig",
   UPDATE_CONFIG: "updateConfig",
-  GET_CREDENTIAL: "getCredential",
-  UPDATE_CREDENTIAL: "updateCredential",
+  GET_CREDENTIALS: "getCredentials",
+  UPDATE_CREDENTIALS: "updateCredentials",
   GET_METADATA: "getMetaData",
   UPDATE_METADATA: "updateMetaData",
 
@@ -65,6 +66,7 @@ export const IPC_FUNCTIONS = {
   OPEN_SESSION: "openSession",
   EXPORT_SESSION: "exportSession",
   OPEN_CONFIG_FILE: "openConfigFile",
+  OPEN_CREDENTIALS_FILE: "openCredentialsFile",
   DRAG_ITEM: "dragItem",
   OPEN_EXTERNAL_LINK: "openExternalLink",
 
@@ -113,16 +115,40 @@ export const VIEW_MODE = {
   MINI: "minimized",
 };
 
-export const TEXT_TYPES = [
-  "Comment",
-  "Problem",
-  "Suggestion",
-  "Idea",
-  "Question",
-  "Concern",
-  "Positive",
-  "Summary",
-];
+export const TEXT_TYPES = {
+  Comment: {
+    icon: "fa-solid fa-comment",
+    fill: "#6D28D9",
+  },
+  Problem: {
+    icon: "fa-solid fa-triangle-exclamation",
+    fill: "#DC3545",
+  },
+  Suggestion: {
+    icon: "fa-solid fa-clipboard",
+    fill: "#007BFF",
+  },
+  Idea: {
+    icon: "fa-solid fa-lightbulb",
+    fill: "#FFC107",
+  },
+  Question: {
+    icon: "fa-solid fa-circle-question",
+    fill: "#17A2B8",
+  },
+  Concern: {
+    icon: "fa-solid fa-bookmark",
+    fill: "#FAA24b",
+  },
+  Positive: {
+    icon: "fa-solid fa-plus",
+    fill: "#28A745",
+  },
+  Summary: {
+    icon: "fa-solid fa-table-list",
+    fill: "#AAAAAA",
+  },
+};
 
 export const VIDEO_RESOLUTION = [
   {

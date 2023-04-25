@@ -1,24 +1,26 @@
 <template>
   <v-dialog v-bind="$attrs" v-on="$listeners" persistent width="350">
-    <v-sheet outlined color="accent" rounded>
-      <v-card>
+    <v-sheet outlined rounded>
+      <v-card :style="{ backgroundColor: currentTheme.background }">
         <LogoWrapper :height="20" :width="60" />
-        <v-card-title class="title">
-          {{ title || $tc("caption.delete", 1) }}
-        </v-card-title>
-        <v-card-text class="text">
+        <v-card-text class="text" :style="{ color: currentTheme.secondary }">
           {{ text || $t("message.confirm_delete") }}
         </v-card-text>
         <v-card-actions>
           <v-btn
             small
-            color="primary"
+            :color="currentTheme.primary"
             class="text-capitalize btn"
             @click="preceed"
           >
             {{ $tc("caption.proceed", 1) }}
           </v-btn>
-          <v-btn small color="white" class="text-capitalize btn" @click="end">
+          <v-btn
+            small
+            color="currentTheme.background"
+            class="text-capitalize btn"
+            @click="end"
+          >
             {{ $tc("caption.end", 1) }}
           </v-btn>
         </v-card-actions>
@@ -37,6 +39,15 @@ export default {
   props: {
     title: String,
     text: String,
+  },
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
   },
   methods: {
     preceed() {

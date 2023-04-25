@@ -2,10 +2,7 @@ import { app, Menu } from "electron";
 import i18n from "./i18n";
 import open from "open";
 
-const createMenu = (win, dev) => {
-  console.log(win, dev);
-  const isMac = process.platform === "darwin";
-  console.log(isMac);
+const createMenu = (win) => {
   const template = [
     {
       label: i18n.t("menu.file"),
@@ -74,18 +71,18 @@ const createMenu = (win, dev) => {
         },
       ],
     },
-    {
-      label: i18n.t("menu.edit"),
-      submenu: [
-        { label: i18n.t("menu.undo"), accelerator: "Ctrl+Z" },
-        { label: i18n.t("menu.redo"), accelerator: "Ctrl+Shift+Z" },
-        { type: "separator" },
-        { label: i18n.t("menu.cut"), accelerator: "Ctrl+X" },
-        { label: i18n.t("menu.copy"), accelerator: "Ctrl+C" },
-        { label: i18n.t("menu.paste"), accelerator: "Ctrl+V" },
-        { label: i18n.t("menu.select_all"), accelerator: "Ctrl+A" },
-      ],
-    },
+    //{
+    //  label: i18n.t("menu.edit"),
+    //  submenu: [
+    //    { label: i18n.t("menu.undo"), accelerator: "Ctrl+Z" },
+    //    { label: i18n.t("menu.redo"), accelerator: "Ctrl+Shift+Z" },
+    //    { type: "separator" },
+    //    { label: i18n.t("menu.cut"), accelerator: "Ctrl+X" },
+    //    { label: i18n.t("menu.copy"), accelerator: "Ctrl+C" },
+    //    { label: i18n.t("menu.paste"), accelerator: "Ctrl+V" },
+    //    { label: i18n.t("menu.select_all"), accelerator: "Ctrl+A" },
+    //  ],
+    //},
     {
       label: "Help",
       submenu: [
@@ -112,7 +109,15 @@ const createMenu = (win, dev) => {
         //      console.log(err);
         //    });
         //  }
-        //}
+        //},
+        {
+          label: i18n.t("menu.about"),
+          click: () =>
+            win.webContents.send(
+              "ABOUT_DIALOG",
+              process.env.npm_package_version
+            ),
+        },
       ],
     },
   ];

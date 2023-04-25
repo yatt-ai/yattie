@@ -39,7 +39,7 @@ describe("ResultView.vue", () => {
         return {
           items: [],
           activeSession: { comment: "" },
-          commentTypes: TEXT_TYPES,
+          commentTypes: Object.keys(TEXT_TYPES),
           type: "Comment",
           search: "",
           selected: [],
@@ -71,7 +71,7 @@ describe("ResultView.vue", () => {
         return {
           items: [],
           activeSession: { comment: "" },
-          commentTypes: TEXT_TYPES,
+          commentTypes: Object.keys(TEXT_TYPES),
           type: "Comment",
           search: "",
           selected: [],

@@ -80,7 +80,6 @@
                     <v-btn
                       rounded
                       color="primary"
-                      dark
                       class="pa-0 mb-1"
                       height="26"
                       min-width="45"
@@ -190,7 +189,6 @@
                     <v-btn
                       rounded
                       color="primary"
-                      dark
                       class="pa-0 mb-1"
                       height="26"
                       min-width="45"
@@ -301,7 +299,6 @@
                     <v-btn
                       rounded
                       color="primary"
-                      dark
                       class="pa-0 mb-1"
                       height="26"
                       min-width="45"
@@ -809,6 +806,10 @@ export default {
   display: flex;
   column-gap: 3px;
   flex-wrap: wrap;
+}
+.actions-wrapper .v-btn.theme--dark {
+  background-color: white;
+  margin-left: 2px;
 }
 .emoji-icon {
   font-size: 18px;

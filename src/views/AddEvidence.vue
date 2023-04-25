@@ -1,12 +1,13 @@
 <template>
-  <v-container fluid class="wrapper" v-if="Object.keys(item).length">
+  <v-container fluid class="wrapper">
     <div class="content">
       <div class="content-top">
         <ReviewWrapper
           :item="item"
-          :configItem="config"
           :processing="processing"
+          :configItem="config"
           :trigger-save="triggerSaveEvent"
+          :auto-save="autoSaveEvent"
         />
       </div>
       <v-divider></v-divider>
@@ -19,16 +20,14 @@
             item.fileType === 'audio'
           "
         >
-          <template v-if="item.emoji.length">
+          <template v-if="emojis.length">
             <v-btn
               rounded
               color="primary"
-              dark
               class="pa-0 mb-1"
               height="26"
               min-width="45"
-              style=""
-              v-for="(emoji, i) in item.emoji"
+              v-for="(emoji, i) in emojis"
               :key="i"
               @click="removeEmoji(emoji)"
             >
@@ -89,7 +88,7 @@
           </label>
         </div>
         <v-tiptap
-          v-model="item.comment.content"
+          v-model="comment.content"
           :placeholder="$t('message.insert_comment')"
           ref="comment"
           :toolbar="[
@@ -114,7 +113,7 @@
         <vue-tags-input
           class="input-box"
           v-model="tag"
-          :tags="item.tags"
+          :tags="tags"
           :max-tags="10"
           :maxlength="20"
           @tags-changed="handleTags"
@@ -126,7 +125,7 @@
           </div>
           <v-select
             :items="commentTypes"
-            v-model="item.comment.type"
+            v-model="comment.type"
             :placeholder="$tc('caption.comment_type', 1)"
             solo
             dense
@@ -181,7 +180,7 @@ import { VEmojiPicker } from "v-emoji-picker";
 import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
 
 export default {
-  name: "EditSession",
+  name: "AddEvidence",
   components: {
     ReviewWrapper,
     VueTagsInput,
@@ -193,15 +192,20 @@ export default {
       items: [],
       config: {},
       comment: {
-        type: "Comment",
+        type: "",
         content: "",
         text: "",
       },
       tag: "",
+      tags: [],
       emojiMenu: false,
-      commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
-      processing: false,
+      emojis: [],
+      commentTypes: Object.keys(TEXT_TYPES).filter(
+        (item) => item !== "Summary"
+      ),
+      processing: true,
       triggerSaveEvent: false,
+      autoSaveEvent: false,
     };
   },
   created() {
@@ -226,10 +230,29 @@ export default {
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode);
 
-      // set templates
       this.item = data;
-      this.processing = false;
+
+      // optimize video
+      if (this.item.fileType === "video") {
+        this.optimizeVideo();
+      } else {
+        this.processing = false;
+      }
+
+      // set comment type by config
+      if (this.config.commentType && this.config.commentType !== "") {
+        this.comment.type = this.config.commentType;
+      }
+      // set templates by config
+      this.config.templates.map((item) => {
+        let temp = Object.assign({}, item);
+        if (temp.type === this.item.sessionType) {
+          this.comment.content = temp.precondition.content;
+          this.comment.text = temp.precondition.text;
+        }
+      });
     });
+
     this.$root.$on("update-session", this.updateSession);
     this.$root.$on("update-processing", this.updateProcessing);
     this.$root.$on("save-data", this.saveData);
@@ -244,13 +267,6 @@ export default {
           this.items = result;
         });
     },
-
-    updateSession(value) {
-      this.item = value;
-    },
-    updateProcessing(value) {
-      this.processing = value;
-    },
     async getConfig() {
       if (!window.ipc) return;
 
@@ -262,76 +278,93 @@ export default {
           this.config = result;
         });
     },
-    updateComment() {
-      const regex = /(<([^>]+)>)/gi;
-      this.item.comment.text = this.item.comment.content.replace(regex, "");
-    },
-    selectEmoji(emoji) {
-      this.emojiMenu = false;
-      if (this.item.emoji.filter((item) => item.data === emoji.data).length) {
-        this.item.emoji = this.item.emoji.filter(
-          (item) => item.data !== emoji.data
-        );
-      } else {
-        this.item.emoji.push(emoji);
-      }
-    },
-    removeEmoji(emoji) {
-      this.item.emoji = this.item.emoji.filter(
-        (item) => item.data !== emoji.data
-      );
-    },
-    handleClear() {
-      this.item.comment.type = "Comment";
-      this.item.comment.content = "";
-      this.item.comment.text = "";
-    },
-    handleDiscard() {
+    async optimizeVideo() {
+      this.processing = true;
+
       if (!window.ipc) return;
 
+      await window.ipc
+        .invoke(IPC_HANDLERS.CAPTURE, {
+          func: IPC_FUNCTIONS.OPTIMIZE_VIDEO,
+          data: {
+            filePath: this.item.filePath,
+          },
+        })
+        .then(() => {
+          this.processing = false;
+        });
+    },
+    updateComment() {
+      const regex = /(<([^>]+)>)/gi;
+      this.comment.text = this.comment.content.replace(regex, "");
+    },
+    updateSession(value) {
+      this.item = value;
+    },
+    updateProcessing(value) {
+      this.processing = value;
+    },
+    async handleDiscard() {
+      await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.DELETE_FILE,
+        data: { filePath: this.item.filePath },
+      });
+      await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.DELETE_FILE,
+        data: { filePath: this.item.poster },
+      });
       window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.CLOSE_EDIT_WINDOW,
+        func: IPC_FUNCTIONS.CLOSE_ADD_WINDOW,
       });
     },
-    async handleSave() {
-      if (this.item.sessionType !== "note") {
-        this.triggerSaveEvent = true;
-      } else {
-        this.saveData(this.item);
-      }
+    handleSave() {
+      this.triggerSaveEvent = !this.triggerSaveEvent;
     },
     handleTags(newTags) {
-      this.item.tags = newTags;
+      this.tags = newTags;
     },
     handleFollowUp($event) {
       this.item.followUp = $event.target.checked;
     },
-    async saveData(data) {
-      if (data) {
-        this.item.fileName = data.fileName;
-        this.item.filePath = data.filePath;
+    selectEmoji(emoji) {
+      this.emojiMenu = false;
+      if (this.emojis.filter((item) => item.data === emoji.data).length) {
+        this.emojis = this.emojis.filter((item) => item.data !== emoji.data);
+      } else {
+        this.emojis.push(emoji);
       }
-
-      this.items = this.items.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.id === this.item.id) {
-          temp = this.item;
-        }
-        return temp;
-      });
-
-      if (window.ipc) {
-        window.ipc
-          .invoke(IPC_HANDLERS.DATABASE, {
-            func: IPC_FUNCTIONS.UPDATE_ITEMS,
-            data: this.items,
-          })
-          .then(() => {
-            window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-              func: IPC_FUNCTIONS.CLOSE_EDIT_WINDOW,
-            });
+    },
+    removeEmoji(emoji) {
+      this.emojis = this.emojis.filter((item) => item.data !== emoji.data);
+    },
+    async saveData() {
+      const newItem = {
+        ...this.item,
+        comment: this.comment,
+        tags: this.tags,
+        emoji: this.emojis,
+        followUp: false,
+        timer_mark: this.item.timer_mark,
+        createdAt: Date.now(),
+      };
+      this.items.push(newItem);
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.UPDATE_ITEMS,
+          data: this.items,
+        })
+        .then(() => {
+          window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+            func: IPC_FUNCTIONS.CLOSE_ADD_WINDOW,
           });
-      }
+        });
+    },
+    handleClear() {
+      this.comment = {
+        type: "Comment",
+        content: "",
+        text: "",
+      };
     },
   },
 };
@@ -359,31 +392,6 @@ export default {
   justify-content: center;
   align-items: center;
 }
-.file-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  row-gap: 15px;
-}
-.file-wrapper .file-icon {
-  padding: 30px;
-  border-radius: 50%;
-  border: 1px solid #d1d5db;
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
-}
-.file-wrapper .file-icon .v-icon {
-  color: #6b7280;
-  font-size: 50px;
-}
-.file-wrapper p {
-  margin-bottom: 0;
-  font-style: normal;
-  font-weight: 700;
-  font-size: 16px;
-  line-height: 24px;
-  color: #374151;
-}
 .content .content-bottom {
   padding: 20px;
   padding-bottom: 0;
@@ -395,6 +403,10 @@ export default {
   display: flex;
   column-gap: 3px;
   flex-wrap: wrap;
+}
+.actions-wrapper .v-btn.theme--dark {
+  background-color: white;
+  margin-left: 2px;
 }
 .emoji-icon {
   font-size: 18px;

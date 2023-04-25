@@ -17,6 +17,7 @@
             v-model="title"
             hide-details="true"
             @input="updateTitle"
+            :color="currentTheme.secondary"
           ></v-text-field>
         </div>
         <div class="mt-4">
@@ -28,9 +29,9 @@
           </div>
           <v-tabs
             class="charter-tab"
-            color="cyan"
             hide-slider
-            background-color="primary"
+            :background-color="currentTheme.primary"
+            :color="currentTheme.white"
             :height="32"
           >
             <v-tab ripple class="text-capitalize">

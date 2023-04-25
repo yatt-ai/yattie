@@ -13,10 +13,26 @@
           {{ $tc("caption.export_session_report", 1) }}
         </v-btn>
       </v-col>
-      <v-col cols="12" class="pa-1" v-if="checkAuth">
+      <v-col
+        cols="6"
+        class="pa-1"
+        v-if="this.credentials.jira && this.credentials.jira.length > 0"
+      >
         <jira-export-session
-          :title="$tc(`caption.export_session_report_to_jira`, 1)"
-          :credential-item="credential"
+          :title="$tc(`caption.export_to_jira`, 1)"
+          :credential-items="credentials"
+          :selected="[]"
+          :items="itemLists"
+        />
+      </v-col>
+      <v-col
+        cols="6"
+        class="pa-1"
+        v-if="this.credentials.testrail && this.credentials.testrail.length > 0"
+      >
+        <test-rail-export-session
+          :title="$tc(`caption.export_to_testrail`, 1)"
+          :credential-items="credentials"
           :selected="[]"
           :items="itemLists"
         />
@@ -27,12 +43,14 @@
 
 <script>
 import JiraExportSession from "./jira/JiraExportSession";
+import TestRailExportSession from "./testrail/TestRailExportSession";
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 
 export default {
   name: "ExportPanel",
   components: {
     JiraExportSession,
+    TestRailExportSession,
   },
   props: {
     items: {
@@ -43,13 +61,9 @@ export default {
       type: Object,
       default: () => {},
     },
-    credentialItem: {
+    credentialItems: {
       type: Object,
       default: () => {},
-    },
-    isAuthenticated: {
-      type: Boolean,
-      default: () => false,
     },
   },
   watch: {
@@ -59,11 +73,8 @@ export default {
     configItem: function (newValue) {
       this.config = newValue;
     },
-    credentialItem: function (newValue) {
-      this.credential = newValue;
-    },
-    isAuthenticated: function (newValue) {
-      this.checkAuth = newValue;
+    credentialItems: function (newValue) {
+      this.credentials = newValue;
     },
   },
   data() {
@@ -71,8 +82,7 @@ export default {
       exportSessionDialog: false,
       itemLists: this.items,
       config: this.configItem,
-      credential: this.credentialItem,
-      checkAuth: this.isAuthenticated,
+      credentials: this.credentialItems,
     };
   },
   mounted() {

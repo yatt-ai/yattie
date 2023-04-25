@@ -4,9 +4,10 @@
       fill
       small
       block
-      color="white"
+      :color="currentTheme.secondary"
       class="text-capitalize"
       @click="showDialog"
+      :style="{ color: currentTheme.primary }"
     >
       {{ title }}
     </v-btn>
@@ -21,7 +22,7 @@
             <v-row>
               <v-col cols="12">
                 <v-text-field
-                  placeholder="Search Issue"
+                  placeholder="Search Issues"
                   outlined
                   dense
                   v-model="search"
@@ -120,8 +121,7 @@
 
 <script>
 import axios from "axios";
-//import fetch from "node-fetch";
-// import { IPC_HANDLERS, IPC_FUNCTIONS } from "../../modules/constants";
+import dayjs from "dayjs";
 export default {
   name: "JiraExportSession",
   components: {},
@@ -130,7 +130,7 @@ export default {
       type: String,
       default: () => "",
     },
-    credentialItem: {
+    credentialItems: {
       type: Object,
       default: () => {},
     },
@@ -144,8 +144,8 @@ export default {
     },
   },
   watch: {
-    credentialItem: function (newValue) {
-      this.credential = newValue;
+    credentialItems: function (newValue) {
+      this.credentials = newValue;
     },
     items: function (newValue) {
       this.itemLists = newValue;
@@ -158,7 +158,7 @@ export default {
     return {
       loading: false,
       dialog: false,
-      credential: this.credentialItem,
+      credentials: this.credentialItems,
       itemLists: this.items,
       selectedIds: this.selected ? this.selected : [],
       search: "",
@@ -171,6 +171,13 @@ export default {
     };
   },
   computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
     searchIssueList() {
       let temp = this.issues;
       if (this.search !== "" && this.search) {
@@ -192,46 +199,89 @@ export default {
     async showDialog() {
       this.dialog = true;
       this.loading = true;
-      const type = this.credential.type;
-      const url = `https://api.atlassian.com/ex/jira/${this.credential[type].resource.id}/rest/api/3/search`;
-      const headers = {
-        headers: {
-          Authorization: `Bearer ${this.credential[type].access_token}`,
-          Accept: "application/json",
-        },
-      };
-
-      await axios
-        .get(url, headers)
-        .then((response) => {
-          if (response.status === 200) {
-            this.issues = response.data.issues;
+      let first = true;
+      for (const [i, credential] of Object.entries(this.credentials)) {
+        let url, authHeader;
+        // TODO - build headers in an IntegrationsHelper function
+        if (credential.type === "basic") {
+          url = `https://${credential.url}/rest/api/3/search`;
+          authHeader = `Basic ${credential.accessToken}`;
+        } else if (credential.type === "oauth") {
+          if (!credential.url) {
+            url = `https://api.atlassian.com/ex/jira/${credential.orgs[0].id}/rest/api/3/search`;
+          } else {
+            url = `https://${credential.url}/rest/api/2/search`;
           }
-          this.loading = false;
-        })
-        .catch((error) => {
-          this.loading = false;
-          this.snackBar.enabled = true;
-          this.snackBar.message = error.message ? error.message : "API Error";
-        });
+          authHeader = `Bearer ${credential.accessToken}`;
+        }
+        const headers = {
+          headers: {
+            Authorization: authHeader,
+            Accept: "application/json",
+          },
+        };
+
+        await axios
+          .get(url, headers)
+          .then((response) => {
+            if (response.status === 200) {
+              if (first) {
+                this.issues = response.data.issues.map((issue) => ({
+                  ...issue,
+                  credential_index: i,
+                }));
+              } else {
+                this.issues.push(
+                  response.data.issues.map((issue) => ({
+                    ...issue,
+                    credential_index: i,
+                  }))
+                );
+              }
+            }
+            this.loading = false;
+          })
+          .catch((error) => {
+            this.loading = false;
+            this.snackBar.enabled = true;
+            this.snackBar.message = error.message ? error.message : "API Error";
+            if (
+              credential.type === "oauth" &&
+              dayjs(credential.lastRefreshed) < dayjs().subtract(4, "minute") &&
+              [401, 403].includes(error.status)
+            ) {
+              this.$root.$emit("update-auth", []);
+            }
+          });
+      }
     },
     handleSelectedItem(item) {
       this.selectedItem = item;
     },
     handleExport() {
       this.uploadFile = async (data) => {
-        const type = this.credential.type;
-        const url = `https://api.atlassian.com/ex/jira/${this.credential[type].resource.id}/rest/api/3/issue/${this.selectedItem.key}/attachments`;
-        const access_token = await this.$integrationHelpers.getAccessToken(
-          this.credential
-        );
+        let url, authHeader;
+        const credential = this.credentials[this.selectedItem.credential_index];
+        const accessToken = credential.accessToken;
+        if (credential.type === "basic") {
+          url = `https://${credential.url}/rest/api/3/issue/${this.selectedItem.key}/attachments`;
+          authHeader = `Basic ${accessToken}`;
+        } else if (credential.type === "oauth") {
+          if (!credential.url) {
+            url = `https://api.atlassian.com/ex/jira/${credential.orgs[0].id}/rest/api/3/issue/${this.selectedItem.key}/attachments`;
+          } else {
+            url = `https://${credential.url}/rest/api/2/issue/${this.selectedItem.key}/attachments`;
+          }
+          authHeader = `Bearer ${accessToken}`;
+        }
         const headers = {
           headers: {
-            Authorization: `Bearer ${access_token}`,
+            Authorization: authHeader,
             Accept: "application/json",
             "X-Atlassian-Token": "no-check",
           },
         };
+
         axios
           .post(url, data, headers)
           .then((response) => {
@@ -245,6 +295,13 @@ export default {
             this.loading = false;
             this.snackBar.enabled = true;
             this.snackBar.message = error.message ? error.message : "API Error";
+            if (
+              credential.type === "oauth" &&
+              dayjs(credential.lastRefreshed) < dayjs().subtract(4, "minute") &&
+              [401, 403].includes(error.status)
+            ) {
+              this.$root.$emit("update-auth", []);
+            }
           });
       };
 
@@ -261,7 +318,9 @@ export default {
 
       this.selectedIds.map(async (id, i) => {
         const item = this.itemLists.find((item) => item.id === id);
+        console.log(`${JSON.stringify(item)}`);
         const response = await fetch(`file:${item.filePath}`);
+        console.log(`${JSON.stringify(response)}`);
         const file = new File([await response.blob()], item.fileName);
         formData.append("file", file);
         if (i === this.selectedIds.length - 1) {
@@ -278,7 +337,6 @@ export default {
 
 <style scoped>
 .dialog-title {
-  /* border-bottom: 1px solid #e5e7eb; */
   font-size: 14px;
   font-style: normal;
   font-weight: 600;

@@ -29,7 +29,7 @@
             >
               <div class="duration-text">
                 <v-icon>mdi-clock-outline</v-icon>
-                <span>{{ formatTime }}</span>
+                <span>{{ formatTime(0) }}</span>
               </div>
             </v-timeline-item>
 
@@ -50,7 +50,7 @@
                   <div class="d-flex justify-space-between py-2">
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ calculateTime(item.time) }}</span>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -69,14 +69,23 @@
                       :src="`file://${item.filePath}`"
                     />
                   </div>
-                  <div class="comment-wrapper mt-2">
-                    <span class="comment-type"
-                      >{{
-                        item.comment.text
-                          ? item.comment.type + ": " + item.comment.text
-                          : ""
-                      }}
+                  <div class="comment-wrapper mt-2 mb-2 test">
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
+                    <span
+                      class="comment-type"
+                      :style="{ color: currentTheme.secondary }"
+                    >
+                      {{ item.comment.type }}:
                     </span>
+                    <span v-html="item.comment.content"></span>
                   </div>
                   <div v-if="item.tags.length" class="tags-wrapper my-2">
                     <v-chip
@@ -95,7 +104,6 @@
                       <v-btn
                         rounded
                         color="primary"
-                        dark
                         class="pa-0 mb-1"
                         height="26"
                         min-width="45"
@@ -110,7 +118,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-${item.id}`]"
+                      v-model="emojiMenu[`menu-` + item.id]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -175,7 +183,7 @@
                   <div class="d-flex justify-space-between py-2">
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ calculateTime(item.time) }}</span>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -194,14 +202,23 @@
                       :src="`file://${item.filePath}`"
                     ></video>
                   </div>
-                  <div class="comment-wrapper mt-2">
-                    <span class="comment-type"
-                      >{{
-                        item.comment.text
-                          ? item.comment.type + ": " + item.comment.text
-                          : ""
-                      }}
+                  <div class="comment-wrapper mt-2 mb-2">
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
+                    <span
+                      class="comment-type"
+                      :style="{ color: currentTheme.secondary }"
+                    >
+                      {{ item.comment.type }}:
                     </span>
+                    <span v-html="item.comment.content"></span>
                   </div>
                   <div v-if="item.tags.length" class="tags-wrapper my-2">
                     <v-chip
@@ -220,7 +237,6 @@
                       <v-btn
                         rounded
                         color="primary"
-                        dark
                         class="pa-0 mb-1"
                         height="26"
                         min-width="45"
@@ -235,7 +251,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-${item.id}`]"
+                      v-model="emojiMenu[`menu-` + item.id]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -300,7 +316,7 @@
                   <div class="d-flex justify-space-between py-2">
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ calculateTime(item.time) }}</span>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -320,14 +336,23 @@
                       <v-icon medium>mdi-play-circle</v-icon>
                     </div>
                   </div>
-                  <div class="comment-wrapper mt-2">
-                    <span class="comment-type"
-                      >{{
-                        item.comment.text
-                          ? item.comment.type + ": " + item.comment.text
-                          : ""
-                      }}
+                  <div class="comment-wrapper mt-2 mb-2">
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
+                    <span
+                      class="comment-type"
+                      :style="{ color: currentTheme.secondary }"
+                    >
+                      {{ item.comment.type }}:
                     </span>
+                    <span v-html="item.comment.content"></span>
                   </div>
                   <div v-if="item.tags.length" class="tags-wrapper my-2">
                     <v-chip
@@ -346,7 +371,6 @@
                       <v-btn
                         rounded
                         color="primary"
-                        dark
                         class="pa-0 mb-1"
                         height="26"
                         min-width="45"
@@ -361,7 +385,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-${item.id}`]"
+                      v-model="emojiMenu[`menu-` + item.id]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -426,7 +450,7 @@
                   <div class="d-flex justify-space-between py-2">
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ calculateTime(item.time) }}</span>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -439,9 +463,22 @@
                     </div>
                   </div>
                   <div class="note-wrapper" @click="handleItemClick(item.id)">
-                    <span class="comment-type"
-                      >{{ item.comment.type + ": " + item.comment.text }}
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
+                    <span
+                      class="comment-type"
+                      :style="{ color: currentTheme.secondary }"
+                    >
+                      {{ item.comment.type }}:
                     </span>
+                    <span v-html="item.comment.content"></span>
                   </div>
                   <div v-if="item.tags.length" class="tags-wrapper my-2">
                     <v-chip
@@ -478,7 +515,7 @@
                   <div class="d-flex justify-space-between py-2">
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ calculateTime(item.time) }}</span>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -513,14 +550,23 @@
                       <v-icon medium>mdi-file</v-icon>
                     </div>
                   </div>
-                  <div class="comment-wrapper mt-2">
-                    <span class="comment-type"
-                      >{{
-                        item.comment.text
-                          ? item.comment.type + ": " + item.comment.text
-                          : ""
-                      }}
+                  <div class="comment-wrapper mt-2 mb-2">
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
+                    <span
+                      class="comment-type"
+                      :style="{ color: currentTheme.secondary }"
+                    >
+                      {{ item.comment.type }}:
                     </span>
+                    <span v-html="item.comment.content"></span>
                   </div>
                   <div v-if="item.tags.length" class="tags-wrapper my-2">
                     <v-chip
@@ -557,7 +603,7 @@
                   <div class="d-flex justify-space-between py-2">
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ calculateTime(item.time) }}</span>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -576,14 +622,23 @@
                       :src="`file://${item.filePath}`"
                     />
                   </div>
-                  <div class="comment-wrapper mt-2">
-                    <span class="comment-type"
-                      >{{
-                        item.comment.text
-                          ? item.comment.type + ": " + item.comment.text
-                          : ""
-                      }}
+                  <div class="comment-wrapper mt-2 mb-2">
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
+                    <span
+                      class="comment-type"
+                      :style="{ color: currentTheme.secondary }"
+                    >
+                      {{ item.comment.type }}:
                     </span>
+                    <span v-html="item.comment.content"></span>
                   </div>
                   <div v-if="item.tags.length" class="tags-wrapper my-2">
                     <v-chip
@@ -620,7 +675,7 @@
                   <div class="d-flex justify-space-between py-2">
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ calculateTime(item.time) }}</span>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -633,9 +688,22 @@
                     </div>
                   </div>
                   <div class="note-wrapper" @click="handleItemClick(item.id)">
-                    <span class="comment-type"
-                      >{{ item.comment.type + ": " + item.comment.text }}
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
+                    <span
+                      class="comment-type"
+                      :style="{ color: currentTheme.secondary }"
+                    >
+                      {{ item.comment.type }}:
                     </span>
+                    <span v-html="item.comment.content"></span>
                   </div>
                 </div>
               </v-timeline-item>
@@ -648,7 +716,7 @@
             >
               <div class="duration-text">
                 <v-icon>mdi-clock-outline</v-icon>
-                <span>{{ formatTime }}</span>
+                <span>{{ formatTime($store.state.timer) }}</span>
               </div>
             </v-timeline-item>
           </v-timeline>
@@ -692,7 +760,12 @@ import { VEmojiPicker } from "v-emoji-picker";
 
 import dayjs from "dayjs";
 
-import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
+import {
+  IPC_HANDLERS,
+  IPC_FUNCTIONS,
+  STATUSES,
+  TEXT_TYPES,
+} from "../modules/constants";
 
 export default {
   name: "TimelineWrapper",
@@ -723,9 +796,11 @@ export default {
   watch: {
     items: function (newValue) {
       this.itemLists = newValue;
+      let newMap = { ...this.emojiMenu };
       this.itemLists.map((item) => {
-        this.emojiMenu[`menu-${item.id}`] = false;
+        newMap[`menu-${item.id}`] = false;
       });
+      this.emojiMenu = newMap;
     },
     selectedItems: function (newValue) {
       this.selected = newValue;
@@ -741,6 +816,7 @@ export default {
       activeSession: {},
       tags: "",
       eventName: this.eventType,
+      textTypes: TEXT_TYPES,
       clicks: 0,
       isDragging: false,
       itemDragging: false,
@@ -751,14 +827,6 @@ export default {
   computed: {
     status() {
       return this.$store.state.status;
-    },
-    formatTime() {
-      const timer = this.$store.state.timer;
-      const seconds = ("0" + (timer % 60)).slice(-2);
-      const minutes = ("0" + (parseInt(timer / 60, 10) % 60)).slice(-2);
-      const hours = ("0" + (parseInt(timer / 3600, 10) % 24)).slice(-2);
-
-      return hours + ":" + minutes + ":" + seconds;
     },
     current() {
       return dayjs().format("MM-DD-YYYY");
@@ -772,11 +840,19 @@ export default {
     },
   },
   mounted() {
+    this.emojiMenu = {};
     this.itemLists.map((item) => {
       this.emojiMenu[`menu-${item.id}`] = false;
     });
   },
   methods: {
+    formatTime(timeInSeconds) {
+      const seconds = ("0" + (timeInSeconds % 60)).slice(-2);
+      const minutes = ("0" + (parseInt(timeInSeconds / 60, 10) % 60)).slice(-2);
+      const hours = ("0" + (parseInt(timeInSeconds / 3600, 10) % 24)).slice(-2);
+
+      return hours + ":" + minutes + ":" + seconds;
+    },
     async uploadEvidence() {
       if (!window.ipc) return;
 
@@ -795,7 +871,7 @@ export default {
           fileType: result.fileType,
           fileName: result.fileName,
           filePath: result.filePath,
-          time: this.$store.state.timer,
+          timer_mark: this.$store.state.timer,
         };
         this.openEditorModal(data);
       }
@@ -807,13 +883,6 @@ export default {
         func: IPC_FUNCTIONS.OPEN_ADD_WINDOW,
         data: { width: 700, height: 800, data: data },
       });
-    },
-    calculateTime(time) {
-      const seconds = ("0" + (time % 60)).slice(-2);
-      const minutes = ("0" + (parseInt(time / 60, 10) % 60)).slice(-2);
-      const hours = ("0" + (parseInt(time / 3600, 10) % 24)).slice(-2);
-
-      return hours + ":" + minutes + ":" + seconds;
     },
     checkedItem(id) {
       if (this.selected.includes(id)) {
@@ -914,7 +983,7 @@ export default {
             fileType: result.fileType,
             fileName: result.fileName,
             filePath: result.filePath,
-            time: this.$store.state.timer,
+            timer_mark: this.$store.state.timer,
           };
           this.openEditorModal(data);
           this.isDragging = false;
@@ -974,6 +1043,9 @@ export default {
 };
 </script>
 <style scoped>
+.icon {
+  margin-top: 2px;
+}
 .hidden {
   display: none;
 }
@@ -1024,10 +1096,10 @@ export default {
 }
 .comment-wrapper {
   display: flex;
-  background: #fff;
 }
-.comment-wrapper p {
-  margin-bottom: 0 !important;
+.comment-type {
+  font-weight: bold;
+  margin-right: 4px;
 }
 .drop-indicator {
   border-radius: 15px;
@@ -1043,13 +1115,9 @@ export default {
 .note-wrapper {
   display: flex;
   padding: 8px 14px;
-  background: #fff;
   border: 1px solid #d1d5db;
   border-radius: 4px;
   cursor: pointer;
-}
-.note-wrapper p {
-  margin-bottom: 0 !important;
 }
 .audio-wrapper .audio-wave {
   flex-grow: 1;
@@ -1094,6 +1162,10 @@ export default {
   display: flex;
   column-gap: 3px;
   flex-wrap: wrap;
+}
+.actions-wrapper .v-btn.theme--dark {
+  background-color: white;
+  margin-left: 2px;
 }
 .emoji-icon {
   font-size: 18px;

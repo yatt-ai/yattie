@@ -7,6 +7,13 @@ const menuUtility = require("./MenuUtility");
 const windowUtility = require("./WindowUtility");
 const serverUtility = require("./ServerUtility");
 
+ipcMain.handle(IPC_HANDLERS.BROWSER, async (event, args) => {
+  switch (args.func) {
+    default:
+      return null;
+  }
+});
+
 ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
   switch (args.func) {
     case IPC_FUNCTIONS.GET_MEDIA_SOURCE:
@@ -31,8 +38,8 @@ ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
       return captureUtility.createAudio(args.data);
     case IPC_FUNCTIONS.CREATE_TEMP_USER_MEDIA:
       return captureUtility.createTempUserMedia(args.data);
-    case IPC_FUNCTIONS.SAVE_USER_MEDIA:
-      return captureUtility.saveUserMedia(args.data);
+    //    case IPC_FUNCTIONS.SAVE_USER_MEDIA:
+    //      return captureUtility.saveUserMedia(args.data);
     case IPC_FUNCTIONS.UPDATE_USER_MEDIA:
       return captureUtility.updateUserMedia(args.data);
     case IPC_FUNCTIONS.DROP_FILE:
@@ -101,10 +108,10 @@ ipcMain.handle(IPC_HANDLERS.DATABASE, async (event, args) => {
       return databaseUtility.getConfig(args.data);
     case IPC_FUNCTIONS.UPDATE_CONFIG:
       return databaseUtility.updateConfig(args.data);
-    case IPC_FUNCTIONS.GET_CREDENTIAL:
-      return databaseUtility.getCredential(args.data);
-    case IPC_FUNCTIONS.UPDATE_CREDENTIAL:
-      return databaseUtility.updateCredential(args.data);
+    case IPC_FUNCTIONS.GET_CREDENTIALS:
+      return databaseUtility.getCredentials(args.data);
+    case IPC_FUNCTIONS.UPDATE_CREDENTIALS:
+      return databaseUtility.updateCredentials(args.data);
     case IPC_FUNCTIONS.GET_METADATA:
       return databaseUtility.getMetaData(args.data);
     case IPC_FUNCTIONS.UPDATE_METADATA:
@@ -134,6 +141,8 @@ ipcMain.handle(IPC_HANDLERS.FILE_SYSTEM, async (event, args) => {
       return fileSystemUtility.exportSession(args.data);
     case IPC_FUNCTIONS.OPEN_CONFIG_FILE:
       return fileSystemUtility.openConfigFile(args.data);
+    case IPC_FUNCTIONS.OPEN_CREDENTIALS_FILE:
+      return fileSystemUtility.openCredentialsFile(args.data);
     case IPC_FUNCTIONS.DRAG_ITEM:
       return fileSystemUtility.dragItem(event, args.data);
     case IPC_FUNCTIONS.OPEN_EXTERNAL_LINK:

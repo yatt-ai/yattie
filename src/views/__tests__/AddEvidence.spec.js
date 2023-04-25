@@ -1,14 +1,14 @@
 import Vuetify from "vuetify";
-import AddSession from "../AddSession";
+import AddEvidence from "../AddEvidence";
 import ReviewWrapper from "../../components/ReviewWrapper";
 
 import { mount } from "@vue/test-utils";
 
 const vuetify = new Vuetify();
 
-describe("AddSession.vue", () => {
+describe("AddEvidence.vue", () => {
   test("loads editor view", () => {
-    const wrapper = mount(AddSession, {
+    const wrapper = mount(AddEvidence, {
       mocks: {
         $t: () => {},
         $tc: () => {},
@@ -43,7 +43,7 @@ describe("AddSession.vue", () => {
   });
 
   test('triggers a click on "Discard" button', async () => {
-    const wrapper = mount(AddSession, {
+    const wrapper = mount(AddEvidence, {
       mocks: {
         $t: () => {},
         $tc: () => {},
@@ -79,7 +79,7 @@ describe("AddSession.vue", () => {
   });
 
   test('triggers a click on "Save" button', async () => {
-    const wrapper = mount(AddSession, {
+    const wrapper = mount(AddEvidence, {
       mocks: {
         $t: () => {},
         $tc: () => {},
@@ -115,7 +115,7 @@ describe("AddSession.vue", () => {
   });
 
   it('trigger the click event of "Clear" button', async () => {
-    const wrapper = mount(AddSession, {
+    const wrapper = mount(AddEvidence, {
       mocks: {
         $t: () => {},
         $tc: () => {},

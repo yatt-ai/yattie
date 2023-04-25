@@ -338,12 +338,11 @@ module.exports.openConfigFile = async () => {
 
   const filePath = filePaths[0];
   try {
-    fs.readFile(filePath, "utf8", (err, jsonString) => {
+    fs.readFile(filePath, "utf8", (err) => {
       if (err) {
         console.log("File read failed:", err);
         return;
       }
-      console.log("File data:", jsonString);
     });
 
     const metaData = databaseUtility.getMetaData();
@@ -357,6 +356,43 @@ module.exports.openConfigFile = async () => {
     return Promise.resolve({
       status: STATUSES.ERROR,
       message: "Config file imported failed",
+    });
+  }
+};
+
+module.exports.openCredentialsFile = async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ["openFile"],
+    filters: [{ name: "Credentials File", extensions: ["json"] }],
+  });
+
+  if (canceled) {
+    return Promise.resolve({
+      status: STATUSES.ERROR,
+      message: "no file selected",
+    });
+  }
+
+  const filePath = filePaths[0];
+  try {
+    fs.readFile(filePath, "utf8", (err) => {
+      if (err) {
+        console.log("File read failed:", err);
+        return;
+      }
+    });
+
+    const metaData = databaseUtility.getMetaData();
+    metaData.credentialsPath = filePath;
+    databaseUtility.updateMetaData(metaData);
+    return Promise.resolve({
+      status: STATUSES.SUCCESS,
+      message: "Credentials file imported successfully",
+    });
+  } catch (err) {
+    return Promise.resolve({
+      status: STATUSES.ERROR,
+      message: "Credentials file imported failed",
     });
   }
 };

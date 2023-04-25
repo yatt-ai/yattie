@@ -111,8 +111,8 @@ module.exports.openAddWindow = ({ width, height, data }) => {
 
   const modalPath =
     process.env.NODE_ENV === "development"
-      ? "http://localhost:8080/#/addSession"
-      : `file://${__dirname}/index.html#addSession`;
+      ? "http://localhost:8080/#/addEvidence"
+      : `file://${__dirname}/index.html#addEvidence`;
 
   if (!addWin) {
     addWin = new BrowserWindow({
@@ -162,8 +162,8 @@ module.exports.openEditWindow = (data) => {
   const browserWindow = browserUtility.getBrowserWindow();
   const url =
     process.env.NODE_ENV === "development"
-      ? "http://localhost:8080/#/editSession"
-      : `file://${__dirname}/index.html#editSession`;
+      ? "http://localhost:8080/#/editEvidence"
+      : `file://${__dirname}/index.html#editEvidence`;
 
   if (!editWin) {
     editWin = new BrowserWindow({

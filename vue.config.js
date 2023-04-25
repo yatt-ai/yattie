@@ -1,5 +1,15 @@
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+
 module.exports = {
   transpileDependencies: ["vuetify"],
+  configureWebpack: {
+    plugins: [new NodePolyfillPlugin()],
+    optimization: {
+      splitChunks: {
+        chunks: "all",
+      },
+    },
+  },
   pluginOptions: {
     electronBuilder: {
       externals: ["fluent-ffmpeg", "ffmpeg-static", "ffprobe-static"],

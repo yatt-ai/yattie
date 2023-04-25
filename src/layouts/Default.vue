@@ -3,29 +3,58 @@
     <v-main>
       <v-overlay :absolute="true" :value="overlay"> </v-overlay>
       <router-view :isAuthenticated="checkAuth" />
+      <v-snackbar v-model="snackBar.enabled" timeout="3000">
+        {{ snackBar.message }}
+        <template v-slot:action="{ attrs }">
+          <v-btn
+            color="primary"
+            text
+            v-bind="attrs"
+            @click="snackBar.enabled = false"
+          >
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
+      <AboutDialog v-model="aboutDialog" :version="aboutVersion" />
     </v-main>
   </v-app>
 </template>
 
 <script>
 import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
+import AboutDialog from "../components/dialogs/AboutDialog.vue";
 export default {
   name: "DefaultLayout",
 
+  components: {
+    AboutDialog,
+  },
+
   data: () => ({
+    aboutDialog: false,
+    aboutVersion: null,
     overlay: false,
     config: {},
-    credential: {},
+    credentials: {},
     checkAuth: false,
+    snackBar: {
+      enabled: false,
+      message: "",
+    },
   }),
   created() {
     this.getConfig();
-    this.getCredential();
+    this.getCredentials().then(() => {
+      this.updateAuth();
+    });
   },
   mounted() {
+    this.$root.$on("update-auth", this.updateAuth());
     this.$root.$on("overlay", (value) => {
       this.overlay = value;
     });
+    this.$root.$on("close-aboutdialog", this.hideAboutDialog);
 
     if (!window.ipc) return;
 
@@ -87,6 +116,7 @@ export default {
         func: IPC_FUNCTIONS.OPEN_SETTING_WINDOW,
       });
     });
+
     window.ipc.on("SET_THEME", ({ apperance }) => {
       const isDarkMode = apperance === "dark" ? true : false;
       this.$vuetify.theme.dark = isDarkMode;
@@ -98,10 +128,21 @@ export default {
     });
 
     window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredential();
+      this.getCredentials();
+    });
+
+    window.ipc.on("ABOUT_DIALOG", async (version) => {
+      this.aboutVersion = version;
+      this.openAboutDialog();
     });
   },
   methods: {
+    hideAboutDialog() {
+      this.aboutDialog = false;
+    },
+    openAboutDialog() {
+      this.aboutDialog = true;
+    },
     getConfig() {
       if (!window.ipc) return;
       window.ipc
@@ -110,13 +151,30 @@ export default {
           this.config = result;
         });
     },
-    getCredential() {
+    async updateAuth() {
+      if (this.credentials && Object.entries(this.credentials).length > 0) {
+        let authCheckResponse = await this.$integrationHelpers.checkAuth(
+          this.credentials
+        );
+        this.checkAuth = authCheckResponse.authed;
+        if (authCheckResponse.failedAuth?.length > 0) {
+          // TODO - Prompt the user if they'd like to remove the failing cred
+          let message = "";
+          for (const failedCred of authCheckResponse.failedAuth) {
+            message += `${failedCred.credentialType} `;
+          }
+          message += `integrations expired.`;
+          this.snackBar.enabled = true;
+          this.snackBar.message = message;
+        }
+      }
+    },
+    async getCredentials() {
       if (!window.ipc) return;
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIAL })
+      await window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
         .then((result) => {
-          this.credential = result;
-          this.checkAuth = this.$integrationHelpers.checkAuth(this.credential);
+          this.credentials = result;
         });
     },
   },

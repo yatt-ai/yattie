@@ -2,7 +2,7 @@
   <div class="authentication-wrapper">
     <router-view
       :config-item="config"
-      :credential-item="credential"
+      :credential-items="credentials"
       :prev-route="prevRoute"
     ></router-view>
   </div>
@@ -16,13 +16,13 @@ export default {
   data() {
     return {
       config: {},
-      credential: {},
+      credentials: {},
       prevRoute: null,
     };
   },
   created() {
     this.getConfig();
-    this.getCredential();
+    this.getCredentials();
   },
   beforeRouteEnter(to, from, next) {
     next((vm) => {
@@ -35,7 +35,7 @@ export default {
     });
 
     window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredential();
+      this.getCredentials();
     });
   },
   methods: {
@@ -46,11 +46,11 @@ export default {
           this.config = result;
         });
     },
-    getCredential() {
+    getCredentials() {
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIAL })
+        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
         .then((result) => {
-          this.credential = result;
+          this.credentials = result;
         });
     },
   },

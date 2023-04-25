@@ -3,18 +3,20 @@ import VueRouter from "vue-router";
 
 import HomeView from "../views/HomeView.vue";
 import MainView from "../views/MainView.vue";
-import AddSession from "../views/AddSession.vue";
-import EditSession from "../views/EditSession.vue";
+import AddEvidence from "../views/AddEvidence.vue";
+import EditEvidence from "../views/EditEvidence.vue";
 import ResultView from "../views/ResultView.vue";
 import PrintView from "../views/PrintView.vue";
 import NoteView from "../views/NoteView.vue";
 import MinimizeView from "../views/MinimizeView.vue";
 
 import AuthenticationView from "../views/AuthenticationView.vue";
-import SignupHomeWrapper from "@/components/authentication/SignupHomeWrapper";
 import SignupMainWrapper from "@/components/authentication/SignupMainWrapper";
 import SignupYattieWrapper from "@/components/authentication/SignupYattieWrapper";
 import SigninWrapper from "@/components/authentication/SigninWrapper";
+import SigninYattWrapper from "@/components/authentication/SigninYattWrapper";
+import SigninJiraWrapper from "@/components/authentication/SigninJiraWrapper";
+import SigninTestRailWrapper from "@/components/authentication/SigninTestRailWrapper";
 
 import SettingView from "../views/SettingView.vue";
 import ConnectionsTab from "@/components/settings/ConnectionsTab.vue";
@@ -24,10 +26,10 @@ import TemplateTab from "@/components/settings/TemplateTab.vue";
 import ConfigCheckListTab from "@/components/settings/ConfigCheckListTab.vue";
 import ReportsTab from "@/components/settings/ReportsTab.vue";
 
-import NoteEidtorview from "../views/NoteEditorView.vue";
+import NoteEditorView from "../views/NoteEditorView.vue";
 import SummaryEditorView from "../views/SummaryEditorView.vue";
 import EndSessionView from "../views/EndSessionView.vue";
-import SourcePickerView from "../views/SourcePickerView.vue";
+import ShareOAuthView from "../views/ShareOAuthView.vue";
 
 Vue.use(VueRouter);
 
@@ -41,12 +43,6 @@ const routes = [
     path: "/authentication",
     component: AuthenticationView,
     children: [
-      {
-        path: "/",
-        name: "signupHome",
-        component: SignupHomeWrapper,
-        props: true,
-      },
       {
         path: "signupMain",
         name: "signupMain",
@@ -63,6 +59,24 @@ const routes = [
         path: "signin",
         name: "signin",
         component: SigninWrapper,
+        props: true,
+      },
+      {
+        path: "signinYatt",
+        name: "signinYatt",
+        component: SigninYattWrapper,
+        props: true,
+      },
+      {
+        path: "signinJira",
+        name: "signinJira",
+        component: SigninJiraWrapper,
+        props: true,
+      },
+      {
+        path: "signinTestRail",
+        name: "signinTestRail",
+        component: SigninTestRailWrapper,
         props: true,
       },
     ],
@@ -120,14 +134,14 @@ const routes = [
     ],
   },
   {
-    path: "/addSession",
-    name: "addSession",
-    component: AddSession,
+    path: "/addEvidence",
+    name: "addEvidence",
+    component: AddEvidence,
   },
   {
-    path: "/editSession",
-    name: "editSession",
-    component: EditSession,
+    path: "/EditEvidence",
+    name: "EditEvidence",
+    component: EditEvidence,
   },
   {
     path: "/result",
@@ -153,7 +167,7 @@ const routes = [
   {
     path: "/noteEditor",
     name: "noteEditor",
-    component: NoteEidtorview,
+    component: NoteEditorView,
   },
   {
     path: "/summaryEditor",
@@ -161,14 +175,14 @@ const routes = [
     component: SummaryEditorView,
   },
   {
+    path: "/shareOAuth",
+    name: "shareOAuth",
+    component: ShareOAuthView,
+  },
+  {
     path: "/endsession",
     name: "endsession",
     component: EndSessionView,
-  },
-  {
-    path: "/sourcepicker",
-    name: "sourcePicker",
-    component: SourcePickerView,
   },
 ];
 
