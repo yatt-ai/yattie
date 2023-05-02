@@ -422,7 +422,7 @@ export default {
         const yattURL = `${process.env.VUE_APP_YATT_API_URL}`;
         const scopes = "read:jira-work write:jira-work read:me offline_access";
         const redirectURL = `${yattURL}/v1/app/oauth/jira`;
-        const clientId = `{process.env.VUE_APP_JIRA_OAUTH_KEY}`;
+        const clientId = `${process.env.VUE_APP_JIRA_OAUTH_KEY}`;
         const serverURL = "https://auth.atlassian.com";
         const tokenId = uuidv4();
         const url = encodeURI(
