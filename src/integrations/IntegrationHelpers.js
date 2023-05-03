@@ -115,7 +115,7 @@ export default {
     let tokenURL;
     if (provider === "jira") {
       if (!credential.url) {
-        tokenURL = `${process.env.VUE_APP_YATT_API_URL}/v1/app/oauth/jira/token/${credential.yattOauthTokenId}`;
+        tokenURL = `${process.env.VUE_APP_YATT_API_URL}/app/oauth/jira/token/${credential.yattOauthTokenId}`;
         let yattToken = this.getYattCredentialForOauthToken(
           credentials,
           credential.yattOauthTokenId

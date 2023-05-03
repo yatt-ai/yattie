@@ -150,7 +150,7 @@ export default {
       if (isValid) {
         this.loading = true;
         this.$root.$emit("overlay", true);
-        const url = `${process.env.YATT_API_URL}/v1/app/signin`;
+        const url = `${process.env.YATT_API_URL}/app/signin`;
         await axios
           .post(url, {
             email: this.username,

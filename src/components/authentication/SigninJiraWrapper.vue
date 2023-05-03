@@ -421,7 +421,7 @@ export default {
         this.$root.$emit("overlay", true);
         const yattURL = `${process.env.VUE_APP_YATT_API_URL}`;
         const scopes = "read:jira-work write:jira-work read:me offline_access";
-        const redirectURL = `${yattURL}/v1/app/oauth/jira`;
+        const redirectURL = `${yattURL}/app/oauth/jira`;
         const clientId = `${process.env.VUE_APP_JIRA_OAUTH_KEY}`;
         const serverURL = "https://auth.atlassian.com";
         const tokenId = uuidv4();
@@ -441,7 +441,7 @@ export default {
 
         const pollForToken = async (creds) => {
           await wait(3500);
-          const tokenURL = `${yattURL}/v1/app/oauth/jira/token/${tokenId}`;
+          const tokenURL = `${yattURL}/app/oauth/jira/token/${tokenId}`;
           let header = {};
           if (creds?.yatt?.length > 0 && creds?.yatt[0]?.accessToken) {
             header.headers = {
