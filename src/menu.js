@@ -112,11 +112,7 @@ const createMenu = (win) => {
         //},
         {
           label: i18n.t("menu.about"),
-          click: () =>
-            win.webContents.send(
-              "ABOUT_DIALOG",
-              app.getVersion()
-            ),
+          click: () => win.webContents.send("ABOUT_DIALOG", app.getVersion()),
         },
       ],
     },

@@ -16,6 +16,7 @@ module.exports.getMainWindow = () => {
     minWidth: 800,
     minHeight: 600,
     center: true,
+    // eslint-disable-next-line no-undef
     icon: path.join(__static, "logo.png"),
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
@@ -53,6 +54,7 @@ module.exports.openMinimizeWindow = (data) => {
       frame: false,
       transparent: true,
       resizable: false,
+      // eslint-disable-next-line no-undef
       icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: false,
@@ -122,6 +124,7 @@ module.exports.openAddWindow = ({ width, height, data }) => {
       minHeight: height,
       center: true,
       parent: parentWindow,
+      // eslint-disable-next-line no-undef
       icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,
@@ -173,6 +176,7 @@ module.exports.openEditWindow = (data) => {
       minHeight: 800,
       center: true,
       parent: browserWindow,
+      // eslint-disable-next-line no-undef
       icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,
@@ -224,6 +228,7 @@ module.exports.openSettingWindow = () => {
       minHeight: 600,
       center: true,
       parent: browserWindow,
+      // eslint-disable-next-line no-undef
       icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,
@@ -278,6 +283,7 @@ module.exports.openModalWindow = (data) => {
       center: true,
       parent: parentWindow,
       resizable: false,
+      // eslint-disable-next-line no-undef
       icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,
@@ -330,6 +336,7 @@ module.exports.openNotesWindow = (data) => {
       minHeight: data.height,
       center: true,
       parent: browserWindow,
+      // eslint-disable-next-line no-undef
       icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,

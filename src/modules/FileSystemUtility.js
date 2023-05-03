@@ -238,6 +238,7 @@ module.exports.exportSession = async (params) => {
 
   const pdfWin = new BrowserWindow({
     show: false,
+    // eslint-disable-next-line no-undef
     icon: path.join(__static, "./logo.png"),
     webPreferences: {
       devTools: true,
@@ -398,6 +399,7 @@ module.exports.openCredentialsFile = async () => {
 };
 
 module.exports.dragItem = (event, data) => {
+  // eslint-disable-next-line no-undef
   const iconPath = path.join(__static, "./drag-drop.png");
   event.sender.startDrag({
     file: data.filePath,
