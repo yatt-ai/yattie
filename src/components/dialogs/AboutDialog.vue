@@ -37,6 +37,7 @@
                 block
                 :color="currentTheme.primary"
                 @click="handleClose"
+                :style="{ color: currentTheme.white }"
               >
                 {{ $tc("caption.close", 1) }}
               </v-btn>
@@ -68,7 +69,6 @@ export default {
   },
   data() {
     return {
-      currentVersion: this.version,
       config: this.configItem,
     };
   },

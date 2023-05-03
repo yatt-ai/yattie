@@ -115,7 +115,7 @@ const createMenu = (win) => {
           click: () =>
             win.webContents.send(
               "ABOUT_DIALOG",
-              process.env.npm_package_version
+              app.getVersion()
             ),
         },
       ],

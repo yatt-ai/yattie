@@ -11,7 +11,7 @@ const jsonDbConfig = {
   jsonSpaces: 2,
 };
 
-const currentVersion = process.env.npm_package_version;
+const currentVersion = app.getVersion();
 
 let metaDb, configDb, credentialDb, dataDb, configVersion;
 let browserWindow;
