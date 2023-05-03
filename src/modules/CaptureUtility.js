@@ -3,6 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const dayjs = require("dayjs");
 const detect = require("detect-file-type");
+const uuidv4 = require("uuid");
 
 const ffmpeg = require("fluent-ffmpeg");
 
@@ -42,7 +43,8 @@ module.exports.getMediaSource = async () => {
 };
 
 module.exports.createImage = ({ url }) => {
-  const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".png";
+  const id = uuidv4();
+  const fileName = id + ".png";
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   const base64Data = url.replace(/^data:image\/png;base64,/, "");
   fs.writeFile(filePath, base64Data, "base64", function (err) {
@@ -51,8 +53,9 @@ module.exports.createImage = ({ url }) => {
     }
   });
   return {
-    fileName: fileName,
-    filePath: filePath,
+    id,
+    fileName,
+    filePath,
   };
 };
 
@@ -60,7 +63,7 @@ module.exports.updateImage = ({ item, url }) => {
   if (item.filePath && fs.existsSync(item.filePath)) {
     fs.unlinkSync(item.filePath);
   }
-  const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".png";
+  const fileName = item.id + ".png";
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   const base64Data = url.replace(/^data:image\/png;base64,/, "");
   fs.writeFile(filePath, base64Data, "base64", function (err) {
@@ -73,7 +76,8 @@ module.exports.updateImage = ({ item, url }) => {
 };
 
 module.exports.createVideo = ({ buffer }) => {
-  const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".mp4";
+  const id = uuidv4();
+  const fileName = id + ".mp4";
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
     if (err) {
@@ -81,8 +85,9 @@ module.exports.createVideo = ({ buffer }) => {
     }
   });
   return {
-    fileName: fileName,
-    filePath: filePath,
+    id,
+    fileName,
+    filePath,
   };
 };
 
@@ -159,18 +164,18 @@ module.exports.updateVideo = ({ filePath, start, end }) => {
 };
 
 module.exports.createAudio = ({ buffer }) => {
-  const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".mp3";
+  const id = uuidv4();
+  const fileName = id + ".mp3";
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
     if (err) {
       console.log(err);
     }
   });
-  // const oldPath = path.join(configDir, "zulip.mp3");
-  // fs.copyFileSync(oldPath, filePath);
   return {
-    fileName: fileName,
-    filePath: filePath,
+    id,
+    fileName,
+    filePath,
   };
 };
 
@@ -297,6 +302,7 @@ module.exports.createTempUserMedia = ({ buffer, fileName }) => {
   });
   return filePath;
 };
+
 module.exports.createUserMedia = ({ buffer, fileName }) => {
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
@@ -306,6 +312,7 @@ module.exports.createUserMedia = ({ buffer, fileName }) => {
   });
   return filePath;
 };
+
 module.exports.updateUserMedia = ({ buffer, filePath, fileName }) => {
   const tempPath = path.join(configDir, "sessions", "tempUserMedia", fileName);
   console.log(fileName, filePath, tempPath);
@@ -315,21 +322,26 @@ module.exports.updateUserMedia = ({ buffer, filePath, fileName }) => {
     }
   });
 };
+
+/*
 module.exports.saveUserMedia = (data) => {
   if (data.fileName && data.filePath) {
     const arr = data.fileName.split(".");
-    const tempName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + "." + arr[1];
+    const id = uuidv4();
+    const tempName = id + "." + arr[1];
     const filePath = path.join(configDir, "sessions", "userMedia", tempName);
     fs.rename(data.filePath, filePath, function (err) {
       if (err) {
         console.log(err);
       }
     });
+    data.id = id;
     data.filePath = filePath;
     data.fileName = tempName;
   }
 
   if (data.posterName && data.posterPath) {
+    const id = uuidv4();
     const filePath = path.join(
       configDir,
       "sessions",
@@ -342,10 +354,11 @@ module.exports.saveUserMedia = (data) => {
       }
     });
     data.posterPath = filePath;
+    data.id = id;
   }
-  console.log(data);
   return data;
 };
+*/
 
 module.exports.setApperance = ({ apperance }) => {
   const browserWindow = browserUtility.getBrowserWindow();

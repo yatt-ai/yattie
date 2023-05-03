@@ -11,9 +11,8 @@
         <div class="footer">
           <ExportPanel
             :items="items"
-            :configItem="config"
-            :credentialItem="credential"
-            :isAuthenticated="checkAuth"
+            :config-item="config"
+            :credential-items="credentials"
           />
         </div>
       </v-col>
@@ -44,7 +43,6 @@
                 <v-btn
                   rounded
                   color="primary"
-                  dark
                   class="pa-0 mb-1"
                   height="26"
                   min-width="45"
@@ -187,8 +185,8 @@
           <ControlPanel
             :selectedItems="selected"
             :items="items"
-            :configItem="config"
-            :credentialItem="credential"
+            :config-item="config"
+            :credential-items="credentials"
             view-mode="normal"
           />
         </div>
@@ -224,25 +222,17 @@ export default {
     VueTagsInput,
     VEmojiPicker,
   },
-  props: {
-    isAuthenticated: {
-      type: Boolean,
-      default: () => false,
-    },
-  },
-  watch: {
-    isAuthenticated: function (newValue) {
-      this.checkAuth = newValue;
-    },
-  },
+  props: {},
+  watch: {},
   data() {
     return {
       items: [],
       config: {},
-      credential: {},
-      checkAuth: this.isAuthenticated,
+      credentials: {},
       activeSession: {},
-      commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
+      commentTypes: Object.keys(TEXT_TYPES).filter(
+        (item) => item !== "Summary"
+      ),
       type: "Comment",
       emojiMenu: false,
       search: "",
@@ -257,7 +247,7 @@ export default {
   created() {
     this.fetchItems();
     this.getConfig();
-    this.getCredential();
+    this.getCredentials();
   },
   mounted() {
     this.$root.$on("submit-search", this.handleSearch);
@@ -274,12 +264,12 @@ export default {
       this.getConfig();
     });
     window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredential();
+      this.getCredentials();
     });
     window.ipc.on("META_CHANGE", () => {
       this.fetchItems();
       this.getConfig();
-      this.getCredential();
+      this.getCredentials();
     });
   },
   computed: {
@@ -317,15 +307,15 @@ export default {
           this.config = result;
         });
     },
-    getCredential() {
+    getCredentials() {
       if (!window.ipc) return;
 
       window.ipc
         .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_CREDENTIAL,
+          func: IPC_FUNCTIONS.GET_CREDENTIALS,
         })
         .then((result) => {
-          this.credential = result;
+          this.credentials = result;
         });
     },
     selectEmoji(emoji) {
@@ -426,6 +416,10 @@ export default {
   display: flex;
   column-gap: 3px;
   flex-wrap: wrap;
+}
+.actions-wrapper .v-btn.theme--dark {
+  background-color: white;
+  margin-left: 2px;
 }
 .emoji-icon {
   font-size: 18px;

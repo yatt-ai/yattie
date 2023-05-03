@@ -7,7 +7,7 @@
     max-width="500px"
     eager
   >
-    <v-sheet outlined color="accent" rounded>
+    <v-sheet outlined rounded>
       <v-card :style="{ backgroundColor: currentTheme.background }">
         <v-card-title class="dialog-title">
           {{ $tc("caption.take_note", 1) }}
@@ -71,7 +71,7 @@
             <v-col cols="auto" class="pl-0 d-flex align-end">
               <v-btn
                 plain
-                color="primary"
+                :color="currentTheme.primary"
                 class="text-capitalize px-0 btn"
                 @click="handleClear"
               >
@@ -88,8 +88,7 @@
                 class="btn"
                 small
                 block
-                color="white"
-                :style="{ color: currentTheme.black }"
+                :color="currentTheme.background"
                 @click="handleDiscard"
               >
                 {{ $tc("caption.discard", 1) }}
@@ -130,20 +129,7 @@ export default {
   watch: {
     configItem: function (newValue) {
       this.config = newValue;
-
-      // set comment type by config
-      if (this.config.commentType && this.config.commentType !== "") {
-        this.comment.type = this.config.commentType;
-      }
-
-      // set templates by config
-      this.config.templates.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.type === "Note") {
-          this.comment.content = temp.precondition.content;
-          this.comment.text = temp.precondition.text;
-        }
-      });
+      this.resetData();
     },
   },
   data() {
@@ -159,7 +145,9 @@ export default {
         content: "",
         text: "",
       },
-      commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
+      commentTypes: Object.keys(TEXT_TYPES).filter(
+        (item) => item !== "Summary"
+      ),
       tag: "",
       tags: [],
     };
@@ -174,16 +162,33 @@ export default {
     },
   },
   methods: {
+    resetData() {
+      // set comment type by config
+      if (this.config.commentType && this.config.commentType !== "") {
+        this.comment.type = this.config.commentType;
+      }
+
+      // set templates by config
+      this.config.templates.map((item) => {
+        let temp = Object.assign({}, item);
+        if (temp.type === "Note") {
+          this.comment.content = temp.precondition.content;
+          this.comment.text = temp.precondition.text;
+        }
+      });
+    },
     handleDiscard() {
-      this.handleClear();
       this.$root.$emit("close-notedialog");
+      this.resetData();
     },
     handleSave() {
+      const commentCopy = JSON.parse(JSON.stringify(this.comment));
       const data = {
-        comment: this.comment,
+        comment: commentCopy,
         tags: this.tags,
       };
       this.$emit("submit-comment", data);
+      this.resetData();
     },
     handleClear() {
       this.comment.type = "Comment";

@@ -238,6 +238,7 @@ module.exports.exportSession = async (params) => {
 
   const pdfWin = new BrowserWindow({
     show: false,
+    // eslint-disable-next-line no-undef
     icon: path.join(__static, "./logo.png"),
     webPreferences: {
       devTools: true,
@@ -338,12 +339,11 @@ module.exports.openConfigFile = async () => {
 
   const filePath = filePaths[0];
   try {
-    fs.readFile(filePath, "utf8", (err, jsonString) => {
+    fs.readFile(filePath, "utf8", (err) => {
       if (err) {
         console.log("File read failed:", err);
         return;
       }
-      console.log("File data:", jsonString);
     });
 
     const metaData = databaseUtility.getMetaData();
@@ -361,7 +361,45 @@ module.exports.openConfigFile = async () => {
   }
 };
 
+module.exports.openCredentialsFile = async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ["openFile"],
+    filters: [{ name: "Credentials File", extensions: ["json"] }],
+  });
+
+  if (canceled) {
+    return Promise.resolve({
+      status: STATUSES.ERROR,
+      message: "no file selected",
+    });
+  }
+
+  const filePath = filePaths[0];
+  try {
+    fs.readFile(filePath, "utf8", (err) => {
+      if (err) {
+        console.log("File read failed:", err);
+        return;
+      }
+    });
+
+    const metaData = databaseUtility.getMetaData();
+    metaData.credentialsPath = filePath;
+    databaseUtility.updateMetaData(metaData);
+    return Promise.resolve({
+      status: STATUSES.SUCCESS,
+      message: "Credentials file imported successfully",
+    });
+  } catch (err) {
+    return Promise.resolve({
+      status: STATUSES.ERROR,
+      message: "Credentials file imported failed",
+    });
+  }
+};
+
 module.exports.dragItem = (event, data) => {
+  // eslint-disable-next-line no-undef
   const iconPath = path.join(__static, "./drag-drop.png");
   event.sender.startDrag({
     file: data.filePath,

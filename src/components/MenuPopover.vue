@@ -4,46 +4,63 @@
     :close-on-content-click="false"
     :nudge-width="100"
     bottom
-    z-index="99999"
+    z-index="99"
     offset-y
   >
     <template v-slot:activator="{ on, attrs }">
       <v-btn icon small v-bind="attrs" v-on="on"
-        ><img :src="profile.picture" width="32" alt="avatar"
+        ><img :src="profileAvatar" width="32" alt="avatar"
       /></v-btn>
     </template>
 
     <v-card>
-      <v-list>
-        <v-subheader
-          class="text-uppercase font-weight-medium"
-          style="height: 32px"
-          >{{
-            Object.keys(this.credential).length ? this.credential.type : ""
-          }}
-          Account</v-subheader
-        >
-        <v-list-item>
-          <v-list-item-avatar
-            min-width="32"
-            min-height="32"
-            width="32"
-            height="32"
+      <v-list
+        v-for="(credentialList, credentialType) in credentials"
+        :key="credentialType"
+      >
+        <div v-if="credentialList.length > 0 && credentialType !== 'yatt'">
+          <v-subheader
+            class="text-uppercase font-weight-medium"
+            style="height: 32px"
+            >{{ credentialType }} Account
+          </v-subheader>
+          <v-list-item
+            v-for="(credential, cIndex) in credentialList"
+            :key="cIndex"
           >
-            <img :src="profile.picture" alt="avatar" width="32" />
-          </v-list-item-avatar>
+            <v-list-item-avatar
+              min-width="32"
+              min-height="32"
+              width="32"
+              height="32"
+            >
+              <img
+                :src="
+                  credential.user.avatar
+                    ? credential.user.avatar
+                    : 'https://www.gravatar.com/avatar/' + credential.user.name
+                "
+                alt="avatar"
+                width="32"
+              />
+            </v-list-item-avatar>
 
-          <v-list-item-content>
-            <v-list-item-title>{{ profile.name }}</v-list-item-title>
-            <v-list-item-subtitle>{{ profile.email }}</v-list-item-subtitle>
-          </v-list-item-content>
+            <v-list-item-content>
+              <v-list-item-title>
+                {{ credential.user.name }}
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                {{ credential.user.email }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
 
-          <v-list-item-action>
-            <v-btn icon @click="openAccountLink">
-              <v-icon>mdi-open-in-new</v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
+            <v-list-item-action>
+              <v-btn icon @click="openAccountLink(credentialType, credential)">
+                <v-icon>mdi-open-in-new</v-icon>
+              </v-btn>
+            </v-list-item-action>
+          </v-list-item>
+        </div>
       </v-list>
 
       <v-divider></v-divider>
@@ -66,88 +83,70 @@
 </template>
 <script>
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
+import uuidv4 from "uuid";
 
 export default {
   name: "MenuPopover",
   components: {},
   props: {
-    credentialItem: {
+    credentialItems: {
       type: Object,
       default: () => {},
     },
-    isAuthenticated: {
-      type: Boolean,
-      default: () => false,
-    },
   },
   watch: {
-    credentialItem: function (newValue) {
-      this.credential = newValue;
-    },
-    isAuthenticated: function (newValue) {
-      this.checkAuth = newValue;
+    credentialItems: function (newValue) {
+      this.credentials = newValue;
     },
   },
   data() {
     return {
-      credential: this.credentialItem,
-      checkAuth: this.isAuthenticated,
+      credentials: this.credentialItems,
       showMenu: false,
     };
   },
   computed: {
-    profile() {
-      let profile = "";
-      if (Object.keys(this.credential).length) {
-        const authType = this.credential.type;
-        if (authType) {
-          switch (authType) {
-            case "jira":
-              profile = this.credential[authType].profile;
-              break;
-            default:
-              profile = this.credential[authType].profile;
-              break;
+    profileAvatar() {
+      for (const cList of Object.values(this.credentials)) {
+        if (cList.length > 0) {
+          if (cList[0].user.avatar !== null) {
+            return cList[0].user.avatar;
+          } else {
+            return "https://www.gravatar.com/avatar/" + cList[0].user.name;
           }
         }
       }
-      return profile;
-    },
-    resource() {
-      let resource = "";
-      if (Object.keys(this.credential).length) {
-        const authType = this.credential.type;
-        if (authType) {
-          switch (authType) {
-            case "jira":
-              resource = this.credential[authType].resource;
-              break;
-            default:
-              resource = this.credential[authType].resource;
-              break;
-          }
-        }
-      }
-      return resource;
+      return "https://www.gravatar.com/avatar/" + uuidv4();
     },
   },
   methods: {
-    async openAccountLink() {
-      await window.ipc
-        .invoke(IPC_HANDLERS.FILE_SYSTEM, {
-          func: IPC_FUNCTIONS.OPEN_EXTERNAL_LINK,
-          data: this.resource.url,
-        })
-        .then(() => {
-          this.showMenu = false;
-        });
+    async openAccountLink(credentialType, credential) {
+      if (credentialType === "yatt") {
+        await window.ipc
+          .invoke(IPC_HANDLERS.FILE_SYSTEM, {
+            func: IPC_FUNCTIONS.OPEN_EXTERNAL_LINK,
+            data: "https://app.yatt.ai/",
+          })
+          .then(() => {
+            this.showMenu = false;
+          });
+      } else if (credentialType === "jira") {
+        await window.ipc
+          .invoke(IPC_HANDLERS.FILE_SYSTEM, {
+            func: IPC_FUNCTIONS.OPEN_EXTERNAL_LINK,
+            data: credential.data.resource.url,
+          })
+          .then(() => {
+            this.showMenu = false;
+          });
+      }
     },
     logout() {
       this.showMenu = false;
-      this.credential = {};
+      this.credentials = {};
       window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_CREDENTIAL,
-        data: this.credential,
+        func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
+        data: this.credentials,
       });
     },
   },

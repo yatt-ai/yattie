@@ -2,10 +2,7 @@
   <v-container class="wrapper">
     <div class="header">
       <div class="avatar" v-if="checkAuth">
-        <MenuPopover
-          :credential-item="credential"
-          :isAuthenticated="checkAuth"
-        />
+        <MenuPopover :credential-items="credentials" />
       </div>
     </div>
     <div class="content">
@@ -61,19 +58,23 @@
       <div class="open-section social">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <button class="social-btn" :class="{ inactive: !loggedInWithJira }">
+            <button class="social-btn">
               <img
                 :src="require('../assets/icon/jira.svg')"
                 width="50"
                 v-bind="attrs"
                 v-on="on"
               />
-              <div class="overlay" v-on="on"></div>
+              <div
+                class="overlay"
+                v-if="!loggedInServices.jira"
+                v-on="on"
+              ></div>
             </button>
           </template>
           <span>
             {{
-              loggedInWithJira
+              loggedInServices.jira
                 ? $tc("caption.logged_in_jira", 1)
                 : $tc("caption.not_logged_in_jira", 1)
             }}
@@ -81,22 +82,23 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <button
-              class="social-btn"
-              :class="{ inactive: !loggedInWithTestRail }"
-            >
+            <button class="social-btn">
               <img
                 :src="require('../assets/icon/testrail.svg')"
                 width="60"
                 v-bind="attrs"
                 v-on="on"
               />
-              <div class="overlay" v-on="on"></div>
+              <div
+                class="overlay"
+                v-if="!loggedInServices.testrail"
+                v-on="on"
+              ></div>
             </button>
           </template>
           <span>
             {{
-              loggedInWithTestRail
+              loggedInServices.testrail
                 ? $tc("caption.logged_in_testrail", 1)
                 : $tc("caption.not_logged_in_testrail", 1)
             }}
@@ -104,22 +106,23 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <button
-              class="social-btn"
-              :class="{ inactive: !loggedInWithQTest }"
-            >
+            <button class="social-btn">
               <img
                 :src="require('../assets/icon/qtest.svg')"
                 width="50"
                 v-bind="attrs"
                 v-on="on"
               />
-              <div class="overlay" v-on="on"></div>
+              <div
+                class="overlay"
+                v-if="!loggedInServices.qtest"
+                v-on="on"
+              ></div>
             </button>
           </template>
           <span>
             {{
-              loggedInWithQTest
+              loggedInServices.qtest
                 ? $tc("caption.logged_in_qtest", 1)
                 : $tc("caption.not_logged_in_qtest", 1)
             }}
@@ -127,22 +130,23 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <button
-              class="social-btn"
-              :class="{ inactive: !loggedInWithPractiTest }"
-            >
+            <button class="social-btn">
               <img
                 :src="require('../assets/icon/practitest.svg')"
                 width="60"
                 v-bind="attrs"
                 v-on="on"
               />
-              <div class="overlay" v-on="on"></div>
+              <div
+                class="overlay"
+                v-if="!loggedInServices.practitest"
+                v-on="on"
+              ></div>
             </button>
           </template>
           <span>
             {{
-              loggedInWithPractiTest
+              loggedInServices.practitest
                 ? $tc("caption.logged_in_practitest", 1)
                 : $tc("caption.not_logged_in_practitest", 1)
             }}
@@ -180,18 +184,15 @@ export default {
   data() {
     return {
       config: {},
-      credential: {},
+      credentials: {},
       checkAuth: this.isAuthenticated,
-      loggedInWithJira: false,
-      loggedInWithTestRail: false,
-      loggedInWithQTest: false,
-      loggedInWithPractiTest: false,
+      loggedInServices: {},
       showMenu: false,
     };
   },
   created() {
     this.getConfig();
-    this.getCredential();
+    this.getCredentials();
   },
   mounted() {
     if (!window.ipc) return;
@@ -201,7 +202,7 @@ export default {
     });
 
     window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredential();
+      this.getCredentials();
     });
 
     // New session
@@ -221,21 +222,16 @@ export default {
           this.config = result;
         });
     },
-    getCredential() {
+    getCredentials() {
       if (!window.ipc) return;
 
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIAL })
+        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
         .then((result) => {
-          this.credential = result;
-          if (this.checkAuth) {
-            const authType = this.credential.type;
-            switch (authType) {
-              case "jira":
-                this.loggedInWithJira = true;
-                break;
-              default:
-                break;
+          this.credentials = result;
+          for (const credentialType of Object.keys(this.credentials)) {
+            if (this.credentials[credentialType].length > 0) {
+              this.loggedInServices[credentialType] = true;
             }
           }
         });

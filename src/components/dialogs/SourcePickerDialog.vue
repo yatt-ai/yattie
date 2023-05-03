@@ -44,8 +44,7 @@
           <v-btn
             class="text-capitalize"
             small
-            color="white"
-            :style="{ color: currentTheme.black }"
+            :color="currentTheme.background"
             @click="close"
           >
             {{ $tc("caption.cancel", 1) }}

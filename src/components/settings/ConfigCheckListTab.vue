@@ -188,12 +188,22 @@ export default {
     },
     addTask: function () {
       if (this.tab === "pre") {
+        for (let i = this.preTaskList.length - 1; i > -1; i--) {
+          if (this.preTaskList[i].content === "") {
+            this.preTaskList.splice(i, 1);
+          }
+        }
         this.preTaskList.push({
           id: new Date().getTime(),
           content: "",
           required: false,
         });
       } else {
+        for (let i = this.postTaskList.length - 1; i > -1; i--) {
+          if (this.postTaskList[i].content === "") {
+            this.postTaskList.splice(i, 1);
+          }
+        }
         this.postTaskList.push({
           id: new Date().getTime(),
           content: "",
@@ -207,21 +217,25 @@ export default {
           (task) => task.id !== taskId
         );
 
-        this.preTaskList.push({
-          id: new Date().getTime(),
-          content: "",
-          required: false,
-        });
+        if (this.preTaskList.length < 1) {
+          this.preTaskList.push({
+            id: new Date().getTime(),
+            content: "",
+            required: false,
+          });
+        }
       } else {
         this.postTaskList = this.postTaskList.filter(
           (task) => task.id !== taskId
         );
 
-        this.postTaskList.push({
-          id: new Date().getTime(),
-          content: "",
-          required: false,
-        });
+        if (this.postTaskList.length < 1) {
+          this.postTaskList.push({
+            id: new Date().getTime(),
+            content: "",
+            required: false,
+          });
+        }
       }
     },
     updateData: function (key, data) {
@@ -317,7 +331,7 @@ export default {
   display: flex;
   flex-direction: column;
   margin-top: 15px;
-  max-height: calc(100vh - 210px);
+  max-height: 55vh;
   overflow-y: auto;
   row-gap: 10px;
   padding: 0 20px 0 0;

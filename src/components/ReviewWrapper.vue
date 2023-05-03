@@ -1,5 +1,8 @@
 <template>
-  <div class="review-wrapper" v-if="Object.keys(sessionItem).length">
+  <div
+    class="review-wrapper"
+    v-if="Object.keys(sessionItem).length && sessionItem.fileType !== 'text'"
+  >
     <div
       v-if="sessionItem.fileType === 'image'"
       style="width: 100%; height: 100%"

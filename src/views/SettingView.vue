@@ -84,16 +84,21 @@ export default {
       ],
       metadata: {},
       config: {},
+      credentials: {},
     };
   },
   created() {
     this.getMetaData();
     this.getConfig();
+    this.getCredentials();
   },
   mounted() {
     this.$root.$on("change-meta", () => {
       this.getMetaData();
-      this.getConfig();
+      this.getConfig().then(() => this.updateConfig(this.config));
+      this.getCredentials().then(() =>
+        this.updateCredentials(this.credentials)
+      );
     });
   },
   methods: {
@@ -111,7 +116,7 @@ export default {
     async getConfig() {
       if (!window.ipc) return;
 
-      window.ipc
+      await window.ipc
         .invoke(IPC_HANDLERS.DATABASE, {
           func: IPC_FUNCTIONS.GET_CONFIG,
         })
@@ -126,6 +131,34 @@ export default {
       window.ipc.invoke(IPC_HANDLERS.DATABASE, {
         func: IPC_FUNCTIONS.UPDATE_CONFIG,
         data: this.config,
+      });
+
+      const isDarkMode = this.config.apperance === "dark" ? true : false;
+      this.$vuetify.theme.dark = isDarkMode;
+      localStorage.setItem("isDarkMode", isDarkMode);
+      window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.SET_APPERANCE,
+        data: { apperance: this.config.apperance },
+      });
+    },
+    async getCredentials() {
+      if (!window.ipc) return;
+
+      await window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.GET_CREDENTIALS,
+        })
+        .then((result) => {
+          this.credentials = result;
+        });
+    },
+    updateCredentials(value) {
+      this.credentials = value;
+      if (!window.ipc) return;
+
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
+        data: this.credentials,
       });
     },
   },

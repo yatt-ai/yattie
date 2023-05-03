@@ -12,15 +12,34 @@
               class="summary-content mb-1"
               style="display: flex; flex-direction: column"
             >
-              <div v-if="commentTypes.length">
+              <div v-if="Object.keys(textTypes).length">
                 <p class="item-title mb-0" style="line-height: 1.5">
                   {{ $tc("caption.notes", 1) }}
                 </p>
-                <div style="display: flex; column-gap: 10px">
-                  <div v-for="(type, i) in commentTypes" :key="i">
-                    <span class="text-capitalize" style="line-height: 1"
-                      >{{ type.title }}: {{ type.count }}
-                    </span>
+                <div style="column-gap: 10px; columns: 4">
+                  <div
+                    v-for="(type, i) in Object.keys(textTypes)"
+                    :key="i"
+                    style="width: 10rem"
+                  >
+                    <div v-if="textTypeCounts[type] > 0">
+                      <font-awesome-icon
+                        :icon="textTypes[type].icon"
+                        class="mr-1"
+                        :style="{
+                          borderColor: textTypes[type].fill,
+                          color: textTypes[type].fill,
+                          fontSize: '0.5em',
+                        }"
+                        :border="true"
+                      />
+                      <span
+                        class="text-capitalize"
+                        style="line-height: 1; veritical-align: center"
+                      >
+                        {{ type }}: {{ textTypeCounts[type] }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -28,10 +47,13 @@
                 <p class="item-title mt-2 mb-0" style="line-height: 1.5">
                   {{ $tc("caption.tags", 1) }}
                 </p>
-                <div style="display: flex; column-gap: 10px">
+                <div style="columns: 4">
                   <div v-for="(tag, i) in tags" :key="i">
-                    <span class="text-capitalize"
-                      >{{ tag.title }}: {{ tag.count }}
+                    <span
+                      class="text-capitalize"
+                      style="line-height: 1; veritical-align: center"
+                    >
+                      {{ tag.title }}: {{ tag.count }}
                     </span>
                   </div>
                 </div>
@@ -54,7 +76,7 @@
                 </p>
               </div>
             </div>
-            <p class="summary-text">{{ summary }}</p>
+            <div class="summary-text" v-html="summary"></div>
           </div>
           <hr style="margin-bottom: 1em" />
           <v-timeline align-top dense class="pt-0">
@@ -66,7 +88,7 @@
             >
               <div class="duration-text">
                 <v-icon>mdi-clock-outline</v-icon>
-                <span>{{ formatTime }}</span>
+                <span>{{ formatTime(0) }}</span>
               </div>
             </v-timeline-item>
 
@@ -81,7 +103,7 @@
                   <div class="d-flex justify-space-between py-2">
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ calculateTime(item.time) }}</span>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
                     </div>
                   </div>
                   <div class="image-wrapper">
@@ -91,13 +113,17 @@
                     />
                   </div>
                   <div class="comment-wrapper mt-2">
-                    <span class="comment-type"
-                      >{{
-                        item.comment.text
-                          ? item.comment.type + ": " + item.comment.text
-                          : ""
-                      }}
-                    </span>
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
+                    <span class="comment-type">{{ item.comment.type }}: </span>
+                    <div class="comment-text" v-html="item.comment.text"></div>
                   </div>
                 </div>
               </v-timeline-item>
@@ -111,7 +137,7 @@
                   <div class="d-flex justify-space-between py-2">
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ calculateTime(item.time) }}</span>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
                     </div>
                   </div>
                   <div class="video-wrapper">
@@ -122,13 +148,17 @@
                     <v-icon class="video-play" x-large>mdi-play</v-icon>
                   </div>
                   <div class="comment-wrapper mt-2">
-                    <span class="comment-type"
-                      >{{
-                        item.comment.text
-                          ? item.comment.type + ": " + item.comment.text
-                          : ""
-                      }}
-                    </span>
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
+                    <span class="comment-type">{{ item.comment.type }}: </span>
+                    <div class="comment-text" v-html="item.comment.text"></div>
                   </div>
                 </div>
               </v-timeline-item>
@@ -142,7 +172,7 @@
                   <div class="d-flex justify-space-between py-2">
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ calculateTime(item.time) }}</span>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
                     </div>
                   </div>
                   <div class="audio-wrapper">
@@ -154,13 +184,17 @@
                     </div>
                   </div>
                   <div class="comment-wrapper mt-2">
-                    <span class="comment-type"
-                      >{{
-                        item.comment.text
-                          ? item.comment.type + ": " + item.comment.text
-                          : ""
-                      }}
-                    </span>
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
+                    <span class="comment-type">{{ item.comment.type }}: </span>
+                    <div class="comment-text" v-html="item.comment.text"></div>
                   </div>
                 </div>
               </v-timeline-item>
@@ -174,10 +208,19 @@
                   <div class="d-flex justify-space-between py-2">
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ calculateTime(item.time) }}</span>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
                     </div>
                   </div>
                   <div class="note-wrapper">
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
                     <span class="comment-type">{{ item.comment.type }}: </span>
                     <div class="comment-text" v-html="item.comment.text"></div>
                   </div>
@@ -193,7 +236,7 @@
                   <div class="d-flex justify-space-between py-2">
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ calculateTime(item.time) }}</span>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
                     </div>
                   </div>
                   <div
@@ -215,13 +258,17 @@
                     </div>
                   </div>
                   <div class="comment-wrapper mt-2">
-                    <span class="comment-type"
-                      >{{
-                        item.comment.text
-                          ? item.comment.type + ": " + item.comment.text
-                          : ""
-                      }}
-                    </span>
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
+                    <span class="comment-type">{{ item.comment.type }}: </span>
+                    <div class="comment-text" v-html="item.comment.text"></div>
                   </div>
                 </div>
               </v-timeline-item>
@@ -235,7 +282,7 @@
                   <div class="d-flex justify-space-between py-2">
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ calculateTime(item.time) }}</span>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
                     </div>
                   </div>
                   <div class="image-wrapper">
@@ -246,13 +293,17 @@
                     />
                   </div>
                   <div class="comment-wrapper mt-2">
-                    <span class="comment-type"
-                      >{{
-                        item.comment.text
-                          ? item.comment.type + ": " + item.comment.text
-                          : ""
-                      }}
-                    </span>
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
+                    <span class="comment-type">{{ item.comment.type }}: </span>
+                    <div class="comment-text" v-html="item.comment.text"></div>
                   </div>
                 </div>
               </v-timeline-item>
@@ -266,10 +317,19 @@
                   <div class="d-flex justify-space-between py-2">
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ calculateTime(item.time) }}</span>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
                     </div>
                   </div>
                   <div class="note-wrapper">
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
                     <span class="comment-type">{{ item.comment.type }}: </span>
                     <div class="comment-text" v-html="item.comment.text"></div>
                   </div>
@@ -284,7 +344,7 @@
             >
               <div class="duration-text">
                 <v-icon>mdi-clock-outline</v-icon>
-                <span>{{ formatTime }}</span>
+                <span>{{ formatTime(timer) }}</span>
               </div>
             </v-timeline-item>
           </v-timeline>
@@ -298,21 +358,21 @@
           </div>
           <div class="detail-item charter">
             <p class="item-title">Charter</p>
-            <p class="item-value">{{ this.charter.text }}</p>
+            <div class="item-value" v-html="this.charter.content"></div>
           </div>
           <div class="detail-item pre-condition">
             <p class="item-title">{{ $tc("caption.precondition", 1) }}</p>
-            <p class="item-value">{{ this.precondition.text }}</p>
+            <div class="item-value" v-html="this.precondition.content"></div>
           </div>
           <div class="detail-item session-time">
-            <p class="item-title">{{ $tc("caption.session_time", 1) }}</p>
-            <p class="item-value">{{ formatTime }}</p>
+            <p class="item-title">{{ $tc("caption.configured_time", 1) }}</p>
+            <p class="item-value">{{ formatTime(duration) }}</p>
           </div>
           <div class="detail-item session-elapsed-time">
             <p class="item-title">
               {{ $tc("caption.session_elapsed_time", 1) }}
             </p>
-            <p class="item-value">{{ formatTime }}</p>
+            <p class="item-value">{{ formatTime(timer) }}</p>
           </div>
           <div class="detail-item environment">
             <p class="item-title">{{ $tc("caption.environment", 1) }}</p>
@@ -367,10 +427,12 @@ export default {
   data() {
     return {
       items: [],
+      textTypes: TEXT_TYPES,
       title: "",
       charter: "",
       precondition: "",
       timer: 0,
+      duration: 0,
       os: "Unknown OS",
       window: "",
       screenWidth: "",
@@ -390,33 +452,24 @@ export default {
       this.charter = data.charter;
       this.precondition = data.precondition;
       this.timer = data.timer;
+      this.duration = data.duration;
     });
   },
   computed: {
-    formatTime() {
-      const seconds = ("0" + (this.timer % 60)).slice(-2);
-      const minutes = ("0" + (parseInt(this.timer / 60, 10) % 60)).slice(-2);
-      const hours = ("0" + (parseInt(this.timer / 3600, 10) % 24)).slice(-2);
-
-      return hours + ":" + minutes + ":" + seconds;
-    },
-    commentTypes() {
-      let data = [];
-      const commentTypes = TEXT_TYPES.filter((item) => item !== "Summary");
-      commentTypes.map((type) => {
-        let temp,
-          i = 0;
+    textTypeCounts() {
+      let data = {};
+      const tTypes = Object.keys(TEXT_TYPES).filter(
+        (item) => item !== "Summary"
+      );
+      tTypes.map((type) => {
+        let i = 0;
         this.items.map((item) => {
           if (type === item.comment.type && item.comment.text) {
             i++;
           }
         });
         if (i > 0) {
-          temp = {
-            title: type,
-            count: i,
-          };
-          data.push(temp);
+          data[type] = i;
         }
       });
       return data;
@@ -491,6 +544,13 @@ export default {
     },
   },
   methods: {
+    formatTime(timeInSeconds) {
+      const seconds = ("0" + (timeInSeconds % 60)).slice(-2);
+      const minutes = ("0" + (parseInt(timeInSeconds / 60, 10) % 60)).slice(-2);
+      const hours = ("0" + (parseInt(timeInSeconds / 3600, 10) % 24)).slice(-2);
+
+      return hours + ":" + minutes + ":" + seconds;
+    },
     async initialize() {
       if (!window.ipc) return;
 
@@ -499,13 +559,6 @@ export default {
         .then((result) => {
           this.items = result;
         });
-    },
-    calculateTime(time) {
-      const seconds = ("0" + (time % 60)).slice(-2);
-      const minutes = ("0" + (parseInt(time / 60, 10) % 60)).slice(-2);
-      const hours = ("0" + (parseInt(time / 3600, 10) % 24)).slice(-2);
-
-      return hours + ":" + minutes + ":" + seconds;
     },
     detectEnvironment() {
       const userAgent = navigator.userAgent;

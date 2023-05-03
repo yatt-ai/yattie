@@ -1,18 +1,15 @@
 <template>
   <v-dialog v-bind="$attrs" v-on="$listeners" persistent width="350">
-    <v-sheet rounded>
+    <v-sheet outlined rounded>
       <v-card :style="{ backgroundColor: currentTheme.background }">
         <LogoWrapper :height="20" :width="60" />
-        <v-card-title class="title" :style="{ color: currentTheme.secondary }">
-          {{ title || $tc("caption.delete", 1) }}
-        </v-card-title>
-        <v-card-text class="text">
+        <v-card-text class="text" :style="{ color: currentTheme.secondary }">
           {{ text || $t("message.confirm_delete") }}
         </v-card-text>
         <v-card-actions>
           <v-btn
             small
-            color="primary"
+            :color="currentTheme.primary"
             class="text-capitalize btn"
             @click="confirm"
           >
@@ -20,7 +17,7 @@
           </v-btn>
           <v-btn
             small
-            color="white"
+            :color="currentTheme.background"
             class="text-capitalize btn"
             :style="{ color: currentTheme.black }"
             @click="cancel"

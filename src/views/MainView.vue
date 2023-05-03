@@ -31,17 +31,13 @@
       </div>
       <div class="avatar">
         <div v-if="checkAuth">
-          <MenuPopover
-            :credential-item="credential"
-            :isAuthenticated="checkAuth"
-          />
+          <MenuPopover :credential-items="credentials" />
         </div>
         <div v-else>
           <v-menu :nudge-width="100" bottom z-index="99999" offset-y>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 fab
-                dark
                 small
                 color="primary"
                 height="32"
@@ -64,7 +60,7 @@
         </div>
       </div>
     </div>
-    <v-divider />
+    <v-divider style="z-index: 100" />
     <div class="content">
       <v-tabs-items v-model="activeTab">
         <v-tab-item value="/main" :transition="false">
@@ -89,9 +85,8 @@
       <ControlPanel
         :items="items"
         @add-item="addItem"
-        :configItem="config"
-        :credentialItem="credential"
-        :isAuthenticated="checkAuth"
+        :config-item="config"
+        :credential-items="credentials"
         :selectedItems="selected"
         :checkedStatusOfPreSessionTask="checkedStatusOfPreSessionTask"
         view-mode="normal"
@@ -161,7 +156,7 @@ export default {
       selected: [],
       activeSession: {},
       config: {},
-      credential: {},
+      credentials: {},
       checkAuth: this.isAuthenticated,
       presession: {},
       postsession: {},
@@ -173,7 +168,7 @@ export default {
   created() {
     this.fetchItems();
     this.getConfig();
-    this.getCredential();
+    this.getCredentials();
   },
   mounted() {
     this.$root.$on("update-selected", this.updateSelected);
@@ -194,12 +189,12 @@ export default {
       this.getConfig();
     });
     window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredential();
+      this.getCredentials();
     });
     window.ipc.on("META_CHANGE", () => {
       this.fetchItems();
       this.getConfig();
-      this.getCredential();
+      this.getCredentials();
     });
   },
   computed: {
@@ -255,13 +250,13 @@ export default {
           };
         });
     },
-    getCredential() {
+    getCredentials() {
       if (!window.ipc) return;
 
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIAL })
+        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
         .then((result) => {
-          this.credential = result;
+          this.credentials = result;
         });
     },
     fetchItems() {
@@ -387,6 +382,11 @@ export default {
 .v-tab.timeline-tab {
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
+}
+.theme--light.v-tabs .v-tabs-bar .v-tab--disabled,
+.theme--light.v-tabs .v-tabs-bar .v-tab:not(.v-tab--active) {
+  color: #6d28d9;
+  border: 1px solid #6d28d9;
 }
 .theme--dark.v-tabs .v-tabs-bar .v-tab--disabled,
 .theme--dark.v-tabs .v-tabs-bar .v-tab:not(.v-tab--active) {

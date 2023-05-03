@@ -23,10 +23,16 @@
       </div>
       <v-row>
         <v-col cols="12">
-          <!--<v-btn class="mb-4 outline-btn yattie" block outlined color="white">
+          <!--<v-btn
+            class="mb-4 outline-btn yatt"
+            block
+            outlined
+            color="white"
+            @click.prevent="signinYatt"
+          >
             <img :src="require('../../assets/icon/yattie1.png')" />
             <div class="btn-text" :style="{ color: currentTheme.secondary }">
-              {{ $tc("caption.signin_yattie", 1) }}
+              {{ $tc("caption.signin_yatt", 1) }}
             </div>
           </v-btn>-->
           <v-btn
@@ -34,20 +40,26 @@
             block
             outlined
             color="white"
-            @click="callJiraAPI"
+            @click="signinJira"
           >
             <img :src="require('../../assets/icon/jira.png')" />
             <div class="btn-text" :style="{ color: currentTheme.secondary }">
               {{ $tc("caption.signin_jira", 1) }}
             </div>
           </v-btn>
-          <!--<v-btn class="mb-4 outline-btn" block outlined color="white">
+          <v-btn
+            class="mb-4 outline-btn jira"
+            block
+            outlined
+            color="white"
+            @click="signinTestRail"
+          >
             <img :src="require('../../assets/icon/testrail.png')" />
             <div class="btn-text" :style="{ color: currentTheme.secondary }">
               {{ $tc("caption.signin_testrail", 1) }}
             </div>
           </v-btn>
-          <v-btn class="mb-4 outline-btn" block outlined color="white">
+          <!--<v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/qtest.png')" />
             <div class="btn-text" :style="{ color: currentTheme.secondary }">
               {{ $tc("caption.signin_qtest", 1) }}
@@ -99,9 +111,7 @@
 </template>
 
 <script>
-import axios from "axios";
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../../modules/constants";
-import dayjs from "dayjs";
 
 export default {
   name: "SigninWrapper",
@@ -111,7 +121,7 @@ export default {
       type: Object,
       default: () => {},
     },
-    credentialItem: {
+    credentialItems: {
       type: Object,
       default: () => {},
     },
@@ -124,8 +134,8 @@ export default {
     configItem: function (newValue) {
       this.config = newValue;
     },
-    credentialItem: function (newValue) {
-      this.credential = newValue;
+    credentialItems: function (newValue) {
+      this.credentials = newValue;
     },
     prevRoute: function (newValue) {
       this.previousRoute = newValue;
@@ -134,7 +144,7 @@ export default {
   data() {
     return {
       config: this.configItem,
-      credential: this.credentialItem,
+      credentials: this.credentialItems,
       previousRoute: this.prevRoute,
       loading: false,
       snackBar: {
@@ -152,11 +162,7 @@ export default {
       }
     },
   },
-  mounted() {
-    window.ipc.on("JIRA_LOGIN", (data) => {
-      this.jiraLogin(data);
-    });
-  },
+  mounted() {},
   methods: {
     back: function () {
       window.ipc.invoke(IPC_HANDLERS.SERVER, {
@@ -165,102 +171,14 @@ export default {
 
       this.$router.back();
     },
-    async callJiraAPI() {
-      await window.ipc
-        .invoke(IPC_HANDLERS.SERVER, {
-          func: IPC_FUNCTIONS.START_SERVER,
-        })
-        .then(async () => {
-          this.loading = true;
-          this.$root.$emit("overlay", true);
-          const url = `http://localhost:${process.env.VUE_APP_SERVER_PORT}/oauth2/atlassian`;
-          await axios
-            .get(url)
-            .then((response) => {
-              this.loading = false;
-              this.$root.$emit("overlay", false);
-              if (response.status !== 200) {
-                this.snackBar.enabled = true;
-                this.snackBar.message = response.data.message
-                  ? response.data.message
-                  : "API Error";
-              }
-            })
-            .catch((error) => {
-              this.loading = false;
-              this.$root.$emit("overlay", false);
-              this.snackBar.enabled = true;
-              this.snackBar.message = error.message
-                ? error.message
-                : "API Error";
-            });
-        })
-        .catch((error) => {
-          this.snackBar.enabled = true;
-          this.snackBar.message = error ? error : "Failed start server";
-        });
+    signinYatt() {
+      this.$router.push({ path: "/authentication/signinYatt" });
     },
-    async jiraLogin(data) {
-      this.loading = true;
-      this.$root.$emit("overlay", true);
-      const header = {
-        headers: {
-          Authorization: `Bearer ${data.access_token}`,
-          Accept: "application/json",
-        },
-      };
-
-      await axios
-        .get(
-          "https://api.atlassian.com/oauth/token/accessible-resources",
-          header
-        )
-        .then(async (response) => {
-          await axios
-            .get("https://api.atlassian.com/me", header)
-            .then((user) => {
-              const date = dayjs().format("MM/DD/YYYY HH:mm:ss");
-              const jiraData = {
-                ...data,
-                loggedAt: date,
-                resource: response.data[0],
-                profile: user.data,
-              };
-
-              if (!this.credential) {
-                this.credential = {};
-              }
-
-              this.credential.type = "jira";
-              this.credential.jira = jiraData;
-
-              window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-                func: IPC_FUNCTIONS.UPDATE_CREDENTIAL,
-                data: this.credential,
-              });
-
-              setTimeout(() => {
-                this.loading = false;
-                this.$root.$emit("overlay", false);
-
-                window.ipc.invoke(IPC_HANDLERS.SERVER, {
-                  func: IPC_FUNCTIONS.STOP_SERVER,
-                });
-
-                this.$router.push({ path: this.previousRoute.path });
-              }, 1000);
-            })
-            .catch((error) => {
-              this.snackBar.enabled = true;
-              this.snackBar.message = error.message
-                ? error.message
-                : "API Error";
-            });
-        })
-        .catch((error) => {
-          this.snackBar.enabled = true;
-          this.snackBar.message = error.message ? error.message : "API Error";
-        });
+    signinJira() {
+      this.$router.push({ path: "/authentication/signinJira" });
+    },
+    signinTestRail() {
+      this.$router.push({ path: "/authentication/signinTestRail" });
     },
   },
 };

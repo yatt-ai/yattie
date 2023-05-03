@@ -52,6 +52,15 @@ export default {
       this.handleValidate();
     });
   },
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
+  },
   methods: {
     rules(required) {
       if (required) {
@@ -65,13 +74,6 @@ export default {
       if (!isValid) {
         const el = document.querySelector(".v-messages__wrapper:first-of-type");
         el.scrollIntoView();
-      }
-    },
-    currentTheme() {
-      if (this.$vuetify.theme.dark) {
-        return this.$vuetify.theme.themes.dark;
-      } else {
-        return this.$vuetify.theme.themes.light;
       }
     },
   },

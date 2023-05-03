@@ -133,7 +133,7 @@ export default {
       type: Object,
       default: () => {},
     },
-    credentialItem: {
+    credentialItems: {
       type: Object,
       default: () => {},
     },
@@ -146,8 +146,8 @@ export default {
     configItem: function (newValue) {
       this.config = newValue;
     },
-    credentialItem: function (newValue) {
-      this.credential = newValue;
+    credentialItems: function (newValue) {
+      this.credentials = newValue;
     },
     prevRoute: function (newValue) {
       this.previousRoute = newValue;
@@ -156,7 +156,7 @@ export default {
   data() {
     return {
       config: this.configItem,
-      credential: this.credentialItem,
+      credentials: this.credentialItems,
       previousRoute: this.prevRoute,
       loading: false,
       snackBar: {
@@ -214,24 +214,24 @@ export default {
           await axios
             .get("https://api.atlassian.com/me", header)
             .then((user) => {
-              const date = dayjs().format("MM/DD/YYYY HH:mm:ss");
+              const date = dayjs().format("YYYY-MM-DD HH:mm:ss");
               const jiraData = {
                 ...data,
-                loggedAt: date,
+                loggedInAt: date,
                 resource: response.data[0],
                 profile: user.data,
               };
 
-              if (!this.credential) {
-                this.credential = {};
+              if (!this.credentials) {
+                this.credentials = {};
               }
 
-              this.credential.type = "jira";
-              this.credential.jira = jiraData;
+              this.credentials[0].type = "jira";
+              this.credentials[0].data = jiraData;
 
               window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-                func: IPC_FUNCTIONS.UPDATE_CREDENTIAL,
-                data: this.credential,
+                func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
+                data: this.credentials,
               });
 
               setTimeout(() => {

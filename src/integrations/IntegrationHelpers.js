@@ -1,91 +1,217 @@
+import axios from "axios";
 import dayjs from "dayjs";
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
-import ClientOAuth2 from "client-oauth2";
 
 export default {
-  checkAuth(credential) {
-    if (Object.keys(credential).length) {
-      if (this.isTokenExpired(credential)) {
-        const access_token = this.refreshAccessToken(credential);
-        if (access_token) {
-          return true;
+  async checkAuth(credentials) {
+    let authedCount = Object.values(credentials).flat().length;
+
+    // Refresh any OAuth tokens that need it.
+    let failedAuth = await this.updateCredentials(credentials);
+
+    if (authedCount < 1 || authedCount === failedAuth.length) {
+      return {
+        authed: false,
+        failedAuth,
+      };
+    }
+    return {
+      authed: true,
+      failedAuth,
+    };
+  },
+  async updateCredentials(credentials) {
+    let failedAuth = [];
+    let newCredentials = {};
+    let updated = false;
+
+    for (const [credentialProvider, credentialList] of Object.entries(
+      credentials
+    )) {
+      let updatedList = [];
+      for (const credential of credentialList) {
+        let updatedCredential;
+        if (Object.keys(credential).length) {
+          if (
+            credential.type == "oauth" &&
+            this.isTokenExpired(credential) &&
+            dayjs(credential.lastRefreshed) < dayjs().subtract(4, "minute")
+          ) {
+            updatedCredential = await this.refreshAccessToken(
+              credentials,
+              credentialProvider,
+              credential
+            );
+            if (
+              updatedCredential.status &&
+              updatedCredential.status > 399 &&
+              updatedCredential.status < 500
+            ) {
+              if (credential.yattOauthTokenId) {
+                updatedCredential = null;
+                failedAuth.push({
+                  credentialProvider,
+                  credential,
+                });
+
+                // Remove the id from yatt.oauthTokenIds
+                let yattCreds = [];
+                const currentCreds = newCredentials.yatt || credentials.yatt;
+                for (const cred of currentCreds) {
+                  cred.oauthTokenIds = cred.oauthTokenIds.filter(
+                    (id) => id !== credential.yattOauthTokenId
+                  );
+                  yattCreds.push(cred);
+                }
+                newCredentials.yatt = yattCreds;
+              }
+            }
+            updated = true;
+          } else {
+            updatedCredential = credential;
+          }
+          if (updatedCredential) {
+            delete updatedCredential["provider"];
+            delete updatedCredential["status"];
+            updatedList.push({ ...credential, ...updatedCredential });
+          }
         } else {
-          return false;
+          failedAuth.push({
+            credentialProvider,
+            credential,
+          });
         }
       }
-      return true;
+      newCredentials[credentialProvider] = updatedList;
     }
-    return false;
-  },
-  getAccessToken(credential) {
-    let access_token = null;
-    if (Object.keys(credential).length) {
-      if (this.isTokenExpired(credential)) {
-        access_token = this.refreshAccessToken(credential);
-      } else {
-        const type = credential.type;
-        access_token = credential[type].access_token;
-      }
+
+    if (updated) {
+      await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
+        data: newCredentials,
+      });
     }
-    return access_token;
+
+    return failedAuth;
   },
   isTokenExpired(data) {
-    const type = data.type;
-    if (type) {
-      const auth = data[type];
-      const now = new Date();
-      const loggedAt = new Date(auth.loggedAt);
-      const expireIn = auth.expires_in;
-      const duration = (now.getTime() - loggedAt.getTime()) / 1000;
-      if (duration > expireIn) {
+    if (data.type == "oauth") {
+      if (dayjs() > dayjs(data.expiresAt)) {
         return true;
       }
       return false;
     }
     return true;
   },
-  refreshAccessToken(credential) {
-    return new Promise(function (resolve, reject) {
-      // TODO - declare this once and import it
-      // TOOD - Move all JIRA-specific items to JIRA integration module
-      const auth = new ClientOAuth2({
-        clientId: process.env.VUE_APP_JIRA_CLIENT_ID,
-        clientSecret: process.env.VUE_APP_JIRA_CLIENT_SECRET,
-        accessTokenUri: "https://auth.atlassian.com/oauth/token",
-        authorizationUri:
-          "https://auth.atlassian.com/authorize?audience=api.atlassian.com&prompt=consent",
-        redirectUri: `http://localhost:${process.env.VUE_APP_SERVER_PORT}/oauth2/atlassian/callback`,
-        scopes: [
-          "read:jira-work",
-          "write:jira-work",
-          "read:me",
-          "offline_access",
-        ],
-      });
-      if (Object.keys(credential).length && credential.type) {
-        let token = auth.createToken(
-          credential[credential.type].access_token,
-          credential[credential.type].refresh_token
-        );
-        token.refresh().then((data) => {
-          credential[credential.type].access_token = data.access_token;
-          credential[credential.type].expires_in = data.expires_in;
-          credential[credential.type].token_type = data.token_type;
-          credential[credential.type].refresh_token = data.refresh_token;
-          credential[credential.type].scope = data.scope;
-          credential[credential.type].loggedAt = dayjs().format(
-            "MM/DD/YYYY HH:mm:ss"
-          );
-
-          window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-            func: IPC_FUNCTIONS.UPDATE_CREDENTIAL,
-            data: credential,
-          });
-          return resolve(data.access_token);
-        });
-      } else {
-        return reject();
+  getYattCredentialForOauthToken(credentials, token) {
+    for (const credential of credentials?.yatt) {
+      if (credential.oauthTokenIds.includes(token)) {
+        return credential.accessToken;
       }
-    });
+    }
+    return null;
+  },
+  async refreshAccessToken(credentials, provider, credential) {
+    let tokenURL;
+    if (provider === "jira") {
+      if (!credential.url) {
+        tokenURL = `${process.env.VUE_APP_YATT_API_URL}/app/oauth/jira/token/${credential.yattOauthTokenId}`;
+        let yattToken = this.getYattCredentialForOauthToken(
+          credentials,
+          credential.yattOauthTokenId
+        );
+
+        let header = {
+          headers: {
+            Authorization: `Bearer ${yattToken}`,
+            Accept: "application/json",
+          },
+        };
+
+        return await axios
+          .get(tokenURL, header)
+          .then((response) => {
+            response.data.jira.lastRefreshed = dayjs().format(
+              "YYYY-MM-DD HH:mm:ss"
+            );
+            return response.data.jira;
+          })
+          .catch((error) => {
+            return {
+              status: error?.response?.status,
+              provider: error.response?.data?.provider,
+            };
+          });
+      } else {
+        tokenURL = `http://${credential.url}/rest/oauth2/latest/token`;
+
+        let header = {
+          headers: {
+            Accept: "application/json",
+          },
+        };
+
+        let params = new URLSearchParams();
+        params.append("client_id", credential.clientId);
+        params.append("client_secret", credential.clientSecret);
+        params.append("refresh_token", credential.refreshToken);
+        params.append("grant_type", "refresh_token");
+
+        return await axios
+          .post(tokenURL, params, header)
+          .then((response) => {
+            const responseData = {};
+            for (const [key, value] of Object.entries(response.data)) {
+              // Convert keys to camel case.
+              const newKey = key
+                .toLowerCase()
+                .replace(/([-_][a-z0-9])/g, (group) =>
+                  group.toUpperCase().replace("-", "").replace("_", "")
+                );
+              responseData[newKey] = value;
+            }
+            responseData.expiresAt = dayjs()
+              .add(response.data.expires_in, "second")
+              .format("YYYY-MM-DD HH:mm:ss");
+            responseData.lastRefreshed = dayjs().format("YYYY-MM-DD HH:mm:ss");
+            return responseData;
+          })
+          .catch((error) => {
+            console.log(`Error: ${JSON.stringify(error.data)}`);
+            return {
+              status: error?.response?.status,
+              provider: provider,
+            };
+          });
+      }
+    }
+  },
+  sha256(plain) {
+    // returns promise ArrayBuffer
+    const encoder = new TextEncoder();
+    const data = encoder.encode(plain);
+    return window.crypto.subtle.digest("SHA-256", data);
+  },
+  base64URLEncode(a) {
+    var str = "";
+    var bytes = new Uint8Array(a);
+    var len = bytes.byteLength;
+    for (var i = 0; i < len; i++) {
+      str += String.fromCharCode(bytes[i]);
+    }
+    return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  },
+  dec2Hex(dec) {
+    return ("0" + dec.toString(16)).substr(-2);
+  },
+  generateCodeVerifier() {
+    var array = new Uint32Array(56 / 2);
+    crypto.getRandomValues(array);
+    return Array.from(array, this.dec2Hex).join("");
+  },
+  async generateCodeChallengeFromVerifier(v) {
+    var hashed = await this.sha256(v);
+    var base64encoded = this.base64URLEncode(hashed);
+    return base64encoded;
   },
 };

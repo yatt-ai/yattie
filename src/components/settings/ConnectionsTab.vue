@@ -5,11 +5,19 @@
         <p class="body-1" :style="{ color: currentTheme.default }">
           {{ $tc("caption.external_connection", 1) }}
         </p>
-        <a class="jira-link" href="#" :style="{ color: currentTheme.primary }">
+        <a
+          class="jira-link"
+          @click="signinTestRail"
+          :style="{ color: currentTheme.primary }"
+        >
           {{ $t("message.connect_to_testrail") }}
         </a>
         <p></p>
-        <a class="jira-link" href="#" :style="{ color: currentTheme.primary }">
+        <a
+          class="jira-link"
+          @click="signinJira"
+          :style="{ color: currentTheme.primary }"
+        >
           {{ $t("message.connect_to_jira") }}
         </a>
       </v-col>
@@ -164,7 +172,14 @@ export default {
       }
     },
   },
-  methods: {},
+  methods: {
+    signinJira() {
+      this.$router.push({ path: "/authentication/signinJira" });
+    },
+    signinTestRail() {
+      this.$router.push({ path: "/authentication/signinTestRail" });
+    },
+  },
 };
 </script>
 <style scoped>

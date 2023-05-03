@@ -1,9 +1,9 @@
 <template>
   <v-dialog v-bind="$attrs" v-on="$listeners" persistent width="350">
-    <v-sheet outlined color="accent" rounded>
-      <v-card>
+    <v-sheet outlined rounded>
+      <v-card :style="{ backgroundColor: currentTheme.background }">
         <LogoWrapper :height="20" :width="60" />
-        <v-card-text>
+        <v-card-text class="text" :style="{ color: currentTheme.secondary }">
           <v-form ref="form" v-model="valid">
             <v-text-field
               v-model="text"
@@ -14,10 +14,20 @@
           </v-form>
         </v-card-text>
         <v-card-actions>
-          <v-btn small color="primary" class="text-capitalize" @click="save">
+          <v-btn
+            small
+            color="currentTheme.primary"
+            class="text-capitalize"
+            @click="save"
+          >
             {{ $tc("caption.save", 1) }}
           </v-btn>
-          <v-btn small color="white" class="text-capitalize" @click="cancel">
+          <v-btn
+            small
+            color="currentTheme.background"
+            class="text-capitalize"
+            @click="cancel"
+          >
             {{ $tc("caption.cancel", 1) }}
           </v-btn>
         </v-card-actions>
@@ -50,6 +60,15 @@ export default {
       valid: false,
       textRules: [(v) => !!v || "Node title is required"],
     };
+  },
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
   },
   methods: {
     cancel() {

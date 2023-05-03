@@ -24,7 +24,9 @@ describe("NoteEditorView.vue", () => {
           },
           tag: "",
           tags: [],
-          commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
+          commentTypes: Object.keys(TEXT_TYPES).filter(
+            (item) => item !== "Summary"
+          ),
         };
       },
       vuetify,

@@ -16,6 +16,7 @@ module.exports.getMainWindow = () => {
     minWidth: 800,
     minHeight: 600,
     center: true,
+    // eslint-disable-next-line no-undef
     icon: path.join(__static, "logo.png"),
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
@@ -53,6 +54,7 @@ module.exports.openMinimizeWindow = (data) => {
       frame: false,
       transparent: true,
       resizable: false,
+      // eslint-disable-next-line no-undef
       icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: false,
@@ -111,8 +113,8 @@ module.exports.openAddWindow = ({ width, height, data }) => {
 
   const modalPath =
     process.env.NODE_ENV === "development"
-      ? "http://localhost:8080/#/addSession"
-      : `file://${__dirname}/index.html#addSession`;
+      ? "http://localhost:8080/#/addEvidence"
+      : `file://${__dirname}/index.html#addEvidence`;
 
   if (!addWin) {
     addWin = new BrowserWindow({
@@ -122,6 +124,7 @@ module.exports.openAddWindow = ({ width, height, data }) => {
       minHeight: height,
       center: true,
       parent: parentWindow,
+      // eslint-disable-next-line no-undef
       icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,
@@ -162,8 +165,8 @@ module.exports.openEditWindow = (data) => {
   const browserWindow = browserUtility.getBrowserWindow();
   const url =
     process.env.NODE_ENV === "development"
-      ? "http://localhost:8080/#/editSession"
-      : `file://${__dirname}/index.html#editSession`;
+      ? "http://localhost:8080/#/editEvidence"
+      : `file://${__dirname}/index.html#editEvidence`;
 
   if (!editWin) {
     editWin = new BrowserWindow({
@@ -173,6 +176,7 @@ module.exports.openEditWindow = (data) => {
       minHeight: 800,
       center: true,
       parent: browserWindow,
+      // eslint-disable-next-line no-undef
       icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,
@@ -224,6 +228,7 @@ module.exports.openSettingWindow = () => {
       minHeight: 600,
       center: true,
       parent: browserWindow,
+      // eslint-disable-next-line no-undef
       icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,
@@ -278,6 +283,7 @@ module.exports.openModalWindow = (data) => {
       center: true,
       parent: parentWindow,
       resizable: false,
+      // eslint-disable-next-line no-undef
       icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,
@@ -330,6 +336,7 @@ module.exports.openNotesWindow = (data) => {
       minHeight: data.height,
       center: true,
       parent: browserWindow,
+      // eslint-disable-next-line no-undef
       icon: path.join(__static, "logo.png"),
       webPreferences: {
         devTools: true,

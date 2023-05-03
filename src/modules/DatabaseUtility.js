@@ -2,6 +2,7 @@ const JSONdb = require("simple-json-db");
 const { app, remote } = require("electron");
 const path = require("path");
 const fs = require("fs");
+const uuidv4 = require("uuid");
 const browserUtility = require("./BrowserWindowUtility");
 const { STATUSES } = require("./constants");
 
@@ -10,7 +11,9 @@ const jsonDbConfig = {
   jsonSpaces: 2,
 };
 
-let metaDb, configDb, credentialDb, dataDb;
+const currentVersion = app.getVersion();
+
+let metaDb, configDb, credentialDb, dataDb, configVersion;
 let browserWindow;
 
 module.exports.initializeSession = () => {
@@ -26,10 +29,11 @@ module.exports.initializeSession = () => {
     createSessionDirectory();
   }
 
-  const meta = {
+  const defaultMeta = {
     configPath: path.join(configDir, "config.json"),
-    credentialPath: path.join(configDir, "credentials.json"),
+    credentialsPath: path.join(configDir, "credentials.json"),
     dataPath: path.join(configDir, "data.json"),
+    version: currentVersion,
   };
 
   const config = {
@@ -112,49 +116,46 @@ module.exports.initializeSession = () => {
   };
 
   metaDb = new JSONdb(path.join(configDir, "meta.json"), jsonDbConfig);
+  let metaPath = {
+    version: currentVersion,
+  };
   if (metaDb.has("meta")) {
-    const metaPath = metaDb.get("meta");
-    if (metaPath.configPath) {
-      configDb = new JSONdb(metaPath.configPath, jsonDbConfig);
-    } else {
-      configDb = new JSONdb(path.join(configDir, "config.json"), jsonDbConfig);
-    }
+    metaPath = metaDb.get("meta");
+  }
 
-    if (metaPath.credentialPath) {
-      credentialDb = new JSONdb(metaPath.credentialPath, jsonDbConfig);
-    } else {
-      credentialDb = new JSONdb(
-        path.join(configDir, "credentials.json"),
-        jsonDbConfig
-      );
-    }
+  if (!metaPath.configPath) {
+    metaPath.configPath = defaultMeta.configPath;
+  }
+  configDb = new JSONdb(metaPath.configPath, jsonDbConfig);
 
-    if (metaPath.configPath) {
-      dataDb = new JSONdb(metaPath.dataPath, jsonDbConfig);
-    } else {
-      dataDb = new JSONdb(path.join(configDir, "data.json"), jsonDbConfig);
-    }
+  if (!metaPath.credentialsPath) {
+    metaPath.credentialsPath = defaultMeta.credentialsPath;
+  }
+  credentialDb = new JSONdb(metaPath.credentialsPath, jsonDbConfig);
+
+  if (!metaPath.dataPath) {
+    metaPath.dataPath = defaultMeta.dataPath;
+  }
+  dataDb = new JSONdb(metaPath.dataPath, jsonDbConfig);
+
+  if (metaPath.version) {
+    configVersion = metaPath.version;
   } else {
-    configDb = new JSONdb(path.join(configDir, "config.json"), jsonDbConfig);
-    credentialDb = new JSONdb(
-      path.join(configDir, "credentials.json"),
-      jsonDbConfig
-    );
-    dataDb = new JSONdb(path.join(configDir, "data.json"), jsonDbConfig);
+    configVersion = "";
   }
 
   try {
-    if (!metaDb.has("meta")) {
-      metaDb.set("meta", meta);
-    }
+    metaDb.set("meta", metaPath);
+
     if (!configDb.has("config") || !configDb.get("config").checklist) {
       configDb.set("config", config);
     }
 
-    if (!credentialDb.has("credential")) {
-      credentialDb.set("credential", {});
+    if (!credentialDb.has("credentials")) {
+      credentialDb.set("credentials", {});
     }
 
+    dataDb.set("id", uuidv4());
     dataDb.set("items", []);
     dataDb.set("notes", {
       content: "",
@@ -162,6 +163,15 @@ module.exports.initializeSession = () => {
     });
   } catch (error) {
     console.log(error);
+  }
+
+  // TODO - Migrations for config files
+  //        Right now, it just overwrites.
+  if (configVersion !== currentVersion) {
+    let newMeta = metaDb.get("meta");
+    newMeta.version = currentVersion;
+    configVersion = currentVersion;
+    metaDb.set("meta", newMeta);
   }
 };
 
@@ -262,17 +272,17 @@ module.exports.updateConfig = (config) => {
   }
 };
 
-module.exports.getCredential = () => {
+module.exports.getCredentials = () => {
   try {
-    return credentialDb.get("credential");
+    return credentialDb.get("credentials");
   } catch (error) {
     return {};
   }
 };
 
-module.exports.updateCredential = (credential) => {
+module.exports.updateCredentials = (credentials) => {
   try {
-    credentialDb.set("credential", credential);
+    credentialDb.set("credentials", credentials);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("CREDENTIAL_CHANGE");
   } catch (error) {
@@ -292,6 +302,7 @@ module.exports.updateMetaData = (meta) => {
   try {
     metaDb.set("meta", meta);
     configDb = new JSONdb(meta.configPath, jsonDbConfig);
+    credentialDb = new JSONdb(meta.credentialsPath, jsonDbConfig);
     dataDb = new JSONdb(meta.dataPath, jsonDbConfig);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("META_CHANGE");

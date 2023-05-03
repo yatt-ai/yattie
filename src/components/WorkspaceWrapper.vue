@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="workspace">
     <div class="tab-bar">
       <v-tabs :height="26" centered hide-slider>
         <v-tab class="timeline-tab" @click="currentTab = 'timeline'">
@@ -34,7 +34,7 @@ import NotesWrapper from "./NotesWrapper.vue";
 import TimelineWrapper from "./TimelineWrapper.vue";
 
 export default {
-  name: "WrokspaceWrapper",
+  name: "WorkspaceWrapper",
   components: {
     NotesWrapper,
     TimelineWrapper,
@@ -92,5 +92,15 @@ export default {
 }
 .theme--dark .v-tab {
   border-color: #4b5563;
+}
+.workspace .theme--light.v-tabs .v-tabs-bar .v-tab--active,
+.workspace .theme--light.v-tabs .v-tabs-bar .v-tab:not(.v-tab--disabled) {
+  font-weight: bold;
+  border: 1px solid #6d28d9;
+}
+.workspace .theme--light.v-tabs .v-tabs-bar .v-tab--disabled,
+.workspace .theme--light.v-tabs .v-tabs-bar .v-tab:not(.v-tab--active) {
+  color: rgba(0, 0, 0, 0.54);
+  border: 1px solid #d1d5db;
 }
 </style>

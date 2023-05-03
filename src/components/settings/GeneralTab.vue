@@ -1,8 +1,8 @@
 <template>
   <v-container class="content-wrapper">
     <v-row>
-      <v-col cols="12" class="border-bottom pa-4">
-        <p class="body-1">{{ $tc("caption.app_setting", 1) }}</p>
+      <v-col cols="12" class="pa-4">
+        <p class="body-1">{{ $tc("caption.app_settings", 1) }}</p>
         <v-btn
           class="text-capitalize font-weight-regular"
           fill
@@ -13,8 +13,32 @@
         >
           {{ $tc("caption.select_file", 1) }}
         </v-btn>
-        <p class="caption mt-2 mb-0">
+        <span class="subtitle-1 ml-2 mt-2 mb-0">
           {{ meta.configPath }}
+        </span>
+        <p class="note-caption mt-3 mb-0">
+          {{ $tc("caption.share_config", 1) }}
+        </p>
+      </v-col>
+      <v-col cols="12" class="border-bottom pa-4">
+        <v-btn
+          class="text-capitalize font-weight-regular"
+          fill
+          small
+          color="primary"
+          :height="30"
+          @click="openCredentialsFile"
+        >
+          {{ $tc("caption.select_file", 1) }}
+        </v-btn>
+        <span class="subtitle-1 ml-2 mt-2 mb-0">
+          {{ meta.credentialsPath }}
+        </span>
+        <p class="note-caption mt-3 mb-0">
+          {{ $tc("caption.split_credentials", 1) }}
+          <a href="#" @click="showOAuthDialog">
+            {{ $tc("caption.here", 1) }}
+          </a>
         </p>
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 theme-mode-section">
@@ -27,7 +51,7 @@
           class="ma-0 pa-0 radio-control"
           dense
           hide-details
-          @change="handleApperance"
+          @change="handleConfig"
         >
           <v-radio
             :label="$tc('caption.light_mode', 1)"
@@ -240,21 +264,13 @@ export default {
       },
       menu: false,
       color: this.config.defaultColor,
-      commentTypes: TEXT_TYPES.filter((item) => item !== "Summary"),
+      commentTypes: Object.keys(TEXT_TYPES).filter(
+        (item) => item !== "Summary"
+      ),
     };
   },
   methods: {
     handleConfig() {
-      this.$emit("submit-config", this.setting);
-    },
-    handleApperance() {
-      const isDarkMode = this.setting.apperance === "dark" ? true : false;
-      this.$vuetify.theme.dark = isDarkMode;
-      localStorage.setItem("isDarkMode", isDarkMode);
-      window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-        func: IPC_FUNCTIONS.SET_APPERANCE,
-        data: { apperance: this.config.apperance },
-      });
       this.$emit("submit-config", this.setting);
     },
     async openConfigFile() {
@@ -268,6 +284,39 @@ export default {
       if (status === STATUSES.SUCCESS) {
         this.$root.$emit("change-meta");
       }
+    },
+    async openCredentialsFile() {
+      const { status, message } = await window.ipc.invoke(
+        IPC_HANDLERS.FILE_SYSTEM,
+        {
+          func: IPC_FUNCTIONS.OPEN_CREDENTIALS_FILE,
+        }
+      );
+      console.log(status, message);
+      if (status === STATUSES.SUCCESS) {
+        this.$root.$emit("change-meta");
+      }
+    },
+    showOAuthDialog() {
+      if (!window.ipc) return;
+
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.GET_CREDENTIALS,
+        })
+        .then((credentials) => {
+          window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+            func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
+            data: {
+              path: "shareOAuth",
+              size: {
+                width: 400,
+                height: 550,
+              },
+              data: credentials,
+            },
+          });
+        });
     },
   },
 };
@@ -291,6 +340,13 @@ export default {
   font-weight: 500 !important;
   font-size: 14px !important;
   line-height: 20px !important;
+}
+.note-caption {
+  font-style: italic !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  line-height: 16px !important;
+  color: #6b7280;
 }
 .caption {
   font-style: normal !important;

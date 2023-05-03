@@ -27,7 +27,8 @@
             fill
             small
             block
-            color="primary"
+            :color="currentTheme.primary"
+            :style="{ color: currentTheme.white }"
             :height="30"
             @click="showSourcePickerDialog()"
           >
@@ -40,7 +41,8 @@
             fill
             small
             block
-            color="primary"
+            :color="currentTheme.primary"
+            :style="{ color: currentTheme.white }"
             :height="30"
             @click="startNewSession()"
           >
@@ -55,7 +57,8 @@
             fill
             small
             block
-            color="primary"
+            :color="currentTheme.primary"
+            :style="{ color: currentTheme.white }"
             @click="deleteConfirmDialog = true"
           >
             <v-icon left>mdi-delete</v-icon> {{ $tc("caption.delete", 1) }}
@@ -74,10 +77,28 @@
             <v-icon left>mdi-download</v-icon> {{ $tc("caption.export", 1) }}
           </v-btn>
         </v-col>
-        <v-col cols="12" class="pa-1" v-if="checkAuth">
+        <v-col
+          cols="6"
+          class="pa-1"
+          v-if="this.credentials.jira && this.credentials.jira.length > 0"
+        >
           <jira-export-session
             :title="$tc(`caption.export_to_jira`, 1)"
-            :credential-item="credential"
+            :credential-items="credentials.jira"
+            :items="items"
+            :selected="selected"
+          />
+        </v-col>
+        <v-col
+          cols="6"
+          class="pa-1"
+          v-if="
+            this.credentials.testrail && this.credentials.testrail.length > 0
+          "
+        >
+          <test-rail-export-session
+            :title="$tc(`caption.export_to_testrail`, 1)"
+            :credential-items="credentials.testrail"
             :items="items"
             :selected="selected"
           />
@@ -521,41 +542,35 @@
       />
       <DeleteConfirmDialog
         v-model="deleteConfirmDialog"
-        :title="$tc('caption.confirm_delete', 1)"
         :text="$t('message.confirm_delete')"
         @confirm="deleteItems"
         @cancel="deleteConfirmDialog = false"
       />
       <ResetConfirmDialog
         v-model="resetConfirmDialog"
-        :title="$tc('caption.confirm_reset', 1)"
         :text="$t('message.confirm_reset')"
         @confirm="resetSession"
         @cancel="resetConfirmDialog = false"
       />
       <SaveConfirmDialog
         v-model="saveConfirmDialog"
-        :title="$tc('caption.session_saved', 1)"
         :text="$t('message.confirm_session_saved')"
         @confirm="saveConfirmDialog = false"
       />
       <NewSessionDialog
         v-model="newSessionDialog"
-        :title="$tc('caption.save_current_progress', 1)"
         :text="$t('message.confirm_save_progress')"
         @save="saveSession(callback)"
         @discard="discardSession(callback)"
       />
       <DurationConfirmDialog
         v-model="durationConfirmDialog"
-        :title="$tc('caption.session_time', 1)"
         :text="$t('message.confirm_proceed_session_time')"
         @end="end"
         @proceed="proceed"
       />
       <AudioErrorDialog
         v-model="audioErrorDialog"
-        :title="$tc('caption.error_recording_audio', 1)"
         :text="$t('message.error_recording_audio')"
         @cancel="audioErrorDialog = false"
       />
@@ -570,7 +585,8 @@
 
 <script>
 import { VContainer, VRow, VCol, VBtn, VIcon } from "vuetify/lib/components";
-import dayjs from "dayjs";
+import uuidv4 from "uuid";
+
 import SourcePickerDialog from "./dialogs/SourcePickerDialog.vue";
 import NoteDialog from "./dialogs/NoteDialog.vue";
 import SummaryDialog from "./dialogs/SummaryDialog.vue";
@@ -584,6 +600,7 @@ import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
 import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
 
 import JiraExportSession from "./jira/JiraExportSession";
+import TestRailExportSession from "./testrail/TestRailExportSession";
 
 import {
   IPC_HANDLERS,
@@ -620,6 +637,7 @@ export default {
     EndSessionDialog,
     MinimizeControlWrapper,
     JiraExportSession,
+    TestRailExportSession,
   },
   props: {
     items: {
@@ -634,13 +652,9 @@ export default {
       type: Object,
       default: () => {},
     },
-    credentialItem: {
+    credentialItems: {
       type: Object,
       default: () => {},
-    },
-    isAuthenticated: {
-      type: Boolean,
-      default: () => false,
     },
     checkedStatusOfPreSessionTask: {
       type: Boolean,
@@ -673,11 +687,8 @@ export default {
     configItem: function (newValue) {
       this.config = newValue;
     },
-    credentialItem: function (newValue) {
-      this.credential = newValue;
-    },
-    isAuthenticated: function (newValue) {
-      this.checkAuth = newValue;
+    credentialItems: function (newValue) {
+      this.credentials = newValue;
     },
     "$store.state.status": {
       deep: true,
@@ -752,8 +763,7 @@ export default {
       sourceId: this.srcId,
       itemLists: this.items,
       config: this.configItem,
-      credential: this.credentialItem,
-      checkAuth: this.isAuthenticated,
+      credentials: this.credentialItems,
       audioDevices: [],
       loaded: false,
       status: this.$store.state.status,
@@ -790,7 +800,6 @@ export default {
     this.$root.$on("close-notedialog", this.hideNoteDialog);
     this.$root.$on("close-summarydialog", () => {
       this.summaryDialog = false;
-      this.endSessionProcess();
     });
 
     if (
@@ -1160,13 +1169,14 @@ export default {
                 func: IPC_FUNCTIONS.CREATE_IMAGE,
                 data: { url: imgURI },
               })
-              .then(({ fileName, filePath }) => {
+              .then(({ id, fileName, filePath }) => {
                 const data = {
+                  id,
                   sessionType: "Screenshot",
                   fileType: "image",
-                  fileName: fileName,
-                  filePath: filePath,
-                  time: this.timer,
+                  fileName,
+                  filePath,
+                  timer_mark: this.timer,
                 };
                 this.openAddWindow(data);
               });
@@ -1253,14 +1263,15 @@ export default {
                 func: IPC_FUNCTIONS.CREATE_VIDEO,
                 data: { buffer: buffer },
               })
-              .then(({ fileName, filePath }) => {
+              .then(({ id, fileName, filePath }) => {
                 const data = {
+                  id,
                   sessionType: "Video",
                   fileType: "video",
-                  fileName: fileName,
-                  filePath: filePath,
+                  fileName,
+                  filePath,
                   poster: poster,
-                  time: this.timer,
+                  timer_mark: this.timer,
                 };
                 this.openAddWindow(data);
               });
@@ -1378,13 +1389,14 @@ export default {
                 func: IPC_FUNCTIONS.CREATE_AUDIO,
                 data: { buffer: buffer },
               })
-              .then(({ fileName, filePath }) => {
+              .then(({ id, fileName, filePath }) => {
                 const data = {
+                  id,
                   sessionType: "Audio",
                   fileType: "audio",
-                  fileName: fileName,
-                  filePath: filePath,
-                  time: this.timer,
+                  fileName,
+                  filePath,
+                  timer_mark: this.timer,
                   poster: "",
                 };
                 this.openAddWindow(data);
@@ -1438,8 +1450,8 @@ export default {
       });
     },
     async addNote({ comment, tags }) {
-      const date = dayjs().format("MM/DD/YYYY HH:mm:ss");
-      const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".txt";
+      const id = uuidv4();
+      const fileName = id + ".txt";
       if (window.ipc) {
         // Save Note
         await window.ipc
@@ -1449,7 +1461,7 @@ export default {
           })
           .then((filePath) => {
             let newItem = {
-              id: Date.now(),
+              id,
               sessionType: "Note",
               fileType: "text",
               fileName: fileName,
@@ -1458,8 +1470,8 @@ export default {
               tags: tags,
               emoji: [],
               followUp: false,
-              time: this.timer,
-              createdAt: date,
+              timer_mark: this.timer,
+              createdAt: Date.now(),
             };
             this.$emit("add-item", newItem);
           });
@@ -1467,13 +1479,12 @@ export default {
       this.noteDialog = false;
     },
     async addSummary(value) {
-      const date = dayjs().format("MM/DD/YYYY HH:mm:ss");
       const data = {
-        id: Date.now(),
+        id: uuidv4(),
         sessionType: "Summary",
         comment: value,
-        time: this.timer,
-        createdAt: date,
+        timer_mark: this.timer,
+        createdAt: Date.now(),
       };
       if (Object.keys(this.summary).length) {
         const items = this.items.map((item) => {
@@ -1492,6 +1503,7 @@ export default {
     },
     mindMap() {
       const data = {
+        id: uuidv4(),
         sessionType: "Mindmap",
         fileType: "mindmap",
         fileName: "",
@@ -1500,7 +1512,7 @@ export default {
           nodes: DEFAULT_MAP_NODES,
           connections: DEFAULT_MAP_CONNECTIONS,
         },
-        time: this.timer,
+        timer_mark: this.timer,
       };
       this.openAddWindow(data);
     },
@@ -1580,6 +1592,17 @@ export default {
       this.timer = 0;
       this.isDuration = false;
       this.duration = 0;
+
+      this.sourcePickerDialog = false;
+      this.noteDialog = false;
+      this.summaryDialog = false;
+      this.deleteConfirmDialog = false;
+      this.resetConfirmDialog = false;
+      this.saveConfirmDialog = false;
+      this.newSessionDialog = false;
+      this.durationConfirmDialog = false;
+      this.audioErrorDialog = false;
+      this.endSessionDialog = false;
 
       this.$store.commit("clearState");
 

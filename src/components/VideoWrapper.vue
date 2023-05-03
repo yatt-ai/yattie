@@ -134,8 +134,8 @@ export default {
   },
   methods: {
     async handleVideo(needCallback = false) {
-      const startVal = this.calculateTime(this.start);
-      const endVal = this.calculateTime(this.end);
+      const startVal = this.timeInSeconds(this.start);
+      const endVal = this.timeInSeconds(this.end);
       const temp = parseInt(endVal - startVal);
       const duration = parseInt(this.duration);
       if (temp !== duration) {
@@ -173,12 +173,12 @@ export default {
     setEndTime(value) {
       this.end = value;
     },
-    calculateTime(value) {
+    timeInSeconds(value) {
       const timeArr = value.split(":");
       const minutes = parseInt(timeArr[0]);
       const seconds = parseInt(timeArr[1]);
-      const time = minutes * 60 + seconds;
-      return time;
+      const total = minutes * 60 + seconds;
+      return total;
     },
   },
 };

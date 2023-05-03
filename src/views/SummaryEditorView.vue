@@ -106,7 +106,7 @@ export default {
         content: "",
         text: "",
       },
-      commentTypes: TEXT_TYPES,
+      commentTypes: Object.keys(TEXT_TYPES),
     };
   },
   created() {

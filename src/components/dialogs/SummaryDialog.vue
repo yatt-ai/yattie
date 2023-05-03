@@ -13,7 +13,7 @@
           class="dialog-title"
           :style="{ color: currentTheme.secondary }"
         >
-          {{ $tc("caption.take_summary", 1) }}
+          {{ $tc("caption.summarize_session", 1) }}
         </v-card-title>
         <v-divider></v-divider>
         <v-container>
@@ -50,7 +50,7 @@
             </v-col>
           </v-row>
           <v-row class="mt-0">
-            <v-col class="pr-0">
+            <v-col>
               <div :style="{ color: currentTheme.secondary }">
                 {{ $tc("caption.comment_type", 1) }}
               </div>
@@ -64,23 +64,30 @@
                 hide-details="true"
               ></v-select>
             </v-col>
-            <v-col cols="auto" class="pl-0 d-flex align-end">
-              <v-btn
-                plain
-                color="primary"
-                class="text-capitalize px-0 btn"
-                @click="handleClear"
-              >
-                {{ $tc("caption.clear", 1) }}
-              </v-btn>
-            </v-col>
           </v-row>
         </v-container>
         <v-divider></v-divider>
         <v-card-actions>
           <v-row class="action-wrapper">
-            <v-col cols="12" class="d-flex justify-end">
-              <v-btn class="btn px-8" small color="primary" @click="handleSave">
+            <v-col cols="6" class="pr-1">
+              <v-btn
+                class="btn px-8"
+                small
+                block
+                :color="currentTheme.background"
+                @click="handleCancel"
+              >
+                {{ $tc("caption.cancel", 1) }}
+              </v-btn>
+            </v-col>
+            <v-col cols="6" class="pr-1">
+              <v-btn
+                class="btn px-8"
+                small
+                block
+                color="primary"
+                @click="handleSave"
+              >
                 {{ $tc("caption.save", 1) }}
               </v-btn>
             </v-col>
@@ -126,7 +133,7 @@ export default {
         content: "",
         text: "",
       },
-      commentTypes: TEXT_TYPES,
+      commentTypes: Object.keys(TEXT_TYPES),
       isRequired: this.configItem.summary,
       isEmpty: false,
     };
@@ -144,7 +151,7 @@ export default {
     },
   },
   methods: {
-    handleDiscard() {
+    handleCancel() {
       this.$root.$emit("close-summarydialog");
     },
     handleSave() {
