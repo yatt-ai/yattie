@@ -671,6 +671,9 @@ export default {
 .comment-wrapper p {
   margin-bottom: 0 !important;
 }
+.comment-type {
+  margin-right: 2px;
+}
 .note-wrapper {
   display: flex;
   justify-content: flex-start;
