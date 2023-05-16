@@ -19,7 +19,7 @@
             small
             :color="currentTheme.background"
             class="text-capitalize btn"
-            :style="{ color: currentTheme.black }"
+            :style="{ color: currentTheme.secondary }"
             @click="cancel"
           >
             {{ $tc("cancel", 1) }}
