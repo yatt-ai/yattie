@@ -82,6 +82,7 @@
           class="pa-1"
           v-if="this.credentials.jira && this.credentials.jira.length > 0"
         >
+          <!-- CTODO - fix the light mode colors of both export buttons -->
           <jira-export-session
             :title="$tc(`caption.export_to_jira`, 1)"
             :credential-items="credentials.jira"
@@ -521,6 +522,53 @@
             </v-list>
           </v-menu>
         </v-col>
+        <v-col
+          cols="12"
+          class="d-flex justify-center px-0 pt-0"
+          v-if="this.credentials.jira && this.credentials.jira.length > 0"
+        >
+          <v-menu
+            top
+            :offset-y="true"
+            :close-on-content-click="false"
+            v-model="issueExportDestinationMenu"
+          >
+            <template v-slot:activator="{ on: issueExportDestinationMenu }">
+              <v-tooltip top>
+                <template v-slot:activator="{ on: onTooltip }">
+                  <v-btn
+                    id="btn__bug"
+                    class="control-btn mx-1"
+                    fab
+                    outlined
+                    small
+                    color="default"
+                    v-on="{ ...issueExportDestinationMenu, ...onTooltip }"
+                  >
+                    <img
+                      :src="require('../assets/icon/bug.svg')"
+                      width="24"
+                      height="24"
+                    />
+                    <!-- CTODO - Theme support -->
+                  </v-btn>
+                </template>
+
+                <span>{{ $tc("caption.create_new_issue", 1) }}</span>
+              </v-tooltip>
+            </template>
+            <v-card class="mx-auto" width="250" tile>
+              <v-list dense>
+                <jira-add-issue
+                  :credential-items="credentials.jira"
+                  :items="items"
+                  :selected="selected"
+                  @close-menu="() => (issueExportDestinationMenu = false)"
+                />
+              </v-list>
+            </v-card>
+          </v-menu>
+        </v-col>
       </v-row>
       <SourcePickerDialog
         v-model="sourcePickerDialog"
@@ -602,6 +650,8 @@ import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
 
+import JiraAddIssue from "./jira/JiraAddIssue";
+
 import {
   IPC_HANDLERS,
   IPC_FUNCTIONS,
@@ -638,6 +688,7 @@ export default {
     MinimizeControlWrapper,
     JiraExportSession,
     TestRailExportSession,
+    JiraAddIssue,
   },
   props: {
     items: {
@@ -777,6 +828,7 @@ export default {
       ended: "",
       selected: [],
       callback: null,
+      issueExportDestinationMenu: false,
     };
   },
   mounted() {

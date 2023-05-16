@@ -4,7 +4,7 @@
       fill
       small
       block
-      :color="currentTheme.secondary"
+      :color="currentTheme.background"
       class="text-capitalize"
       @click="showDialog"
       :style="{ color: currentTheme.primary }"
@@ -256,8 +256,8 @@ export default {
       default: () => "",
     },
     credentialItems: {
-      type: Object,
-      default: () => {},
+      type: Array,
+      default: () => [],
     },
     items: {
       type: Array,

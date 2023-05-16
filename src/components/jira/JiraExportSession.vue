@@ -4,7 +4,7 @@
       fill
       small
       block
-      :color="currentTheme.secondary"
+      :color="currentTheme.background"
       class="text-capitalize"
       @click="showDialog"
       :style="{ color: currentTheme.primary }"
@@ -131,8 +131,8 @@ export default {
       default: () => "",
     },
     credentialItems: {
-      type: Object,
-      default: () => {},
+      type: Array,
+      default: () => [],
     },
     items: {
       type: Array,
@@ -208,6 +208,7 @@ export default {
           authHeader = `Basic ${credential.accessToken}`;
         } else if (credential.type === "oauth") {
           if (!credential.url) {
+            // TODO - Allow selecting of the org.
             url = `https://api.atlassian.com/ex/jira/${credential.orgs[0].id}/rest/api/3/search`;
           } else {
             url = `https://${credential.url}/rest/api/2/search`;
