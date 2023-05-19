@@ -3,9 +3,14 @@
     <div ref="waveform" class="mb-2 waveform"></div>
     <v-row>
       <v-col cols="12" class="progress-bar">
-        <span class="time">00:00</span>
+        <span class="time" :style="{ color: currentTheme.secondary }"
+          >00:00</span
+        >
         <div class="progress">
           <v-slider
+            v-model="currentProgress"
+            max="100"
+            min="0"
             color="primary"
             step="1"
             thumb-label
@@ -13,9 +18,13 @@
             hide-details
             hide-spin-buttons
             track-color="#D1D5DB"
+            @change="syncSlideWithAudio"
           ></v-slider>
         </div>
-        <span class="time">{{ durationTime }}</span>
+        <!-- move prop from controlPanel and get colors from Vuetify.js -->
+        <span class="time" :style="{ color: currentTheme.secondary }">{{
+          durationTime
+        }}</span>
       </v-col>
     </v-row>
     <v-row class="d-flex justify-space-between">
@@ -114,6 +123,7 @@ export default {
   data: () => ({
     wavesurfer: null,
     volume: 20,
+    currentProgress: 0,
   }),
   watch: {
     triggerSave: function (oldValue, newValue) {
@@ -123,6 +133,13 @@ export default {
     },
   },
   computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
     isPlaying() {
       if (!this.wavesurfer) return false;
 
@@ -141,20 +158,9 @@ export default {
         duration = parseFloat(this.wavesurfer.getDuration()).toFixed(2);
       }
 
-      duration = 0;
-
       const date = new Date(null);
       date.setSeconds(duration);
       const result = date.toISOString().substr(14, 5);
-      return result;
-    },
-    currentTime() {
-      if (!this.wavesurfer) return 0;
-
-      // return this.wavesurfer.getCurrentTime();
-      const duration = parseInt(this.wavesurfer.getDuration());
-      const current = parseInt(this.wavesurfer.getCurrentTime());
-      const result = Math.round((current / duration) * 100);
       return result;
     },
   },
@@ -176,6 +182,21 @@ export default {
         barWidth: 3,
       });
       this.wavesurfer.load(`file://${this.item.filePath}`);
+      this.wavesurfer.on("audioprocess", () => {
+        this.setCurrentProgress();
+      });
+    },
+    setCurrentProgress() {
+      if (!this.wavesurfer) return 0;
+
+      // return this.wavesurfer.getCurrentTime();
+      const duration = parseFloat(this.wavesurfer.getDuration());
+      const current = parseFloat(this.wavesurfer.getCurrentTime());
+      const result = Math.round((current / duration) * 100);
+      this.currentProgress = result;
+    },
+    syncSlideWithAudio() {
+      this.wavesurfer.seekTo(this.currentProgress / 100);
     },
     setVolume() {
       const volume = Math.round(this.volume);
