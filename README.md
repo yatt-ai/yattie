@@ -99,7 +99,8 @@ TODO - This section could use some love (and screenshots!)
 
 ## Usage
 
-Check out our [docs](https://docs.yattie.ai).
+- You can find a quick waklthrough by the very helpful @parwalrahul at the excellent MoT community [here](https://www.ministryoftesting.com/articles/acfa4d56)!
+- Check out our [docs](https://docs.yattie.ai).  Note: these docs are rough and need a lot of work.
 
 ## Roadmap
 
