@@ -4,16 +4,20 @@
       <v-col cols="12" class="pa-0">
         <div class="time-wrapper">
           <div class="time">
-            <span class="time-title">{{ $tc("caption.elapsed_time", 1) }}</span>
-            <span class="time-value" color="primary">{{ elapsedTime }}</span>
+            <span class="time-title">
+              {{ $tc("caption.elapsed_time", 1) }}
+            </span>
+            <span class="time-value" :style="{ color: currentTheme.secondary }">
+              {{ elapsedTime }}
+            </span>
           </div>
           <div class="time">
-            <span class="time-title">{{
-              $tc("caption.remaining_time", 1)
-            }}</span>
+            <span class="time-title">
+              {{ $tc("caption.remaining_time", 1) }}
+            </span>
             <span
               :class="`time-value ${this.$store.state.status}`"
-              color="primary"
+              :style="{ color: currentTheme.secondary }"
               >{{ remainingTime }}</span
             >
           </div>
@@ -43,6 +47,13 @@ export default {
       date.setSeconds(timer);
       const result = date.toISOString().substr(11, 8);
       return result;
+    },
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
     },
     remainingTime() {
       const timer = this.$store.state.duration;

@@ -36,7 +36,11 @@
         </span>
         <p class="note-caption mt-3 mb-0">
           {{ $tc("caption.split_credentials", 1) }}
-          <a href="#" @click="showOAuthDialog">
+          <a
+            href="#"
+            @click="showOAuthDialog"
+            :style="{ color: currentTheme.secondary }"
+          >
             {{ $tc("caption.here", 1) }}
           </a>
         </p>
