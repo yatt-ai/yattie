@@ -3,6 +3,7 @@ name: Publish CI
 on:
   release:
     types: [created]
+  workflow_dispatch:
 
 jobs:
   publish_on_linux:
