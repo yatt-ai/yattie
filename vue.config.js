@@ -80,7 +80,7 @@ module.exports = {
           ],
         },
         nsis: {
-          onClick: false,
+          oneClick: false,
           allowToChangeInstallationDirectory: true,
           installerIcon: "icons/icon.ico",
         },
