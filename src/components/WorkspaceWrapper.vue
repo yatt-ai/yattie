@@ -2,7 +2,11 @@
   <v-container class="workspace">
     <div class="tab-bar">
       <v-tabs :height="26" centered hide-slider>
-        <v-tab class="timeline-tab" @click="currentTab = 'timeline'">
+        <v-tab
+          class="timeline-tab"
+          @click="currentTab = 'timeline'"
+          :style="{ color: currentTheme.secondary }"
+        >
           Timeline
         </v-tab>
         <v-tab class="notes-tab" @click="currentTab = 'notes'"> Notes </v-tab>
@@ -35,6 +39,15 @@ import TimelineWrapper from "./TimelineWrapper.vue";
 
 export default {
   name: "WorkspaceWrapper",
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
+  },
   components: {
     NotesWrapper,
     TimelineWrapper,

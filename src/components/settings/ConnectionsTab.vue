@@ -8,7 +8,7 @@
         <a
           class="jira-link"
           @click="signinTestRail"
-          :style="{ color: currentTheme.primary }"
+          :style="{ color: currentTheme.secondary }"
         >
           {{ $t("message.connect_to_testrail") }}
         </a>
@@ -16,7 +16,7 @@
         <a
           class="jira-link"
           @click="signinJira"
-          :style="{ color: currentTheme.primary }"
+          :style="{ color: currentTheme.secondary }"
         >
           {{ $t("message.connect_to_jira") }}
         </a>
