@@ -6,10 +6,18 @@
     </p>
     <div class="tab-bar">
       <v-tabs :height="26" hide-slider>
-        <v-tab @click="tab = 'pre'" class="text-capitalize">
+        <v-tab
+          @click="tab = 'pre'"
+          class="text-capitalize"
+          :style="{ color: currentTheme.secondary }"
+        >
           {{ $tc("caption.pre_session", 1) }}
         </v-tab>
-        <v-tab @click="tab = 'post'" class="text-capitalize">
+        <v-tab
+          @click="tab = 'post'"
+          class="text-capitalize"
+          :style="{ color: currentTheme.secondary }"
+        >
           {{ $tc("caption.post_session", 1) }}
         </v-tab>
       </v-tabs>
@@ -52,7 +60,11 @@
             </div>
           </div>
           <div class="footer">
-            <button class="link" @click="addTask">
+            <button
+              class="link"
+              @click="addTask"
+              :style="{ color: currentTheme.secondary }"
+            >
               {{ $tc("caption.add_another_task", 1) }}
             </button>
           </div>
@@ -161,7 +173,15 @@ export default {
       tab: "pre",
     };
   },
-  computed: {},
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
+  },
   methods: {
     fetchData: function () {
       this.preTaskList = this.config.checklist.presession.tasks;

@@ -71,7 +71,7 @@
             <v-col cols="auto" class="pl-0 d-flex align-end">
               <v-btn
                 plain
-                :color="currentTheme.primary"
+                :color="currentTheme.secondary"
                 class="text-capitalize px-0 btn"
                 @click="handleClear"
               >

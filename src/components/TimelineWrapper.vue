@@ -735,7 +735,7 @@
       <v-col cols="12" class="text-center">
         <v-btn
           plain
-          color="primary"
+          :style="{ color: currentTheme.secondary }"
           class="text-capitalize"
           @click="uploadEvidence"
         >
