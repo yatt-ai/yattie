@@ -575,7 +575,10 @@ export default {
   },
   watch: {
     items: function (newValue) {
-      this.itemLists = newValue.slice().reverse();
+      this.itemLists = newValue
+        .slice()
+        .reverse()
+        .filter((item) => item.sessionType !== "Summary");
       this.itemLists.map((item) => {
         this.emojiMenu[`menu-${item.id}`] = false;
       });
@@ -587,7 +590,10 @@ export default {
   data() {
     return {
       notes: { text: "", content: "" },
-      itemLists: this.items.slice().reverse(),
+      itemLists: this.items
+        .slice()
+        .reverse()
+        .filter((item) => item.sessionType !== "Summary"),
       selected: [],
       activeItem: null,
       emojiMenu: {},
@@ -711,21 +717,17 @@ export default {
   overflow-y: hidden;
 }
 .draggable-group {
-  position: relative;
   width: 100%;
   display: flex;
-  align-items: flex-start;
   column-gap: 10px;
 }
 .notes-evidence.draggable-item {
-  display: flex;
-  flex-direction: column;
+  flex: 1;
   row-gap: 5px;
   min-width: calc(60% - 5px);
   max-width: calc(60% - 5px);
   border: 10px solid rgba(255, 173, 80, 0.25);
   background-color: rgba(255, 173, 80, 0.25);
-  min-height: 60vh;
 }
 .image-wrapper {
   position: relative;

@@ -8,7 +8,9 @@
             <span class="time-value" color="primary">{{ elapsedTime }}</span>
           </div>
           <div class="time">
-            <span class="time-title">{{ $tc("remaining_time", 1) }}</span>
+            <span class="time-title">{{
+              $tc("caption.remaining_time", 1)
+            }}</span>
             <span
               :class="`time-value ${this.$store.state.status}`"
               color="primary"

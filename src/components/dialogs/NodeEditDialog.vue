@@ -1,5 +1,11 @@
 <template>
-  <v-dialog v-bind="$attrs" v-on="$listeners" persistent width="350">
+  <v-dialog
+    v-bind="$attrs"
+    v-on="$listeners"
+    persistent
+    width="350"
+    style="z-index: 10"
+  >
     <v-sheet outlined rounded>
       <v-card :style="{ backgroundColor: currentTheme.background }">
         <LogoWrapper :height="20" :width="60" />
@@ -8,7 +14,7 @@
             <v-text-field
               v-model="text"
               :rules="textRules"
-              :label="$tc('caption:note_title', 1)"
+              :label="$tc('caption.node_title', 1)"
               required
             ></v-text-field>
           </v-form>

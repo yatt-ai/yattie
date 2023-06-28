@@ -50,7 +50,8 @@ export default {
     });
   },
   mounted() {
-    this.$root.$on("update-auth", this.updateAuth());
+    this.$root.$on("update-auth", this.updateAuth);
+    this.$root.$on("set-snackbar", this.setSnackBar);
     this.$root.$on("overlay", (value) => {
       this.overlay = value;
     });
@@ -151,6 +152,10 @@ export default {
           this.config = result;
         });
     },
+    async setSnackBar(message) {
+      this.snackBar.enabled = true;
+      this.snackBar.message = message;
+    },
     async updateAuth() {
       if (this.credentials && Object.entries(this.credentials).length > 0) {
         let authCheckResponse = await this.$integrationHelpers.checkAuth(
@@ -163,9 +168,8 @@ export default {
           for (const failedCred of authCheckResponse.failedAuth) {
             message += `${failedCred.credentialType} `;
           }
-          message += `integrations expired.`;
-          this.snackBar.enabled = true;
-          this.snackBar.message = message;
+          message += this.$tc("message.integrations_expired", 1);
+          this.setSnackBar(message);
         }
       }
     },

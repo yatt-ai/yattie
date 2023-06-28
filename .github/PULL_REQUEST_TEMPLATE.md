@@ -35,6 +35,11 @@ Issue Number: N/A
 
 <!-- If this does introduce a breaking change, please describe the impact and migration path for existing applications below. -->
 
+## Does this introduce UI changes?  If so, have they been tested on both dark and light modes?
+
+- [ ] Yes
+- [ ] No
+
 ## Other information
 
 <!-- Any other information that is important to this PR, such as screenshots of how the component looks before and after the change. -->

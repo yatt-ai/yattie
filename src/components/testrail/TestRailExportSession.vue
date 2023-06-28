@@ -1,16 +1,18 @@
 <template>
-  <div>
-    <v-btn
-      fill
-      small
-      block
-      :color="currentTheme.background"
-      class="text-capitalize"
-      @click="showDialog"
-      :style="{ color: currentTheme.primary }"
-    >
-      {{ title }}
-    </v-btn>
+  <v-list-item @click="showDialog()">
+    <v-list-item-icon class="mr-4">
+      <v-avatar size="24">
+        <img
+          :src="require('../../assets/icon/testrail.png')"
+          width="24"
+          alt="avatar"
+        />
+      </v-avatar>
+    </v-list-item-icon>
+    <v-list-item-content>
+      <v-list-item-title>{{ title }}</v-list-item-title>
+    </v-list-item-content>
+
     <v-dialog v-model="dialog" persistent width="350" eager>
       <v-sheet outlined color="accent" rounded>
         <v-card>
@@ -241,7 +243,7 @@
         </v-btn>
       </template>
     </v-snackbar>
-  </div>
+  </v-list-item>
 </template>
 
 <script>
@@ -422,7 +424,9 @@ export default {
           .catch((error) => {
             this.projectLoading = false;
             this.snackBar.enabled = true;
-            this.snackBar.message = error.message ? error.message : "API Error";
+            this.snackBar.message = error.message
+              ? error.message
+              : this.$tc("message.api_error", 1);
             if (
               credential.type === "oauth" &&
               dayjs(credential.lastRefreshed) < dayjs().subtract(4, "minute") &&
@@ -459,7 +463,9 @@ export default {
         .catch((error) => {
           this.runLoading = false;
           this.snackBar.enabled = true;
-          this.snackBar.message = error.message ? error.message : "API Error";
+          this.snackBar.message = error.message
+            ? error.message
+            : this.$tc("message.api_error", 1);
         });
       //this.selectedItem = item;
     },
@@ -489,7 +495,9 @@ export default {
         .catch((error) => {
           this.testLoading = false;
           this.snackBar.enabled = true;
-          this.snackBar.message = error.message ? error.message : "API Error";
+          this.snackBar.message = error.message
+            ? error.message
+            : this.$tc("message.api_error", 1);
         });
       this.selectedItem = item;
     },
@@ -516,7 +524,9 @@ export default {
         .catch((error) => {
           this.resultLoading = false;
           this.snackBar.enabled = true;
-          this.snackBar.message = error.message ? error.message : "API Error";
+          this.snackBar.message = error.message
+            ? error.message
+            : this.$tc("message.api_error", 1);
         });
     },
     async handleExport() {
@@ -577,7 +587,7 @@ export default {
               this.snackBar.enabled = true;
               this.snackBar.message = error.message
                 ? error.message
-                : "API Error";
+                : this.$tc("message.api_error", 1);
             });
         };
 

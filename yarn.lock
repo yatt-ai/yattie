@@ -1771,25 +1771,15 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
-"@peepi/vuetify-tiptap@^1.2.3":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@peepi/vuetify-tiptap/-/vuetify-tiptap-1.2.3.tgz#63f648afa1e0c169a4925cfdbff3521a6f21839a"
-  integrity sha512-+VXIDaq1Rm/vV8BIUE6+O6GqwLyAzdCvWccLmrsU4H2KHFjVXmYeVsHJtzuaScY+TuRivfgR1TrX3nZhtaatVQ==
-  dependencies:
-    "@tiptap/vue-2" "^2.0.0-beta.196"
-    debounce "github:component/debounce"
-    v-emoji-picker "^2.3.3"
-    xss "^1.0.11"
-
 "@polka/url@^1.0.0-next.20":
   version "1.0.0-next.21"
   resolved "https://registry.npmjs.org/@polka/url/-/url-1.0.0-next.21.tgz"
   integrity sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==
 
 "@popperjs/core@^2.9.0":
-  version "2.11.6"
-  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.6.tgz#cee20bd55e68a1720bdab363ecf0c821ded4cd45"
-  integrity sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw==
+  version "2.11.7"
+  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.7.tgz#ccab5c8f7dc557a52ca3288c10075c9ccd37fff7"
+  integrity sha512-Cr4OjIkipTtcXKjAsm8agyleBuDHvxzeBoa1v543lbv1YaIwQjESsVcmjiWiPEbC1FIeHOG/Op9kdCmAmiS3Kw==
 
 "@servie/events@^1.0.0":
   version "1.0.0"
@@ -1894,36 +1884,27 @@
   dependencies:
     defer-to-connect "^1.0.1"
 
-"@tiptap/core@^2.0.0-beta.209":
-  version "2.0.0-beta.209"
-  resolved "https://registry.yarnpkg.com/@tiptap/core/-/core-2.0.0-beta.209.tgz#fd0edb8f87a5eea70c6a11e0d7e628738a10ef3f"
-  integrity sha512-DOOzfo2XKD5Qt2oEGW33/6ugwSnvpl4WbxtlKdPadLoApk6Kja3K1Eps3pihBgIGmo4tkctkCzmj8wNWS7KeWg==
-
-"@tiptap/extension-bubble-menu@^2.0.0-beta.209":
-  version "2.0.0-beta.209"
-  resolved "https://registry.yarnpkg.com/@tiptap/extension-bubble-menu/-/extension-bubble-menu-2.0.0-beta.209.tgz#dcef008f84286c7719f43e54ebdd7de778837974"
-  integrity sha512-tceZAuDpy3J96uGyCzpJFD3fHABJDTJTq5E0hm+TRQT+eVGVqZI0PE3/4yVFgkCshioTuJq8veMDFcqNsSkKsQ==
+"@tiptap/extension-bubble-menu@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-bubble-menu/-/extension-bubble-menu-2.0.3.tgz#44b3c4e35fd478c42467d8fb7dbc9532614e5b18"
+  integrity sha512-lPt1ELrYCuoQrQEUukqjp9xt38EwgPUwaKHI3wwt2Rbv+C6q1gmRsK1yeO/KqCNmFxNqF2p9ZF9srOnug/RZDQ==
   dependencies:
-    "@tiptap/core" "^2.0.0-beta.209"
-    lodash "^4.17.21"
-    prosemirror-state "^1.4.1"
-    prosemirror-view "^1.28.2"
     tippy.js "^6.3.7"
 
-"@tiptap/extension-floating-menu@^2.0.0-beta.209":
-  version "2.0.0-beta.209"
-  resolved "https://registry.yarnpkg.com/@tiptap/extension-floating-menu/-/extension-floating-menu-2.0.0-beta.209.tgz#1c5f7ffca9fdd2d272069949345c3b888ea57049"
-  integrity sha512-m5ucAguqDxuOvNcsmvuSLcN8TMkbhFmiC6dTJOyaAGjGn6d8Ly6aZh+lEwU228TebM0TKHTp8Xob1cLjV4TGgg==
+"@tiptap/extension-floating-menu@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-floating-menu/-/extension-floating-menu-2.0.3.tgz#8d9943246aa3247442c1993f235617094fe705b5"
+  integrity sha512-zN1vRGRvyK3pO2aHRmQSOTpl4UJraXYwKYM009n6WviYKUNm0LPGo+VD4OAtdzUhPXyccnlsTv2p6LIqFty6Bg==
   dependencies:
     tippy.js "^6.3.7"
 
 "@tiptap/vue-2@^2.0.0-beta.196":
-  version "2.0.0-beta.209"
-  resolved "https://registry.yarnpkg.com/@tiptap/vue-2/-/vue-2-2.0.0-beta.209.tgz#196ad4342cea3b9a9917efff8c8bac88a7546a0b"
-  integrity sha512-XPtegyPmq+dHO3FdgwGisif8ilxKokCsJky1RLl1wJHJa/DVCDSHNJy+pOrJA/BEXYtyFBdGq4+iEshQ3XAuZA==
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@tiptap/vue-2/-/vue-2-2.0.3.tgz#076778985d1e5ccbefb414b05c4c9804bb377258"
+  integrity sha512-So2cl/W11Xt1MQqK47uNrddf08ruI2ScGHaBG2WZnYDtqJfwlAChRXi67fOeo/Y1vWy/69ekv5kLeQYWw9YJAg==
   dependencies:
-    "@tiptap/extension-bubble-menu" "^2.0.0-beta.209"
-    "@tiptap/extension-floating-menu" "^2.0.0-beta.209"
+    "@tiptap/extension-bubble-menu" "^2.0.3"
+    "@tiptap/extension-floating-menu" "^2.0.3"
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -2914,6 +2895,16 @@
   version "4.2.2"
   resolved "https://registry.npmjs.org/@xtuc/long/-/long-4.2.2.tgz"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
+
+"@yatt-ai/vuetify-tiptap@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@yatt-ai/vuetify-tiptap/-/vuetify-tiptap-1.0.0.tgz#ced34262cd1af4f11f029ef699ce37bdeaddb3e3"
+  integrity sha512-gN+H9uIdaNRtBjDyKvw2kfRjHn0UXRppCGUJX2b7TJKDDvlPopB9jaPGmVs/oW4hvphDyjloS5wxS0MYfA54zQ==
+  dependencies:
+    "@tiptap/vue-2" "^2.0.0-beta.196"
+    debounce "github:component/debounce"
+    v-emoji-picker "^2.3.3"
+    xss "^1.0.11"
 
 abab@^2.0.0, abab@^2.0.3, abab@^2.0.5:
   version "2.0.6"
@@ -3997,9 +3988,9 @@ caniuse-api@^3.0.0:
     lodash.uniq "^4.5.0"
 
 caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001400, caniuse-lite@^1.0.30001426:
-  version "1.0.30001434"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001434.tgz"
-  integrity sha512-aOBHrLmTQw//WFa2rcF1If9fa3ypkC1wzqqiKHgfdrXTWcU8C4gKVZT77eQAPWN1APys3+uQ0Df07rKauXGEYA==
+  version "1.0.30001489"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001489.tgz"
+  integrity sha512-x1mgZEXK8jHIfAxm+xgdpHpk50IN3z3q3zP261/WS+uvePxW8izXuCu6AHz0lkuYTlATDehiZ/tNyYBdSQsOUQ==
 
 canvas@^2.6.1:
   version "2.10.2"
@@ -10341,7 +10332,7 @@ prosemirror-model@^1.0.0, prosemirror-model@^1.16.0:
   dependencies:
     orderedmap "^2.0.0"
 
-prosemirror-state@*, prosemirror-state@^1.0.0, prosemirror-state@^1.4.1:
+prosemirror-state@*, prosemirror-state@^1.0.0:
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/prosemirror-state/-/prosemirror-state-1.4.2.tgz#f93bd8a33a4454efab917ba9b738259d828db7e5"
   integrity sha512-puuzLD2mz/oTdfgd8msFbe0A42j5eNudKAAPDB0+QJRw8cO1ygjLmhLrg9RvDpf87Dkd6D4t93qdef00KKNacQ==
@@ -10386,7 +10377,7 @@ prosemirror-view@1.23.2:
     prosemirror-state "^1.0.0"
     prosemirror-transform "^1.1.0"
 
-prosemirror-view@^1.27.0, prosemirror-view@^1.28.2:
+prosemirror-view@^1.27.0:
   version "1.29.1"
   resolved "https://registry.yarnpkg.com/prosemirror-view/-/prosemirror-view-1.29.1.tgz#9a4938d1a863ca76e23c6573d30e3ece2b17d9a0"
   integrity sha512-OhujVZSDsh0l0PyHNdfaBj6DBkbhYaCfbaxmTeFrMKd/eWS+G6IC+OAbmR9IsLC8Se1HSbphMaXnsXjupHL3UQ==

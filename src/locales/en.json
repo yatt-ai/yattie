@@ -117,6 +117,7 @@
     "start_session": "Start session",
     "start_quick_test": "Start Quick Test",
     "export": "Export",
+    "save_as": "Save As",
     "export_to_jira": "Export to JIRA",
     "export_to_testrail": "Export to TestRail",
     "resume_session": "Resume session",
@@ -159,14 +160,14 @@
     "tests": "TEST(S)",
     "add_result": "ADD RESULT",
     "result_status": "RESULT STATUS",
-    "map_node": "Map Node",
+    "map_node": "Map node",
+    "node_title": "Node title",
     "light_mode": "Light mode",
     "dark_mode": "Dark mode",
     "apply_to": "Apply To",
     "export_item_to_jira": "Export Item to JIRA",
     "issues": "ISSUES",
     "quick_test": "@.capitalize:quick test",
-    "map_node": "Map Node",
     "client_id": "Client ID",
     "client_secret": "Client Secret",
     "user_name": "User name",
@@ -191,7 +192,9 @@
     "create_new_issue": "Create a New Issue",
     "create_new_jira_issue": "Create a New Jira Issue",
     "jira": "Jira",
-    "confirm_jira_issue": "Confirm Jira Issue"
+    "confirm_jira_issue": "Confirm Jira Issue",
+    "select_project": "Select a project",
+    "select_issue_type": "Select an issue type"
   },
   "menu": {
     "about": "About",
@@ -218,6 +221,12 @@
     "check_update": "Check for updates"
   },
   "message": {
+    "successfully_added_attachment": "Successfully added attachment to issue",
+    "api_error": "API error",
+    "please_try_again": "Please try again",
+    "successfully_created_issue": "Successfully created issue",
+    "please_fill_required": "Please fill out all required fields",
+    "integrations_expired": "integrations expired",
     "version": "Version",
     "invalid_auth_type": "Invalid auth type",
     "api_error": "API error",

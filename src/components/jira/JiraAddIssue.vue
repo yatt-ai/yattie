@@ -14,10 +14,12 @@
     </v-list-item-content>
 
     <v-dialog v-model="dialog" persistent width="450">
-      <!-- CTODO - theming -->
       <v-sheet outlined color="accent" rounded>
         <v-card>
-          <v-card-title class="dialog-title">
+          <v-card-title
+            class="dialog-title"
+            :style="{ color: currentTheme.secondary }"
+          >
             {{ $tc("caption.create_new_jira_issue", 1) }}
           </v-card-title>
           <v-divider></v-divider>
@@ -37,12 +39,11 @@
                     <v-container v-if="projects.length > 0">
                       <v-row>
                         <v-col cols="6">
-                          <!-- CTODO - i18n -->
                           <v-select
                             v-model="projectId"
                             :items="projects"
                             class="project-select"
-                            label="Select a Project"
+                            :label="$tc('caption.select_project', 1)"
                             item-text="name"
                             item-value="id"
                             hide-details="true"
@@ -78,14 +79,19 @@
                           <v-select
                             v-model="issueTypeId"
                             :items="project.issueTypes"
-                            label="Select a Issue Type"
+                            :label="$tc('caption.select_issue_type', 1)"
                             item-text="name"
                             item-value="id"
                             hide-details="true"
-                            @change="handleIssue"
+                            @change="handleIssueType"
                           >
                             <template v-slot:selection="{ attr, on, item }">
-                              <div class="issue-item" v-bind="attr" v-on="on">
+                              <div
+                                class="issue-item"
+                                v-bind="attr"
+                                v-on="on"
+                                :style="{ color: currentTheme.secondary }"
+                              >
                                 <v-avatar size="20">
                                   <img
                                     :src="item.iconUrl"
@@ -97,7 +103,10 @@
                               </div>
                             </template>
                             <template v-slot:item="{ item }">
-                              <div class="issue-item">
+                              <div
+                                class="issue-item"
+                                :style="{ color: currentTheme.secondary }"
+                              >
                                 <v-avatar size="24">
                                   <img
                                     :src="item.iconUrl"
@@ -129,13 +138,19 @@
                                   fieldMappings?.[item.key]?.type === 'text'
                                 "
                               >
-                                <div class="subtitle-2 label-text">
+                                <div
+                                  class="subtitle-2 label-text"
+                                  :style="{ color: currentTheme.secondary }"
+                                >
                                   {{ item.name }}
                                 </div>
                                 <v-tiptap
-                                  v-model="issue.fields[item.key]"
+                                  v-model="newIssue.fields[item.key]"
+                                  :dark="$vuetify.theme.dark"
+                                  :light="!$vuetify.theme.dark"
+                                  :vuetify="$vuetify"
                                   :placeholder="$t('message.insert_note')"
-                                  ref="issue.fields[item.key]"
+                                  ref="newIssue.fields[item.key]"
                                   :toolbar="[
                                     'headings',
                                     '|',
@@ -156,20 +171,26 @@
                                 </v-tiptap>
                               </div>
                               <div v-else-if="item.schema.type === 'string'">
-                                <div class="subtitle-2 label-text">
+                                <div
+                                  class="subtitle-2 label-text"
+                                  :style="{ color: currentTheme.secondary }"
+                                >
                                   {{ item.name }}
                                 </div>
                                 <v-text-field
                                   outlined
                                   dense
                                   :height="35"
-                                  v-model="issue.fields[item.key]"
+                                  v-model="newIssue.fields[item.key]"
                                   :required="item.required"
                                   :rules="item.required ? rules : []"
                                 ></v-text-field>
                               </div>
                               <div v-else-if="item.schema.type === 'number'">
-                                <div class="subtitle-2 label-text">
+                                <div
+                                  class="subtitle-2 label-text"
+                                  :style="{ color: currentTheme.secondary }"
+                                >
                                   {{ item.name }}
                                 </div>
                                 <v-text-field
@@ -177,13 +198,16 @@
                                   dense
                                   :height="35"
                                   type="number"
-                                  v-model="issue.fields[item.key]"
+                                  v-model="newIssue.fields[item.key]"
                                   :required="item.required"
                                   :rules="item.required ? rules : []"
                                 ></v-text-field>
                               </div>
                               <div v-else-if="item.schema.type === 'option'">
-                                <div class="subtitle-2 label-text">
+                                <div
+                                  class="subtitle-2 label-text"
+                                  :style="{ color: currentTheme.secondary }"
+                                >
                                   {{ item.name }}
                                 </div>
                                 <v-select
@@ -193,7 +217,7 @@
                                   :items="item.allowedValues"
                                   item-value="id"
                                   item-text="value"
-                                  v-model="issue.fields[item.key]"
+                                  v-model="newIssue.fields[item.key]"
                                   :required="item.required"
                                   :rules="item.required ? rules : []"
                                 ></v-select>
@@ -202,10 +226,15 @@
                                 v-else-if="
                                   item.schema.type === 'array' &&
                                   item.schema.system !== 'issuelinks' &&
+                                  item.schema.system !== 'labels' &&
                                   item.schema.system !== 'attachment'
                                 "
                               >
-                                <div class="subtitle-2 label-text">
+                                <!-- TODO - add autocomplete & labels support -->
+                                <div
+                                  class="subtitle-2 label-text"
+                                  :style="{ color: currentTheme.secondary }"
+                                >
                                   {{ item.name }}
                                 </div>
                                 <v-row class="mx-1 mb-1" justify="start">
@@ -218,7 +247,8 @@
                                     :label="arrayItem.value"
                                     class="mr-3"
                                     color="primary"
-                                    v-model="issue.fields[item.key].selected"
+                                    v-model="newIssue.fields[item.key].selected"
+                                    :dark="$vuetify.theme.dark"
                                   >
                                   </v-checkbox>
                                 </v-row>
@@ -229,7 +259,10 @@
                                   item.key !== 'reporter'
                                 "
                               >
-                                <div class="subtitle-2 label-text">
+                                <div
+                                  class="subtitle-2 label-text"
+                                  :style="{ color: currentTheme.secondary }"
+                                >
                                   {{ item.name }}
                                 </div>
                                 <v-autocomplete
@@ -243,7 +276,7 @@
                                   item-value="accountId"
                                   :required="item.required"
                                   :rules="item.required ? rules : []"
-                                  v-model="issue.fields[item.key].id"
+                                  v-model="newIssue.fields[item.key].id"
                                   @focus="searchUser(item.autoCompleteUrl)"
                                 >
                                   <template
@@ -279,7 +312,10 @@
                                 </v-autocomplete>
                               </div>
                               <div v-else-if="item.schema.type === 'issuelink'">
-                                <div class="subtitle-2 label-text">
+                                <div
+                                  class="subtitle-2 label-text"
+                                  :style="{ color: currentTheme.secondary }"
+                                >
                                   {{ item.name }}
                                 </div>
                                 <v-autocomplete
@@ -293,7 +329,7 @@
                                   item-value="id"
                                   :required="item.required"
                                   :rules="item.required ? rules : []"
-                                  v-model="issue.fields[item.key].id"
+                                  v-model="newIssue.fields[item.key].id"
                                   @focus="searchIssue"
                                 >
                                 </v-autocomplete>
@@ -317,6 +353,7 @@
                   small
                   block
                   color="white"
+                  :style="{ color: currentTheme.black }"
                   :disabled="loading"
                   @click="handleDiscard()"
                 >
@@ -357,9 +394,8 @@
 </template>
 
 <script>
-import axios from "axios";
-
 import jiraIntegrationHelper from "../../integrations/JiraIntegrationHelpers";
+
 export default {
   name: "JiraAddIssue",
   props: {
@@ -403,7 +439,7 @@ export default {
       issueFields: [],
       users: null,
       issues: null,
-      issue: {
+      newIssue: {
         fields: {},
       },
       valid: true,
@@ -418,10 +454,18 @@ export default {
         description: {
           type: "text",
         },
-      }, // CTODO
+      },
     };
   },
-  computed: {},
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
+  },
   mounted() {},
   destroyed() {
     this.handleClear();
@@ -431,12 +475,14 @@ export default {
       this.handleClear();
       this.dialog = false;
     },
-    handleClear() {
-      this.project = null;
-      this.projectId = null;
+    handleClear(leaveProject = true) {
+      if (!leaveProject) {
+        this.project = null;
+        this.projectId = null;
+      }
       this.issueTypeId = null;
       this.issueFields = [];
-      this.issue = {
+      this.newIssue = {
         fields: {},
       };
     },
@@ -449,230 +495,178 @@ export default {
         const issueType = {
           id: this.issueTypeId,
         };
-        this.$set(this.issue.fields, "project", project);
-        this.$set(this.issue.fields, "issuetype", issueType);
-        this.loading = true; // CTODO - Handle which creds to use and move
-        //         headers building to the helper
-        const url = `https://api.atlassian.com/ex/jira/${this.credentials[0].orgs[0].id}/rest/api/3/issue`;
-        const headers = {
-          headers: {
-            Authorization: `Bearer ${this.credentials[0].accessToken}`,
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        };
-        let issueBody = { fields: {} };
-        await Object.keys(this.issue.fields).forEach((k) => {
-          if (this.issue.fields[k]?.id !== "") {
-            issueBody.fields[k] = this.issue.fields[k];
+        this.$set(this.newIssue.fields, "project", project);
+        this.$set(this.newIssue.fields, "issuetype", issueType);
+        this.loading = true;
+
+        let response = await jiraIntegrationHelper.createIssue(
+          this.credentials[this.project.credentialIndex],
+          this.newIssue,
+          this.fieldMappings
+        );
+        if (response?.error) {
+          this.loading = false;
+          this.snackBar.enabled = true;
+          this.snackBar.message = response.error.message
+            ? response.error.message
+            : this.$tc("message.api_error", 1);
+          if (response.error?.checkAuth) {
+            this.$root.$emit("update-auth", []);
           }
-          if (this.fieldMappings?.[k]?.type === "text") {
-            issueBody.fields[k] = jiraIntegrationHelper.htmlToADF(
-              "doc",
-              new DOMParser().parseFromString(this.issue.fields[k], "text/html")
-                .body
+        } else {
+          let selectedAttachments = [];
+          if (this.selectedIds.length > 0) {
+            this.itemLists.map((item) => {
+              if (
+                item.sessionType !== "Summary" &&
+                this.selectedIds.includes(item.id)
+              ) {
+                selectedAttachments.push(item);
+              }
+            });
+          }
+
+          let attachmentResponse;
+          if (selectedAttachments.length > 0) {
+            attachmentResponse = await jiraIntegrationHelper.createAttachments(
+              this.credentials[this.project.credentialIndex],
+              response.data,
+              selectedAttachments
             );
           }
-        });
-        await axios
-          .post(url, issueBody, headers)
-          .then((response) => {
-            console.log(response); // CTODO - remove
+          this.loading = false;
+          if (attachmentResponse?.error) {
+            let message =
+              "Unable to create attachment for issue " +
+              response.data.key +
+              " " +
+              (attachmentResponse.error.message
+                ? attachmentResponse.error.message
+                : "") +
+              " " +
+              this.$tc("message.please_try_again", 1);
+            this.$root.$emit("set-snackbar", message);
+            if (attachmentResponse.error?.checkAuth) {
+              this.$root.$emit("update-auth", []);
+            }
+          } else {
             this.handleClear();
             this.dialog = false;
-            this.loading = false; // CTODO - snack bar successful
-          })
-          .catch((error) => {
-            this.loading = false;
-            this.snackBar.enabled = true;
-            this.snackBar.message = error.message ? error.message : "API Error";
-            // CTODO - fix and promulgate this to other errors as well
-            // if (
-            //   credential.type === "oauth" &&
-            //   dayjs(credential.lastRefreshed) < dayjs().subtract(4, "minute") &&
-            //   [401, 403].includes(error.status)
-            // ) {
-            this.$root.$emit("update-auth", []);
-            // }
-          });
-        // CTODO - test the below
-        this.$refs.form.resetValidation();
+            this.$root.$emit(
+              "set-snackbar",
+              this.$tc("message.successfully_created_issue", 1)
+            );
+          }
+        }
       } else {
         this.snackBar.enabled = true;
-        this.snackBar.message = "Please fill out all required field!";
+        this.snackBar.message = this.$tc("message.please_fill_required", 1);
       }
     },
     async showDialog() {
       this.$emit("close-menu");
       this.dialog = true;
       this.loading = true;
-      let tempProjects = [];
-      for (const [i, credential] of Object.entries(this.credentials)) {
-        let url, authHeader;
-        // CTODO - build headers in an IntegrationsHelper function
-        if (credential.type === "basic") {
-          url = `https://${credential.url}/rest/api/3/search`;
-          authHeader = `Basic ${credential.accessToken}`;
-        } else if (credential.type === "oauth") {
-          if (!credential.url) {
-            // TODO - Allow selecting of the org.
-            url = `https://api.atlassian.com/ex/jira/${credential.orgs[0].id}/rest/api/3/project`;
-          } else {
-            url = `https://${credential.url}/rest/api/2/search`;
-          }
-          authHeader = `Bearer ${credential.accessToken}`;
-        }
-        const headers = {
-          headers: {
-            Authorization: authHeader,
-            Accept: "application/json",
-          },
-        };
+      let response = await jiraIntegrationHelper.getAllProjects(
+        this.credentials
+      );
 
-        console.log(i); // CTODO - remove
-        await axios
-          .get(url, headers)
-          .then((response) => {
-            if (response.status === 200) {
-              tempProjects.push(...response.data);
-            } // Use 'i' to save the index for later and change this.projects to map
-            this.loading = false; // CTODO - handle since this is in a loop
-          })
-          .catch((error) => {
-            this.loading = false;
-            this.snackBar.enabled = true;
-            this.snackBar.message = error.message ? error.message : "API Error";
-          });
+      this.projects = response.projects;
+      this.loading = false;
+      if (response?.error) {
+        this.dialog = false;
+        let message = response.error.message
+          ? response.error.message
+          : this.$tc("message.api_error", 1);
+        message += " " + this.$tc("message.please_try_again", 1);
+        this.$root.$emit("set-snackbar", message);
+        if (response.error?.checkAuth) {
+          this.$root.$emit("update-auth", []);
+        }
       }
-      this.projects = tempProjects;
     },
     async handleProject() {
       this.loading = true;
-      // CTODO - Fix this after
-      //       understanding how to tie to
-      //       multiple credentials
-      const url = `https://api.atlassian.com/ex/jira/${this.credentials[0].orgs[0].id}/rest/api/3/project/${this.projectId}`;
-      const headers = {
-        headers: {
-          Authorization: `Bearer ${this.credentials[0].accessToken}`,
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      };
-      await axios
-        .get(url, headers)
-        .then((response) => {
-          if (response.status === 200) {
-            this.project = response.data;
-          }
-          this.loading = false;
-        })
-        .catch((error) => {
-          this.loading = false;
-          this.snackBar.enabled = true;
-          this.snackBar.message = error.message ? error.message : "API Error";
-        });
+      let foundProject = this.projects.find(
+        (project) => project.id === this.projectId
+      );
+
+      let response = await jiraIntegrationHelper.getProject(
+        this.credentials[foundProject.credentialIndex],
+        this.projectId
+      );
+      response.project.credentialIndex = foundProject.credentialIndex;
+      this.project = response.project;
+
+      this.loading = false;
+      if (response?.error) {
+        this.snackBar.enabled = true;
+        this.snackBar.message = response.error.message
+          ? response.error.message
+          : this.$tc("message.api_error", 1);
+        if (response.error?.checkAuth) {
+          this.$root.$emit("update-auth", []);
+        }
+      }
     },
-    async handleIssue() {
-      this.issueFields = []; // CTODO - Missing fields like description
-      this.issue = {
-        fields: {},
-      }; // CTODO - Attachments aren't attached
+    async handleIssueType() {
       this.loading = true;
-      const url = `https://api.atlassian.com/ex/jira/${this.credentials[0].orgs[0].id}/rest/api/3/issue/createmeta?projectIds=${this.projectId}&issuetypeIds=${this.issueTypeId}&expand=projects.issuetypes.fields`;
-      const headers = {
-        headers: {
-          Authorization: `Bearer ${this.credentials[0].accessToken}`,
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      };
-      await axios
-        .get(url, headers)
-        .then((response) => {
-          this.loading = false;
-          if (response.status === 200) {
-            const fields = response.data.projects[0].issuetypes[0].fields;
-            Object.keys(fields).forEach((key) => {
-              const item = fields[key];
-              if (
-                item &&
-                item.key !== "issuetype" &&
-                item.key !== "project" &&
-                item.schema.type !== "any" &&
-                !["attachment", "issuelinks"].includes(item.schema.system)
-              ) {
-                this.issueFields.push(item);
-                if (item.key === "reporter") {
-                  const reporter = {
-                    id: this.credentials[0].user.id,
-                  };
-                  this.$set(this.issue.fields, item.key, reporter);
-                } else if (item.key === "parent") {
-                  const parent = {
-                    id: "",
-                  };
-                  this.$set(this.issue.fields, item.key, parent);
-                } else if (item.schema.type === "array") {
-                  this.$set(this.issue.fields, item.key, []);
-                } else {
-                  this.$set(this.issue.fields, item.key, "");
-                }
-              }
-            });
-          }
-        })
-        .catch((error) => {
-          this.loading = false;
-          this.snackBar.enabled = true;
-          this.snackBar.message = error.message ? error.message : "API Error";
-        });
+      let response = await jiraIntegrationHelper.getIssueTypeData(
+        this.credentials[this.project.credentialIndex],
+        this.projectId,
+        this.issueTypeId
+      );
+      this.newIssue = response.blankIssue;
+      this.issueFields = response.fieldData;
+
+      this.loading = false;
+      if (response?.error) {
+        this.snackBar.enabled = true;
+        this.snackBar.message = response.error.message
+          ? response.error.message
+          : this.$tc("message.api_error", 1);
+        if (response.error?.checkAuth) {
+          this.$root.$emit("update-auth", []);
+        }
+      }
     },
     async searchUser(url) {
       this.userLoading = true;
-      const headers = {
-        headers: {
-          Authorization: `Bearer ${this.credentials[0].accessToken}`,
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      };
+      let response = await jiraIntegrationHelper.getProvidedURL(
+        this.credentials[this.project.credentialIndex],
+        url
+      );
+      this.users = response.items;
 
-      await axios
-        .get(url, headers)
-        .then((response) => {
-          this.userLoading = false;
-          if (response.status === 200) {
-            this.users = response.data;
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          this.userLoading = false;
-        });
+      this.userLoading = false;
+      if (response?.error) {
+        this.snackBar.enabled = true;
+        this.snackBar.message = response.error.message
+          ? response.error.message
+          : this.$tc("message.api_error", 1);
+        if (response.error?.checkAuth) {
+          this.$root.$emit("update-auth", []);
+        }
+      }
     },
     async searchIssue() {
       this.issueLoading = true;
-      const url = `https://api.atlassian.com/ex/jira/${this.credentials[0].orgs[0].id}/rest/api/3/search?jql=project%20%3D%20${this.projectId}`;
-      const headers = {
-        headers: {
-          Authorization: `Bearer ${this.credentials[0].accessToken}`,
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      };
-      await axios
-        .get(url, headers)
-        .then((response) => {
-          this.issueLoading = false;
-          if (response.status === 200) {
-            this.issues = response.data.issues;
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          this.issueLoading = false;
-        });
+      let response = await jiraIntegrationHelper.searchIssues(
+        this.credentials[this.project.credentialIndex],
+        { project: this.projectId }
+      );
+      this.issues = response.issues;
+
+      this.issueLoading = false;
+      if (response?.error) {
+        this.snackBar.enabled = true;
+        this.snackBar.message = response.error.message
+          ? response.error.message
+          : this.$tc("message.api_error", 1);
+        if (response.error?.checkAuth) {
+          this.$root.$emit("update-auth", []);
+        }
+      }
     },
     updateDescription({ content, text }) {
       this.description.content = content;
