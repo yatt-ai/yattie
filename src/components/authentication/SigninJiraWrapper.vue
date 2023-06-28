@@ -137,7 +137,11 @@
           <v-col cols="12" class="d-flex justify-center mb-5 pa-0">
             <div class="subtitle-2">
               <a
-                href="https://confluence.atlassian.com/adminjiraserver/configure-an-incoming-link-1115659067.html"
+                @click="
+                  openExternalLink(
+                    'https://confluence.atlassian.com/adminjiraserver/configure-an-incoming-link-1115659067.html'
+                  )
+                "
               >
                 {{ $tc("message.jira_incoming_link") }}
               </a>
@@ -346,6 +350,12 @@ export default {
         this.$router.back();
       }
     },
+    openExternalLink(url) {
+      window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+        func: IPC_FUNCTIONS.OPEN_EXTERNAL_LINK,
+        data: url,
+      });
+    },
     useServerOAuth() {
       this.connectWithCloudOAuth = false;
       this.connectWithApi = false;
@@ -396,7 +406,7 @@ export default {
                   this.snackBar.enabled = true;
                   this.snackBar.message = response.data.message
                     ? response.data.message
-                    : "API Error";
+                    : this.$tc("message.api_error", 1);
                 }
               })
               .catch((error) => {
@@ -405,7 +415,7 @@ export default {
                 this.snackBar.enabled = true;
                 this.snackBar.message = error.message
                   ? error.message
-                  : "API Error";
+                  : this.$tc("message.api_error", 1);
               });
           })
           .catch((error) => {

@@ -33,7 +33,7 @@ import {
 import { getDimensions, getViewBox } from "../modules/mindmap/utils/dimensions";
 import nodeToHTML from "../modules/mindmap/utils/nodeToHTML";
 import uuidv4 from "uuid";
-//import "@fortawesome/fontawesome-free/css/all.min.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import NodeEditDialog from "./dialogs/NodeEditDialog.vue";
 
 export default {

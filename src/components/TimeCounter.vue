@@ -4,7 +4,7 @@
       <v-col cols="12" class="pa-0">
         <div class="time-wrapper">
           <div class="time">
-            <span class="time-title" :style="{ color: currentTheme.secondary }">
+            <span class="time-title">
               {{ $tc("caption.elapsed_time", 1) }}
             </span>
             <span class="time-value" :style="{ color: currentTheme.secondary }">
@@ -12,7 +12,7 @@
             </span>
           </div>
           <div class="time">
-            <span class="time-title" :style="{ color: currentTheme.secondary }">
+            <span class="time-title">
               {{ $tc("caption.remaining_time", 1) }}
             </span>
             <span

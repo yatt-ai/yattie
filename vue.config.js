@@ -79,6 +79,11 @@ module.exports = {
             },
           ],
         },
+        nsis: {
+          oneClick: false,
+          allowToChangeInstallationDirectory: true,
+          installerIcon: "icons/icon.ico",
+        },
         win: {
           icon: "icons/icon.ico",
           signingHashAlgorithms: ["sha256"],

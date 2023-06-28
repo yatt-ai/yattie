@@ -1,6 +1,6 @@
 {
   "name": "yattie",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "engines": {
     "npm": ">=8.0.0 <9.0.0",
     "node": ">=16.0.0 <17.0.0"
@@ -24,13 +24,14 @@
   },
   "main": "background.js",
   "dependencies": {
+    "@atlaskit/adf-utils": "^18.1.2",
     "@fortawesome/fontawesome-free": "^6.2.1",
     "@fortawesome/fontawesome-svg-core": "^6.4.0",
     "@fortawesome/free-regular-svg-icons": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/vue-fontawesome": "^2.0.10",
     "@johmun/vue-tags-input": "^2.1.0",
-    "@peepi/vuetify-tiptap": "^1.2.3",
+    "@yatt-ai/vuetify-tiptap": "^1.1.0",
     "adm-zip": "^0.5.9",
     "axios": "^1.2.1",
     "child_process": "^1.0.2",

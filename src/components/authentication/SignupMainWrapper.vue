@@ -185,14 +185,16 @@ export default {
             this.snackBar.enabled = true;
             this.snackBar.message = response.data.message
               ? response.data.message
-              : "API Error";
+              : this.$tc("message.api_error", 1);
           }
         })
         .catch((error) => {
           this.loading = false;
           this.$root.$emit("overlay", false);
           this.snackBar.enabled = true;
-          this.snackBar.message = error.message ? error.message : "API Error";
+          this.snackBar.message = error.message
+            ? error.message
+            : this.$tc("message.api_error", 1);
         });
     },
     async jiraLogin(data) {
@@ -244,12 +246,14 @@ export default {
               this.snackBar.enabled = true;
               this.snackBar.message = error.message
                 ? error.message
-                : "API Error";
+                : this.$tc("message.api_error", 1);
             });
         })
         .catch((error) => {
           this.snackBar.enabled = true;
-          this.snackBar.message = error.message ? error.message : "API Error";
+          this.snackBar.message = error.message
+            ? error.message
+            : this.$tc("message.api_error", 1);
         });
     },
   },

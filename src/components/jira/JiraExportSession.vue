@@ -1,20 +1,25 @@
 <template>
-  <div>
-    <v-btn
-      fill
-      small
-      block
-      :color="currentTheme.secondary"
-      class="text-capitalize"
-      @click="showDialog"
-      :style="{ color: currentTheme.primary }"
-    >
-      {{ title }}
-    </v-btn>
+  <v-list-item @click="showDialog()">
+    <v-list-item-icon class="mr-4">
+      <v-avatar size="24">
+        <img
+          :src="require('../../assets/icon/jira.png')"
+          width="24"
+          alt="avatar"
+        />
+      </v-avatar>
+    </v-list-item-icon>
+    <v-list-item-content :style="{ color: currentTheme.secondary }">
+      <v-list-item-title>{{ title }}</v-list-item-title>
+    </v-list-item-content>
+
     <v-dialog v-model="dialog" persistent width="350" eager>
       <v-sheet outlined color="accent" rounded>
         <v-card>
-          <v-card-title class="dialog-title">
+          <v-card-title
+            class="dialog-title"
+            :style="{ color: currentTheme.secondary }"
+          >
             {{ $tc("caption.export_item_to_jira", 1) }}
           </v-card-title>
           <v-divider></v-divider>
@@ -45,10 +50,13 @@
                 </div>
                 <div class="issue-wrapper" v-else>
                   <div class="issue-list">
-                    <span class="issue-header"
-                      >{{ searchIssueList.length }}
-                      {{ $tc("caption.issues", 1) }}</span
+                    <span
+                      class="issue-header"
+                      :style="{ color: currentTheme.secondary }"
                     >
+                      {{ searchIssueList.length }}
+                      {{ $tc("caption.issues", 1) }}
+                    </span>
                     <div
                       v-for="item in searchIssueList"
                       :key="item.id"
@@ -87,6 +95,7 @@
                   color="white"
                   :disabled="loading"
                   @click="dialog = false"
+                  :style="{ color: currentTheme.black }"
                 >
                   {{ $tc("caption.discard", 1) }}
                 </v-btn>
@@ -116,12 +125,12 @@
         </v-btn>
       </template>
     </v-snackbar>
-  </div>
+  </v-list-item>
 </template>
 
 <script>
-import axios from "axios";
-import dayjs from "dayjs";
+import jiraIntegrationHelper from "../../integrations/JiraIntegrationHelpers";
+
 export default {
   name: "JiraExportSession",
   components: {},
@@ -131,8 +140,8 @@ export default {
       default: () => "",
     },
     credentialItems: {
-      type: Object,
-      default: () => {},
+      type: Array,
+      default: () => [],
     },
     items: {
       type: Array,
@@ -199,134 +208,60 @@ export default {
     async showDialog() {
       this.dialog = true;
       this.loading = true;
-      let first = true;
-      for (const [i, credential] of Object.entries(this.credentials)) {
-        let url, authHeader;
-        // TODO - build headers in an IntegrationsHelper function
-        if (credential.type === "basic") {
-          url = `https://${credential.url}/rest/api/3/search`;
-          authHeader = `Basic ${credential.accessToken}`;
-        } else if (credential.type === "oauth") {
-          if (!credential.url) {
-            url = `https://api.atlassian.com/ex/jira/${credential.orgs[0].id}/rest/api/3/search`;
-          } else {
-            url = `https://${credential.url}/rest/api/2/search`;
-          }
-          authHeader = `Bearer ${credential.accessToken}`;
+      let response = await jiraIntegrationHelper.getAllIssues(this.credentials);
+      this.issues = response.issues;
+      this.loading = false;
+      if (response?.error) {
+        this.dialog = false;
+        let message = response.error.message
+          ? response.error.message
+          : this.$tc("message.api_error", 1);
+        message += " " + this.$tc("message.please_try_again", 1);
+        this.$root.$emit("set-snackbar", message);
+        if (response.error?.checkAuth) {
+          this.$root.$emit("update-auth", []);
         }
-        const headers = {
-          headers: {
-            Authorization: authHeader,
-            Accept: "application/json",
-          },
-        };
-
-        await axios
-          .get(url, headers)
-          .then((response) => {
-            if (response.status === 200) {
-              if (first) {
-                this.issues = response.data.issues.map((issue) => ({
-                  ...issue,
-                  credential_index: i,
-                }));
-              } else {
-                this.issues.push(
-                  response.data.issues.map((issue) => ({
-                    ...issue,
-                    credential_index: i,
-                  }))
-                );
-              }
-            }
-            this.loading = false;
-          })
-          .catch((error) => {
-            this.loading = false;
-            this.snackBar.enabled = true;
-            this.snackBar.message = error.message ? error.message : "API Error";
-            if (
-              credential.type === "oauth" &&
-              dayjs(credential.lastRefreshed) < dayjs().subtract(4, "minute") &&
-              [401, 403].includes(error.status)
-            ) {
-              this.$root.$emit("update-auth", []);
-            }
-          });
       }
     },
     handleSelectedItem(item) {
       this.selectedItem = item;
     },
-    handleExport() {
-      this.uploadFile = async (data) => {
-        let url, authHeader;
-        const credential = this.credentials[this.selectedItem.credential_index];
-        const accessToken = credential.accessToken;
-        if (credential.type === "basic") {
-          url = `https://${credential.url}/rest/api/3/issue/${this.selectedItem.key}/attachments`;
-          authHeader = `Basic ${accessToken}`;
-        } else if (credential.type === "oauth") {
-          if (!credential.url) {
-            url = `https://api.atlassian.com/ex/jira/${credential.orgs[0].id}/rest/api/3/issue/${this.selectedItem.key}/attachments`;
-          } else {
-            url = `https://${credential.url}/rest/api/2/issue/${this.selectedItem.key}/attachments`;
-          }
-          authHeader = `Bearer ${accessToken}`;
-        }
-        const headers = {
-          headers: {
-            Authorization: authHeader,
-            Accept: "application/json",
-            "X-Atlassian-Token": "no-check",
-          },
-        };
-
-        axios
-          .post(url, data, headers)
-          .then((response) => {
-            if (response.status === 200) {
-              this.loading = false;
-              this.dialog = false;
-              this.$root.$emit("update-selected", []);
-            }
-          })
-          .catch((error) => {
-            this.loading = false;
-            this.snackBar.enabled = true;
-            this.snackBar.message = error.message ? error.message : "API Error";
-            if (
-              credential.type === "oauth" &&
-              dayjs(credential.lastRefreshed) < dayjs().subtract(4, "minute") &&
-              [401, 403].includes(error.status)
-            ) {
-              this.$root.$emit("update-auth", []);
-            }
-          });
-      };
-
-      const formData = new FormData();
+    async handleExport() {
       this.loading = true;
-
-      if (this.selectedIds.length === 0) {
+      let selectedAttachments = [];
+      if (this.selectedIds.length > 0) {
         this.itemLists.map((item) => {
-          if (item.sessionType !== "Summary") {
-            this.selectedIds.push(item.id);
+          if (
+            item.sessionType !== "Summary" &&
+            this.selectedIds.includes(item.id)
+          ) {
+            selectedAttachments.push(item);
           }
         });
       }
 
-      this.selectedIds.map(async (id, i) => {
-        const item = this.itemLists.find((item) => item.id === id);
-        console.log(`${JSON.stringify(item)}`);
-        const response = await fetch(`file:${item.filePath}`);
-        console.log(`${JSON.stringify(response)}`);
-        const file = new File([await response.blob()], item.fileName);
-        formData.append("file", file);
-        if (i === this.selectedIds.length - 1) {
-          this.uploadFile(formData);
+      let response = await jiraIntegrationHelper.createAttachments(
+        this.credentials[this.selectedItem.credentialIndex],
+        this.selectedItem,
+        selectedAttachments
+      );
+      this.loading = false;
+      this.$root.$emit("update-selected", []);
+      if (response?.error) {
+        this.snackBar.enabled = true;
+        this.snackBar.message = response.error.message
+          ? response.error.message
+          : this.$tc("message.api_error", 1);
+        if (response.error?.updateAuth) {
+          this.$root.$emit("update-auth", []);
         }
-      });
+      } else {
+        this.dialog = false;
+        this.$root.$emit(
+          "set-snackbar",
+          this.$tc("message.successfully_added_attachment", 1)
+        );
+      }
     },
     handleDiscard() {
       this.dialog = false;
@@ -383,18 +318,16 @@ export default {
 }
 
 .issue-wrapper .issue-list .issue-item:hover {
-  background: #ddd;
+  background: #bbb;
 }
 .issue-wrapper .issue-list .issue-item.active {
   background: #eee6fb;
 }
 
-.issue-wrapper .issue-list .issue-item.active .issue-icon {
+.issue-wrapper .issue-list .issue-item.active .issue-icon,
+.issue-wrapper .issue-list .issue-item.active .issue-summary,
+.issue-wrapper .issue-list .issue-item.active .issue-key {
   color: #6d28d9;
-}
-
-.issue-wrapper .issue-list .issue-item.active .issue-desc .issue-summary {
-  color: #6d28d9 !important;
 }
 
 .issue-wrapper .issue-list .issue-item .issue-desc {
@@ -407,11 +340,9 @@ export default {
   font-size: 13px !important;
   font-weight: 500;
   line-height: 16px !important;
-  color: #000 !important;
 }
 
 .issue-desc .issue-key {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.6);
 }
 </style>

@@ -65,43 +65,72 @@
           </v-btn>
         </v-col>
         <v-col cols="6" class="pa-1">
-          <v-btn
-            id="btn_download"
-            fill
-            small
-            block
-            color="white"
-            :style="{ color: currentTheme.black }"
-            @click="exportItems"
+          <v-menu
+            top
+            :offset-y="true"
+            :close-on-content-click="false"
+            v-model="evidenceExportDestinationMenu"
           >
-            <v-icon left>mdi-download</v-icon> {{ $tc("caption.export", 1) }}
-          </v-btn>
-        </v-col>
-        <v-col
-          cols="6"
-          class="pa-1"
-          v-if="this.credentials.jira && this.credentials.jira.length > 0"
-        >
-          <jira-export-session
-            :title="$tc(`caption.export_to_jira`, 1)"
-            :credential-items="credentials.jira"
-            :items="items"
-            :selected="selected"
-          />
-        </v-col>
-        <v-col
-          cols="6"
-          class="pa-1"
-          v-if="
-            this.credentials.testrail && this.credentials.testrail.length > 0
-          "
-        >
-          <test-rail-export-session
-            :title="$tc(`caption.export_to_testrail`, 1)"
-            :credential-items="credentials.testrail"
-            :items="items"
-            :selected="selected"
-          />
+            <template v-slot:activator="{ on: evidenceExportDestinationMenu }">
+              <v-tooltip top>
+                <template v-slot:activator="{ on: onTooltip }">
+                  <v-btn
+                    id="btn_download"
+                    fill
+                    small
+                    block
+                    color="white"
+                    :style="{ color: currentTheme.black }"
+                    v-on="{ ...evidenceExportDestinationMenu, ...onTooltip }"
+                  >
+                    <v-icon left>mdi-download</v-icon>
+                    {{ $tc("caption.export", 1) }}
+                  </v-btn>
+                </template>
+                <span>{{ $tc("caption.export", 1) }}</span>
+              </v-tooltip>
+            </template>
+            <v-card tile>
+              <v-list dense>
+                <v-list-item @click="exportItems">
+                  <v-list-item-icon class="mr-4">
+                    <v-icon>mdi-download</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ $tc("caption.save_as", 1) }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <div
+                  v-if="
+                    this.credentials.jira && this.credentials.jira.length > 0
+                  "
+                >
+                  <jira-export-session
+                    :title="$tc(`caption.export_to_jira`, 1)"
+                    :credential-items="credentials.jira"
+                    :items="items"
+                    :selected="selected"
+                    @close-menu="() => (evidenceExportDestinationMenu = false)"
+                  />
+                </div>
+                <div
+                  v-if="
+                    this.credentials.testrail &&
+                    this.credentials.testrail.length > 0
+                  "
+                >
+                  <test-rail-export-session
+                    :title="$tc(`caption.export_to_testrail`, 1)"
+                    :credential-items="credentials.testrail"
+                    :items="items"
+                    :selected="selected"
+                  />
+                </div>
+              </v-list>
+            </v-card>
+          </v-menu>
         </v-col>
       </v-row>
       <v-row class="text-center control-btn-wrapper" v-if="status === 'end'">
@@ -521,6 +550,59 @@
             </v-list>
           </v-menu>
         </v-col>
+        <v-col
+          cols="12"
+          class="d-flex justify-center px-0 pt-0"
+          v-if="this.credentials.jira && this.credentials.jira.length > 0"
+        >
+          <v-menu
+            top
+            :offset-y="true"
+            :close-on-content-click="false"
+            v-model="issueCreateDestinationMenu"
+          >
+            <template v-slot:activator="{ on: issueCreateDestinationMenu }">
+              <v-tooltip top>
+                <template v-slot:activator="{ on: onTooltip }">
+                  <v-btn
+                    id="btn__bug"
+                    class="control-btn mx-1"
+                    fab
+                    outlined
+                    small
+                    color="default"
+                    v-on="{ ...issueCreateDestinationMenu, ...onTooltip }"
+                  >
+                    <img
+                      v-if="$vuetify.theme.dark === false"
+                      :src="require('../assets/icon/bug.svg')"
+                      width="24"
+                      height="24"
+                    />
+                    <img
+                      v-else
+                      :src="require('../assets/icon/bug-gray.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </v-btn>
+                </template>
+
+                <span>{{ $tc("caption.create_new_issue", 1) }}</span>
+              </v-tooltip>
+            </template>
+            <v-card class="mx-auto" width="150" tile>
+              <v-list dense>
+                <jira-add-issue
+                  :credential-items="credentials.jira"
+                  :items="items"
+                  :selected="selected"
+                  @close-menu="() => (issueCreateDestinationMenu = false)"
+                />
+              </v-list>
+            </v-card>
+          </v-menu>
+        </v-col>
       </v-row>
       <SourcePickerDialog
         v-model="sourcePickerDialog"
@@ -602,6 +684,8 @@ import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
 
+import JiraAddIssue from "./jira/JiraAddIssue";
+
 import {
   IPC_HANDLERS,
   IPC_FUNCTIONS,
@@ -638,6 +722,7 @@ export default {
     MinimizeControlWrapper,
     JiraExportSession,
     TestRailExportSession,
+    JiraAddIssue,
   },
   props: {
     items: {
@@ -777,6 +862,8 @@ export default {
       ended: "",
       selected: [],
       callback: null,
+      evidenceExportDestinationMenu: false,
+      issueCreateDestinationMenu: false,
     };
   },
   mounted() {
