@@ -51,10 +51,10 @@ jobs:
       run: |
         mkdir -p ~/private_keys/
         echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
-        ls -l ~/private_keys/
         mkdir -p ./private_keys
         echo '${{ secrets.api_key }}' > ./private_keys/AuthKey_${{ secrets.api_key_id }}.p8
-        ls -l ./private_keys/
+        ls -ls ~/work/yattie/yattie/private_keys ~/private_keys ~/.private_keys ~/.appstoreconnect/private_keys
+
     - name: Publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
