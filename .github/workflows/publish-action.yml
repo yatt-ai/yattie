@@ -53,7 +53,6 @@ jobs:
         echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
         mkdir -p ./private_keys
         echo '${{ secrets.api_key }}' > ./private_keys/AuthKey_${{ secrets.api_key_id }}.p8
-        ls -ls ~/work/yattie/yattie/private_keys ~/private_keys ~/.private_keys ~/.appstoreconnect/private_keys
 
     - name: Publish
       env:
@@ -64,7 +63,9 @@ jobs:
         APPLE_API_KEY_ID: ${{ secrets.api_key_id }}
         APPLE_API_KEY_ISSUER: ${{ secrets.api_key_issuer_id }}
         APPLE_TEAM_ID: ${{ secrets.team_id }}
-      run: npm run publish
+      run: |
+        ls -ls ~/work/yattie/yattie/private_keys ~/private_keys ~/.private_keys ~/.appstoreconnect/private_keys && echo ""
+        npm run publish
       
   publish_on_win:
     runs-on: windows-latest
