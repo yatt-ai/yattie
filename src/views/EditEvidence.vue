@@ -234,7 +234,7 @@ export default {
       this.item = data;
       this.processing = false;
     });
-    this.$root.$on("update-session", this.updateSession);
+    this.$root.$on("update-edit-item", this.updateEditItem);
     this.$root.$on("update-processing", this.updateProcessing);
     this.$root.$on("save-data", this.saveData);
   },
@@ -249,7 +249,7 @@ export default {
         });
     },
 
-    updateSession(value) {
+    updateEditItem(value) {
       this.item = value;
     },
     updateProcessing(value) {
@@ -311,31 +311,24 @@ export default {
       this.item.followUp = $event.target.checked;
     },
     async saveData(data) {
+      if (!window.ipc) return;
+
       if (data) {
         this.item.fileName = data.fileName;
         this.item.filePath = data.filePath;
+        this.item.id = data.id;
       }
 
-      this.items = this.items.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.id === this.item.id) {
-          temp = this.item;
-        }
-        return temp;
-      });
-
-      if (window.ipc) {
-        window.ipc
-          .invoke(IPC_HANDLERS.DATABASE, {
-            func: IPC_FUNCTIONS.UPDATE_ITEMS,
-            data: this.items,
-          })
-          .then(() => {
-            window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-              func: IPC_FUNCTIONS.CLOSE_EDIT_WINDOW,
-            });
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.UPDATE_ITEM,
+          data: this.item,
+        })
+        .then(() => {
+          window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+            func: IPC_FUNCTIONS.CLOSE_EDIT_WINDOW,
           });
-      }
+        });
     },
   },
 };

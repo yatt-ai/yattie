@@ -16,7 +16,7 @@
             :height="35"
             v-model="title"
             hide-details="true"
-            @input="updateTitle"
+            @change="updateTitle"
             :color="currentTheme.secondary"
           ></v-text-field>
         </div>
@@ -61,7 +61,7 @@
                   'emoji',
                   'blockquote',
                 ]"
-                @input="updateCharter"
+                @change="updateCharter"
               >
               </v-tiptap>
             </v-tab-item>
@@ -92,7 +92,7 @@
               outlined
               dense
               v-model="duration"
-              @input="handleDuration"
+              @change="handleDuration"
               hide-details="true"
               :disabled="this.$store.state.status !== 'pending' ? true : false"
             />
@@ -123,7 +123,7 @@
               'emoji',
               'blockquote',
             ]"
-            @input="updatePrecondition"
+            @change="updatePrecondition"
           >
           </v-tiptap>
         </div>
@@ -214,16 +214,19 @@ export default {
   methods: {
     updateTitle() {
       this.$store.commit("setTitle", this.title);
+      // CTODO - update remote if config enabled
     },
     updateCharter() {
       const regex = /(<([^>]+)>)/gi;
       this.charter.text = this.charter.content.replace(regex, "");
       this.$store.commit("setCharter", this.charter);
+      // CTODO - update remote if config enabled
     },
     updatePrecondition() {
       const regex = /(<([^>]+)>)/gi;
       this.precondition.text = this.precondition.content.replace(regex, "");
       this.$store.commit("setPrecondition", this.precondition);
+      // CTODO - update remote if config enabled
     },
     handleDuration() {
       const timeArr = this.duration.split(":");
@@ -241,6 +244,7 @@ export default {
       }
       const temp = minutes * 60 + seconds;
       this.$store.commit("setDuration", temp);
+      // CTODO - update remote if config enabled
     },
     handleMindmap(value) {
       const new_nodes = value.nodes.map((obj) => {
@@ -262,6 +266,7 @@ export default {
         connections: new_connections,
       };
       this.$store.commit("setMindmap", data);
+      // CTODO - update remote if config enabled
     },
   },
 };

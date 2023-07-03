@@ -46,6 +46,7 @@ export const IPC_FUNCTIONS = {
   INITIALIZE_SESSION: "initializeSession",
   ADD_ITEM: "addItem",
   GET_ITEMS: "getItems",
+  UPDATE_ITEM: "updateItem",
   UPDATE_ITEMS: "updateItems",
   DELETE_ITEMS: "deleteItems",
   GET_ITEM_BY_ID: "getItemById",

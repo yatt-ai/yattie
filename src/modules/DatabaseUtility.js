@@ -219,6 +219,23 @@ module.exports.addItem = (item) => {
   }
 };
 
+module.exports.updateItem = (newItem) => {
+  try {
+    debugger;
+    let items = dataDb.get("items").map((item) => {
+      if (item.id === newItem.id) {
+        return newItem;
+      }
+      return item;
+    });
+    dataDb.set("items", items);
+    browserWindow = browserUtility.getBrowserWindow();
+    browserWindow.webContents.send("DATA_CHANGE");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports.updateItems = (items) => {
   try {
     dataDb.set("items", items);

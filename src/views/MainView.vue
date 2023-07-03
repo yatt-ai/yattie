@@ -76,7 +76,7 @@
             :items="items"
             :selectedItems="selected"
             event-type="dblclick"
-            @submit-session="updateActiveSession"
+            @activate-edit-session="activateEditSession"
           />
         </v-tab-item>
       </v-tabs-items>
@@ -85,6 +85,7 @@
       <ControlPanel
         :items="items"
         @add-item="addItem"
+        @update-item="updateItem"
         :config-item="config"
         :credential-items="credentials"
         :selectedItems="selected"
@@ -154,7 +155,6 @@ export default {
       activeTab: "/main",
       items: [],
       selected: [],
-      activeSession: {},
       config: {},
       credentials: {},
       checkAuth: this.isAuthenticated,
@@ -172,7 +172,6 @@ export default {
   },
   mounted() {
     this.$root.$on("update-selected", this.updateSelected);
-    this.$root.$on("save-session", this.saveSession);
     this.$root.$on("new-session", () => {
       this.presession.tasks = this.presession.tasks.map((item) => {
         let temp = Object.assign({}, item);
@@ -269,34 +268,26 @@ export default {
         });
     },
     addItem(newItem) {
-      this.items.push(newItem);
-      this.saveSession(this.items);
-    },
-    updateItems() {
-      this.items = this.items.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.id === this.activeItem.id) {
-          temp = this.activeItem;
-        }
-        return temp;
-      });
-      this.saveSession(this.items);
-    },
-    saveSession(items) {
-      if (!window.ipc) return;
-
       window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_ITEMS,
-        data: items,
+        func: IPC_FUNCTIONS.ADD_ITEM,
+        data: newItem,
       });
+
+      // CTODO - handle uploading if enabled
+    },
+    updateItem(newItem) {
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_ITEM,
+        data: newItem,
+      });
+
+      // CTODO - handle uploading if enabled
     },
     updateSelected(value) {
       this.selected = value;
     },
-    updateActiveSession(value) {
-      this.activeSession = value;
-      this.openEditWindow(this.activeSession);
-      // this.updateItems();
+    activateEditSession(value) {
+      this.openEditWindow(value);
     },
     openEditWindow(data) {
       window.ipc.invoke(IPC_HANDLERS.WINDOW, {
@@ -305,8 +296,7 @@ export default {
       });
     },
     back() {
-      this.$store.commit("resetState");
-      this.$router.push("/");
+      this.$root.$emit("clear-session");
     },
   },
 };

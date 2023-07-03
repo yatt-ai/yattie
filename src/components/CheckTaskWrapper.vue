@@ -70,10 +70,14 @@ export default {
       }
     },
     handleValidate() {
-      const isValid = this.$refs.form.validate();
-      if (!isValid) {
-        const el = document.querySelector(".v-messages__wrapper:first-of-type");
-        el.scrollIntoView();
+      if (this.$refs.form) {
+        const isValid = this.$refs.form.validate();
+        if (!isValid) {
+          const el = document.querySelector(
+            ".v-messages__wrapper:first-of-type"
+          );
+          el.scrollIntoView();
+        }
       }
     },
   },

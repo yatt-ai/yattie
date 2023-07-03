@@ -1,35 +1,37 @@
 <template>
   <div
     class="review-wrapper"
-    v-if="Object.keys(sessionItem).length && sessionItem.fileType !== 'text'"
+    v-if="
+      Object.keys(editSessionItem).length && editSessionItem.fileType !== 'text'
+    "
   >
     <div
-      v-if="sessionItem.fileType === 'image'"
+      v-if="editSessionItem.fileType === 'image'"
       style="width: 100%; height: 100%"
     >
       <ImageEditor
-        :item="sessionItem"
+        :item="editSessionItem"
         :trigger-save="triggerSaveEvent"
         :defaultColor="config.defaultColor"
       />
     </div>
-    <div v-else-if="sessionItem.fileType === 'video'">
+    <div v-else-if="editSessionItem.fileType === 'video'">
       <VideoWrapper
-        :item="sessionItem"
+        :item="editSessionItem"
         :processing="processing"
         :trigger-save="triggerSaveEvent"
       />
     </div>
-    <div v-else-if="sessionItem.fileType === 'audio'">
-      <AudioWrapper :item="sessionItem" :trigger-save="triggerSaveEvent" />
+    <div v-else-if="editSessionItem.fileType === 'audio'">
+      <AudioWrapper :item="editSessionItem" :trigger-save="triggerSaveEvent" />
     </div>
-    <div v-else-if="sessionItem.fileType === 'other'">
-      <FileWrapper :item="sessionItem" :trigger-save="triggerSaveEvent" />
+    <div v-else-if="editSessionItem.fileType === 'other'">
+      <FileWrapper :item="editSessionItem" :trigger-save="triggerSaveEvent" />
     </div>
-    <div v-else-if="sessionItem.fileType === 'mindmap'">
+    <div v-else-if="editSessionItem.fileType === 'mindmap'">
       <mindmap-editor
-        :nodes-data="sessionItem.content.nodes"
-        :connections-data="sessionItem.content.connections"
+        :nodes-data="editSessionItem.content.nodes"
+        :connections-data="editSessionItem.content.connections"
         :edit="true"
         :trigger-save="triggerSaveEvent"
         :auto-save="autoSaveEvent"
@@ -85,7 +87,7 @@ export default {
   },
   watch: {
     item: function (newValue) {
-      this.sessionItem = newValue;
+      this.editSessionItem = newValue;
     },
     triggerSave: function (newValue) {
       this.triggerSaveEvent = newValue;
@@ -99,7 +101,7 @@ export default {
   },
   data() {
     return {
-      sessionItem: this.item,
+      editSessionItem: this.item,
       triggerSaveEvent: this.triggerSave,
       autoSaveEvent: this.autoSave,
       currentViewName: this.currentView,
@@ -108,15 +110,15 @@ export default {
   },
   methods: {
     handleMindmap(value) {
-      this.sessionItem.content.nodes = value.nodes;
-      this.sessionItem.content.connections = value.connections;
+      this.editSessionItem.content.nodes = value.nodes;
+      this.editSessionItem.content.connections = value.connections;
       window.ipc
         .invoke(IPC_HANDLERS.CAPTURE, {
           func: IPC_FUNCTIONS.UPDATE_IMAGE,
-          data: { item: this.sessionItem, url: value.imgURI },
+          data: { item: this.editSessionItem, url: value.imgURI },
         })
         .then((result) => {
-          this.$root.$emit("update-session", result);
+          this.$root.$emit("update-edit-item", result);
           this.$root.$emit("save-data");
         });
     },
