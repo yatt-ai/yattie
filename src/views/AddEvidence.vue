@@ -12,14 +12,7 @@
       </div>
       <v-divider></v-divider>
       <div class="content-bottom">
-        <div
-          class="actions-wrapper"
-          v-if="
-            item.fileType === 'image' ||
-            item.fileType === 'video' ||
-            item.fileType === 'audio'
-          "
-        >
+        <div class="actions-wrapper">
           <template v-if="emojis.length">
             <v-btn
               rounded
@@ -29,6 +22,7 @@
               min-width="45"
               v-for="(emoji, i) in emojis"
               :key="i"
+              :disabled="processing"
               @click="removeEmoji(emoji)"
             >
               <span class="emoji-icon">{{ emoji.data }}</span>
@@ -56,6 +50,7 @@
                       ...emojiMenu,
                       ...tooltip,
                     }"
+                    :disabled="processing"
                   >
                     <img
                       :src="require('../assets/icon/add-emoticon.svg')"
@@ -82,11 +77,21 @@
               type="checkbox"
               name="follow_up"
               class="item-select"
-              v-model="item.followUp"
+              v-model="followUp"
+              :disabled="processing"
               @change="handleFollowUp($event)"
             />{{ $tc("caption.required_follow_up", 1) }}
           </label>
         </div>
+        <v-text-field
+          name="name"
+          color="secondary"
+          :label="$tc('caption.filename', 1)"
+          v-model="name"
+          :suffix="fileSuffix"
+          :disabled="processing"
+          @input="handleName"
+        />
         <v-tiptap
           v-model="comment.content"
           :placeholder="$t('message.insert_comment')"
@@ -114,10 +119,12 @@
           class="input-box"
           v-model="tag"
           :tags="tags"
+          label="Tags"
           :max-tags="10"
           :maxlength="20"
           @tags-changed="handleTags"
           :placeholder="$t('message.insert_tag')"
+          :disabled="processing"
         />
         <div class="comment-type">
           <div :style="{ color: currentTheme.secondary }">
@@ -127,6 +134,7 @@
             :items="commentTypes"
             v-model="comment.type"
             :placeholder="$tc('caption.comment_type', 1)"
+            :disabled="processing"
             solo
             dense
             hide-details="true"
@@ -196,10 +204,12 @@ export default {
         content: "",
         text: "",
       },
+      name: "",
       tag: "",
       tags: [],
       emojiMenu: false,
       emojis: [],
+      followUp: false,
       commentTypes: Object.keys(TEXT_TYPES).filter(
         (item) => item !== "Summary"
       ),
@@ -213,6 +223,13 @@ export default {
     this.getConfig();
   },
   computed: {
+    fileSuffix() {
+      let splitName = [];
+      if (this.item?.fileName) {
+        splitName = this.item?.fileName.split(".");
+      }
+      return splitName.length > 1 ? "." + splitName[splitName.length - 1] : "";
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -231,6 +248,9 @@ export default {
       localStorage.setItem("isDarkMode", isDarkMode);
 
       this.item = data;
+
+      const splitName = this.item?.fileName.split(".") || [""];
+      this.name = splitName.slice(0, -1).join(".");
 
       // optimize video
       if (this.item.fileType === "video") {
@@ -320,11 +340,14 @@ export default {
     handleSave() {
       this.triggerSaveEvent = !this.triggerSaveEvent;
     },
+    handleName() {
+      this.item.fileName = this.name + this.fileSuffix;
+    },
     handleTags(newTags) {
       this.tags = newTags;
     },
     handleFollowUp($event) {
-      this.item.followUp = $event.target.checked;
+      this.followUp = $event.target.checked;
     },
     selectEmoji(emoji) {
       this.emojiMenu = false;
@@ -343,7 +366,7 @@ export default {
         comment: this.comment,
         tags: this.tags,
         emoji: this.emojis,
-        followUp: false,
+        followUp: this.followUp,
         timer_mark: this.item.timer_mark,
         createdAt: Date.now(),
       };
@@ -431,5 +454,9 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 20px;
+}
+.name-box {
+  background: #fff;
+  padding: 4px;
 }
 </style>

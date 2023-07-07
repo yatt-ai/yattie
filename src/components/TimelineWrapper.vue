@@ -427,6 +427,7 @@
                       </v-card>
                     </v-menu>
                   </div>
+
                   <div class="check-box mt-1">
                     <label
                       ><input
@@ -491,6 +492,67 @@
                     >
                       {{ tag.text }}
                     </v-chip>
+                  </div>
+                  <div class="actions-wrapper">
+                    <template v-if="item.emoji.length">
+                      <v-btn
+                        rounded
+                        color="primary"
+                        class="pa-0 mb-1"
+                        height="26"
+                        min-width="45"
+                        style=""
+                        v-for="(emoji, i) in item.emoji"
+                        :key="i"
+                        @click="removeEmoji(item.id, emoji)"
+                      >
+                        <span class="emoji-icon">{{ emoji.data }}</span>
+                        <v-icon x-small>mdi-close</v-icon>
+                      </v-btn>
+                    </template>
+
+                    <v-menu
+                      v-model="emojiMenu[`menu-` + item.id]"
+                      :close-on-content-click="false"
+                      right
+                      bottom
+                      nudge-bottom="4"
+                      offset-y
+                    >
+                      <template v-slot:activator="{ on: menu }">
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on: tooltip }">
+                            <v-btn
+                              rounded
+                              class="pa-0 mb-1"
+                              height="26"
+                              min-width="35"
+                              v-on="{
+                                ...menu,
+                                ...tooltip,
+                              }"
+                              @click="handleSelectedItem(item.id)"
+                            >
+                              <img
+                                :src="
+                                  require('../assets/icon/add-emoticon.svg')
+                                "
+                                width="24"
+                                height="24"
+                              />
+                            </v-btn>
+                          </template>
+                          <span>{{ $tc("caption.add_reaction", 1) }}</span>
+                        </v-tooltip>
+                      </template>
+                      <v-card class="emoji-lookup">
+                        <VEmojiPicker
+                          labelSearch="Search"
+                          lang="en-US"
+                          @select="selectEmoji"
+                        />
+                      </v-card>
+                    </v-menu>
                   </div>
                   <div class="check-box mt-1">
                     <label
@@ -580,6 +642,67 @@
                       {{ tag.text }}
                     </v-chip>
                   </div>
+                  <div class="actions-wrapper">
+                    <template v-if="item.emoji.length">
+                      <v-btn
+                        rounded
+                        color="primary"
+                        class="pa-0 mb-1"
+                        height="26"
+                        min-width="45"
+                        style=""
+                        v-for="(emoji, i) in item.emoji"
+                        :key="i"
+                        @click="removeEmoji(item.id, emoji)"
+                      >
+                        <span class="emoji-icon">{{ emoji.data }}</span>
+                        <v-icon x-small>mdi-close</v-icon>
+                      </v-btn>
+                    </template>
+
+                    <v-menu
+                      v-model="emojiMenu[`menu-` + item.id]"
+                      :close-on-content-click="false"
+                      right
+                      bottom
+                      nudge-bottom="4"
+                      offset-y
+                    >
+                      <template v-slot:activator="{ on: menu }">
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on: tooltip }">
+                            <v-btn
+                              rounded
+                              class="pa-0 mb-1"
+                              height="26"
+                              min-width="35"
+                              v-on="{
+                                ...menu,
+                                ...tooltip,
+                              }"
+                              @click="handleSelectedItem(item.id)"
+                            >
+                              <img
+                                :src="
+                                  require('../assets/icon/add-emoticon.svg')
+                                "
+                                width="24"
+                                height="24"
+                              />
+                            </v-btn>
+                          </template>
+                          <span>{{ $tc("caption.add_reaction", 1) }}</span>
+                        </v-tooltip>
+                      </template>
+                      <v-card class="emoji-lookup">
+                        <VEmojiPicker
+                          labelSearch="Search"
+                          lang="en-US"
+                          @select="selectEmoji"
+                        />
+                      </v-card>
+                    </v-menu>
+                  </div>
                   <div class="check-box mt-1">
                     <label
                       ><input
@@ -651,6 +774,67 @@
                     >
                       {{ tag.text }}
                     </v-chip>
+                  </div>
+                  <div class="actions-wrapper">
+                    <template v-if="item.emoji.length">
+                      <v-btn
+                        rounded
+                        color="primary"
+                        class="pa-0 mb-1"
+                        height="26"
+                        min-width="45"
+                        style=""
+                        v-for="(emoji, i) in item.emoji"
+                        :key="i"
+                        @click="removeEmoji(item.id, emoji)"
+                      >
+                        <span class="emoji-icon">{{ emoji.data }}</span>
+                        <v-icon x-small>mdi-close</v-icon>
+                      </v-btn>
+                    </template>
+
+                    <v-menu
+                      v-model="emojiMenu[`menu-` + item.id]"
+                      :close-on-content-click="false"
+                      right
+                      bottom
+                      nudge-bottom="4"
+                      offset-y
+                    >
+                      <template v-slot:activator="{ on: menu }">
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on: tooltip }">
+                            <v-btn
+                              rounded
+                              class="pa-0 mb-1"
+                              height="26"
+                              min-width="35"
+                              v-on="{
+                                ...menu,
+                                ...tooltip,
+                              }"
+                              @click="handleSelectedItem(item.id)"
+                            >
+                              <img
+                                :src="
+                                  require('../assets/icon/add-emoticon.svg')
+                                "
+                                width="24"
+                                height="24"
+                              />
+                            </v-btn>
+                          </template>
+                          <span>{{ $tc("caption.add_reaction", 1) }}</span>
+                        </v-tooltip>
+                      </template>
+                      <v-card class="emoji-lookup">
+                        <VEmojiPicker
+                          labelSearch="Search"
+                          lang="en-US"
+                          @select="selectEmoji"
+                        />
+                      </v-card>
+                    </v-menu>
                   </div>
                   <div class="check-box mt-1">
                     <label
@@ -868,6 +1052,7 @@ export default {
       } else {
         const data = {
           sessionType: "File",
+          id: result.id,
           fileType: result.fileType,
           fileName: result.fileName,
           filePath: result.filePath,
@@ -963,6 +1148,7 @@ export default {
           return;
         }
 
+        // TODO - Handle multiple files dropped.
         const f = event.dataTransfer.files[0];
         const { status, error, result } = await window.ipc.invoke(
           IPC_HANDLERS.CAPTURE,
@@ -980,6 +1166,7 @@ export default {
         } else {
           const data = {
             sessionType: "File",
+            id: result.id,
             fileType: result.fileType,
             fileName: result.fileName,
             filePath: result.filePath,

@@ -613,12 +613,12 @@
       />
       <NoteDialog
         v-model="noteDialog"
-        @submit-comment="addNote"
+        @submit-note="addNote"
         :configItem="config"
       />
       <SummaryDialog
         v-model="summaryDialog"
-        @submit-comment="addSummary"
+        @submit-summary="addSummary"
         :configItem="config"
         :summary="summary"
       />
@@ -1328,7 +1328,7 @@ export default {
             await window.ipc
               .invoke(IPC_HANDLERS.CAPTURE, {
                 func: IPC_FUNCTIONS.CREATE_IMAGE,
-                data: { url: imgURI },
+                data: { url: imgURI, poster: true },
               })
               .then(({ filePath }) => {
                 poster = filePath;
@@ -1536,36 +1536,33 @@ export default {
         data: { width: 700, height: 800, data: data },
       });
     },
-    async addNote({ comment, tags }) {
-      const id = uuidv4();
-      const fileName = id + ".txt";
-      if (window.ipc) {
-        // Save Note
-        await window.ipc
-          .invoke(IPC_HANDLERS.CAPTURE, {
-            func: IPC_FUNCTIONS.SAVE_NOTE,
-            data: { fileName: fileName, comment: comment },
-          })
-          .then((filePath) => {
-            let newItem = {
-              id,
-              sessionType: "Note",
-              fileType: "text",
-              fileName: fileName,
-              filePath: filePath,
-              comment: comment,
-              tags: tags,
-              emoji: [],
-              followUp: false,
-              timer_mark: this.timer,
-              createdAt: Date.now(),
-            };
-            this.$emit("add-item", newItem);
-          });
-      }
+    async addNote(data) {
+      if (!window.ipc) return;
+      // Save Note
+      const result = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.SAVE_NOTE,
+        data: data.comment,
+      });
+
+      let newItem = {
+        id: result.id,
+        sessionType: "Note",
+        fileType: "text",
+        fileName: result.fileName,
+        filePath: result.filePath,
+        comment: data.comment,
+        tags: data.tags,
+        emoji: data.emoji,
+        followUp: data.followUp,
+        timer_mark: this.timer,
+        createdAt: Date.now(),
+      };
+
+      this.$emit("add-item", newItem);
       this.noteDialog = false;
     },
     async addSummary(value) {
+      // TODO - handle summary like a regular note and allow additional metadata
       const data = {
         id: uuidv4(),
         sessionType: "Summary",

@@ -140,28 +140,33 @@ export default {
       const duration = parseInt(this.duration);
       if (temp !== duration) {
         this.handleProcessing(true);
-        const { status, result } = await window.ipc.invoke(
+        const { status, filePath } = await window.ipc.invoke(
           IPC_HANDLERS.CAPTURE,
           {
             func: IPC_FUNCTIONS.UPDATE_VIDEO,
             data: {
-              filePath: this.sessionItem.filePath,
+              item: this.sessionItem,
               start: startVal,
               end: endVal,
             },
           }
         );
-        if (status === STATUSES.SUCCESS) {
-          this.sessionItem.fileName = result.fileName;
-          this.sessionItem.filePath = result.filePath;
+        if (status !== STATUSES.SUCCESS) {
+          // TODO
+        } else {
+          this.sessionItem.filePath = filePath;
+          this.$root.$emit("update-session", this.sessionItem);
+          if (needCallback) {
+            this.$root.$emit("save-data", this.sessionItem);
+          }
         }
-        this.handleProcessing(false);
+      } else {
+        this.$root.$emit("update-session", this.sessionItem);
+        if (needCallback) {
+          this.$root.$emit("save-data", this.sessionItem);
+        }
       }
-      this.$root.$emit("update-session", this.sessionItem);
-
-      if (needCallback) {
-        this.$root.$emit("save-data", this.sessionItem);
-      }
+      this.handleProcessing(false);
     },
     handleProcessing(value) {
       this.isProcessing = value;
