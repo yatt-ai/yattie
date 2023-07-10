@@ -107,7 +107,7 @@
 
 <script>
 import WaveSurfer from "wavesurfer.js";
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
+import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
 export default {
   name: "AudioWrapper",
   props: {
@@ -211,14 +211,20 @@ export default {
       let item;
       const uri = this.wavesurfer.exportImage("image/png", 1, "dataURL");
 
-      await window.ipc
-        .invoke(IPC_HANDLERS.CAPTURE, {
-          func: IPC_FUNCTIONS.CREATE_IMAGE,
-          data: { url: uri },
-        })
-        .then(({ filePath }) => {
-          item = { ...this.item, poster: filePath };
-        });
+      let result = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.CREATE_IMAGE,
+        data: { url: uri, isPoster: true },
+      });
+      // CTODO - add UPDATE_AUDIO for changing filename
+
+      if (status === STATUSES.ERROR) {
+        // TODO - Bubble to snackbar
+        console.log("Unable to generate waveform image: " + result.message);
+      }
+      item = {
+        ...this.item,
+        poster: result.item.filePath,
+      };
 
       this.$root.$emit("save-data", item);
     },

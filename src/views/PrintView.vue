@@ -104,6 +104,7 @@
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
                       <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
                     </div>
                   </div>
                   <div class="image-wrapper">
@@ -138,6 +139,7 @@
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
                       <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
                     </div>
                   </div>
                   <div class="video-wrapper">
@@ -173,6 +175,7 @@
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
                       <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
                     </div>
                   </div>
                   <div class="audio-wrapper">
@@ -237,6 +240,7 @@
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
                       <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
                     </div>
                   </div>
                   <div
@@ -283,6 +287,7 @@
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
                       <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
                     </div>
                   </div>
                   <div class="image-wrapper">
@@ -673,6 +678,10 @@ export default {
 }
 .comment-type {
   margin-right: 2px;
+}
+.filename-text {
+  font-style: italic;
+  font-size: 11px;
 }
 .note-wrapper {
   display: flex;

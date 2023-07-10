@@ -84,6 +84,15 @@
             </label>
           </div>
         </div>
+        <v-text-field
+          name="name"
+          color="secondary"
+          :label="$tc('caption.filename', 1)"
+          v-model="name"
+          :suffix="fileSuffix"
+          :disabled="processing"
+          @input="handleName"
+        />
         <v-tiptap
           v-model="item.comment.content"
           :placeholder="$t('message.insert_comment')"
@@ -262,6 +271,7 @@ export default {
         content: "",
         text: "",
       },
+      name: "",
       tag: "",
       emojiMenu: false,
       commentTypes: Object.keys(TEXT_TYPES).filter(
@@ -276,6 +286,13 @@ export default {
     this.getConfig();
   },
   computed: {
+    fileSuffix() {
+      let splitName = [];
+      if (this.item?.fileName) {
+        splitName = this.item?.fileName.split(".");
+      }
+      return splitName.length > 1 ? "." + splitName[splitName.length - 1] : "";
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -295,6 +312,10 @@ export default {
 
       // set templates
       this.item = data;
+
+      const splitName = this.item?.fileName.split(".") || [""];
+      this.name = splitName.slice(0, -1).join(".");
+
       this.processing = false;
     });
     this.$root.$on("update-session", this.updateSession);
@@ -366,6 +387,9 @@ export default {
       } else {
         this.saveData(this.item);
       }
+    },
+    handleName() {
+      this.item.fileName = this.name + this.fileSuffix;
     },
     handleTags(newTags) {
       this.item.tags = newTags;

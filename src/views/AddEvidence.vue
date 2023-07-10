@@ -117,7 +117,7 @@
         </v-tiptap>
         <vue-tags-input
           class="input-box"
-          v-model="tag"
+          v-model="tagText"
           :tags="tags"
           label="Tags"
           :max-tags="10"
@@ -185,7 +185,12 @@ import ReviewWrapper from "../components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
+import {
+  IPC_HANDLERS,
+  IPC_FUNCTIONS,
+  TEXT_TYPES,
+  STATUSES,
+} from "../modules/constants";
 
 export default {
   name: "AddEvidence",
@@ -205,7 +210,7 @@ export default {
         text: "",
       },
       name: "",
-      tag: "",
+      tagText: "",
       tags: [],
       emojiMenu: false,
       emojis: [],
@@ -303,16 +308,21 @@ export default {
 
       if (!window.ipc) return;
 
-      await window.ipc
-        .invoke(IPC_HANDLERS.CAPTURE, {
+      const { status, message } = await window.ipc.invoke(
+        IPC_HANDLERS.CAPTURE,
+        {
           func: IPC_FUNCTIONS.OPTIMIZE_VIDEO,
           data: {
             filePath: this.item.filePath,
           },
-        })
-        .then(() => {
-          this.processing = false;
-        });
+        }
+      );
+
+      if (status === STATUSES.ERROR) {
+        // CTODO - bubble up to snackbar
+        console.log(message);
+      }
+      this.processing = false;
     },
     updateComment() {
       const regex = /(<([^>]+)>)/gi;

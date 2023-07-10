@@ -143,7 +143,7 @@ export default {
     },
     async handleImage(needCallback = false) {
       const imgURI = this.imageEditorInst.toDataURL();
-      const { status, filePath } = await window.ipc.invoke(
+      const { status, message, item } = await window.ipc.invoke(
         IPC_HANDLERS.CAPTURE,
         {
           func: IPC_FUNCTIONS.UPDATE_IMAGE,
@@ -151,10 +151,11 @@ export default {
         }
       );
 
-      if (status !== STATUSES.SUCCESS) {
-        // TODO
+      if (status === STATUSES.ERROR) {
+        // CTODO - bubble up to snackbar
+        console.log(message);
       } else {
-        this.sessionItem.filePath = filePath;
+        this.sessionItem.filePath = item.filePath;
         this.$root.$emit("update-session", this.sessionItem);
         if (needCallback) {
           this.$root.$emit("save-data", this.sessionItem);

@@ -42,20 +42,28 @@ module.exports.getMediaSource = async () => {
   });
 };
 
-module.exports.createImage = ({ url, poster }) => {
-  const imageType = poster ? "video-thumb" : "image";
+module.exports.createImage = ({ url, isPoster }) => {
+  const imageType = isPoster ? "poster" : "image";
   const { id, fileName } = generateIDAndName(imageType);
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   const base64Data = url.replace(/^data:image\/png;base64,/, "");
   fs.writeFile(filePath, base64Data, "base64", function (err) {
     if (err) {
       console.log(err);
+      return {
+        status: STATUSES.ERROR,
+        message: err,
+      };
     }
   });
+
   return {
-    id,
-    fileName,
-    filePath,
+    status: STATUSES.SUCCESS,
+    item: {
+      id,
+      fileName,
+      filePath,
+    },
   };
 };
 
@@ -63,17 +71,27 @@ module.exports.updateImage = ({ item, url }) => {
   if (item.filePath && fs.existsSync(item.filePath)) {
     fs.unlinkSync(item.filePath);
   }
-  const fileName = item.fileName || generateIDAndName("image", item.id);
+  const { fileName } = item.fileName ? 
+    { fileName: item.fileName } :
+    generateIDAndName("image", item.id);
+
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   const base64Data = url.replace(/^data:image\/png;base64,/, "");
   fs.writeFile(filePath, base64Data, "base64", function (err) {
     if (err) {
       console.log(err);
+      return {
+        status: STATUSES.ERROR,
+        message: err,
+      };
     }
   });
   return {
     status: STATUSES.SUCCESS,
-    filePath: filePath,
+    item: {
+      fileName,
+      filePath,
+    },
   };
 };
 
@@ -83,17 +101,25 @@ module.exports.createVideo = ({ buffer }) => {
   fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
     if (err) {
       console.log(err);
+      return {
+        status: STATUSES.ERROR,
+        message: err,
+      };
     }
   });
   return {
-    id,
-    fileName,
-    filePath,
+    status: STATUSES.SUCCESS,
+    item: {
+      id,
+      fileName,
+      filePath,
+    },
   };
 };
 
 module.exports.optimizeVideo = ({ filePath }) => {
-  const tempName = "temp-optimizing-video-" +
+  const tempName =
+    "temp-optimizing-video-" +
     dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") +
     ".mp4";
   const tempPath = path.join(configDir, "sessions", "userMedia", tempName);
@@ -117,7 +143,7 @@ module.exports.optimizeVideo = ({ filePath }) => {
         fs.rename(tempPath, filePath, function (err) {
           if (err) {
             console.log(err);
-            return reject({ status: STATUSES.ERROR, msg: err });
+            return reject({ status: STATUSES.ERROR, message: err });
           }
           return resolve({
             status: STATUSES.SUCCESS,
@@ -126,53 +152,88 @@ module.exports.optimizeVideo = ({ filePath }) => {
       })
       .on("error", function (err) {
         console.log(err);
-        return reject({ status: STATUSES.ERROR, msg: err });
+        return reject({ status: STATUSES.ERROR, message: err });
       });
   });
 };
 
-module.exports.updateVideo = ({ item, start, end }) => {
-  debugger;
-  const tempName = "temp-optimizing-video-" +
+module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
+  const tempName =
+    "temp-optimizing-video-" +
     dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") +
     ".mp4";
   const tempPath = path.join(configDir, "sessions", "userMedia", tempName);
   const duration = parseInt(end - start);
 
   return new Promise(function (resolve, reject) {
-    ffmpeg(item.filePath)
-      .setStartTime(parseInt(start))
-      .setDuration(duration)
-      .save(tempPath)
-      .on("start", function (commandLine) {
-        console.log("start : " + commandLine);
-      })
-      .on("progress", function (progress) {
-        console.log(progress);
-      })
-      .on("end", function () {
-        if (item.filePath && fs.existsSync(item.filePath)) {
-          fs.unlinkSync(item.filePath);
-        }
-        const fileName = item.fileName || generateIDAndName("video", item.id);
-        const filePath = path.join(
-          configDir, "sessions", "userMedia", fileName
-        );
-        fs.rename(tempPath, filePath, function (err) {
+    if (previousDuration !== duration) {
+      ffmpeg(item.filePath)
+        .setStartTime(parseInt(start))
+        .setDuration(duration)
+        .save(tempPath)
+        .on("start", function (commandLine) {
+          console.log("start : " + commandLine);
+        })
+        .on("progress", function (progress) {
+          console.log(progress);
+        })
+        .on("end", function () {
+          if (item.filePath && fs.existsSync(item.filePath)) {
+            fs.unlinkSync(item.filePath);
+          }
+          const { fileName } = item.fileName ?
+            { fileName: item.fileName } :
+            generateIDAndName("video", item.id);
+          const filePath = path.join(
+          configDir,
+            "sessions",
+            "userMedia",
+            fileName
+          );
+          fs.rename(tempPath, filePath, function (err) {
+            if (err) {
+              console.log(err);
+              return reject({ status: STATUSES.ERROR, message: err });
+            }
+            return resolve({
+              status: STATUSES.SUCCESS,
+              item: {
+                fileName,
+                filePath,
+              },
+            });
+          });
+        })
+        .on("error", function (err) {
+          console.log(err);
+          return reject({ status: STATUSES.ERROR, message: err });
+        });
+    } else {
+      const { fileName } = item.fileName ?
+        { fileName: item.fileName } :
+        generateIDAndName("video", item.id);
+      const filePath = path.join(
+      configDir,
+        "sessions",
+        "userMedia",
+        fileName
+      );
+      if (item.filePath && item.filePath !== filePath) {
+        fs.rename(item.filePath, filePath, function (err) {
           if (err) {
             console.log(err);
-            return reject({ status: STATUSES.ERROR, msg: err });
+            return reject({ status: STATUSES.ERROR, message: err });
           }
-          return resolve({
-            status: STATUSES.SUCCESS,
-            filePath: filePath,
-          });
         });
-      })
-      .on("error", function (err) {
-        console.log(err);
-        return reject({ status: STATUSES.ERROR, msg: err });
+      }
+      return resolve({
+        status: STATUSES.SUCCESS,
+        item: {
+          fileName,
+          filePath,
+        },
       });
+    }
   });
 };
 
@@ -182,12 +243,19 @@ module.exports.createAudio = ({ buffer }) => {
   fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
     if (err) {
       console.log(err);
+      return {
+        status: STATUSES.ERROR,
+        message: err,
+      };
     }
   });
   return {
-    id,
-    fileName,
-    filePath,
+    status: STATUSES.SUCCESS,
+    item: {
+      id,
+      fileName,
+      filePath,
+    },
   };
 };
 
@@ -202,17 +270,25 @@ module.exports.saveNote = (comment) => {
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   fs.writeFile(filePath, comment.text, function (err) {
     if (err) {
+      return {
+        status: STATUSES.ERROR,
+        message: err,
+      };
       console.log(err);
     }
   });
   return {
-    id,
-    fileName,
-    filePath,
+    status: STATUSES.SUCCESS,
+    item: {
+      id,
+      fileName,
+      filePath,
+    },
   };
 };
 
 module.exports.uploadEvidence = async () => {
+  let error;
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openFile"],
   });
@@ -220,7 +296,7 @@ module.exports.uploadEvidence = async () => {
   if (canceled) {
     return Promise.resolve({
       status: STATUSES.ERROR,
-      error: "No file selected",
+      message: "No file selected",
     });
   }
 
@@ -237,7 +313,7 @@ module.exports.uploadEvidence = async () => {
       if (err) {
         return resolve({
           status: STATUSES.ERROR,
-          error: err,
+          message: err,
         });
       }
 
@@ -258,7 +334,7 @@ module.exports.uploadEvidence = async () => {
 
       return resolve({
         status: STATUSES.SUCCESS,
-        result: {
+        item: {
           id,
           fileType,
           fileName,
@@ -281,7 +357,7 @@ module.exports.dropFile = async (data) => {
       if (err) {
         return resolve({
           status: STATUSES.ERROR,
-          error: err,
+          message: err,
         });
       }
 
@@ -302,7 +378,7 @@ module.exports.dropFile = async (data) => {
 
       return resolve({
         status: STATUSES.SUCCESS,
-        result: {
+        item: {
           id,
           fileType,
           fileName,
@@ -366,8 +442,11 @@ const generateIDAndName = (type, uid = undefined) => {
       suffix = "mp3";
       break;
     case "image":
-    case "video-thumb":
+    case "poster":
       suffix = "png";
+      break;
+    case "text":
+      suffix = "txt";
       break;
     default:
       suffix = "file";
@@ -376,7 +455,7 @@ const generateIDAndName = (type, uid = undefined) => {
   while (!success) {
     id = uuidv4();
     idStr = id.replaceAll("-", "");
-    for (let i=0; i < idStr.length-5; i++) {
+    for (let i = 0; i < idStr.length - 5; i++) {
       fileName = `${type}-${idStr.substring(i, 5)}.${suffix}`;
       if (
         !fs.existsSync(path.join(configDir, "sessions", "userMedia", fileName))

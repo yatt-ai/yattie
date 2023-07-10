@@ -110,13 +110,19 @@ export default {
     async handleMindmap(value) {
       this.sessionItem.content.nodes = value.nodes;
       this.sessionItem.content.connections = value.connections;
-      const { status } = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-        func: IPC_FUNCTIONS.UPDATE_IMAGE,
-        data: { item: this.sessionItem, url: value.imgURI },
-      });
-      if (status !== STATUSES.SUCCESS) {
-        // TODO
+      const { status, message, item } = await window.ipc.invoke(
+        IPC_HANDLERS.CAPTURE,
+        {
+          func: IPC_FUNCTIONS.UPDATE_IMAGE,
+          data: { item: this.sessionItem, url: value.imgURI },
+        }
+      );
+      if (status === STATUSES.ERROR) {
+        // CTODO - bubble up to snackbar
+        console.log(message);
       } else {
+        this.sessionItem.fileName = item.fileName;
+        this.sessionItem.filePath = item.filePath;
         this.$root.$emit("update-session", this.sessionItem);
         this.$root.$emit("save-data");
       }

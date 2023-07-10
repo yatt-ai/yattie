@@ -279,6 +279,7 @@ export default {
       let serializer = new XMLSerializer();
       let serializedContent = serializer.serializeToString(svg);
       let base64Content = btoa(unescape(encodeURIComponent(serializedContent)));
+      // TODO - Move to application/x-xmind format
       let imageUrl = "data:image/svg+xml;base64," + base64Content;
       const quality = 2;
       const image = new Image();

@@ -51,6 +51,7 @@
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
                       <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -184,6 +185,7 @@
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
                       <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -195,7 +197,10 @@
                       />
                     </div>
                   </div>
-                  <div class="video-wrapper" @click="handleItemClick(item.id)">
+                  <div
+                    class="video-wrapper"
+                    @click.prevent="handleItemClick(item.id)"
+                  >
                     <video
                       controls
                       style="width: 100%"
@@ -317,6 +322,7 @@
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
                       <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -578,6 +584,7 @@
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
                       <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -727,6 +734,7 @@
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
                       <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -1040,7 +1048,7 @@ export default {
     async uploadEvidence() {
       if (!window.ipc) return;
 
-      const { status, error, result } = await window.ipc.invoke(
+      const { status, message, item } = await window.ipc.invoke(
         IPC_HANDLERS.CAPTURE,
         {
           func: IPC_FUNCTIONS.UPLOAD_EVIDENCE,
@@ -1048,14 +1056,15 @@ export default {
       );
 
       if (status === STATUSES.ERROR) {
-        console.log(error);
+        // CTODO - bubble up to snackbar
+        console.log(message);
       } else {
         const data = {
           sessionType: "File",
-          id: result.id,
-          fileType: result.fileType,
-          fileName: result.fileName,
-          filePath: result.filePath,
+          id: item.id,
+          fileType: item.fileType,
+          fileName: item.fileName,
+          filePath: item.filePath,
           timer_mark: this.$store.state.timer,
         };
         this.openEditorModal(data);
@@ -1150,7 +1159,7 @@ export default {
 
         // TODO - Handle multiple files dropped.
         const f = event.dataTransfer.files[0];
-        const { status, error, result } = await window.ipc.invoke(
+        const { status, message, item } = await window.ipc.invoke(
           IPC_HANDLERS.CAPTURE,
           {
             func: IPC_FUNCTIONS.DROP_FILE,
@@ -1162,19 +1171,20 @@ export default {
         );
 
         if (status === STATUSES.ERROR) {
-          console.log(error);
+          // CTODO - bubble up to snackbar
+          console.log(message);
         } else {
           const data = {
             sessionType: "File",
-            id: result.id,
-            fileType: result.fileType,
-            fileName: result.fileName,
-            filePath: result.filePath,
+            id: item.id,
+            fileType: item.fileType,
+            fileName: item.fileName,
+            filePath: item.filePath,
             timer_mark: this.$store.state.timer,
           };
           this.openEditorModal(data);
-          this.isDragging = false;
         }
+        this.isDragging = false;
       }
     },
     dragEnter(event) {
@@ -1270,6 +1280,10 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+.filename-text {
+  font-style: italic;
+  font-size: 11px;
 }
 .audio-wrapper {
   display: flex;
