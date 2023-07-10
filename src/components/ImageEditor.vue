@@ -155,7 +155,11 @@ export default {
         // CTODO - bubble up to snackbar
         console.log(message);
       } else {
-        this.sessionItem.filePath = item.filePath;
+        // Force the timeline component to update the image through a fake QS
+        this.sessionItem.filePath =
+          this.sessionItem.filePath.substring(item.filePath.length) === "?"
+            ? item.filePath
+            : item.filePath + "?";
         this.$root.$emit("update-session", this.sessionItem);
         if (needCallback) {
           this.$root.$emit("save-data", this.sessionItem);

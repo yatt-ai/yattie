@@ -71,9 +71,9 @@ module.exports.updateImage = ({ item, url }) => {
   if (item.filePath && fs.existsSync(item.filePath)) {
     fs.unlinkSync(item.filePath);
   }
-  const { fileName } = item.fileName ? 
-    { fileName: item.fileName } :
-    generateIDAndName("image", item.id);
+  const { fileName } = item.fileName
+    ? { fileName: item.fileName }
+    : generateIDAndName("image", item.id);
 
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   const base64Data = url.replace(/^data:image\/png;base64,/, "");
@@ -181,11 +181,11 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
           if (item.filePath && fs.existsSync(item.filePath)) {
             fs.unlinkSync(item.filePath);
           }
-          const { fileName } = item.fileName ?
-            { fileName: item.fileName } :
-            generateIDAndName("video", item.id);
+          const { fileName } = item.fileName
+            ? { fileName: item.fileName }
+            : generateIDAndName("video", item.id);
           const filePath = path.join(
-          configDir,
+            configDir,
             "sessions",
             "userMedia",
             fileName
@@ -209,15 +209,10 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
           return reject({ status: STATUSES.ERROR, message: err });
         });
     } else {
-      const { fileName } = item.fileName ?
-        { fileName: item.fileName } :
-        generateIDAndName("video", item.id);
-      const filePath = path.join(
-      configDir,
-        "sessions",
-        "userMedia",
-        fileName
-      );
+      const { fileName } = item.fileName
+        ? { fileName: item.fileName }
+        : generateIDAndName("video", item.id);
+      const filePath = path.join(configDir, "sessions", "userMedia", fileName);
       if (item.filePath && item.filePath !== filePath) {
         fs.rename(item.filePath, filePath, function (err) {
           if (err) {
@@ -260,9 +255,9 @@ module.exports.createAudio = ({ buffer }) => {
 };
 
 module.exports.updateAudio = ({ item }) => {
-  const { fileName } = item.fileName ?
-    { fileName: item.fileName } :
-    generateIDAndName("audio", item.id);
+  const { fileName } = item.fileName
+    ? { fileName: item.fileName }
+    : generateIDAndName("audio", item.id);
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
 
   if (item.filePath && item.filePath !== filePath) {
@@ -296,11 +291,11 @@ module.exports.saveNote = (comment) => {
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   fs.writeFile(filePath, comment.text, function (err) {
     if (err) {
+      console.log(err);
       return {
         status: STATUSES.ERROR,
         message: err,
       };
-      console.log(err);
     }
   });
   return {
@@ -314,7 +309,6 @@ module.exports.saveNote = (comment) => {
 };
 
 module.exports.uploadEvidence = async () => {
-  let error;
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openFile"],
   });
