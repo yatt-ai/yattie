@@ -336,10 +336,7 @@
                   </div>
                   <div class="audio-wrapper" @click="handleItemClick(item.id)">
                     <div class="audio-wave">
-                      <img :src="item.poster" />
-                    </div>
-                    <div class="audio-play">
-                      <v-icon medium>mdi-play-circle</v-icon>
+                      <img :src="`file://${item.poster}`" />
                     </div>
                   </div>
                   <div class="comment-wrapper mt-2 mb-2">

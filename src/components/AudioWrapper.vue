@@ -120,12 +120,18 @@ export default {
       default: () => false,
     },
   },
-  data: () => ({
-    wavesurfer: null,
-    volume: 20,
-    currentProgress: 0,
-  }),
+  data() {
+    return {
+      sessionItem: this.item,
+      wavesurfer: null,
+      volume: 20,
+      currentProgress: 0,
+    };
+  },
   watch: {
+    item: function (newValue) {
+      this.sessionItem = newValue;
+    },
     triggerSave: function (oldValue, newValue) {
       if (oldValue !== newValue) {
         this.handleAudio(true);
@@ -208,25 +214,35 @@ export default {
       this.wavesurfer.setVolume(volume);
     },
     async handleAudio() {
-      let item;
       const uri = this.wavesurfer.exportImage("image/png", 1, "dataURL");
 
-      let result = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      let posterResult = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
         func: IPC_FUNCTIONS.CREATE_IMAGE,
         data: { url: uri, isPoster: true },
       });
-      // CTODO - add UPDATE_AUDIO for changing filename
-
-      if (status === STATUSES.ERROR) {
+      if (posterResult.status === STATUSES.ERROR) {
         // TODO - Bubble to snackbar
-        console.log("Unable to generate waveform image: " + result.message);
+        console.log(
+          "Unable to generate waveform image: " + posterResult.message
+        );
       }
-      item = {
-        ...this.item,
-        poster: result.item.filePath,
-      };
 
-      this.$root.$emit("save-data", item);
+      let audioResult = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.UPDATE_AUDIO,
+        data: { item: this.sessionItem },
+      });
+
+      if (audioResult.status === STATUSES.ERROR) {
+        // TODO - Bubble to snackbar
+        console.log("Unable to update audio file: " + audioResult.message);
+      }
+      this.sessionItem = {
+        ...this.sessionItem,
+        poster: posterResult.item.filePath,
+        ...audioResult.item,
+      };
+      this.$root.$emit("update-session", this.sessionItem);
+      this.$root.$emit("save-data"); // CTODO remove data on all of these
     },
   },
 };

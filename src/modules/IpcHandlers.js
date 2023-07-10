@@ -36,10 +36,10 @@ ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
       return captureUtility.uploadEvidence(args.data);
     case IPC_FUNCTIONS.CREATE_AUDIO:
       return captureUtility.createAudio(args.data);
+    case IPC_FUNCTIONS.UPDATE_AUDIO:
+      return captureUtility.updateAudio(args.data);
     case IPC_FUNCTIONS.CREATE_TEMP_USER_MEDIA:
       return captureUtility.createTempUserMedia(args.data);
-    //    case IPC_FUNCTIONS.SAVE_USER_MEDIA:
-    //      return captureUtility.saveUserMedia(args.data);
     case IPC_FUNCTIONS.UPDATE_USER_MEDIA:
       return captureUtility.updateUserMedia(args.data);
     case IPC_FUNCTIONS.DROP_FILE:

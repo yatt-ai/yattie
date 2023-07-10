@@ -259,6 +259,32 @@ module.exports.createAudio = ({ buffer }) => {
   };
 };
 
+module.exports.updateAudio = ({ item }) => {
+  const { fileName } = item.fileName ?
+    { fileName: item.fileName } :
+    generateIDAndName("audio", item.id);
+  const filePath = path.join(configDir, "sessions", "userMedia", fileName);
+
+  if (item.filePath && item.filePath !== filePath) {
+    fs.rename(item.filePath, filePath, function (err) {
+      if (err) {
+        console.log(err);
+        return {
+          status: STATUSES.ERROR,
+          message: err,
+        };
+      }
+    });
+  }
+  return {
+    status: STATUSES.SUCCESS,
+    item: {
+      fileName,
+      filePath,
+    },
+  };
+};
+
 module.exports.deleteFile = ({ filePath }) => {
   if (filePath && fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);
