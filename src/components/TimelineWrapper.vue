@@ -51,6 +51,7 @@
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
                       <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -184,6 +185,7 @@
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
                       <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -195,7 +197,10 @@
                       />
                     </div>
                   </div>
-                  <div class="video-wrapper" @click="handleItemClick(item.id)">
+                  <div
+                    class="video-wrapper"
+                    @click.prevent="handleItemClick(item.id)"
+                  >
                     <video
                       controls
                       style="width: 100%"
@@ -317,6 +322,7 @@
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
                       <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -330,10 +336,284 @@
                   </div>
                   <div class="audio-wrapper" @click="handleItemClick(item.id)">
                     <div class="audio-wave">
-                      <img :src="item.poster" />
+                      <img :src="`file://${item.poster}`" />
                     </div>
-                    <div class="audio-play">
-                      <v-icon medium>mdi-play-circle</v-icon>
+                  </div>
+                  <div class="comment-wrapper mt-2 mb-2">
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
+                    <span
+                      class="comment-type"
+                      :style="{ color: currentTheme.secondary }"
+                    >
+                      {{ item.comment.type }}:
+                    </span>
+                    <span v-html="item.comment.content"></span>
+                  </div>
+                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                    <v-chip
+                      v-for="(tag, i) in item.tags"
+                      :key="i"
+                      class="tag"
+                      small
+                      color="#fee2e2"
+                      text-color="#991b1b"
+                    >
+                      {{ tag.text }}
+                    </v-chip>
+                  </div>
+                  <div class="actions-wrapper">
+                    <template v-if="item.emoji.length">
+                      <v-btn
+                        rounded
+                        color="primary"
+                        class="pa-0 mb-1"
+                        height="26"
+                        min-width="45"
+                        style=""
+                        v-for="(emoji, i) in item.emoji"
+                        :key="i"
+                        @click="removeEmoji(item.id, emoji)"
+                      >
+                        <span class="emoji-icon">{{ emoji.data }}</span>
+                        <v-icon x-small>mdi-close</v-icon>
+                      </v-btn>
+                    </template>
+
+                    <v-menu
+                      v-model="emojiMenu[`menu-` + item.id]"
+                      :close-on-content-click="false"
+                      right
+                      bottom
+                      nudge-bottom="4"
+                      offset-y
+                    >
+                      <template v-slot:activator="{ on: menu }">
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on: tooltip }">
+                            <v-btn
+                              rounded
+                              class="pa-0 mb-1"
+                              height="26"
+                              min-width="35"
+                              v-on="{
+                                ...menu,
+                                ...tooltip,
+                              }"
+                              @click="handleSelectedItem(item.id)"
+                            >
+                              <img
+                                :src="
+                                  require('../assets/icon/add-emoticon.svg')
+                                "
+                                width="24"
+                                height="24"
+                              />
+                            </v-btn>
+                          </template>
+                          <span>{{ $tc("caption.add_reaction", 1) }}</span>
+                        </v-tooltip>
+                      </template>
+                      <v-card class="emoji-lookup">
+                        <VEmojiPicker
+                          labelSearch="Search"
+                          lang="en-US"
+                          @select="selectEmoji"
+                        />
+                      </v-card>
+                    </v-menu>
+                  </div>
+
+                  <div class="check-box mt-1">
+                    <label
+                      ><input
+                        type="checkbox"
+                        name="follow_up"
+                        class="item-select"
+                        v-model="item.followUp"
+                        @change="handleFollowUp($event, item.id)"
+                      />{{ $tc("caption.required_follow_up", 1) }}
+                    </label>
+                  </div>
+                </div>
+              </v-timeline-item>
+              <v-timeline-item
+                v-if="item.sessionType === 'Note'"
+                color="primary"
+                icon="mdi-pencil"
+                fill-dot
+              >
+                <div class="d-flex flex-column">
+                  <div class="d-flex justify-space-between py-2">
+                    <div class="duration-text">
+                      <v-icon>mdi-clock-outline</v-icon>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
+                    </div>
+                    <div class="d-flex align-center">
+                      <input
+                        type="checkbox"
+                        class="item-select"
+                        :value="item.id"
+                        :checked="checkedItem(item.id)"
+                        @change="handleSelected($event, item.id)"
+                      />
+                    </div>
+                  </div>
+                  <div class="note-wrapper" @click="handleItemClick(item.id)">
+                    <font-awesome-icon
+                      :icon="textTypes[item.comment.type].icon"
+                      class="mr-1"
+                      :style="{
+                        borderColor: textTypes[item.comment.type].fill,
+                        color: textTypes[item.comment.type].fill,
+                      }"
+                      :border="true"
+                    />
+                    <span
+                      class="comment-type"
+                      :style="{ color: currentTheme.secondary }"
+                    >
+                      {{ item.comment.type }}:
+                    </span>
+                    <span v-html="item.comment.content"></span>
+                  </div>
+                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                    <v-chip
+                      v-for="(tag, i) in item.tags"
+                      :key="i"
+                      class="tag"
+                      small
+                      color="#fee2e2"
+                      text-color="#991b1b"
+                    >
+                      {{ tag.text }}
+                    </v-chip>
+                  </div>
+                  <div class="actions-wrapper">
+                    <template v-if="item.emoji.length">
+                      <v-btn
+                        rounded
+                        color="primary"
+                        class="pa-0 mb-1"
+                        height="26"
+                        min-width="45"
+                        style=""
+                        v-for="(emoji, i) in item.emoji"
+                        :key="i"
+                        @click="removeEmoji(item.id, emoji)"
+                      >
+                        <span class="emoji-icon">{{ emoji.data }}</span>
+                        <v-icon x-small>mdi-close</v-icon>
+                      </v-btn>
+                    </template>
+
+                    <v-menu
+                      v-model="emojiMenu[`menu-` + item.id]"
+                      :close-on-content-click="false"
+                      right
+                      bottom
+                      nudge-bottom="4"
+                      offset-y
+                    >
+                      <template v-slot:activator="{ on: menu }">
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on: tooltip }">
+                            <v-btn
+                              rounded
+                              class="pa-0 mb-1"
+                              height="26"
+                              min-width="35"
+                              v-on="{
+                                ...menu,
+                                ...tooltip,
+                              }"
+                              @click="handleSelectedItem(item.id)"
+                            >
+                              <img
+                                :src="
+                                  require('../assets/icon/add-emoticon.svg')
+                                "
+                                width="24"
+                                height="24"
+                              />
+                            </v-btn>
+                          </template>
+                          <span>{{ $tc("caption.add_reaction", 1) }}</span>
+                        </v-tooltip>
+                      </template>
+                      <v-card class="emoji-lookup">
+                        <VEmojiPicker
+                          labelSearch="Search"
+                          lang="en-US"
+                          @select="selectEmoji"
+                        />
+                      </v-card>
+                    </v-menu>
+                  </div>
+                  <div class="check-box mt-1">
+                    <label
+                      ><input
+                        type="checkbox"
+                        name="follow_up"
+                        class="item-select"
+                        v-model="item.followUp"
+                        @change="handleFollowUp($event, item.id)"
+                      />{{ $tc("caption.required_follow_up", 1) }}
+                    </label>
+                  </div>
+                </div>
+              </v-timeline-item>
+              <v-timeline-item
+                v-if="item.sessionType === 'File'"
+                color="primary"
+                icon="mdi-file"
+                fill-dot
+              >
+                <div class="d-flex flex-column">
+                  <div class="d-flex justify-space-between py-2">
+                    <div class="duration-text">
+                      <v-icon>mdi-clock-outline</v-icon>
+                      <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
+                    </div>
+                    <div class="d-flex align-center">
+                      <input
+                        type="checkbox"
+                        class="item-select"
+                        :value="item.id"
+                        :checked="checkedItem(item.id)"
+                        @change="handleSelected($event, item.id)"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    v-if="item.fileType === 'image'"
+                    class="file-wrapper image"
+                    @click="handleItemClick(item.id)"
+                  >
+                    <img
+                      class="screen-img"
+                      style="max-width: 100%"
+                      :src="`file://${item.filePath}`"
+                    />
+                  </div>
+                  <div
+                    v-else
+                    class="file-wrapper file"
+                    @click="handleItemClick(item.id)"
+                  >
+                    <div class="file-name">
+                      <span>{{ item.fileName }}</span>
+                    </div>
+                    <div class="file-icon">
+                      <v-icon medium>mdi-file</v-icon>
                     </div>
                   </div>
                   <div class="comment-wrapper mt-2 mb-2">
@@ -441,159 +721,6 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Note'"
-                color="primary"
-                icon="mdi-pencil"
-                fill-dot
-              >
-                <div class="d-flex flex-column">
-                  <div class="d-flex justify-space-between py-2">
-                    <div class="duration-text">
-                      <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ formatTime(item.timer_mark) }}</span>
-                    </div>
-                    <div class="d-flex align-center">
-                      <input
-                        type="checkbox"
-                        class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
-                      />
-                    </div>
-                  </div>
-                  <div class="note-wrapper" @click="handleItemClick(item.id)">
-                    <font-awesome-icon
-                      :icon="textTypes[item.comment.type].icon"
-                      class="mr-1"
-                      :style="{
-                        borderColor: textTypes[item.comment.type].fill,
-                        color: textTypes[item.comment.type].fill,
-                      }"
-                      :border="true"
-                    />
-                    <span
-                      class="comment-type"
-                      :style="{ color: currentTheme.secondary }"
-                    >
-                      {{ item.comment.type }}:
-                    </span>
-                    <span v-html="item.comment.content"></span>
-                  </div>
-                  <div v-if="item.tags.length" class="tags-wrapper my-2">
-                    <v-chip
-                      v-for="(tag, i) in item.tags"
-                      :key="i"
-                      class="tag"
-                      small
-                      color="#fee2e2"
-                      text-color="#991b1b"
-                    >
-                      {{ tag.text }}
-                    </v-chip>
-                  </div>
-                  <div class="check-box mt-1">
-                    <label
-                      ><input
-                        type="checkbox"
-                        name="follow_up"
-                        class="item-select"
-                        v-model="item.followUp"
-                        @change="handleFollowUp($event, item.id)"
-                      />{{ $tc("caption.required_follow_up", 1) }}
-                    </label>
-                  </div>
-                </div>
-              </v-timeline-item>
-              <v-timeline-item
-                v-if="item.sessionType === 'File'"
-                color="primary"
-                icon="mdi-file"
-                fill-dot
-              >
-                <div class="d-flex flex-column">
-                  <div class="d-flex justify-space-between py-2">
-                    <div class="duration-text">
-                      <v-icon>mdi-clock-outline</v-icon>
-                      <span>{{ formatTime(item.timer_mark) }}</span>
-                    </div>
-                    <div class="d-flex align-center">
-                      <input
-                        type="checkbox"
-                        class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
-                      />
-                    </div>
-                  </div>
-                  <div
-                    v-if="item.fileType === 'image'"
-                    class="file-wrapper image"
-                    @click="handleItemClick(item.id)"
-                  >
-                    <img
-                      class="screen-img"
-                      style="max-width: 100%"
-                      :src="`file://${item.filePath}`"
-                    />
-                  </div>
-                  <div
-                    v-else
-                    class="file-wrapper file"
-                    @click="handleItemClick(item.id)"
-                  >
-                    <div class="file-name">
-                      <span>{{ item.fileName }}</span>
-                    </div>
-                    <div class="file-icon">
-                      <v-icon medium>mdi-file</v-icon>
-                    </div>
-                  </div>
-                  <div class="comment-wrapper mt-2 mb-2">
-                    <font-awesome-icon
-                      :icon="textTypes[item.comment.type].icon"
-                      class="mr-1"
-                      :style="{
-                        borderColor: textTypes[item.comment.type].fill,
-                        color: textTypes[item.comment.type].fill,
-                      }"
-                      :border="true"
-                    />
-                    <span
-                      class="comment-type"
-                      :style="{ color: currentTheme.secondary }"
-                    >
-                      {{ item.comment.type }}:
-                    </span>
-                    <span v-html="item.comment.content"></span>
-                  </div>
-                  <div v-if="item.tags.length" class="tags-wrapper my-2">
-                    <v-chip
-                      v-for="(tag, i) in item.tags"
-                      :key="i"
-                      class="tag"
-                      small
-                      color="#fee2e2"
-                      text-color="#991b1b"
-                    >
-                      {{ tag.text }}
-                    </v-chip>
-                  </div>
-                  <div class="check-box mt-1">
-                    <label
-                      ><input
-                        type="checkbox"
-                        name="follow_up"
-                        class="item-select"
-                        v-model="item.followUp"
-                        @change="handleFollowUp($event, item.id)"
-                      />{{ $tc("caption.required_follow_up", 1) }}
-                    </label>
-                  </div>
-                </div>
-              </v-timeline-item>
-              <v-timeline-item
                 v-if="item.sessionType === 'Mindmap'"
                 color="primary"
                 icon="mdi-camera-plus"
@@ -604,6 +731,7 @@
                     <div class="duration-text">
                       <v-icon>mdi-clock-outline</v-icon>
                       <span>{{ formatTime(item.timer_mark) }}</span>
+                      <span class="filename-text">({{ item.fileName }})</span>
                     </div>
                     <div class="d-flex align-center">
                       <input
@@ -651,6 +779,67 @@
                     >
                       {{ tag.text }}
                     </v-chip>
+                  </div>
+                  <div class="actions-wrapper">
+                    <template v-if="item.emoji.length">
+                      <v-btn
+                        rounded
+                        color="primary"
+                        class="pa-0 mb-1"
+                        height="26"
+                        min-width="45"
+                        style=""
+                        v-for="(emoji, i) in item.emoji"
+                        :key="i"
+                        @click="removeEmoji(item.id, emoji)"
+                      >
+                        <span class="emoji-icon">{{ emoji.data }}</span>
+                        <v-icon x-small>mdi-close</v-icon>
+                      </v-btn>
+                    </template>
+
+                    <v-menu
+                      v-model="emojiMenu[`menu-` + item.id]"
+                      :close-on-content-click="false"
+                      right
+                      bottom
+                      nudge-bottom="4"
+                      offset-y
+                    >
+                      <template v-slot:activator="{ on: menu }">
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on: tooltip }">
+                            <v-btn
+                              rounded
+                              class="pa-0 mb-1"
+                              height="26"
+                              min-width="35"
+                              v-on="{
+                                ...menu,
+                                ...tooltip,
+                              }"
+                              @click="handleSelectedItem(item.id)"
+                            >
+                              <img
+                                :src="
+                                  require('../assets/icon/add-emoticon.svg')
+                                "
+                                width="24"
+                                height="24"
+                              />
+                            </v-btn>
+                          </template>
+                          <span>{{ $tc("caption.add_reaction", 1) }}</span>
+                        </v-tooltip>
+                      </template>
+                      <v-card class="emoji-lookup">
+                        <VEmojiPicker
+                          labelSearch="Search"
+                          lang="en-US"
+                          @select="selectEmoji"
+                        />
+                      </v-card>
+                    </v-menu>
                   </div>
                   <div class="check-box mt-1">
                     <label
@@ -856,7 +1045,7 @@ export default {
     async uploadEvidence() {
       if (!window.ipc) return;
 
-      const { status, error, result } = await window.ipc.invoke(
+      const { status, message, item } = await window.ipc.invoke(
         IPC_HANDLERS.CAPTURE,
         {
           func: IPC_FUNCTIONS.UPLOAD_EVIDENCE,
@@ -864,13 +1053,15 @@ export default {
       );
 
       if (status === STATUSES.ERROR) {
-        console.log(error);
+        // CTODO - bubble up to snackbar
+        console.log(message);
       } else {
         const data = {
           sessionType: "File",
-          fileType: result.fileType,
-          fileName: result.fileName,
-          filePath: result.filePath,
+          id: item.id,
+          fileType: item.fileType,
+          fileName: item.fileName,
+          filePath: item.filePath,
           timer_mark: this.$store.state.timer,
         };
         this.openEditorModal(data);
@@ -963,8 +1154,9 @@ export default {
           return;
         }
 
+        // TODO - Handle multiple files dropped.
         const f = event.dataTransfer.files[0];
-        const { status, error, result } = await window.ipc.invoke(
+        const { status, message, item } = await window.ipc.invoke(
           IPC_HANDLERS.CAPTURE,
           {
             func: IPC_FUNCTIONS.DROP_FILE,
@@ -976,18 +1168,20 @@ export default {
         );
 
         if (status === STATUSES.ERROR) {
-          console.log(error);
+          // CTODO - bubble up to snackbar
+          console.log(message);
         } else {
           const data = {
             sessionType: "File",
-            fileType: result.fileType,
-            fileName: result.fileName,
-            filePath: result.filePath,
+            id: item.id,
+            fileType: item.fileType,
+            fileName: item.fileName,
+            filePath: item.filePath,
             timer_mark: this.$store.state.timer,
           };
           this.openEditorModal(data);
-          this.isDragging = false;
         }
+        this.isDragging = false;
       }
     },
     dragEnter(event) {
@@ -1083,6 +1277,10 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+.filename-text {
+  font-style: italic;
+  font-size: 11px;
 }
 .audio-wrapper {
   display: flex;

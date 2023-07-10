@@ -13,7 +13,7 @@
         @start-record-audio="startRecordAudio()"
         @stop-record-audio="stopRecordAudio()"
         @show-note-dialog="showNoteDialog()"
-        @show-mindmap-dialog="mindMap()"
+        @show-mindmap-dialog="addMindmap()"
         @show-source-picker="showSourcePickerDialog()"
       />
     </div>
@@ -473,7 +473,7 @@
                 color="default"
                 :disabled="status === 'pause'"
                 v-on="on"
-                @click="mindMap"
+                @click="addMindmap"
               >
                 <img
                   v-if="$vuetify.theme.dark === false"
@@ -613,12 +613,12 @@
       />
       <NoteDialog
         v-model="noteDialog"
-        @submit-comment="addNote"
+        @submit-note="addNote"
         :configItem="config"
       />
       <SummaryDialog
         v-model="summaryDialog"
-        @submit-comment="addSummary"
+        @submit-summary="addSummary"
         :configItem="config"
         :summary="summary"
       />
@@ -1250,23 +1250,29 @@ export default {
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           video.remove();
           const imgURI = canvas.toDataURL("image/png");
-          if (window.ipc) {
-            await window.ipc
-              .invoke(IPC_HANDLERS.CAPTURE, {
-                func: IPC_FUNCTIONS.CREATE_IMAGE,
-                data: { url: imgURI },
-              })
-              .then(({ id, fileName, filePath }) => {
-                const data = {
-                  id,
-                  sessionType: "Screenshot",
-                  fileType: "image",
-                  fileName,
-                  filePath,
-                  timer_mark: this.timer,
-                };
-                this.openAddWindow(data);
-              });
+          if (!window.ipc) return;
+
+          const { status, message, item } = await window.ipc.invoke(
+            IPC_HANDLERS.CAPTURE,
+            {
+              func: IPC_FUNCTIONS.CREATE_IMAGE,
+              data: { url: imgURI },
+            }
+          );
+
+          if (status === STATUSES.ERROR) {
+            // CTODO - bubble up to snackbar
+            console.log(message);
+          } else {
+            const data = {
+              id: item.id,
+              sessionType: "Screenshot",
+              fileType: "image",
+              fileName: item.fileName,
+              filePath: item.filePath,
+              timer_mark: this.timer,
+            };
+            this.openAddWindow(data);
           }
         };
       };
@@ -1325,14 +1331,19 @@ export default {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             video.remove();
             const imgURI = canvas.toDataURL("image/png");
-            await window.ipc
-              .invoke(IPC_HANDLERS.CAPTURE, {
+            const { status, message, item } = await window.ipc.invoke(
+              IPC_HANDLERS.CAPTURE,
+              {
                 func: IPC_FUNCTIONS.CREATE_IMAGE,
-                data: { url: imgURI },
-              })
-              .then(({ filePath }) => {
-                poster = filePath;
-              });
+                data: { url: imgURI, isPoster: true },
+              }
+            );
+
+            if (status === STATUSES.ERROR) {
+              // CTODO - bubble up to snackbar
+              console.log("Unable to generate poster for video: " + message);
+            }
+            poster = item.filePath;
           };
         };
         mediaRecorder.ondataavailable = (e) => {
@@ -1344,24 +1355,31 @@ export default {
           this.recordVideoStarted = false;
           const blob = new Blob(frames, { type: "video/webm;codecs=h264" });
           const buffer = await blob.arrayBuffer();
-          if (window.ipc) {
-            await window.ipc
-              .invoke(IPC_HANDLERS.CAPTURE, {
-                func: IPC_FUNCTIONS.CREATE_VIDEO,
-                data: { buffer: buffer },
-              })
-              .then(({ id, fileName, filePath }) => {
-                const data = {
-                  id,
-                  sessionType: "Video",
-                  fileType: "video",
-                  fileName,
-                  filePath,
-                  poster: poster,
-                  timer_mark: this.timer,
-                };
-                this.openAddWindow(data);
-              });
+          if (!window.ipc) return;
+
+          const { status, message, item } = await window.ipc.invoke(
+            IPC_HANDLERS.CAPTURE,
+            {
+              func: IPC_FUNCTIONS.CREATE_VIDEO,
+              data: { buffer: buffer },
+            }
+          );
+
+          if (status === STATUSES.ERROR) {
+            // CTODO - bubble up to snackbar
+            console.log(message);
+          } else {
+            const { id, fileName, filePath } = item;
+            const data = {
+              id,
+              sessionType: "Video",
+              fileType: "video",
+              fileName,
+              filePath,
+              poster: poster,
+              timer_mark: this.timer,
+            };
+            this.openAddWindow(data);
           }
         };
         frames = [];
@@ -1470,24 +1488,28 @@ export default {
             type: "audio/mpeg-3",
           });
           const buffer = await blob.arrayBuffer();
-          if (window.ipc) {
-            await window.ipc
-              .invoke(IPC_HANDLERS.CAPTURE, {
-                func: IPC_FUNCTIONS.CREATE_AUDIO,
-                data: { buffer: buffer },
-              })
-              .then(({ id, fileName, filePath }) => {
-                const data = {
-                  id,
-                  sessionType: "Audio",
-                  fileType: "audio",
-                  fileName,
-                  filePath,
-                  timer_mark: this.timer,
-                  poster: "",
-                };
-                this.openAddWindow(data);
-              });
+          const { status, message, item } = await window.ipc.invoke(
+            IPC_HANDLERS.CAPTURE,
+            {
+              func: IPC_FUNCTIONS.CREATE_AUDIO,
+              data: { buffer: buffer },
+            }
+          );
+
+          if (status === STATUSES.ERROR) {
+            // CTODO - bubble up to snackbar
+            console.log(message);
+          } else {
+            const data = {
+              id: item.id,
+              sessionType: "Audio",
+              fileType: "audio",
+              fileName: item.fileName,
+              filePath: item.filePath,
+              timer_mark: this.timer,
+              poster: "",
+            };
+            this.openAddWindow(data);
           }
           recordedChunks = [];
         };
@@ -1536,36 +1558,41 @@ export default {
         data: { width: 700, height: 800, data: data },
       });
     },
-    async addNote({ comment, tags }) {
-      const id = uuidv4();
-      const fileName = id + ".txt";
-      if (window.ipc) {
-        // Save Note
-        await window.ipc
-          .invoke(IPC_HANDLERS.CAPTURE, {
-            func: IPC_FUNCTIONS.SAVE_NOTE,
-            data: { fileName: fileName, comment: comment },
-          })
-          .then((filePath) => {
-            let newItem = {
-              id,
-              sessionType: "Note",
-              fileType: "text",
-              fileName: fileName,
-              filePath: filePath,
-              comment: comment,
-              tags: tags,
-              emoji: [],
-              followUp: false,
-              timer_mark: this.timer,
-              createdAt: Date.now(),
-            };
-            this.$emit("add-item", newItem);
-          });
+    async addNote(data) {
+      if (!window.ipc) return;
+      // Save Note
+      const { status, message, item } = await window.ipc.invoke(
+        IPC_HANDLERS.CAPTURE,
+        {
+          func: IPC_FUNCTIONS.SAVE_NOTE,
+          data: data.comment,
+        }
+      );
+
+      if (status === STATUSES.ERROR) {
+        // CTODO - bubble up to snackbar
+        console.log(message);
+      } else {
+        let newItem = {
+          id: item.id,
+          sessionType: "Note",
+          fileType: "text",
+          fileName: item.fileName,
+          filePath: item.filePath,
+          comment: data.comment,
+          tags: data.tags,
+          emoji: data.emoji,
+          followUp: data.followUp,
+          timer_mark: this.timer,
+          createdAt: Date.now(),
+        };
+
+        this.$emit("add-item", newItem);
+        this.noteDialog = false;
       }
-      this.noteDialog = false;
     },
     async addSummary(value) {
+      // TODO - handle summary like a regular note and allow additional metadata
       const data = {
         id: uuidv4(),
         sessionType: "Summary",
@@ -1588,12 +1615,15 @@ export default {
       this.summaryDialog = false;
       this.endSessionProcess();
     },
-    mindMap() {
+    addMindmap() {
+      // TODO - With transition to try mindmap format, UUID generation should
+      //        move to CaptureUtility
+      const id = uuidv4();
       const data = {
-        id: uuidv4(),
+        id,
         sessionType: "Mindmap",
         fileType: "mindmap",
-        fileName: "",
+        fileName: `mindmap-${id.substring(0, 5)}.png`,
         filePath: "",
         content: {
           nodes: DEFAULT_MAP_NODES,

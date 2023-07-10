@@ -42,20 +42,28 @@ module.exports.getMediaSource = async () => {
   });
 };
 
-module.exports.createImage = ({ url }) => {
-  const id = uuidv4();
-  const fileName = id + ".png";
+module.exports.createImage = ({ url, isPoster }) => {
+  const imageType = isPoster ? "poster" : "image";
+  const { id, fileName } = generateIDAndName(imageType);
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   const base64Data = url.replace(/^data:image\/png;base64,/, "");
   fs.writeFile(filePath, base64Data, "base64", function (err) {
     if (err) {
       console.log(err);
+      return {
+        status: STATUSES.ERROR,
+        message: err,
+      };
     }
   });
+
   return {
-    id,
-    fileName,
-    filePath,
+    status: STATUSES.SUCCESS,
+    item: {
+      id,
+      fileName,
+      filePath,
+    },
   };
 };
 
@@ -63,36 +71,57 @@ module.exports.updateImage = ({ item, url }) => {
   if (item.filePath && fs.existsSync(item.filePath)) {
     fs.unlinkSync(item.filePath);
   }
-  const fileName = item.id + ".png";
+  const { fileName } = item.fileName
+    ? { fileName: item.fileName }
+    : generateIDAndName("image", item.id);
+
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   const base64Data = url.replace(/^data:image\/png;base64,/, "");
   fs.writeFile(filePath, base64Data, "base64", function (err) {
     if (err) {
       console.log(err);
+      return {
+        status: STATUSES.ERROR,
+        message: err,
+      };
     }
   });
-  item.filePath = filePath;
-  return item;
+  return {
+    status: STATUSES.SUCCESS,
+    item: {
+      fileName,
+      filePath,
+    },
+  };
 };
 
 module.exports.createVideo = ({ buffer }) => {
-  const id = uuidv4();
-  const fileName = id + ".mp4";
+  const { id, fileName } = generateIDAndName("video");
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
     if (err) {
       console.log(err);
+      return {
+        status: STATUSES.ERROR,
+        message: err,
+      };
     }
   });
   return {
-    id,
-    fileName,
-    filePath,
+    status: STATUSES.SUCCESS,
+    item: {
+      id,
+      fileName,
+      filePath,
+    },
   };
 };
 
 module.exports.optimizeVideo = ({ filePath }) => {
-  const tempName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".mp4";
+  const tempName =
+    "temp-optimizing-video-" +
+    dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") +
+    ".mp4";
   const tempPath = path.join(configDir, "sessions", "userMedia", tempName);
 
   return new Promise(function (resolve, reject) {
@@ -114,7 +143,7 @@ module.exports.optimizeVideo = ({ filePath }) => {
         fs.rename(tempPath, filePath, function (err) {
           if (err) {
             console.log(err);
-            return reject({ status: STATUSES.ERROR, msg: err });
+            return reject({ status: STATUSES.ERROR, message: err });
           }
           return resolve({
             status: STATUSES.SUCCESS,
@@ -123,59 +152,131 @@ module.exports.optimizeVideo = ({ filePath }) => {
       })
       .on("error", function (err) {
         console.log(err);
-        return reject({ status: STATUSES.ERROR, msg: err });
+        return reject({ status: STATUSES.ERROR, message: err });
       });
   });
 };
 
-module.exports.updateVideo = ({ filePath, start, end }) => {
-  const tempName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".mp4";
+module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
+  const tempName =
+    "temp-optimizing-video-" +
+    dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") +
+    ".mp4";
   const tempPath = path.join(configDir, "sessions", "userMedia", tempName);
   const duration = parseInt(end - start);
 
   return new Promise(function (resolve, reject) {
-    ffmpeg(filePath)
-      .setStartTime(parseInt(start))
-      .setDuration(duration)
-      .save(tempPath)
-      .on("start", function (commandLine) {
-        console.log("start : " + commandLine);
-      })
-      .on("progress", function (progress) {
-        console.log(progress);
-      })
-      .on("end", function () {
-        if (filePath && fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
-        return resolve({
-          status: STATUSES.SUCCESS,
-          result: {
-            fileName: tempName,
-            filePath: tempPath,
-          },
+    if (previousDuration !== duration) {
+      ffmpeg(item.filePath)
+        .setStartTime(parseInt(start))
+        .setDuration(duration)
+        .save(tempPath)
+        .on("start", function (commandLine) {
+          console.log("start : " + commandLine);
+        })
+        .on("progress", function (progress) {
+          console.log(progress);
+        })
+        .on("end", function () {
+          if (item.filePath && fs.existsSync(item.filePath)) {
+            fs.unlinkSync(item.filePath);
+          }
+          const { fileName } = item.fileName
+            ? { fileName: item.fileName }
+            : generateIDAndName("video", item.id);
+          const filePath = path.join(
+            configDir,
+            "sessions",
+            "userMedia",
+            fileName
+          );
+          fs.rename(tempPath, filePath, function (err) {
+            if (err) {
+              console.log(err);
+              return reject({ status: STATUSES.ERROR, message: err });
+            }
+            return resolve({
+              status: STATUSES.SUCCESS,
+              item: {
+                fileName,
+                filePath,
+              },
+            });
+          });
+        })
+        .on("error", function (err) {
+          console.log(err);
+          return reject({ status: STATUSES.ERROR, message: err });
         });
-      })
-      .on("error", function (err) {
-        console.log(err);
-        return reject({ status: STATUSES.ERROR, msg: err });
+    } else {
+      const { fileName } = item.fileName
+        ? { fileName: item.fileName }
+        : generateIDAndName("video", item.id);
+      const filePath = path.join(configDir, "sessions", "userMedia", fileName);
+      if (item.filePath && item.filePath !== filePath) {
+        fs.rename(item.filePath, filePath, function (err) {
+          if (err) {
+            console.log(err);
+            return reject({ status: STATUSES.ERROR, message: err });
+          }
+        });
+      }
+      return resolve({
+        status: STATUSES.SUCCESS,
+        item: {
+          fileName,
+          filePath,
+        },
       });
+    }
   });
 };
 
 module.exports.createAudio = ({ buffer }) => {
-  const id = uuidv4();
-  const fileName = id + ".mp3";
+  const { id, fileName } = generateIDAndName("audio");
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
     if (err) {
       console.log(err);
+      return {
+        status: STATUSES.ERROR,
+        message: err,
+      };
     }
   });
   return {
-    id,
-    fileName,
-    filePath,
+    status: STATUSES.SUCCESS,
+    item: {
+      id,
+      fileName,
+      filePath,
+    },
+  };
+};
+
+module.exports.updateAudio = ({ item }) => {
+  const { fileName } = item.fileName
+    ? { fileName: item.fileName }
+    : generateIDAndName("audio", item.id);
+  const filePath = path.join(configDir, "sessions", "userMedia", fileName);
+
+  if (item.filePath && item.filePath !== filePath) {
+    fs.rename(item.filePath, filePath, function (err) {
+      if (err) {
+        console.log(err);
+        return {
+          status: STATUSES.ERROR,
+          message: err,
+        };
+      }
+    });
+  }
+  return {
+    status: STATUSES.SUCCESS,
+    item: {
+      fileName,
+      filePath,
+    },
   };
 };
 
@@ -185,14 +286,26 @@ module.exports.deleteFile = ({ filePath }) => {
   }
 };
 
-module.exports.saveNote = ({ fileName, comment }) => {
+module.exports.saveNote = (comment) => {
+  const { id, fileName } = generateIDAndName("text");
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
   fs.writeFile(filePath, comment.text, function (err) {
     if (err) {
       console.log(err);
+      return {
+        status: STATUSES.ERROR,
+        message: err,
+      };
     }
   });
-  return filePath;
+  return {
+    status: STATUSES.SUCCESS,
+    item: {
+      id,
+      fileName,
+      filePath,
+    },
+  };
 };
 
 module.exports.uploadEvidence = async () => {
@@ -203,32 +316,34 @@ module.exports.uploadEvidence = async () => {
   if (canceled) {
     return Promise.resolve({
       status: STATUSES.ERROR,
-      error: "No file selected",
+      message: "No file selected",
     });
   }
 
-  const baseName = path.basename(filePaths[0]);
-  const fileName = baseName.replace(/\s+/g, "_").toLowerCase();
+  // TODO - Handle multiple files uploaded
+  const id = uuidv4();
+  const fileName = path.basename(filePaths[0]);
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
 
   fs.copyFileSync(filePaths[0], filePath);
 
+  // CTODO - move promise building to shared block with dropUpload
   return new Promise(function (resolve) {
     detect.fromFile(filePath, function (err, result) {
       if (err) {
         return resolve({
           status: STATUSES.ERROR,
-          error: err,
+          message: err,
         });
       }
 
       let fileType = "";
       if (result) {
-        if (result.mime === "image/jpeg" || result.mime === "image/png") {
+        if (result.mime.substring(0, 6) === "image/") {
           fileType = "image";
-        } else if (result.mime === "video/mp4") {
+        } else if (result.mime.substring(0, 6) === "video/") {
           fileType = "video";
-        } else if (result.mime === "video/mp3") {
+        } else if (result.mime.substring(0, 6) === "audio/") {
           fileType = "audio";
         } else {
           fileType = "other";
@@ -237,20 +352,21 @@ module.exports.uploadEvidence = async () => {
         fileType = "other";
       }
 
-      const data = {
-        fileType: fileType,
-        fileName: fileName,
-        filePath: filePath,
-      };
       return resolve({
         status: STATUSES.SUCCESS,
-        result: data,
+        item: {
+          id,
+          fileType,
+          fileName,
+          filePath,
+        },
       });
     });
   });
 };
 
 module.exports.dropFile = async (data) => {
+  const id = uuidv4();
   const fileName = data.name;
   const filePath = path.join(configDir, "sessions", "userMedia", fileName);
 
@@ -261,17 +377,17 @@ module.exports.dropFile = async (data) => {
       if (err) {
         return resolve({
           status: STATUSES.ERROR,
-          error: err,
+          message: err,
         });
       }
 
       let fileType = "";
       if (result) {
-        if (result.mime === "image/jpeg" || result.mime === "image/png") {
+        if (result.mime.substring(0, 6) === "image/") {
           fileType = "image";
-        } else if (result.mime === "video/mp4") {
+        } else if (result.mime.substring(0, 6) === "video/") {
           fileType = "video";
-        } else if (result.mime === "video/mp3") {
+        } else if (result.mime.substring(0, 6) === "audio/") {
           fileType = "audio";
         } else {
           fileType = "other";
@@ -280,14 +396,14 @@ module.exports.dropFile = async (data) => {
         fileType = "other";
       }
 
-      const data = {
-        fileType: fileType,
-        fileName: fileName,
-        filePath: filePath,
-      };
       return resolve({
         status: STATUSES.SUCCESS,
-        result: data,
+        item: {
+          id,
+          fileType,
+          fileName,
+          filePath,
+        },
       });
     });
   });
@@ -323,43 +439,6 @@ module.exports.updateUserMedia = ({ buffer, filePath, fileName }) => {
   });
 };
 
-/*
-module.exports.saveUserMedia = (data) => {
-  if (data.fileName && data.filePath) {
-    const arr = data.fileName.split(".");
-    const id = uuidv4();
-    const tempName = id + "." + arr[1];
-    const filePath = path.join(configDir, "sessions", "userMedia", tempName);
-    fs.rename(data.filePath, filePath, function (err) {
-      if (err) {
-        console.log(err);
-      }
-    });
-    data.id = id;
-    data.filePath = filePath;
-    data.fileName = tempName;
-  }
-
-  if (data.posterName && data.posterPath) {
-    const id = uuidv4();
-    const filePath = path.join(
-      configDir,
-      "sessions",
-      "userMedia",
-      data.posterName
-    );
-    fs.rename(data.posterPath, filePath, function (err) {
-      if (err) {
-        console.log(err);
-      }
-    });
-    data.posterPath = filePath;
-    data.id = id;
-  }
-  return data;
-};
-*/
-
 module.exports.setApperance = ({ apperance }) => {
   const browserWindow = browserUtility.getBrowserWindow();
   browserWindow.webContents.send("SET_THEME", { apperance });
@@ -368,6 +447,48 @@ module.exports.setApperance = ({ apperance }) => {
 module.exports.getImageData = (filePath) => {
   const data = base64_encode(filePath);
   return data;
+};
+
+const generateIDAndName = (type, uid = undefined) => {
+  let id, idStr, fileName;
+  let success = false;
+  let suffix;
+
+  switch (type) {
+    case "video":
+      suffix = "mp4";
+      break;
+    case "audio":
+      suffix = "mp3";
+      break;
+    case "image":
+    case "poster":
+      suffix = "png";
+      break;
+    case "text":
+      suffix = "txt";
+      break;
+    default:
+      suffix = "file";
+  }
+
+  while (!success) {
+    id = uuidv4();
+    idStr = id.replaceAll("-", "");
+    for (let i = 0; i < idStr.length - 5; i++) {
+      fileName = `${type}-${idStr.substring(i, 5)}.${suffix}`;
+      if (
+        !fs.existsSync(path.join(configDir, "sessions", "userMedia", fileName))
+      ) {
+        success = true;
+        break;
+      }
+    }
+  }
+  if (uid) {
+    id = uid;
+  }
+  return { id, fileName };
 };
 
 function base64_encode(file) {

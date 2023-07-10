@@ -12,7 +12,7 @@ import ImageEditor from "tui-image-editor";
 import "tui-image-editor/dist/tui-image-editor.css";
 import "tui-color-picker/dist/tui-color-picker.css";
 
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
+import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
 
 export default {
   name: "EditorPanel",
@@ -143,18 +143,28 @@ export default {
     },
     async handleImage(needCallback = false) {
       const imgURI = this.imageEditorInst.toDataURL();
-      window.ipc
-        .invoke(IPC_HANDLERS.CAPTURE, {
+      const { status, message, item } = await window.ipc.invoke(
+        IPC_HANDLERS.CAPTURE,
+        {
           func: IPC_FUNCTIONS.UPDATE_IMAGE,
           data: { item: this.sessionItem, url: imgURI },
-        })
-        .then((result) => {
-          this.sessionItem = result;
-          this.$root.$emit("update-session", this.sessionItem);
-          if (needCallback) {
-            this.$root.$emit("save-data", this.sessionItem);
-          }
-        });
+        }
+      );
+
+      if (status === STATUSES.ERROR) {
+        // CTODO - bubble up to snackbar
+        console.log(message);
+      } else {
+        // Force the timeline component to update the image through a fake QS
+        this.sessionItem.filePath =
+          this.sessionItem.filePath.substring(item.filePath.length) === "?"
+            ? item.filePath
+            : item.filePath + "?";
+        this.$root.$emit("update-session", this.sessionItem);
+        if (needCallback) {
+          this.$root.$emit("save-data", this.sessionItem);
+        }
+      }
     },
   },
 };

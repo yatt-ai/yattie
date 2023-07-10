@@ -136,32 +136,31 @@ export default {
     async handleVideo(needCallback = false) {
       const startVal = this.timeInSeconds(this.start);
       const endVal = this.timeInSeconds(this.end);
-      const temp = parseInt(endVal - startVal);
-      const duration = parseInt(this.duration);
-      if (temp !== duration) {
-        this.handleProcessing(true);
-        const { status, result } = await window.ipc.invoke(
-          IPC_HANDLERS.CAPTURE,
-          {
-            func: IPC_FUNCTIONS.UPDATE_VIDEO,
-            data: {
-              filePath: this.sessionItem.filePath,
-              start: startVal,
-              end: endVal,
-            },
-          }
-        );
-        if (status === STATUSES.SUCCESS) {
-          this.sessionItem.fileName = result.fileName;
-          this.sessionItem.filePath = result.filePath;
+      this.handleProcessing(true);
+      const { status, message, item } = await window.ipc.invoke(
+        IPC_HANDLERS.CAPTURE,
+        {
+          func: IPC_FUNCTIONS.UPDATE_VIDEO,
+          data: {
+            item: this.sessionItem,
+            start: startVal,
+            end: endVal,
+            previousDuration: parseInt(this.duration),
+          },
         }
-        this.handleProcessing(false);
-      }
-      this.$root.$emit("update-session", this.sessionItem);
+      );
 
-      if (needCallback) {
-        this.$root.$emit("save-data", this.sessionItem);
+      if (status === STATUSES.ERROR) {
+        // CTODO - bubble up to snackbar
+        console.log(message);
+      } else {
+        this.sessionItem.filePath = item.filePath;
+        this.$root.$emit("update-session", this.sessionItem);
+        if (needCallback) {
+          this.$root.$emit("save-data", this.sessionItem);
+        }
       }
+      this.handleProcessing(false);
     },
     handleProcessing(value) {
       this.isProcessing = value;

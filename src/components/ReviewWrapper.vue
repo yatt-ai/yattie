@@ -46,7 +46,7 @@ import AudioWrapper from "./AudioWrapper.vue";
 import FileWrapper from "./FileWrapper.vue";
 import MindmapEditor from "./MindmapEditor.vue";
 
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
+import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
 
 export default {
   name: "ReviewWrapper",
@@ -107,18 +107,25 @@ export default {
     };
   },
   methods: {
-    handleMindmap(value) {
+    async handleMindmap(value) {
       this.sessionItem.content.nodes = value.nodes;
       this.sessionItem.content.connections = value.connections;
-      window.ipc
-        .invoke(IPC_HANDLERS.CAPTURE, {
+      const { status, message, item } = await window.ipc.invoke(
+        IPC_HANDLERS.CAPTURE,
+        {
           func: IPC_FUNCTIONS.UPDATE_IMAGE,
           data: { item: this.sessionItem, url: value.imgURI },
-        })
-        .then((result) => {
-          this.$root.$emit("update-session", result);
-          this.$root.$emit("save-data");
-        });
+        }
+      );
+      if (status === STATUSES.ERROR) {
+        // CTODO - bubble up to snackbar
+        console.log(message);
+      } else {
+        this.sessionItem.fileName = item.fileName;
+        this.sessionItem.filePath = item.filePath;
+        this.$root.$emit("update-session", this.sessionItem);
+        this.$root.$emit("save-data");
+      }
     },
   },
 };

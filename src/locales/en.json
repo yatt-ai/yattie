@@ -1,5 +1,6 @@
 {
   "caption": {
+    "filename": "File name",
     "custom_oauth_connections": "Custom OAuth Connections",
     "about_yattie": "About YATTIE",
     "close": "Close",

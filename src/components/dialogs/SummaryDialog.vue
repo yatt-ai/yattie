@@ -159,7 +159,7 @@ export default {
         this.isEmpty = true;
         return;
       }
-      this.$emit("submit-comment", this.comment);
+      this.$emit("submit-summary", this.comment);
     },
     handleClear() {
       this.comment.type = "Summary";

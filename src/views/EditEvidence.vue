@@ -14,14 +14,109 @@
       </div>
       <v-divider></v-divider>
       <div class="content-bottom">
-        <div
-          class="actions-wrapper"
-          v-if="
-            item.fileType === 'image' ||
-            item.fileType === 'video' ||
-            item.fileType === 'audio'
-          "
+        <div v-if="item.fileType !== 'text'">
+          <div class="actions-wrapper">
+            <template v-if="item.emoji.length">
+              <v-btn
+                rounded
+                color="primary"
+                class="pa-0 mb-1"
+                height="26"
+                min-width="45"
+                style=""
+                v-for="(emoji, i) in item.emoji"
+                :key="i"
+                @click="removeEmoji(emoji)"
+              >
+                <span class="emoji-icon">{{ emoji.data }}</span>
+                <v-icon x-small>mdi-close</v-icon>
+              </v-btn>
+            </template>
+            <v-menu
+              v-model="emojiMenu"
+              :close-on-content-click="false"
+              right
+              bottom
+              nudge-bottom="4"
+              offset-y
+            >
+              <template v-slot:activator="{ on: emojiMenu }">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on: tooltip }">
+                    <v-btn
+                      rounded
+                      class="pa-0 mb-1"
+                      height="26"
+                      min-width="35"
+                      v-on="{
+                        ...emojiMenu,
+                        ...tooltip,
+                      }"
+                    >
+                      <img
+                        :src="require('../assets/icon/add-emoticon.svg')"
+                        width="24"
+                        height="24"
+                      />
+                    </v-btn>
+                  </template>
+                  <span>{{ $tc("caption.add_reaction", 1) }}</span>
+                </v-tooltip>
+              </template>
+              <v-card class="emoji-lookup">
+                <VEmojiPicker
+                  labelSearch="Search"
+                  lang="en-US"
+                  @select="selectEmoji"
+                />
+              </v-card>
+            </v-menu>
+          </div>
+          <div class="check-box">
+            <label
+              ><input
+                type="checkbox"
+                name="follow_up"
+                class="item-select"
+                v-model="item.followUp"
+                @change="handleFollowUp($event)"
+              />{{ $tc("caption.required_follow_up", 1) }}
+            </label>
+          </div>
+        </div>
+        <v-text-field
+          name="name"
+          color="secondary"
+          :label="$tc('caption.filename', 1)"
+          v-model="name"
+          :suffix="fileSuffix"
+          :disabled="processing"
+          @input="handleName"
+        />
+        <v-tiptap
+          v-model="item.comment.content"
+          :placeholder="$t('message.insert_comment')"
+          ref="comment"
+          :toolbar="[
+            'headings',
+            '|',
+            'bold',
+            'italic',
+            'underline',
+            '|',
+            'color',
+            '|',
+            'bulletList',
+            'orderedList',
+            '|',
+            'link',
+            'emoji',
+            'blockquote',
+          ]"
+          @input="updateComment"
         >
+        </v-tiptap>
+        <div class="actions-wrapper" v-if="item.fileType === 'text'">
           <template v-if="item.emoji.length">
             <v-btn
               rounded
@@ -90,29 +185,6 @@
             />{{ $tc("caption.required_follow_up", 1) }}
           </label>
         </div>
-        <v-tiptap
-          v-model="item.comment.content"
-          :placeholder="$t('message.insert_comment')"
-          ref="comment"
-          :toolbar="[
-            'headings',
-            '|',
-            'bold',
-            'italic',
-            'underline',
-            '|',
-            'color',
-            '|',
-            'bulletList',
-            'orderedList',
-            '|',
-            'link',
-            'emoji',
-            'blockquote',
-          ]"
-          @input="updateComment"
-        >
-        </v-tiptap>
         <vue-tags-input
           class="input-box"
           v-model="tag"
@@ -199,6 +271,7 @@ export default {
         content: "",
         text: "",
       },
+      name: "",
       tag: "",
       emojiMenu: false,
       commentTypes: Object.keys(TEXT_TYPES).filter(
@@ -213,6 +286,13 @@ export default {
     this.getConfig();
   },
   computed: {
+    fileSuffix() {
+      let splitName = [];
+      if (this.item?.fileName) {
+        splitName = this.item?.fileName.split(".");
+      }
+      return splitName.length > 1 ? "." + splitName[splitName.length - 1] : "";
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -232,6 +312,10 @@ export default {
 
       // set templates
       this.item = data;
+
+      const splitName = this.item?.fileName.split(".") || [""];
+      this.name = splitName.slice(0, -1).join(".");
+
       this.processing = false;
     });
     this.$root.$on("update-session", this.updateSession);
@@ -303,6 +387,9 @@ export default {
       } else {
         this.saveData(this.item);
       }
+    },
+    handleName() {
+      this.item.fileName = this.name + this.fileSuffix;
     },
     handleTags(newTags) {
       this.item.tags = newTags;
