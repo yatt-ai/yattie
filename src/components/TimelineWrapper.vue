@@ -1053,7 +1053,7 @@ export default {
       );
 
       if (status === STATUSES.ERROR) {
-        // CTODO - bubble up to snackbar
+        this.$root.$emit("set-snackbar", message);
         console.log(message);
       } else {
         const data = {
@@ -1168,7 +1168,7 @@ export default {
         );
 
         if (status === STATUSES.ERROR) {
-          // CTODO - bubble up to snackbar
+          this.$root.$emit("set-snackbar", message);
           console.log(message);
         } else {
           const data = {

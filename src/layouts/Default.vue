@@ -88,20 +88,22 @@ export default {
     window.ipc.on("OPEN_SESSION", async () => {
       if (!window.ipc) return;
 
-      const { status, message, metadata } = await window.ipc.invoke(
+      const { status, message, state } = await window.ipc.invoke(
         IPC_HANDLERS.FILE_SYSTEM,
         {
           func: IPC_FUNCTIONS.OPEN_SESSION,
         }
       );
+
       if (status === STATUSES.ERROR) {
+        this.setSnackbar(message);
         console.log(message);
       } else {
-        this.$store.commit("restoreState", metadata);
+        this.$store.commit("restoreState", state);
 
         const currentPath = this.$router.history.current.path;
-        if (currentPath !== metadata.path) {
-          this.$router.push({ path: metadata.path });
+        if (currentPath !== state.path) {
+          this.$router.push({ path: state.path });
         }
       }
     });

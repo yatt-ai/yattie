@@ -118,7 +118,7 @@ export default {
         }
       );
       if (status === STATUSES.ERROR) {
-        // CTODO - bubble up to snackbar
+        this.$root.$emit("set-snackbar", message);
         console.log(message);
       } else {
         this.sessionItem.fileName = item.fileName;

@@ -1077,7 +1077,7 @@ export default {
         duration: this.duration,
       });
     },
-    startSession(id) {
+    async startSession(id) {
       this.sourceId = id;
       this.sourcePickerDialog = false;
 
@@ -1097,6 +1097,30 @@ export default {
         this.status = SESSION_STATUSES.START;
         this.startInterval();
         this.changeSessionStatus(SESSION_STATUSES.START);
+      }
+
+      const sessionId = await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.GET_SESSION_ID,
+      });
+
+      if (sessionId !== "") {
+        const data = {
+          title: this.$store.state.title,
+          charter: this.$store.state.charter,
+          precondition: this.$store.state.precondition,
+          duration: this.$store.state.duration,
+          status: this.$store.state.status,
+          timer: this.$store.state.timer,
+          started: this.$store.state.started,
+          ended: this.$store.state.ended,
+          quickTest: this.$store.state.quickTest,
+          path: this.$route.path,
+        };
+
+        window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+          func: IPC_FUNCTIONS.CREATE_NEW_SESSION,
+          data: data,
+        });
       }
 
       if (this.viewMode === "normal") {
@@ -1261,7 +1285,7 @@ export default {
           );
 
           if (status === STATUSES.ERROR) {
-            // CTODO - bubble up to snackbar
+            this.$root.$emit("set-snackbar", message);
             console.log(message);
           } else {
             const data = {
@@ -1340,7 +1364,7 @@ export default {
             );
 
             if (status === STATUSES.ERROR) {
-              // CTODO - bubble up to snackbar
+              this.$root.$emit("set-snackbar", message);
               console.log("Unable to generate poster for video: " + message);
             }
             poster = item.filePath;
@@ -1366,7 +1390,7 @@ export default {
           );
 
           if (status === STATUSES.ERROR) {
-            // CTODO - bubble up to snackbar
+            this.$root.$emit("set-snackbar", message);
             console.log(message);
           } else {
             const { id, fileName, filePath } = item;
@@ -1497,7 +1521,7 @@ export default {
           );
 
           if (status === STATUSES.ERROR) {
-            // CTODO - bubble up to snackbar
+            this.$root.$emit("set-snackbar", message);
             console.log(message);
           } else {
             const data = {
@@ -1570,7 +1594,7 @@ export default {
       );
 
       if (status === STATUSES.ERROR) {
-        // CTODO - bubble up to snackbar
+        this.$root.$emit("set-snackbar", message);
         console.log(message);
       } else {
         let newItem = {
@@ -1673,7 +1697,12 @@ export default {
     },
     async saveSession(callback = null) {
       this.newSessionDialog = false;
+      const sessionId = await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.GET_SESSION_ID,
+      });
+
       const data = {
+        id: sessionId,
         title: this.$store.state.title,
         charter: this.$store.state.charter,
         precondition: this.$store.state.precondition,

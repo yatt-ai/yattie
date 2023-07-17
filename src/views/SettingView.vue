@@ -88,13 +88,13 @@ export default {
     };
   },
   created() {
-    this.getMetaData();
+    this.getMetadata();
     this.getConfig();
     this.getCredentials();
   },
   mounted() {
     this.$root.$on("change-meta", () => {
-      this.getMetaData();
+      this.getMetadata();
       this.getConfig().then(() => this.updateConfig(this.config));
       this.getCredentials().then(() =>
         this.updateCredentials(this.credentials)
@@ -102,7 +102,7 @@ export default {
     });
   },
   methods: {
-    async getMetaData() {
+    async getMetadata() {
       if (!window.ipc) return;
 
       window.ipc
