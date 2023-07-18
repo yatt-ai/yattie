@@ -31,6 +31,8 @@ import SummaryEditorView from "../views/SummaryEditorView.vue";
 import EndSessionView from "../views/EndSessionView.vue";
 import ShareOAuthView from "../views/ShareOAuthView.vue";
 
+import store from "@/store";
+
 Vue.use(VueRouter);
 
 const routes = [
@@ -190,6 +192,14 @@ const router = new VueRouter({
   mode: process.env.IS_ELECTRON ? "hash" : "history",
   base: process.env.BASE_URL,
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  // This prevents us from saving store on initial load where name is null
+  if (from.matched.length > 0) {
+    store.commit("setPath", to.path);
+  }
+  next();
 });
 
 export default router;

@@ -209,7 +209,7 @@ export default {
   name: "GeneralTab",
   components: {},
   props: {
-    metaData: {
+    metadata: {
       type: Object,
       default: () => {},
     },
@@ -219,7 +219,7 @@ export default {
     },
   },
   watch: {
-    metaData: function (newValue) {
+    metadata: function (newValue) {
       this.meta = newValue;
     },
     config: function (newValue) {
@@ -259,7 +259,7 @@ export default {
   },
   data() {
     return {
-      meta: this.metaData,
+      meta: this.metadata,
       setting: this.config,
       comment: {
         type: "Comment",

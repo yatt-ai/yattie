@@ -152,7 +152,7 @@ export default {
       );
 
       if (status === STATUSES.ERROR) {
-        // CTODO - bubble up to snackbar
+        this.$root.$emit("set-snackbar", message);
         console.log(message);
       } else {
         // Force the timeline component to update the image through a fake QS

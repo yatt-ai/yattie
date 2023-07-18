@@ -11,6 +11,7 @@
             small
             :color="currentTheme.primary"
             class="text-capitalize btn"
+            :style="{ color: currentTheme.white }"
             @click="$emit('save')"
           >
             {{ $tc("caption.save", 1) }}
@@ -19,6 +20,7 @@
             small
             :color="currentTheme.background"
             class="text-capitalize btn"
+            :style="{ color: currentTheme.secondary }"
             @click="$emit('discard')"
           >
             {{ $tc("caption.discard", 1) }}

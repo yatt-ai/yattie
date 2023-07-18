@@ -5,6 +5,8 @@ import {
   SESSION_STATUSES,
   DEFAULT_CHARTER_MAP_NODES,
   DEFAULT_CHARTER_MAP_CONNECTIONS,
+  IPC_HANDLERS,
+  IPC_FUNCTIONS,
 } from "../modules/constants";
 
 Vue.use(Vuex);
@@ -30,35 +32,75 @@ export default new Vuex.Store({
     started: "",
     ended: "",
     quickTest: false,
+    path: "",
   },
   getters: {},
   mutations: {
     setTitle(state, payload) {
       state.title = payload;
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_STATE,
+        data: state,
+      });
     },
     setCharter(state, payload) {
       state.charter.content = payload.content;
       state.charter.text = payload.text;
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_STATE,
+        data: state,
+      });
     },
     setMindmap(state, payload) {
       state.mindmap.nodes = payload.nodes;
       state.mindmap.connections = payload.connections;
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_STATE,
+        data: state,
+      });
     },
     setPrecondition(state, payload) {
       state.precondition.content = payload.content;
       state.precondition.text = payload.text;
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_STATE,
+        data: state,
+      });
     },
     setDuration(state, payload) {
       state.duration = payload;
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_STATE,
+        data: state,
+      });
     },
     setStarted(state, payload) {
       state.started = payload;
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_STATE,
+        data: state,
+      });
     },
     setEnded(state, payload) {
       state.ended = payload;
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_STATE,
+        data: state,
+      });
     },
     setQuickTest(state, payload) {
       state.quickTest = payload;
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_STATE,
+        data: state,
+      });
+    },
+    setPath(state, payload) {
+      state.path = payload;
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_STATE,
+        data: state,
+      });
     },
     updateSession(state, payload) {
       if (state.status !== payload.status) {
@@ -70,6 +112,10 @@ export default new Vuex.Store({
       if (state.duration !== payload.duration) {
         state.duration = payload.duration;
       }
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_STATE,
+        data: state,
+      });
     },
     clearState(state) {
       state.title = "";
@@ -93,6 +139,10 @@ export default new Vuex.Store({
       state.started = "";
       state.ended = "";
       state.quickTest = false;
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_STATE,
+        data: state,
+      });
     },
     resetState(state) {
       state.duration = 0;
@@ -102,18 +152,32 @@ export default new Vuex.Store({
       state.started = "";
       state.ended = "";
       state.quickTest = false;
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_STATE,
+        data: state,
+      });
     },
     restoreState(state, payload) {
       state.title = payload.title;
-      state.charter.content = payload.charter.content;
-      state.charter.text = payload.charter.text;
-      state.precondition.content = payload.precondition.content;
-      state.precondition.text = payload.precondition.text;
+      state.charter.content = payload?.charter?.content || "";
+      state.charter.text = payload?.charter?.text || "";
+      state.mindmap.nodes =
+        payload?.mindmap?.nodes || DEFAULT_CHARTER_MAP_NODES;
+      state.mindmap.connections =
+        payload?.mindmap?.connections || DEFAULT_CHARTER_MAP_CONNECTIONS;
+      state.precondition.content = payload?.precondition?.content || "";
+      state.precondition.text = payload?.precondition?.text || "";
       state.status = payload.status;
       state.timer = payload.timer;
       state.duration = payload.duration;
       state.started = payload.started;
       state.ended = payload.ended;
+      state.quickTest = payload.quickTest;
+      state.path = payload.path;
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_STATE,
+        data: state,
+      });
     },
   },
   actions: {},

@@ -262,6 +262,7 @@ module.exports.closeSettingWindow = () => {
 };
 
 module.exports.setWindowSize = ({ width, height }) => {
+  // TODO - Handle window sizing better without manual resizing and fixed sizes
   const browserWindow = browserUtility.getBrowserWindow();
   browserWindow.setSize(width, height);
   browserWindow.center();

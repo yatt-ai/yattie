@@ -176,7 +176,7 @@
                         return-object
                       >
                       </v-select>
-                      <div v-for="(item, i) in itemLists" :key="i">
+                      <div v-for="(item, i) in selectedAttachments" :key="i">
                         <div
                           class="image-wrapper"
                           @click="handleItemClick(item.id)"
@@ -372,6 +372,20 @@ export default {
       }
       return temp;
     },
+    selectedAttachments() {
+      let selectedAttachments = [];
+      if (this.selectedIds.length > 0) {
+        this.itemLists.map((item) => {
+          if (
+            item.sessionType !== "Summary" &&
+            this.selectedIds.includes(item.id)
+          ) {
+            selectedAttachments.push(item);
+          }
+        });
+      }
+      return selectedAttachments;
+    },
   },
   mounted() {},
   methods: {
@@ -541,17 +555,9 @@ export default {
       };
       let resultId;
 
-      if (this.selectedIds.length === 0) {
-        this.itemLists.map((item) => {
-          if (item.sessionType !== "Summary") {
-            this.selectedIds.push(item.id);
-          }
-        });
-      }
-
       let attachmentComments = "";
       this.selectedIds.map(async (id, i) => {
-        const item = this.itemLists.find((item) => item.id === id);
+        const item = this.selectedAttachments.find((item) => item.id === id);
         attachmentComments += item.comment.type + ": " + item.comment.text;
         if (i !== this.selectedIds.length - 1) {
           attachmentComments += "\n";
@@ -594,8 +600,7 @@ export default {
         const formData = new FormData();
         this.projectLoading = true;
 
-        this.selectedIds.map(async (id, i) => {
-          const item = this.itemLists.find((item) => item.id === id);
+        this.selectedAttachments.map(async (item, i) => {
           const response = await fetch(`file:${item.filePath}`);
           const file = new File([await response.blob()], item.fileName);
           formData.append("attachment", file);

@@ -38,14 +38,8 @@ ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
       return captureUtility.createAudio(args.data);
     case IPC_FUNCTIONS.UPDATE_AUDIO:
       return captureUtility.updateAudio(args.data);
-    case IPC_FUNCTIONS.CREATE_TEMP_USER_MEDIA:
-      return captureUtility.createTempUserMedia(args.data);
-    case IPC_FUNCTIONS.UPDATE_USER_MEDIA:
-      return captureUtility.updateUserMedia(args.data);
     case IPC_FUNCTIONS.DROP_FILE:
       return captureUtility.dropFile(args.data);
-    case IPC_FUNCTIONS.GET_IMAGE_DATA:
-      return captureUtility.getImageData(args.data);
     case IPC_FUNCTIONS.SET_APPERANCE:
       return captureUtility.setApperance(args.data);
     default:
@@ -94,6 +88,12 @@ ipcMain.handle(IPC_HANDLERS.DATABASE, async (event, args) => {
   switch (args.func) {
     case IPC_FUNCTIONS.INITIALIZE_SESSION:
       return databaseUtility.initializeSession();
+    case IPC_FUNCTIONS.GET_SESSION_ID:
+      return databaseUtility.getSessionID();
+    case IPC_FUNCTIONS.GET_STATE:
+      return databaseUtility.getState();
+    case IPC_FUNCTIONS.UPDATE_STATE:
+      return databaseUtility.updateState(args.data);
     case IPC_FUNCTIONS.ADD_ITEM:
       return databaseUtility.addItem(args.data);
     case IPC_FUNCTIONS.GET_ITEMS:
@@ -113,9 +113,9 @@ ipcMain.handle(IPC_HANDLERS.DATABASE, async (event, args) => {
     case IPC_FUNCTIONS.UPDATE_CREDENTIALS:
       return databaseUtility.updateCredentials(args.data);
     case IPC_FUNCTIONS.GET_METADATA:
-      return databaseUtility.getMetaData(args.data);
+      return databaseUtility.getMetadata(args.data);
     case IPC_FUNCTIONS.UPDATE_METADATA:
-      return databaseUtility.updateMetaData(args.data);
+      return databaseUtility.updateMetadata(args.data);
     case IPC_FUNCTIONS.UPDATE_NOTES:
       return databaseUtility.updateNotes(args.data);
     case IPC_FUNCTIONS.GET_NOTES:
@@ -131,8 +131,8 @@ ipcMain.handle(IPC_HANDLERS.FILE_SYSTEM, async (event, args) => {
   switch (args.func) {
     case IPC_FUNCTIONS.EXPORT_ITEMS:
       return fileSystemUtility.exportItems(args.data);
-    case IPC_FUNCTIONS.EXPORT_NOTES:
-      return fileSystemUtility.exportNotes(args.data);
+    case IPC_FUNCTIONS.CREATE_NEW_SESSION:
+      return fileSystemUtility.createNewSession(args.data);
     case IPC_FUNCTIONS.SAVE_SESSION:
       return fileSystemUtility.saveSession(args.data);
     case IPC_FUNCTIONS.OPEN_SESSION:

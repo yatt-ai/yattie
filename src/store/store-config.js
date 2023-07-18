@@ -1,3 +1,4 @@
+// Used for tests - TODO clean up
 import { SESSION_STATUSES } from "../modules/constants";
 
 export default {

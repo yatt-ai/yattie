@@ -221,7 +221,7 @@ export default {
         data: { url: uri, isPoster: true },
       });
       if (posterResult.status === STATUSES.ERROR) {
-        // TODO - Bubble to snackbar
+        this.$root.$emit("set-snackbar", posterResult.message);
         console.log(
           "Unable to generate waveform image: " + posterResult.message
         );
@@ -233,7 +233,7 @@ export default {
       });
 
       if (audioResult.status === STATUSES.ERROR) {
-        // TODO - Bubble to snackbar
+        this.$root.$emit("set-snackbar", audioResult.message);
         console.log("Unable to update audio file: " + audioResult.message);
       }
       this.sessionItem = {
@@ -242,7 +242,7 @@ export default {
         ...audioResult.item,
       };
       this.$root.$emit("update-session", this.sessionItem);
-      this.$root.$emit("save-data"); // CTODO remove data on all of these
+      this.$root.$emit("save-data", this.sessionItem);
     },
   },
 };

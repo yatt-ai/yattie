@@ -4,6 +4,7 @@ const fs = require("fs");
 const AdmZip = require("adm-zip");
 const extract = require("extract-zip");
 const dayjs = require("dayjs");
+const uuidv4 = require("uuid");
 
 const configDir = (app || remote.app).getPath("userData");
 
@@ -12,7 +13,10 @@ const captureUtility = require("./CaptureUtility");
 const { STATUSES } = require("./constants");
 
 module.exports.exportItems = async (ids) => {
-  const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".zip";
+  const fileName =
+    "yattie-export-" +
+    dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") +
+    ".zip";
 
   const { filePath } = await dialog.showSaveDialog({
     title: "Save Items",
@@ -30,10 +34,14 @@ module.exports.exportItems = async (ids) => {
       const zip = new AdmZip();
 
       ids.map((id) => {
-        const data = databaseUtility.getItemById(id);
+        const item = databaseUtility.getItemById(id);
 
-        if (data.filePath) {
-          zip.addLocalFile(data.filePath, data.fileType);
+        if (item.filePath) {
+          const sanitizedPath =
+            item.filePath.substring(item.filePath.length - 1) !== "?" ? 
+              item.filePath :
+              item.filePath.substring(0, item.filePath.length - 1);
+          zip.addLocalFile(sanitizedPath, item.fileType);
         }
       });
 
@@ -54,50 +62,20 @@ module.exports.exportItems = async (ids) => {
   });
 };
 
-module.exports.exportNotes = async (ids) => {
-  const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".zip";
-  const { filePath } = await dialog.showSaveDialog({
-    title: "Save Notes",
-    defaultPath: fileName,
-    filters: [{ name: "Zip archives only", extensions: ["zip"] }],
-    properties: ["createDirectory", "showOverwriteConfirmation"],
-  });
-
-  if (!filePath) {
-    return Promise.resolve({ status: "canceled" });
+module.exports.createNewSession = async (state) => {
+  state.id = uuidv4();
+  const dataFolder = path.join(configDir, "sessions", state.id);
+  if (!fs.existsSync(dataFolder)) {
+    fs.mkdirSync(dataFolder, { recursive: true });
   }
-
-  return new Promise((resolve) => {
-    try {
-      const zip = new AdmZip();
-
-      ids.map((id) => {
-        const data = databaseUtility.getNoteById(id);
-
-        if (data.filePath) {
-          zip.addLocalFile(data.filePath, data.fileType);
-        }
-      });
-
-      zip.writeZip(filePath, (error) => {
-        if (error) {
-          throw error;
-        }
-
-        resolve({
-          status: STATUSES.SUCCESS,
-          message: "Project exported successfully",
-          filePath,
-        });
-      });
-    } catch (error) {
-      resolve({ status: STATUSES.ERROR, message: error.message });
-    }
-  });
+  databaseUtility.createNewSession(state);
 };
 
 module.exports.saveSession = async (data) => {
-  const notesFileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + "-notes.txt";
+  const notesFileName =
+    "yattie-session-" +
+    dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") +
+    "-notes.txt";
   const notes = databaseUtility.getNotes();
   let notesFilePath = "";
   if (notes.text !== "") {
@@ -143,7 +121,11 @@ module.exports.saveSession = async (data) => {
         fs.unlinkSync(metaPath);
         items.map((item) => {
           if (item.filePath) {
-            zip.addLocalFile(item.filePath);
+            const sanitizedPath =
+              item.filePath.substring(item.filePath.length - 1) !== "?" ? 
+                item.filePath :
+                item.filePath.substring(0, item.filePath.length - 1);
+            zip.addLocalFile(sanitizedPath);
           }
         });
 
@@ -185,24 +167,35 @@ module.exports.openSession = async () => {
   }
 
   const filePath = filePaths[0];
-  const target = path.join(configDir, "sessions", "userMedia");
+  const target = path.join(configDir, "sessions", "temp");
+  if (!fs.existsSync(target)) {
+    fs.mkdirSync(target, { recursive: true });
+  }
   try {
     await extract(filePath, { dir: target });
-    const metaPath = path.join(
-      configDir,
-      "sessions",
-      "userMedia",
-      "metadata.txt"
-    );
+    const metaPath = path.join(target, "metadata.txt");
     const encoded = fs.readFileSync(metaPath, "utf8");
-    const metadata = JSON.parse(Buffer.from(encoded, "hex").toString());
-    databaseUtility.updateItems(metadata.sessions);
-    delete metadata.sessions;
+    const state = JSON.parse(Buffer.from(encoded, "hex").toString());
+
+    const id = state.id || uuidv4();
+    const dataFolder = path.join(configDir, "sessions", id);
+    if (fs.existsSync(dataFolder)) {
+      fs.rmdirSync(dataFolder);
+    }
+    fs.renameSync(target, dataFolder);
+
+    const sessionDataPath = path.join(dataFolder, "sessionData.json");
+    databaseUtility.updateMetadata({ sessionDataPath });
+
+    // TODO - Should we restore state here or in Main and Default?
+
+    databaseUtility.updateItems(state.sessions);
+    delete state.sessions;
 
     return Promise.resolve({
       status: STATUSES.SUCCESS,
       message: "Session extracted successfully",
-      metadata: metadata,
+      state: state,
     });
   } catch (err) {
     return Promise.resolve({
@@ -213,7 +206,10 @@ module.exports.openSession = async () => {
 };
 
 module.exports.exportSession = async (params) => {
-  const notesFileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + "-notes.txt";
+  debugger;
+  const timestamp = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms");
+  const id = databaseUtility.getSessionID();
+  const notesFileName = "yattie-session-" + timestamp + "-notes.txt";
   const notes = databaseUtility.getNotes();
   let notesFilePath = "";
   if (notes.text !== "") {
@@ -224,7 +220,7 @@ module.exports.exportSession = async (params) => {
   }
 
   // show save dialog
-  const fileName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".zip";
+  const fileName = "yattie-session-" + timestamp + ".zip";
   const { filePath } = await dialog.showSaveDialog({
     title: "Save Items",
     defaultPath: fileName,
@@ -261,11 +257,11 @@ module.exports.exportSession = async (params) => {
     pdfWin.webContents
       .printToPDF({})
       .then((data) => {
-        const pdfName = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".pdf";
+        const pdfName = "yattie-session-" + timestamp + "-report.pdf";
         const pdfPath = path.join(
           configDir,
           "sessions",
-          "tempUserMedia",
+          id,
           pdfName
         );
 
@@ -283,7 +279,11 @@ module.exports.exportSession = async (params) => {
 
             items.map((item) => {
               if (item.filePath) {
-                zip.addLocalFile(item.filePath, item.fileType);
+                const sanitizedPath =
+                  item.filePath.substring(item.filePath.length - 1) !== "?" ?
+                    item.filePath :
+                    item.filePath.substring(0, item.filePath.length - 1);
+                zip.addLocalFile(sanitizedPath, item.fileType);
               }
             });
 
@@ -346,9 +346,9 @@ module.exports.openConfigFile = async () => {
       }
     });
 
-    const metaData = databaseUtility.getMetaData();
-    metaData.configPath = filePath;
-    databaseUtility.updateMetaData(metaData);
+    const metadata = databaseUtility.getMetadata();
+    metadata.configPath = filePath;
+    databaseUtility.updateMetadata(metadata);
     return Promise.resolve({
       status: STATUSES.SUCCESS,
       message: "Config file imported successfully",
@@ -383,9 +383,9 @@ module.exports.openCredentialsFile = async () => {
       }
     });
 
-    const metaData = databaseUtility.getMetaData();
-    metaData.credentialsPath = filePath;
-    databaseUtility.updateMetaData(metaData);
+    const metadata = databaseUtility.getMetadata();
+    metadata.credentialsPath = filePath;
+    databaseUtility.updateMetadata(metadata);
     return Promise.resolve({
       status: STATUSES.SUCCESS,
       message: "Credentials file imported successfully",

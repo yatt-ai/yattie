@@ -20,6 +20,8 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 ffmpeg.setFfprobePath(ffprobePath.path);
 
 const browserUtility = require("./BrowserWindowUtility");
+const databaseUtility = require("./DatabaseUtility");
+
 const { STATUSES } = require("./constants");
 
 const configDir = (app || remote.app).getPath("userData");
@@ -45,7 +47,12 @@ module.exports.getMediaSource = async () => {
 module.exports.createImage = ({ url, isPoster }) => {
   const imageType = isPoster ? "poster" : "image";
   const { id, fileName } = generateIDAndName(imageType);
-  const filePath = path.join(configDir, "sessions", "userMedia", fileName);
+  const filePath = path.join(
+    configDir,
+    "sessions",
+    databaseUtility.getSessionID(),
+    fileName
+  );
   const base64Data = url.replace(/^data:image\/png;base64,/, "");
   fs.writeFile(filePath, base64Data, "base64", function (err) {
     if (err) {
@@ -75,7 +82,12 @@ module.exports.updateImage = ({ item, url }) => {
     ? { fileName: item.fileName }
     : generateIDAndName("image", item.id);
 
-  const filePath = path.join(configDir, "sessions", "userMedia", fileName);
+  const filePath = path.join(
+    configDir,
+    "sessions",
+    databaseUtility.getSessionID(),
+    fileName
+  ); 
   const base64Data = url.replace(/^data:image\/png;base64,/, "");
   fs.writeFile(filePath, base64Data, "base64", function (err) {
     if (err) {
@@ -97,7 +109,12 @@ module.exports.updateImage = ({ item, url }) => {
 
 module.exports.createVideo = ({ buffer }) => {
   const { id, fileName } = generateIDAndName("video");
-  const filePath = path.join(configDir, "sessions", "userMedia", fileName);
+  const filePath = path.join(
+    configDir,
+    "sessions",
+    databaseUtility.getSessionID(),
+    fileName
+  ); 
   fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
     if (err) {
       console.log(err);
@@ -122,7 +139,12 @@ module.exports.optimizeVideo = ({ filePath }) => {
     "temp-optimizing-video-" +
     dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") +
     ".mp4";
-  const tempPath = path.join(configDir, "sessions", "userMedia", tempName);
+  const tempPath = path.join(
+    configDir,
+    "sessions",
+    databaseUtility.getSessionID(),
+    tempName
+  );
 
   return new Promise(function (resolve, reject) {
     ffmpeg(filePath)
@@ -162,7 +184,12 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
     "temp-optimizing-video-" +
     dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") +
     ".mp4";
-  const tempPath = path.join(configDir, "sessions", "userMedia", tempName);
+  const tempPath = path.join(
+    configDir,
+    "sessions",
+    databaseUtility.getSessionID(),
+    tempName
+  );
   const duration = parseInt(end - start);
 
   return new Promise(function (resolve, reject) {
@@ -187,7 +214,7 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
           const filePath = path.join(
             configDir,
             "sessions",
-            "userMedia",
+            databaseUtility.getSessionID(),
             fileName
           );
           fs.rename(tempPath, filePath, function (err) {
@@ -212,7 +239,12 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
       const { fileName } = item.fileName
         ? { fileName: item.fileName }
         : generateIDAndName("video", item.id);
-      const filePath = path.join(configDir, "sessions", "userMedia", fileName);
+      const filePath = path.join(
+        configDir,
+        "sessions",
+        databaseUtility.getSessionID(),
+        fileName
+      ); 
       if (item.filePath && item.filePath !== filePath) {
         fs.rename(item.filePath, filePath, function (err) {
           if (err) {
@@ -234,7 +266,12 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
 
 module.exports.createAudio = ({ buffer }) => {
   const { id, fileName } = generateIDAndName("audio");
-  const filePath = path.join(configDir, "sessions", "userMedia", fileName);
+  const filePath = path.join(
+    configDir,
+    "sessions",
+    databaseUtility.getSessionID(),
+    fileName
+  ); 
   fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
     if (err) {
       console.log(err);
@@ -258,7 +295,12 @@ module.exports.updateAudio = ({ item }) => {
   const { fileName } = item.fileName
     ? { fileName: item.fileName }
     : generateIDAndName("audio", item.id);
-  const filePath = path.join(configDir, "sessions", "userMedia", fileName);
+  const filePath = path.join(
+    configDir,
+    "sessions",
+    databaseUtility.getSessionID(),
+    fileName
+  ); 
 
   if (item.filePath && item.filePath !== filePath) {
     fs.rename(item.filePath, filePath, function (err) {
@@ -288,7 +330,12 @@ module.exports.deleteFile = ({ filePath }) => {
 
 module.exports.saveNote = (comment) => {
   const { id, fileName } = generateIDAndName("text");
-  const filePath = path.join(configDir, "sessions", "userMedia", fileName);
+  const filePath = path.join(
+    configDir,
+    "sessions",
+    databaseUtility.getSessionID(),
+    fileName
+  ); 
   fs.writeFile(filePath, comment.text, function (err) {
     if (err) {
       console.log(err);
@@ -323,11 +370,16 @@ module.exports.uploadEvidence = async () => {
   // TODO - Handle multiple files uploaded
   const id = uuidv4();
   const fileName = path.basename(filePaths[0]);
-  const filePath = path.join(configDir, "sessions", "userMedia", fileName);
+  const filePath = path.join(
+    configDir,
+    "sessions",
+    databaseUtility.getSessionID(),
+    fileName
+  ); 
 
   fs.copyFileSync(filePaths[0], filePath);
 
-  // CTODO - move promise building to shared block with dropUpload
+  // TODO - move promise building to shared block with dropUpload
   return new Promise(function (resolve) {
     detect.fromFile(filePath, function (err, result) {
       if (err) {
@@ -368,7 +420,12 @@ module.exports.uploadEvidence = async () => {
 module.exports.dropFile = async (data) => {
   const id = uuidv4();
   const fileName = data.name;
-  const filePath = path.join(configDir, "sessions", "userMedia", fileName);
+  const filePath = path.join(
+    configDir,
+    "sessions",
+    databaseUtility.getSessionID(),
+    fileName
+  ); 
 
   fs.copyFileSync(data.path, filePath);
 
@@ -409,44 +466,9 @@ module.exports.dropFile = async (data) => {
   });
 };
 
-module.exports.createTempUserMedia = ({ buffer, fileName }) => {
-  const filePath = path.join(configDir, "sessions", "tempUserMedia", fileName);
-  fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
-    if (err) {
-      console.log(err);
-    }
-  });
-  return filePath;
-};
-
-module.exports.createUserMedia = ({ buffer, fileName }) => {
-  const filePath = path.join(configDir, "sessions", "userMedia", fileName);
-  fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
-    if (err) {
-      console.log(err);
-    }
-  });
-  return filePath;
-};
-
-module.exports.updateUserMedia = ({ buffer, filePath, fileName }) => {
-  const tempPath = path.join(configDir, "sessions", "tempUserMedia", fileName);
-  console.log(fileName, filePath, tempPath);
-  fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
-    if (err) {
-      console.log(err);
-    }
-  });
-};
-
 module.exports.setApperance = ({ apperance }) => {
   const browserWindow = browserUtility.getBrowserWindow();
   browserWindow.webContents.send("SET_THEME", { apperance });
-};
-
-module.exports.getImageData = (filePath) => {
-  const data = base64_encode(filePath);
-  return data;
 };
 
 const generateIDAndName = (type, uid = undefined) => {
@@ -478,7 +500,12 @@ const generateIDAndName = (type, uid = undefined) => {
     for (let i = 0; i < idStr.length - 5; i++) {
       fileName = `${type}-${idStr.substring(i, 5)}.${suffix}`;
       if (
-        !fs.existsSync(path.join(configDir, "sessions", "userMedia", fileName))
+        !fs.existsSync(path.join(
+          configDir,
+          "sessions",
+          databaseUtility.getSessionID(),
+          fileName
+        ))
       ) {
         success = true;
         break;
