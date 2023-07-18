@@ -1103,7 +1103,7 @@ export default {
         func: IPC_FUNCTIONS.GET_SESSION_ID,
       });
 
-      if (sessionId !== "") {
+      if (sessionId === "") {
         const data = {
           title: this.$store.state.title,
           charter: this.$store.state.charter,
@@ -1750,27 +1750,46 @@ export default {
       this.audioErrorDialog = false;
       this.endSessionDialog = false;
 
+      if (!window.ipc) return;
+
+      // CTODO - move above all of the changes or our current session is overwrriten
+      const data = {
+        title: this.$store.state.title,
+        charter: this.$store.state.charter,
+        precondition: this.$store.state.precondition,
+        duration: this.$store.state.duration,
+        status: this.$store.state.status,
+        timer: this.$store.state.timer,
+        started: this.$store.state.started,
+        ended: this.$store.state.ended,
+        quickTest: this.$store.state.quickTest,
+        path: this.$route.path,
+      };
+
+      await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+        func: IPC_FUNCTIONS.CREATE_NEW_SESSION,
+        data: data,
+      });
+
       this.$store.commit("clearState");
 
-      if (!window.ipc) return;
-      await window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.RESET_DATA,
-        })
-        .then(() => {
-          window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-            func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
-            data: {
-              width: 800,
-              height: 600,
-            },
-          });
-          this.stopInterval();
-          const currentPath = this.$router.history.current.path;
-          if (currentPath !== "/main") {
-            this.$router.push({ path: "/main" });
-          }
-        });
+      await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.RESET_DATA,
+      });
+
+      window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+        func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
+        data: {
+          width: 800,
+          height: 600,
+        },
+      });
+
+      this.stopInterval();
+      const currentPath = this.$router.history.current.path;
+      if (currentPath !== "/main") {
+        this.$router.push({ path: "/main" });
+      }
     },
     async resetSession() {
       if (this.resetConfirmDialog) {

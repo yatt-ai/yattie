@@ -109,30 +109,6 @@ module.exports.initializeSession = () => {
     createRootSessionDirectory();
   }
 
-  //const defaultState = {
-  //  title: "",
-  //  charter: {
-  //    content: "",
-  //    text: "",
-  //  },
-  //  mindmap: {
-  //    nodes: [],
-  //    connections: [],
-  //  },
-  //  precondition: {
-  //    content: "",
-  //    text: "",
-  //  },
-  //  duration: 0,
-  //  status: SESSION_STATUSES.PENDING,
-  //  timer: 0,
-  //  started: "",
-  //  ended: "",
-  //  quickTest: false,
-  //  path: "",
-  //};
-  // CTODO - remove this
-
   metaDb = new JSONdb(path.join(configDir, "meta.json"), jsonDbConfig);
   let metadata = {
     version: currentVersion,
@@ -151,9 +127,12 @@ module.exports.initializeSession = () => {
   }
   credentialDb = new JSONdb(metadata.credentialsPath, jsonDbConfig);
 
-  debugger;
   if (metadata.sessionDataPath) {
-    dataDb = new JSONdb(metadata.sessionDataPath, jsonDbConfig);
+    if (fs.existsSync(metadata.sessionDataPath)) {
+      dataDb = new JSONdb(metadata.sessionDataPath, jsonDbConfig);
+    } else {
+      metaDb.set("sessionDataPath", "");
+    }
   }
 
   if (metadata.version) {
@@ -201,13 +180,13 @@ const createRootSessionDirectory = () => {
 };
 
 const removeItemById = (id) => {
-  const data = dataDb.get("items") || [];
+  const data = dataDb.get("items");
   const updatedData = data.filter((item) => item.id !== id);
   dataDb.set("items", updatedData);
 };
 
 const getItemById = (id) => {
-  const data = dataDb.get("items") || [];
+  const data = dataDb.get("items");
   const item = data.find((item) => item.id === id);
 
   return item;
@@ -237,7 +216,7 @@ module.exports.getSessionID = () => {
     if (dataDb) {
       return dataDb.get("id");
     }
-    return {};
+    return "";
   } catch (error) {
     console.log(error);
     return "";

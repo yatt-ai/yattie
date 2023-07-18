@@ -143,7 +143,7 @@ module.exports.optimizeVideo = ({ filePath }) => {
     configDir,
     "sessions",
     databaseUtility.getSessionID(),
-    fileName
+    tempName
   );
 
   return new Promise(function (resolve, reject) {
@@ -188,7 +188,7 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
     configDir,
     "sessions",
     databaseUtility.getSessionID(),
-    fileName
+    tempName
   );
   const duration = parseInt(end - start);
 
