@@ -159,12 +159,14 @@ export default new Vuex.Store({
     },
     restoreState(state, payload) {
       state.title = payload.title;
-      state.charter.content = payload.charter.content;
-      state.charter.text = payload.charter.text;
-      state.mindmap.nodes = payload.mindmap.nodes;
-      state.mindmap.connections = payload.mindmap.connections;
-      state.precondition.content = payload.precondition.content;
-      state.precondition.text = payload.precondition.text;
+      state.charter.content = payload?.charter?.content || "";
+      state.charter.text = payload?.charter?.text || "";
+      state.mindmap.nodes =
+        payload?.mindmap?.nodes || DEFAULT_CHARTER_MAP_NODES;
+      state.mindmap.connections =
+        payload?.mindmap?.connections || DEFAULT_CHARTER_MAP_CONNECTIONS;
+      state.precondition.content = payload?.precondition?.content || "";
+      state.precondition.text = payload?.precondition?.text || "";
       state.status = payload.status;
       state.timer = payload.timer;
       state.duration = payload.duration;

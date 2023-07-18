@@ -1705,6 +1705,7 @@ export default {
         id: sessionId,
         title: this.$store.state.title,
         charter: this.$store.state.charter,
+        mindmap: this.$store.state.mindmap,
         precondition: this.$store.state.precondition,
         duration: this.$store.state.duration,
         status: this.$store.state.status,
@@ -1752,7 +1753,6 @@ export default {
 
       if (!window.ipc) return;
 
-      // CTODO - move above all of the changes or our current session is overwrriten
       const data = {
         title: this.$store.state.title,
         charter: this.$store.state.charter,

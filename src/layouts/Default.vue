@@ -96,7 +96,7 @@ export default {
       );
 
       if (status === STATUSES.ERROR) {
-        this.setSnackbar(message);
+        this.setSnackBar(message);
         console.log(message);
       } else {
         this.$store.commit("restoreState", state);

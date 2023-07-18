@@ -176,13 +176,21 @@ module.exports.openSession = async () => {
     const metaPath = path.join(target, "metadata.txt");
     const encoded = fs.readFileSync(metaPath, "utf8");
     const state = JSON.parse(Buffer.from(encoded, "hex").toString());
-    databaseUtility.updateItems(state.sessions);
-    delete state.sessions;
 
     const id = state.id || uuidv4();
     const dataFolder = path.join(configDir, "sessions", id);
+    if (fs.existsSync(dataFolder)) {
+      fs.rmdirSync(dataFolder);
+    }
     fs.renameSync(target, dataFolder);
 
+    const sessionDataPath = path.join(dataFolder, "sessionData.json");
+    databaseUtility.updateMetadata({ sessionDataPath });
+
+    // TODO - Should we restore state here or in Main and Default?
+
+    databaseUtility.updateItems(state.sessions);
+    delete state.sessions;
 
     return Promise.resolve({
       status: STATUSES.SUCCESS,

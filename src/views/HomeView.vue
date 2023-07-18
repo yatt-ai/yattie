@@ -239,16 +239,23 @@ export default {
     async openSession() {
       if (!window.ipc) return;
 
-      const { status, metadata } = await window.ipc.invoke(
+      const { status, message, state } = await window.ipc.invoke(
         IPC_HANDLERS.FILE_SYSTEM,
         {
           func: IPC_FUNCTIONS.OPEN_SESSION,
         }
       );
-      if (status !== STATUSES.ERROR) {
-        // restore vuex state
-        this.$store.commit("restoreState", metadata);
-        this.$router.push({ path: metadata.path });
+
+      if (status === STATUSES.ERROR) {
+        this.$root.$emit("set-snackbar", message);
+        console.log(message);
+      } else {
+        this.$store.commit("restoreState", state);
+
+        const currentPath = this.$router.history.current.path;
+        if (currentPath !== state.path) {
+          this.$router.push({ path: state.path });
+        }
       }
     },
     quickTest() {

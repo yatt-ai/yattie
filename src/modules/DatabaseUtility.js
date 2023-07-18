@@ -194,7 +194,7 @@ const getItemById = (id) => {
 
 module.exports.createNewSession = (state) => {
   if (dataDb) {
-    // CTODO -ditching current session, save it or do something?
+    // TODO - ditching current session, should we save it or do something?
   }
   const sessionDataPath =
     path.join(configDir, "sessions", state.id, "sessionData.json");
@@ -364,9 +364,15 @@ module.exports.updateMetadata = (meta) => {
     for (const [key, value] of Object.entries(meta)) {
       metaDb.set(key, value);
     }
-    configDb = new JSONdb(meta.configPath, jsonDbConfig);
-    credentialDb = new JSONdb(meta.credentialsPath, jsonDbConfig);
-    dataDb = new JSONdb(meta.sessionDataPath, jsonDbConfig);
+    if (meta.configPath) {
+      configDb = new JSONdb(meta.configPath, jsonDbConfig);
+    }
+    if (meta.credentialsPath) {
+      credentialDb = new JSONdb(meta.credentialsPath, jsonDbConfig);
+    }
+    if (meta.sessionDataPath) {
+      dataDb = new JSONdb(meta.sessionDataPath, jsonDbConfig);
+    }
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("META_CHANGE");
   } catch (error) {
