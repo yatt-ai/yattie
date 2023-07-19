@@ -30,7 +30,7 @@
             :transition="false"
           >
             <router-view
-              :meta-data="metadata"
+              :metadata="metadata"
               :config="config"
               @submit-config="updateConfig"
             ></router-view>
