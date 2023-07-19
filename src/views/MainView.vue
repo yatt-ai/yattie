@@ -52,9 +52,9 @@
               <v-list-item link to="/authentication/signin">
                 <v-list-item-title>Log In</v-list-item-title>
               </v-list-item>
-              <v-list-item link to="/authentication/signupMain">
+              <!--<v-list-item link to="/authentication/signupMain">
                 <v-list-item-title>Register</v-list-item-title>
-              </v-list-item>
+              </v-list-item>-->
             </v-list>
           </v-menu>
         </div>
