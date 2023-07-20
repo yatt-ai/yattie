@@ -195,7 +195,8 @@
     "jira": "Jira",
     "confirm_jira_issue": "Confirm Jira Issue",
     "select_project": "Select a project",
-    "select_issue_type": "Select an issue type"
+    "select_issue_type": "Select an issue type",
+    "testrail_instance_url":"Instance URL"
   },
   "menu": {
     "about": "About",
@@ -264,6 +265,10 @@
     "describe_test_charter": "Describe your test charter",
     "confirm_session_saved": "Session successfully saved on your computer.",
     "confirm_jira_issue": "You have not selected any evidence to attach to this issue. If you would like to attach evidence, please go back and select it before creating an issue.",
-    "confirm_session_saved": "Session successfully saved on your computer."
+    "confirm_session_saved": "Session successfully saved on your computer.",
+    "user_name": "User name",
+    "is_required":" is required.",
+    "api_key":"Api key",
+    "instance_url": "Instance URL"
   }
 }
