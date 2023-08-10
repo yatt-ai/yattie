@@ -64,7 +64,7 @@
     <div class="content">
       <v-tabs-items v-model="activeTab">
         <v-tab-item value="/main" :transition="false">
-          <TestWrapper />
+          <TestWrapper :config-item="config" :credential-items="credentials" />
           <CheckTaskWrapper
             v-if="showCheckList"
             :tasks="presession.tasks"

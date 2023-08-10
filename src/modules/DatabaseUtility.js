@@ -1,5 +1,3 @@
-const { SESSION_STATUSES } = require("../modules/constants");
-
 const JSONdb = require("simple-json-db");
 const { app, remote } = require("electron");
 const path = require("path");
@@ -35,6 +33,9 @@ const defaultConfig = {
   videoQuality: "high",
   debugMode: false,
   summary: false,
+  ai: {
+    enabled: false,
+  },
   templates: [
     {
       type: "Screenshot",
@@ -146,14 +147,47 @@ module.exports.initializeSession = () => {
       metaDb.set(key, value);
     }
 
-    if (!configDb.has("config") || !configDb.get("config").checklist) {
+    if (!configDb.has("config")) {
       configDb.set("config", defaultConfig);
+    } else {
+      // Recursively ensure all keys that should exist, do.
+      let currentConfig = configDb.get("config");
+      const recursivelyMerge = (oldConfig, newConfig) => {
+        if (!(oldConfig instanceof Object) || Array.isArray(oldConfig)) {
+          if (!oldConfig || oldConfig.constructor !== newConfig.constructor) {
+            // Overwriting if the type has changed in the default
+            return newConfig;
+          }
+          return oldConfig;
+        }
+        if (!(newConfig instanceof Object) || Array.isArray(newConfig)) {
+          return newConfig;
+        }
+
+        let builtConfig = {};
+        for (const key of Object.keys(newConfig)) {
+          builtConfig[key] = recursivelyMerge(
+            oldConfig[key],
+            newConfig[key],
+            `path.${key}`
+          );
+        }
+        for (const key of Object.keys(oldConfig)) {
+          // Preserving keys in the config but not in default
+          if (!Object.keys(newConfig).includes(key)) {
+            builtConfig[key] = oldConfig[key];
+          }
+        }
+        return builtConfig;
+      };
+      // TODO - Handle migrations after merge
+      let fixedConfig = recursivelyMerge(currentConfig, defaultConfig);
+      configDb.set("config", fixedConfig);
     }
 
     if (!credentialDb.has("credentials")) {
       credentialDb.set("credentials", {});
     }
-
   } catch (error) {
     console.log(error);
   }
@@ -171,9 +205,7 @@ module.exports.initializeSession = () => {
 };
 
 const createRootSessionDirectory = () => {
-  let sessionPaths = [
-    path.join(configDir, "sessions"),
-  ];
+  let sessionPaths = [path.join(configDir, "sessions")];
   sessionPaths.forEach((path) => {
     fs.mkdirSync(path, { recursive: true });
   });
@@ -196,8 +228,12 @@ module.exports.createNewSession = (state) => {
   if (dataDb) {
     // TODO - ditching current session, should we save it or do something?
   }
-  const sessionDataPath =
-    path.join(configDir, "sessions", state.id, "sessionData.json");
+  const sessionDataPath = path.join(
+    configDir,
+    "sessions",
+    state.id,
+    "sessionData.json"
+  );
 
   metaDb.set("sessionDataPath", sessionDataPath);
   dataDb = new JSONdb(sessionDataPath, jsonDbConfig);

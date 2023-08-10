@@ -231,7 +231,6 @@
 <script>
 import axios from "axios";
 import dayjs from "dayjs";
-//import https from "https";
 import uuidv4 from "uuid";
 import { Buffer } from "buffer";
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../../modules/constants";

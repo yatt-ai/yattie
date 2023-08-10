@@ -31,7 +31,8 @@
           >
             <router-view
               :metadata="metadata"
-              :config="config"
+              :configItem="config"
+              :credentialItems="credentials"
               @submit-config="updateConfig"
             ></router-view>
           </v-tab-item>
@@ -62,25 +63,30 @@ export default {
         { id: 1, name: this.$tc("caption.general", 1), route: `/settings` },
         {
           id: 2,
-          name: this.$tc("caption.connection", 1),
+          name: this.$tc("caption.connections", 1),
           route: `/settings/connections`,
         },
         {
           id: 3,
-          name: this.$tc("caption.template", 1),
+          name: this.$tc("caption.templates", 1),
           route: `/settings/template`,
         },
         {
           id: 4,
-          name: this.$tc("caption.checklist", 1),
+          name: this.$tc("caption.checklists", 1),
           route: `/settings/checklist`,
         },
         {
           id: 5,
-          name: this.$tc("caption.report", 1),
+          name: this.$tc("caption.reports", 1),
           route: `/settings/reports`,
         },
-        // { id: 6, name: this.$tc("caption.support", 1), route: `/settings/support` },
+        {
+          id: 6,
+          name: this.$tc("caption.addons", 1),
+          route: `/settings/addons`,
+        },
+        // { id: 7, name: this.$tc("caption.support", 1), route: `/settings/support` },
       ],
       metadata: {},
       config: {},

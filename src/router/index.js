@@ -25,6 +25,7 @@ import SupportTab from "@/components/settings/SupportTab.vue";
 import TemplateTab from "@/components/settings/TemplateTab.vue";
 import ConfigCheckListTab from "@/components/settings/ConfigCheckListTab.vue";
 import ReportsTab from "@/components/settings/ReportsTab.vue";
+import AddonsTab from "@/components/settings/AddonsTab.vue";
 
 import NoteEditorView from "../views/NoteEditorView.vue";
 import SummaryEditorView from "../views/SummaryEditorView.vue";
@@ -133,6 +134,12 @@ const routes = [
         component: ReportsTab,
         props: true,
       },
+      {
+        path: "addons",
+        name: "addons",
+        component: AddonsTab,
+        props: true,
+      },
     ],
   },
   {
@@ -196,7 +203,7 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   // This prevents us from saving store on initial load where name is null
-  if (from.matched.length > 0) {
+  if (from.matched.length > 0 && !to.path.includes("settings")) {
     store.commit("setPath", to.path);
   }
   next();

@@ -615,11 +615,13 @@
         v-model="noteDialog"
         @submit-note="addNote"
         :configItem="config"
+        :credentialItems="credentials"
       />
       <SummaryDialog
         v-model="summaryDialog"
         @submit-summary="addSummary"
         :configItem="config"
+        :credentialItems="credentials"
         :summary="summary"
       />
       <DeleteConfirmDialog
@@ -1107,7 +1109,7 @@ export default {
         const data = {
           title: this.$store.state.title,
           charter: this.$store.state.charter,
-          precondition: this.$store.state.precondition,
+          preconditions: this.$store.state.preconditions,
           duration: this.$store.state.duration,
           status: this.$store.state.status,
           timer: this.$store.state.timer,
@@ -1706,7 +1708,7 @@ export default {
         title: this.$store.state.title,
         charter: this.$store.state.charter,
         mindmap: this.$store.state.mindmap,
-        precondition: this.$store.state.precondition,
+        preconditions: this.$store.state.preconditions,
         duration: this.$store.state.duration,
         status: this.$store.state.status,
         timer: this.$store.state.timer,
@@ -1756,7 +1758,7 @@ export default {
       const data = {
         title: this.$store.state.title,
         charter: this.$store.state.charter,
-        precondition: this.$store.state.precondition,
+        preconditions: this.$store.state.preconditions,
         duration: this.$store.state.duration,
         status: this.$store.state.status,
         timer: this.$store.state.timer,
