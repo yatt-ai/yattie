@@ -1,6 +1,6 @@
 const { app, BrowserWindow, screen } = require("electron");
 
-const isDevelopment = process.env.NODE_ENV !== "production";
+let isDevelopment = process.env.NODE_ENV !== "production";
 
 let addWin, editWin, settingsWin, notesWin, modalWin;
 
@@ -8,6 +8,10 @@ const browserUtility = require("./BrowserWindowUtility");
 const path = require("path");
 
 const { VIEW_MODE, IPC_BIND_KEYS } = require("./constants");
+
+module.exports.setDevMode = async ({ enabled }) => {
+  isDevelopment = enabled;
+};
 
 module.exports.getMainWindow = () => {
   const win = new BrowserWindow({

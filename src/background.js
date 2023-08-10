@@ -7,7 +7,7 @@ import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import createMenu from "./menu";
 import { VIEW_MODE } from "./modules/constants";
 
-const isDevelopment = process.env.NODE_ENV !== "production";
+let isDevelopment = process.env.NODE_ENV !== "production";
 
 const browserUtility = require("./modules/BrowserWindowUtility");
 const databaseUtility = require("./modules/DatabaseUtility");
@@ -21,6 +21,13 @@ require("./modules/IpcHandlers");
 // initialize session
 databaseUtility.initializeSession();
 
+// Check for enabling dev mode
+const startupConfig = databaseUtility.getConfig();
+if (startupConfig.devMode) {
+  isDevelopment = true;
+  windowUtility.setDevMode({enabled: true});
+}
+
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: "app", privileges: { secure: true, standard: true } },
@@ -31,13 +38,13 @@ async function createWindow() {
   const win = windowUtility.getMainWindow();
   browserUtility.setBrowserWindow(win);
   browserUtility.setViewMode(VIEW_MODE.NORMAL);
+  if (isDevelopment) {
+    win.webContents.openDevTools();
+  }
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
-    if (isDevelopment) {
-      win.webContents.openDevTools();
-    }
   } else {
     createProtocol("app");
     // Load the index.html when not in development
