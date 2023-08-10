@@ -19,7 +19,21 @@
         <v-container>
           <v-row>
             <v-col cols="12">
+              <v-card
+                v-if="commentLoading"
+                class="loading-wrapper"
+                outlined
+                flat
+              >
+                <v-progress-circular
+                  :color="currentTheme.primary"
+                  size="70"
+                  absolute
+                  indeterminate
+                ></v-progress-circular>
+              </v-card>
               <v-tiptap
+                v-else
                 v-model="comment.content"
                 :placeholder="$t('message.insert_summary')"
                 ref="comment"
@@ -38,9 +52,26 @@
                   'link',
                   'emoji',
                   'blockquote',
+                  '|',
+                  '#aiAssist',
                 ]"
-                @input="handleComment"
+                @input="updateComment"
               >
+                <template #aiAssist="">
+                  <v-btn
+                    v-if="aiAssistEnabled"
+                    icon
+                    small
+                    :title="$tc('caption.ai_assist', 1)"
+                    @click="handleAISuggestion('comment', $event)"
+                  >
+                    <v-icon>{{
+                      previousComment?.content
+                        ? "mdi-robot-off-outline"
+                        : "mdi-robot-outline"
+                    }}</v-icon>
+                  </v-btn>
+                </template>
               </v-tiptap>
               <div class="error px-2 py-1" v-if="isEmpty">
                 <span style="color: #fff">{{
@@ -99,12 +130,18 @@
 </template>
 
 <script>
-import { TEXT_TYPES } from "../../modules/constants";
+import { TEXT_TYPES, AI_ENABLED_FIELDS } from "../../modules/constants";
+import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
+
 export default {
   name: "SummaryDialog",
   components: {},
   props: {
     configItem: {
+      type: Object,
+      default: () => {},
+    },
+    credentialItems: {
       type: Object,
       default: () => {},
     },
@@ -117,6 +154,9 @@ export default {
     configItem: function (newValue) {
       this.config = newValue;
       this.isRequired = this.config.summary;
+    },
+    credentialItems: function (newValue) {
+      this.credentials = newValue;
     },
     summary: function (newValue) {
       if (Object.keys(newValue).length) {
@@ -133,6 +173,12 @@ export default {
         content: "",
         text: "",
       },
+      previousComment: {
+        type: "Summary",
+        content: "",
+        text: "",
+      },
+      commentLoading: false,
       commentTypes: Object.keys(TEXT_TYPES),
       isRequired: this.configItem.summary,
       isEmpty: false,
@@ -142,6 +188,9 @@ export default {
     this.handleClear();
   },
   computed: {
+    aiAssistEnabled() {
+      return this?.config?.aiAssist || false;
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -166,7 +215,7 @@ export default {
       this.comment.content = "";
       this.comment.text = "";
     },
-    handleComment() {
+    updateComment() {
       const regex = /(<([^>]+)>)/gi;
       this.comment.text = this.comment.content.replace(regex, "");
       if (this.isRequired && !this.validate()) {
@@ -181,11 +230,95 @@ export default {
       }
       return true;
     },
+    async handleAISuggestion(field, event) {
+      if (
+        (this[field]?.trim && this[field]?.trim()) ||
+        this[field]?.content?.trim()
+      ) {
+        let button = event.srcElement;
+        let enable = true;
+        let previousField =
+          "previous" + field[0].toUpperCase() + field.substring(1);
+        if (button.classList.contains("mdi-robot-off-outline")) {
+          enable = false;
+        }
+
+        if (enable) {
+          if (AI_ENABLED_FIELDS[field].type === "textField") {
+            this[previousField] = this[field];
+          } else {
+            this[previousField] = Object.assign({}, this[field]);
+          }
+          this[field + "Loading"] = true;
+          let response = await openAIIntegrationHelper.enhanceText(
+            this.credentials,
+            this.config,
+            field,
+            this[field]
+          );
+          if (response.error) {
+            enable = false;
+            if (AI_ENABLED_FIELDS[field].type === "textField") {
+              this[previousField] = "";
+            } else {
+              this[previousField] = {
+                content: "",
+                text: "",
+              };
+            }
+            this.$root.$emit(
+              "set-snackbar",
+              `${this.$tc("message.please_try_again", 1)} ${this.$tc(
+                "message.error",
+                1
+              )}: ${response.error}`
+            );
+          } else {
+            if (AI_ENABLED_FIELDS[field].type === "textField") {
+              this[field] = response.content;
+            } else {
+              this[field].content = response.content;
+            }
+          }
+          this[AI_ENABLED_FIELDS[field].callback]();
+          this[field + "Loading"] = false;
+        } else {
+          this[field] = this[previousField];
+          this[previousField] = "";
+        }
+
+        if (enable) {
+          button.classList.remove("mdi-robot-outline");
+          button.classList.add("mdi-robot-off-outline");
+        } else {
+          button.classList.remove("mdi-robot-off-outline");
+          button.classList.add("mdi-robot-outline");
+        }
+      } else {
+        this.$root.$emit(
+          "set-snackbar",
+          this.$tc("message.ai_assist_not_empty", 1)
+        );
+      }
+    },
   },
 };
 </script>
 
 <style scoped>
+.v-icon.mdi.theme--light.mdi-robot-off-outline {
+  color: rgba(255, 0, 0, 0.6) !important;
+}
+.v-icon.mdi.theme--dark.mdi-robot-off-outline {
+  color: rgba(255, 0, 0, 1) !important;
+}
+.loading-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 250px;
+}
 .dialog-title {
   /* border-bottom: 1px solid #e5e7eb; */
   font-size: 14px;

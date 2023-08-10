@@ -29,60 +29,67 @@ export default {
       credentials
     )) {
       let updatedList = [];
-      for (const credential of credentialList) {
-        let updatedCredential;
-        if (Object.keys(credential).length) {
-          if (
-            credential.type == "oauth" &&
-            this.isTokenExpired(credential) &&
-            dayjs(credential.lastRefreshed) < dayjs().subtract(4, "minute")
-          ) {
-            updatedCredential = await this.refreshAccessToken(
-              credentials,
-              credentialProvider,
-              credential
-            );
-            if (
-              updatedCredential.status &&
-              updatedCredential.status > 399 &&
-              updatedCredential.status < 500
-            ) {
-              if (credential.yattOauthTokenId) {
-                updatedCredential = null;
-                failedAuth.push({
-                  credentialProvider,
-                  credential,
-                });
 
-                // Remove the id from yatt.oauthTokenIds
-                let yattCreds = [];
-                const currentCreds = newCredentials.yatt || credentials.yatt;
-                for (const cred of currentCreds) {
-                  cred.oauthTokenIds = cred.oauthTokenIds.filter(
-                    (id) => id !== credential.yattOauthTokenId
-                  );
-                  yattCreds.push(cred);
+      if (Array.isArray(credentialList)) {
+        // Supporting external services like OpenAI store creds as an object
+        //   because you can only have one of each.
+        for (const credential of credentialList) {
+          let updatedCredential;
+          if (Object.keys(credential).length) {
+            if (
+              credential.type == "oauth" &&
+              this.isTokenExpired(credential) &&
+              dayjs(credential.lastRefreshed) < dayjs().subtract(4, "minute")
+            ) {
+              updatedCredential = await this.refreshAccessToken(
+                credentials,
+                credentialProvider,
+                credential
+              );
+              if (
+                updatedCredential.status &&
+                updatedCredential.status > 399 &&
+                updatedCredential.status < 500
+              ) {
+                if (credential.yattOauthTokenId) {
+                  updatedCredential = null;
+                  failedAuth.push({
+                    credentialProvider,
+                    credential,
+                  });
+
+                  // Remove the id from yatt.oauthTokenIds
+                  let yattCreds = [];
+                  const currentCreds = newCredentials.yatt || credentials.yatt;
+                  for (const cred of currentCreds) {
+                    cred.oauthTokenIds = cred.oauthTokenIds.filter(
+                      (id) => id !== credential.yattOauthTokenId
+                    );
+                    yattCreds.push(cred);
+                  }
+                  newCredentials.yatt = yattCreds;
                 }
-                newCredentials.yatt = yattCreds;
               }
+              updated = true;
+            } else {
+              updatedCredential = credential;
             }
-            updated = true;
+            if (updatedCredential) {
+              delete updatedCredential["provider"];
+              delete updatedCredential["status"];
+              updatedList.push({ ...credential, ...updatedCredential });
+            }
           } else {
-            updatedCredential = credential;
+            failedAuth.push({
+              credentialProvider,
+              credential,
+            });
           }
-          if (updatedCredential) {
-            delete updatedCredential["provider"];
-            delete updatedCredential["status"];
-            updatedList.push({ ...credential, ...updatedCredential });
-          }
-        } else {
-          failedAuth.push({
-            credentialProvider,
-            credential,
-          });
         }
+        newCredentials[credentialProvider] = updatedList;
+      } else {
+        newCredentials[credentialProvider] = credentialList;
       }
-      newCredentials[credentialProvider] = updatedList;
     }
 
     if (updated) {

@@ -136,12 +136,15 @@ export default {
   name: "ConfigCheckListTab",
   components: {},
   props: {
-    config: {
+    configItem: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
     preTaskList: {
       handler: function () {
         this.updateData("presession", {
@@ -166,6 +169,7 @@ export default {
   },
   data() {
     return {
+      config: this.configItem,
       preTaskList: [],
       postTaskList: [],
       presessionStatus: false,

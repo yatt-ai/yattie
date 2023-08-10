@@ -25,7 +25,7 @@
           <v-tiptap
             label="Preconditions"
             v-model="template.precondition.content"
-            :placeholder="$t('define_required_precondition.insert_summary')"
+            :placeholder="$t('message.define_required_precondition')"
             ref="precondition"
             :toolbar="[
               'headings',
@@ -111,14 +111,14 @@ export default {
   name: "TemplateTab",
   components: {},
   props: {
-    config: {
+    configItem: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
-    config: function (newValue) {
-      this.setting = newValue;
+    configItem: function (newValue) {
+      this.config = newValue;
     },
   },
   computed: {
@@ -132,10 +132,10 @@ export default {
   },
   data() {
     return {
-      setting: this.config,
-      templates: this.config.templates,
-      template: this.config.templates[0],
-      type: this.config.templates[0].type,
+      config: this.configItem,
+      templates: this.configItem.templates,
+      template: this.configItem.templates[0],
+      type: this.configItem.templates[0].type,
       sessionTypes: SESSION_TYPES,
     };
   },
@@ -166,8 +166,8 @@ export default {
         }
         return temp;
       });
-      this.setting.templates = this.templates;
-      this.$emit("submit-config", this.setting);
+      this.config.templates = this.templates;
+      this.$emit("submit-config", this.config);
     },
   },
 };

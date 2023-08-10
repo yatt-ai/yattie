@@ -49,6 +49,8 @@ ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
 
 ipcMain.handle(IPC_HANDLERS.WINDOW, async (event, args) => {
   switch (args.func) {
+    case IPC_FUNCTIONS.SET_DEV_MODE:
+      return windowUtility.setDevMode(args.data);
     case IPC_FUNCTIONS.OPEN_ADD_WINDOW:
       return windowUtility.openAddWindow(args.data);
     case IPC_FUNCTIONS.CLOSE_ADD_WINDOW:

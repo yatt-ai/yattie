@@ -14,9 +14,7 @@ const { STATUSES } = require("./constants");
 
 module.exports.exportItems = async (ids) => {
   const fileName =
-    "yattie-export-" +
-    dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") +
-    ".zip";
+    "yattie-export-" + dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".zip";
 
   const { filePath } = await dialog.showSaveDialog({
     title: "Save Items",
@@ -38,9 +36,9 @@ module.exports.exportItems = async (ids) => {
 
         if (item.filePath) {
           const sanitizedPath =
-            item.filePath.substring(item.filePath.length - 1) !== "?" ? 
-              item.filePath :
-              item.filePath.substring(0, item.filePath.length - 1);
+            item.filePath.substring(item.filePath.length - 1) !== "?"
+              ? item.filePath
+              : item.filePath.substring(0, item.filePath.length - 1);
           zip.addLocalFile(sanitizedPath, item.fileType);
         }
       });
@@ -73,9 +71,7 @@ module.exports.createNewSession = async (state) => {
 
 module.exports.saveSession = async (data) => {
   const notesFileName =
-    "yattie-session-" +
-    dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") +
-    "-notes.txt";
+    "yattie-session-" + dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + "-notes.txt";
   const notes = databaseUtility.getNotes();
   let notesFilePath = "";
   if (notes.text !== "") {
@@ -122,9 +118,9 @@ module.exports.saveSession = async (data) => {
         items.map((item) => {
           if (item.filePath) {
             const sanitizedPath =
-              item.filePath.substring(item.filePath.length - 1) !== "?" ? 
-                item.filePath :
-                item.filePath.substring(0, item.filePath.length - 1);
+              item.filePath.substring(item.filePath.length - 1) !== "?"
+                ? item.filePath
+                : item.filePath.substring(0, item.filePath.length - 1);
             zip.addLocalFile(sanitizedPath);
           }
         });
@@ -258,12 +254,7 @@ module.exports.exportSession = async (params) => {
       .printToPDF({})
       .then((data) => {
         const pdfName = "yattie-session-" + timestamp + "-report.pdf";
-        const pdfPath = path.join(
-          configDir,
-          "sessions",
-          id,
-          pdfName
-        );
+        const pdfPath = path.join(configDir, "sessions", id, pdfName);
 
         fs.writeFile(pdfPath, data, (error) => {
           if (error) {
@@ -280,9 +271,9 @@ module.exports.exportSession = async (params) => {
             items.map((item) => {
               if (item.filePath) {
                 const sanitizedPath =
-                  item.filePath.substring(item.filePath.length - 1) !== "?" ?
-                    item.filePath :
-                    item.filePath.substring(0, item.filePath.length - 1);
+                  item.filePath.substring(item.filePath.length - 1) !== "?"
+                    ? item.filePath
+                    : item.filePath.substring(0, item.filePath.length - 1);
                 zip.addLocalFile(sanitizedPath, item.fileType);
               }
             });

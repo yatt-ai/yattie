@@ -6,7 +6,7 @@
           <LogoWrapper :height="34" :width="120" />
         </div>
         <div class="content">
-          <TestWrapper />
+          <TestWrapper :config-item="config" :credential-items="credentials" />
         </div>
         <div class="footer">
           <ExportPanel
@@ -127,7 +127,7 @@
                 'emoji',
                 'blockquote',
               ]"
-              @input="handleComment"
+              @input="updateComment"
             >
             </v-tiptap>
             <vue-tags-input
@@ -150,7 +150,7 @@
                   :placeholder="$tc('caption.comment_type', 1)"
                   solo
                   dense
-                  @change="handleCommentType"
+                  @change="updateCommentType"
                   hide-details="true"
                 ></v-select>
               </v-col>
@@ -341,7 +341,7 @@ export default {
     handleSearch(val) {
       this.search = val;
     },
-    handleComment() {
+    updateComment() {
       const regex = /(<([^>]+)>)/gi;
       this.activeSession.comment.text =
         this.activeSession.comment.content.replace(regex, "");
@@ -355,7 +355,7 @@ export default {
       this.activeSession.followUp = $event.target.checked;
       this.saveData();
     },
-    handleCommentType(val) {
+    updateCommentType(val) {
       this.activeSession.commentType = val;
       this.saveData();
     },

@@ -23,6 +23,7 @@ export const IPC_FUNCTIONS = {
   OPTIMIZE_VIDEO: "optimizeVideo",
   DROP_FILE: "dropFile",
 
+  SET_DEV_MODE: "setDevMode",
   OPEN_ADD_WINDOW: "openAddWindow",
   CLOSE_ADD_WINDOW: "closeAddWindow",
   OPEN_EDIT_WINDOW: "openEditWindow",
@@ -84,6 +85,7 @@ export const IPC_BIND_KEYS = {
   CLOSED_MINIMIZE_WINDOW: "minimize_window_closed",
   CLOSED_ENDSESSION_DIALOG: "endsession_dialog_closed",
   CLOSED_SOURCEPICKER_DIALOG: "sourcepicker_dialog_closed",
+  CLOSED_SHARE_OAUTH_DIALOG: "share_oauth_dialog_closed",
 };
 
 export const STATUSES = {
@@ -213,3 +215,87 @@ export const DEFAULT_MAP_CONNECTIONS = [
     target: "4763495c-62b7-4625-9083-2d40045b6550",
   },
 ];
+
+export const AI_ENABLED_FIELDS = {
+  title: {
+    type: "textField",
+    callback: "updateTitle",
+  },
+  charter: {
+    type: "textArea",
+    callback: "updateCharter",
+  },
+  preconditions: {
+    type: "textArea",
+    callback: "updatePreconditions",
+  },
+  comment: {
+    type: "textArea",
+    callback: "updateComment",
+  },
+};
+
+export const DEFAULT_OPENAI_CONFIGS = {
+  model: "gpt-3.5-turbo-0613",
+  temperature: 1.35,
+  prompts: {
+    title: [
+      {
+        role: "system",
+        content:
+          "You are an assistant helping users write Test Charter titles for exploratory tests.",
+      },
+      {
+        role: "system",
+        content:
+          "The user will provide you a title or some related words and you should respond with a new title that improves clarity, fix spelling mistakes, and fix grammar mistakes.",
+      },
+    ],
+    charter: [
+      {
+        role: "system",
+        content:
+          "You are an assistant helping users write Test Charters for exploratory tests.",
+      },
+      {
+        role: "system",
+        content:
+          "The user will provide you an HTML document with a test charter or ideas for a test scenario and your response should improve the clarity, fix spelling mistakes, and fix grammar mistakes of what they have written.",
+      },
+      {
+        role: "system",
+        content:
+          "You must respond with valid HTML and retain as much of the original formatting as possible.",
+      },
+    ],
+    preconditions: [
+      {
+        role: "system",
+        content:
+          "You are an assistant helping users write Test Charters for exploratory tests.",
+      },
+      {
+        role: "system",
+        content:
+          "The user will provide you an HTML document with preconditions for their test scenario and your response should improve the clarity, fix spelling mistakes, and fix grammar mistakes of what they have written.",
+      },
+      {
+        role: "system",
+        content:
+          "You must respond with valid HTML and retain as much of the original formatting as possible.",
+      },
+    ],
+    comment: [
+      {
+        role: "system",
+        content:
+          "The user will provide you an HTML document with a comment describing some evidence they have collected and your response should improve the clarity, fix spelling mistakes, and fix grammar mistakes of what they have written.",
+      },
+      {
+        role: "system",
+        content:
+          "You must respond with valid HTML and retain as much of the original formatting as possible.",
+      },
+    ],
+  },
+};

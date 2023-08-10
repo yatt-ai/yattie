@@ -50,7 +50,7 @@
           {{ $tc("caption.apperance", 1) }}
         </p>
         <v-radio-group
-          v-model="setting.apperance"
+          v-model="config.apperance"
           row
           class="ma-0 pa-0 radio-control"
           dense
@@ -84,7 +84,7 @@
           </div>
           <div class="flex-grow-0">
             <v-switch
-              v-model="setting.audioCapture"
+              v-model="config.audioCapture"
               inset
               hide-details
               dense
@@ -98,7 +98,7 @@
           {{ $tc("caption.video_capture_quality", 1) }}
         </p>
         <v-radio-group
-          v-model="setting.videoQuality"
+          v-model="config.videoQuality"
           class="ma-0 pa-0 radio-control"
           dense
           hide-details
@@ -186,7 +186,7 @@
         <v-select
           :items="commentTypes"
           color="secondary"
-          v-model="setting.commentType"
+          v-model="config.commentType"
           :placeholder="$tc('caption.comment_type')"
           solo
           dense
@@ -213,7 +213,7 @@ export default {
       type: Object,
       default: () => {},
     },
-    config: {
+    configItem: {
       type: Object,
       default: () => {},
     },
@@ -222,13 +222,13 @@ export default {
     metadata: function (newValue) {
       this.meta = newValue;
     },
-    config: function (newValue) {
-      this.setting = newValue;
+    configItem: function (newValue) {
+      this.config = newValue;
     },
     color: function (newValue, oldValue) {
       if (newValue === oldValue) return;
 
-      this.setting.defaultColor = newValue.hexa;
+      this.config.defaultColor = newValue.hexa;
       this.handleConfig();
     },
   },
@@ -260,14 +260,14 @@ export default {
   data() {
     return {
       meta: this.metadata,
-      setting: this.config,
+      config: this.configItem,
       comment: {
         type: "Comment",
         content: "",
         text: "",
       },
       menu: false,
-      color: this.config.defaultColor,
+      color: this.configItem.defaultColor,
       commentTypes: Object.keys(TEXT_TYPES).filter(
         (item) => item !== "Summary"
       ),
@@ -275,7 +275,7 @@ export default {
   },
   methods: {
     handleConfig() {
-      this.$emit("submit-config", this.setting);
+      this.$emit("submit-config", this.config);
     },
     async openConfigFile() {
       const { status, message } = await window.ipc.invoke(

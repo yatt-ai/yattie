@@ -128,7 +128,7 @@ export default {
       const data = {
         title: this.$store.state.title,
         charter: this.$store.state.charter,
-        precondition: this.$store.state.precondition,
+        preconditions: this.$store.state.preconditions,
         duration: this.$store.state.duration,
         timer: this.$store.state.timer,
         started: this.$store.state.started,

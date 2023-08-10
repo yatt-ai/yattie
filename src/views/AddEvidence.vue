@@ -92,7 +92,16 @@
           :disabled="processing"
           @input="handleName"
         />
+        <v-card v-if="commentLoading" class="loading-wrapper" outlined flat>
+          <v-progress-circular
+            :color="currentTheme.primary"
+            size="70"
+            absolute
+            indeterminate
+          ></v-progress-circular>
+        </v-card>
         <v-tiptap
+          v-else
           v-model="comment.content"
           :placeholder="$t('message.insert_comment')"
           ref="comment"
@@ -111,9 +120,26 @@
             'link',
             'emoji',
             'blockquote',
+            '|',
+            '#aiAssist',
           ]"
           @input="updateComment"
         >
+          <template #aiAssist="">
+            <v-btn
+              v-if="aiAssistEnabled"
+              icon
+              small
+              :title="$tc('caption.ai_assist', 1)"
+              @click="handleAISuggestion('comment', $event)"
+            >
+              <v-icon>{{
+                previousComment?.content
+                  ? "mdi-robot-off-outline"
+                  : "mdi-robot-outline"
+              }}</v-icon>
+            </v-btn>
+          </template>
         </v-tiptap>
         <vue-tags-input
           class="input-box"
@@ -190,7 +216,10 @@ import {
   IPC_FUNCTIONS,
   TEXT_TYPES,
   STATUSES,
+  AI_ENABLED_FIELDS,
 } from "../modules/constants";
+
+import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
 
 export default {
   name: "AddEvidence",
@@ -204,11 +233,18 @@ export default {
       item: {},
       items: [],
       config: {},
+      credentials: {},
       comment: {
         type: "",
         content: "",
         text: "",
       },
+      previousComment: {
+        type: "",
+        content: "",
+        text: "",
+      },
+      commentLoading: false,
       name: "",
       tagText: "",
       tags: [],
@@ -226,8 +262,12 @@ export default {
   created() {
     this.fetchItems();
     this.getConfig();
+    this.getCredentials();
   },
   computed: {
+    aiAssistEnabled() {
+      return this?.config?.aiAssist || false;
+    },
     fileSuffix() {
       let splitName = [];
       if (this.item?.fileName) {
@@ -301,6 +341,17 @@ export default {
         })
         .then((result) => {
           this.config = result;
+        });
+    },
+    async getCredentials() {
+      if (!window.ipc) return;
+
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.GET_CREDENTIALS,
+        })
+        .then((result) => {
+          this.credentials = result;
         });
     },
     async optimizeVideo() {
@@ -399,11 +450,95 @@ export default {
         text: "",
       };
     },
+    async handleAISuggestion(field, event) {
+      if (
+        (this[field]?.trim && this[field]?.trim()) ||
+        this[field]?.content?.trim()
+      ) {
+        let button = event.srcElement;
+        let enable = true;
+        let previousField =
+          "previous" + field[0].toUpperCase() + field.substring(1);
+        if (button.classList.contains("mdi-robot-off-outline")) {
+          enable = false;
+        }
+
+        if (enable) {
+          if (AI_ENABLED_FIELDS[field].type === "textField") {
+            this[previousField] = this[field];
+          } else {
+            this[previousField] = Object.assign({}, this[field]);
+          }
+          this[field + "Loading"] = true;
+          let response = await openAIIntegrationHelper.enhanceText(
+            this.credentials,
+            this.config,
+            field,
+            this[field]
+          );
+          if (response.error) {
+            enable = false;
+            if (AI_ENABLED_FIELDS[field].type === "textField") {
+              this[previousField] = "";
+            } else {
+              this[previousField] = {
+                content: "",
+                text: "",
+              };
+            }
+            this.$root.$emit(
+              "set-snackbar",
+              `${this.$tc("message.please_try_again", 1)} ${this.$tc(
+                "message.error",
+                1
+              )}: ${response.error}`
+            );
+          } else {
+            if (AI_ENABLED_FIELDS[field].type === "textField") {
+              this[field] = response.content;
+            } else {
+              this[field].content = response.content;
+            }
+          }
+          this[AI_ENABLED_FIELDS[field].callback]();
+          this[field + "Loading"] = false;
+        } else {
+          this[field] = this[previousField];
+          this[previousField] = "";
+        }
+
+        if (enable) {
+          button.classList.remove("mdi-robot-outline");
+          button.classList.add("mdi-robot-off-outline");
+        } else {
+          button.classList.remove("mdi-robot-off-outline");
+          button.classList.add("mdi-robot-outline");
+        }
+      } else {
+        this.$root.$emit(
+          "set-snackbar",
+          this.$tc("message.ai_assist_not_empty", 1)
+        );
+      }
+    },
   },
 };
 </script>
 
 <style scoped>
+.v-icon.mdi.theme--light.mdi-robot-off-outline {
+  color: rgba(255, 0, 0, 0.6) !important;
+}
+.v-icon.mdi.theme--dark.mdi-robot-off-outline {
+  color: rgba(255, 0, 0, 1) !important;
+}
+.loading-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 250px;
+}
 .wrapper {
   display: flex;
   flex-direction: column;

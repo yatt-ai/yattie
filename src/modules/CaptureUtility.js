@@ -87,7 +87,7 @@ module.exports.updateImage = ({ item, url }) => {
     "sessions",
     databaseUtility.getSessionID(),
     fileName
-  ); 
+  );
   const base64Data = url.replace(/^data:image\/png;base64,/, "");
   fs.writeFile(filePath, base64Data, "base64", function (err) {
     if (err) {
@@ -114,7 +114,7 @@ module.exports.createVideo = ({ buffer }) => {
     "sessions",
     databaseUtility.getSessionID(),
     fileName
-  ); 
+  );
   fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
     if (err) {
       console.log(err);
@@ -244,7 +244,7 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
         "sessions",
         databaseUtility.getSessionID(),
         fileName
-      ); 
+      );
       if (item.filePath && item.filePath !== filePath) {
         fs.rename(item.filePath, filePath, function (err) {
           if (err) {
@@ -271,7 +271,7 @@ module.exports.createAudio = ({ buffer }) => {
     "sessions",
     databaseUtility.getSessionID(),
     fileName
-  ); 
+  );
   fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
     if (err) {
       console.log(err);
@@ -300,7 +300,7 @@ module.exports.updateAudio = ({ item }) => {
     "sessions",
     databaseUtility.getSessionID(),
     fileName
-  ); 
+  );
 
   if (item.filePath && item.filePath !== filePath) {
     fs.rename(item.filePath, filePath, function (err) {
@@ -335,7 +335,7 @@ module.exports.saveNote = (comment) => {
     "sessions",
     databaseUtility.getSessionID(),
     fileName
-  ); 
+  );
   fs.writeFile(filePath, comment.text, function (err) {
     if (err) {
       console.log(err);
@@ -375,7 +375,7 @@ module.exports.uploadEvidence = async () => {
     "sessions",
     databaseUtility.getSessionID(),
     fileName
-  ); 
+  );
 
   fs.copyFileSync(filePaths[0], filePath);
 
@@ -425,7 +425,7 @@ module.exports.dropFile = async (data) => {
     "sessions",
     databaseUtility.getSessionID(),
     fileName
-  ); 
+  );
 
   fs.copyFileSync(data.path, filePath);
 
@@ -500,12 +500,14 @@ const generateIDAndName = (type, uid = undefined) => {
     for (let i = 0; i < idStr.length - 5; i++) {
       fileName = `${type}-${idStr.substring(i, 5)}.${suffix}`;
       if (
-        !fs.existsSync(path.join(
-          configDir,
-          "sessions",
-          databaseUtility.getSessionID(),
-          fileName
-        ))
+        !fs.existsSync(
+          path.join(
+            configDir,
+            "sessions",
+            databaseUtility.getSessionID(),
+            fileName
+          )
+        )
       ) {
         success = true;
         break;
@@ -517,7 +519,3 @@ const generateIDAndName = (type, uid = undefined) => {
   }
   return { id, fileName };
 };
-
-function base64_encode(file) {
-  return "data:image/png;base64," + fs.readFileSync(file, "base64");
-}

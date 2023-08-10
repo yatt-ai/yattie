@@ -15,10 +15,27 @@
             dense
             :height="35"
             v-model="title"
-            hide-details="true"
             @input="updateTitle"
             :color="currentTheme.secondary"
-          ></v-text-field>
+            :loading="titleLoading"
+            :append-icon="
+              aiAssistEnabled
+                ? previousTitle
+                  ? 'mdi-robot-off-outline'
+                  : 'mdi-robot-outline'
+                : ''
+            "
+            @click:append="handleAISuggestion('title', $event)"
+          >
+            <template v-slot:progress>
+              <v-progress-linear
+                :color="currentTheme.primary"
+                absolute
+                height="5"
+                indeterminate
+              ></v-progress-linear>
+            </template>
+          </v-text-field>
         </div>
         <div class="mt-4">
           <div
@@ -41,7 +58,21 @@
               {{ $tc("caption.mind_map", 1) }}
             </v-tab>
             <v-tab-item :transition="false">
+              <v-card
+                v-if="charterLoading"
+                class="loading-wrapper"
+                outlined
+                flat
+              >
+                <v-progress-circular
+                  :color="currentTheme.primary"
+                  size="70"
+                  absolute
+                  indeterminate
+                ></v-progress-circular>
+              </v-card>
               <v-tiptap
+                v-else
                 v-model="charter.content"
                 :placeholder="$t('message.describe_test_charter')"
                 ref="charter"
@@ -60,9 +91,26 @@
                   'link',
                   'emoji',
                   'blockquote',
+                  '|',
+                  '#aiAssist',
                 ]"
                 @input="updateCharter"
               >
+                <template #aiAssist="">
+                  <v-btn
+                    v-if="aiAssistEnabled"
+                    icon
+                    small
+                    :title="$tc('caption.ai_assist', 1)"
+                    @click="handleAISuggestion('charter', $event)"
+                  >
+                    <v-icon>{{
+                      previousCharter?.content
+                        ? "mdi-robot-off-outline"
+                        : "mdi-robot-outline"
+                    }}</v-icon>
+                  </v-btn>
+                </template>
               </v-tiptap>
             </v-tab-item>
             <v-tab-item :transition="false">
@@ -102,11 +150,20 @@
           </div>
         </div>
         <div class="mt-4 pre-cond">
+          <v-card v-if="charterLoading" class="loading-wrapper" outlined flat>
+            <v-progress-circular
+              :color="currentTheme.primary"
+              size="70"
+              absolute
+              indeterminate
+            ></v-progress-circular>
+          </v-card>
           <v-tiptap
-            v-model="precondition.content"
+            v-else
+            v-model="preconditions.content"
             :placeholder="$t('message.define_required_precondition')"
             :label="$tc('caption.precondition', 1)"
-            ref="precondition"
+            ref="preconditions"
             :toolbar="[
               'headings',
               '|',
@@ -122,9 +179,26 @@
               'link',
               'emoji',
               'blockquote',
+              '|',
+              '#aiAssist',
             ]"
-            @input="updatePrecondition"
+            @input="updatePreconditions"
           >
+            <template #aiAssist="">
+              <v-btn
+                v-if="aiAssistEnabled"
+                icon
+                small
+                :title="$tc('caption.ai_assist', 1)"
+                @click="handleAISuggestion('preconditions', $event)"
+              >
+                <v-icon>{{
+                  previousPreconditions?.content
+                    ? "mdi-robot-off-outline"
+                    : "mdi-robot-outline"
+                }}</v-icon>
+              </v-btn>
+            </template>
           </v-tiptap>
         </div>
       </v-col>
@@ -139,7 +213,10 @@ import MindmapEditor from "./MindmapEditor.vue";
 import {
   DEFAULT_CHARTER_MAP_NODES,
   DEFAULT_CHARTER_MAP_CONNECTIONS,
+  AI_ENABLED_FIELDS,
 } from "../modules/constants";
+
+import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
 
 export default {
   name: "TestWrapper",
@@ -150,25 +227,52 @@ export default {
     VTextField,
     MindmapEditor,
   },
+  props: {
+    configItem: {
+      type: Object,
+      default: () => {},
+    },
+    credentialItems: {
+      type: Object,
+      default: () => {},
+    },
+  },
   data() {
     return {
       title: this.$store.state.title,
+      previousTitle: "",
+      titleLoading: false,
       charter: {
         content: this.$store.state.charter.content,
         text: this.$store.state.charter.text,
       },
+      previousCharter: {
+        content: "",
+        text: "",
+      },
+      charterLoading: false,
       mindmap: {
         nodes: DEFAULT_CHARTER_MAP_NODES,
         connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
       },
-      precondition: {
-        content: this.$store.state.precondition.content,
-        text: this.$store.state.precondition.text,
+      preconditions: {
+        content: this.$store.state.preconditions.content,
+        text: this.$store.state.preconditions.text,
       },
+      previousPreconditions: {
+        content: "",
+        text: "",
+      },
+      preconditionsLoading: false,
       duration: "",
+      config: this.configItem,
+      credentials: this.credentialItems,
     };
   },
   computed: {
+    aiAssistEnabled() {
+      return this?.config?.aiAssist || false;
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -178,6 +282,12 @@ export default {
     },
   },
   watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
+    credentialItems: function (newValue) {
+      this.credentials = newValue;
+    },
     "$store.state.title": {
       deep: true,
       handler(newValue) {
@@ -191,11 +301,11 @@ export default {
         this.charter.text = newValue.text;
       },
     },
-    "$store.state.precondition": {
+    "$store.state.preconditions": {
       deep: true,
       handler(newValue) {
-        this.precondition.content = newValue.content;
-        this.precondition.text = newValue.text;
+        this.preconditions.content = newValue.content;
+        this.preconditions.text = newValue.text;
       },
     },
     "$store.state.mindmap": {
@@ -220,10 +330,81 @@ export default {
       this.charter.text = this.charter.content.replace(regex, "");
       this.$store.commit("setCharter", this.charter);
     },
-    updatePrecondition() {
+    updatePreconditions() {
       const regex = /(<([^>]+)>)/gi;
-      this.precondition.text = this.precondition.content.replace(regex, "");
-      this.$store.commit("setPrecondition", this.precondition);
+      this.preconditions.text = this.preconditions.content.replace(regex, "");
+      this.$store.commit("setPrecondition", this.preconditions);
+    },
+    async handleAISuggestion(field, event) {
+      if (
+        (this[field]?.trim && this[field]?.trim()) ||
+        this[field]?.content?.trim()
+      ) {
+        let button = event.srcElement;
+        let enable = true;
+        let previousField =
+          "previous" + field[0].toUpperCase() + field.substring(1);
+        if (button.classList.contains("mdi-robot-off-outline")) {
+          enable = false;
+        }
+
+        if (enable) {
+          if (AI_ENABLED_FIELDS[field].type === "textField") {
+            this[previousField] = this[field];
+          } else {
+            this[previousField] = Object.assign({}, this[field]);
+          }
+          this[field + "Loading"] = true;
+          let response = await openAIIntegrationHelper.enhanceText(
+            this.credentials,
+            this.config,
+            field,
+            this[field]
+          );
+          if (response.error) {
+            enable = false;
+            if (AI_ENABLED_FIELDS[field].type === "textField") {
+              this[previousField] = "";
+            } else {
+              this[previousField] = {
+                content: "",
+                text: "",
+              };
+            }
+            this.$root.$emit(
+              "set-snackbar",
+              `${this.$tc("message.please_try_again", 1)} ${this.$tc(
+                "message.error",
+                1
+              )}: ${response.error}`
+            );
+          } else {
+            if (AI_ENABLED_FIELDS[field].type === "textField") {
+              this[field] = response.content;
+            } else {
+              this[field].content = response.content;
+            }
+          }
+          this[AI_ENABLED_FIELDS[field].callback]();
+          this[field + "Loading"] = false;
+        } else {
+          this[field] = this[previousField];
+          this[previousField] = "";
+        }
+
+        if (enable) {
+          button.classList.remove("mdi-robot-outline");
+          button.classList.add("mdi-robot-off-outline");
+        } else {
+          button.classList.remove("mdi-robot-off-outline");
+          button.classList.add("mdi-robot-outline");
+        }
+      } else {
+        this.$root.$emit(
+          "set-snackbar",
+          this.$tc("message.ai_assist_not_empty", 1)
+        );
+      }
     },
     handleDuration() {
       const timeArr = this.duration.split(":");
@@ -267,6 +448,21 @@ export default {
 };
 </script>
 
+<style>
+.v-icon.mdi.theme--light.mdi-robot-off-outline {
+  color: rgba(255, 0, 0, 0.6) !important;
+}
+.v-icon.mdi.theme--dark.mdi-robot-off-outline {
+  color: rgba(255, 0, 0, 1) !important;
+}
+.loading-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 250px;
+}
+</style>
 <style scoped>
 .timer-box-wrapper {
   display: flex;

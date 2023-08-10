@@ -22,7 +22,7 @@ export default new Vuex.Store({
       nodes: DEFAULT_CHARTER_MAP_NODES,
       connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
     },
-    precondition: {
+    preconditions: {
       content: "",
       text: "",
     },
@@ -60,8 +60,8 @@ export default new Vuex.Store({
       });
     },
     setPrecondition(state, payload) {
-      state.precondition.content = payload.content;
-      state.precondition.text = payload.text;
+      state.preconditions.content = payload.content;
+      state.preconditions.text = payload.text;
       window.ipc.invoke(IPC_HANDLERS.DATABASE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
@@ -123,7 +123,7 @@ export default new Vuex.Store({
         content: "",
         text: "",
       };
-      state.precondition = {
+      state.preconditions = {
         content: "",
         text: "",
       };
@@ -165,8 +165,8 @@ export default new Vuex.Store({
         payload?.mindmap?.nodes || DEFAULT_CHARTER_MAP_NODES;
       state.mindmap.connections =
         payload?.mindmap?.connections || DEFAULT_CHARTER_MAP_CONNECTIONS;
-      state.precondition.content = payload?.precondition?.content || "";
-      state.precondition.text = payload?.precondition?.text || "";
+      state.preconditions.content = payload?.preconditions?.content || "";
+      state.preconditions.text = payload?.preconditions?.text || "";
       state.status = payload.status;
       state.timer = payload.timer;
       state.duration = payload.duration;
