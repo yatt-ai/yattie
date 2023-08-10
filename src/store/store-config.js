@@ -5,7 +5,7 @@ export default {
   state: {
     title: "",
     charter: "",
-    precondition: "",
+    preconditions: "",
     duration: 0,
     status: SESSION_STATUSES.PENDING,
     timer: 0,
@@ -22,7 +22,7 @@ export default {
       state.charter = payload;
     },
     setPrecondition(state, payload) {
-      state.precondition = payload;
+      state.preconditions = payload;
     },
     setDuration(state, payload) {
       state.duration = payload;
@@ -44,7 +44,7 @@ export default {
     resetState(state) {
       state.title = "";
       state.charter = "";
-      state.precondition = "";
+      state.preconditions = "";
       state.status = SESSION_STATUSES.PENDING;
       state.timer = 0;
       state.duration = 0;

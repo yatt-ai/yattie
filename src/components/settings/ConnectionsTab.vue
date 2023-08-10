@@ -36,7 +36,7 @@
           </div>
           <div class="flex-grow-0">
             <v-switch
-              v-model="setting.useLocal"
+              v-model="config.useLocal"
               inset
               hide-details
               dense
@@ -133,19 +133,19 @@ export default {
   name: "ConnectionsTab",
   components: {},
   props: {
-    config: {
+    configItem: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
-    config: function (newValue) {
-      this.setting = newValue;
+    configItem: function (newValue) {
+      this.config = newValue;
     },
   },
   data() {
     return {
-      setting: this.config,
+      config: this.configItem,
       row: null,
       color: "#1976D2FF",
       mask: "!#XXXXXXXX",

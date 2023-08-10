@@ -13,24 +13,24 @@ export default {
   name: "SupportTab",
   components: {},
   props: {
-    config: {
+    configItem: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
-    config: function (newValue) {
-      this.setting = newValue;
+    configItem: function (newValue) {
+      this.config = newValue;
     },
   },
   data() {
     return {
-      settings: this.config,
+      config: this.configItem,
     };
   },
   methods: {
     handleConfig() {
-      this.$emit("submit-config", this.settings);
+      this.$emit("submit-config", this.config);
     },
   },
 };

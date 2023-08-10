@@ -8,19 +8,30 @@
       <v-container class="oauth-credentials-wrapper">
         <v-row>
           <v-col cols="12">
-            <div v-for="(credential, i) in serverOAuthCredentials" :key="i">
+            <div v-if="serverOAuthCredentials.length > 0">
+              <div v-for="(credential, i) in serverOAuthCredentials" :key="i">
+                <v-card>
+                  <div class="caption label-text">
+                    <strong>{{ $tc("caption.instance_url", 1) }}</strong>
+                    : {{ credential.url }}
+                  </div>
+                  <div class="caption label-text">
+                    <strong>{{ $tc("caption.client_id", 1) }}</strong>
+                    : {{ credential.clientId }}
+                  </div>
+                  <div class="caption label-text">
+                    <strong>{{ $tc("caption.client_secret", 1) }}</strong>
+                    : {{ credential.clientSecret }}
+                  </div>
+                </v-card>
+              </div>
+            </div>
+            <div v-else>
               <v-card>
                 <div class="caption label-text">
-                  <strong>{{ $tc("caption.instance_url", 1) }}</strong>
-                  : {{ credential.url }}
-                </div>
-                <div class="caption label-text">
-                  <strong>{{ $tc("caption.client_id", 1) }}</strong>
-                  : {{ credential.clientId }}
-                </div>
-                <div class="caption label-text">
-                  <strong>{{ $tc("caption.client_secret", 1) }}</strong>
-                  : {{ credential.clientSecret }}
+                  <strong>
+                    {{ $tc("caption.no_server_oauth_creds", 1) }}
+                  </strong>
                 </div>
               </v-card>
             </div>

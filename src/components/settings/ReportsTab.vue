@@ -19,7 +19,7 @@
           </div>
           <div class="flex-grow-0">
             <v-switch
-              v-model="setting.summary"
+              v-model="config.summary"
               inset
               hide-details
               dense
@@ -38,14 +38,14 @@ export default {
   name: "ReportsTab",
   components: {},
   props: {
-    config: {
+    configItem: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
-    config: function (newValue) {
-      this.setting = newValue;
+    configItem: function (newValue) {
+      this.config = newValue;
     },
   },
   computed: {
@@ -59,12 +59,12 @@ export default {
   },
   data() {
     return {
-      setting: this.config,
+      config: this.configItem,
     };
   },
   methods: {
     handleConfig() {
-      this.$emit("submit-config", this.setting);
+      this.$emit("submit-config", this.config);
     },
   },
 };

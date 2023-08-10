@@ -367,7 +367,7 @@
           </div>
           <div class="detail-item pre-condition">
             <p class="item-title">{{ $tc("caption.precondition", 1) }}</p>
-            <div class="item-value" v-html="this.precondition.content"></div>
+            <div class="item-value" v-html="this.preconditions.content"></div>
           </div>
           <div class="detail-item session-time">
             <p class="item-title">{{ $tc("caption.configured_time", 1) }}</p>
@@ -435,7 +435,7 @@ export default {
       textTypes: TEXT_TYPES,
       title: "",
       charter: "",
-      precondition: "",
+      preconditions: "",
       timer: 0,
       duration: 0,
       os: "Unknown OS",
@@ -455,7 +455,7 @@ export default {
     window.ipc.on("ACTIVE_PDF", (data) => {
       this.title = data.title;
       this.charter = data.charter;
-      this.precondition = data.precondition;
+      this.preconditions = data.preconditions;
       this.timer = data.timer;
       this.duration = data.duration;
     });
