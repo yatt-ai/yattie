@@ -195,7 +195,7 @@ module.exports.initializeSession = () => {
   // TODO - Migrations for config files
   //        Right now, it just overwrites.
   if (configVersion !== currentVersion) {
-    let newMeta = metaDb.get("meta");
+    let newMeta = this.getMetadata() || defaultMeta;
     newMeta.version = currentVersion;
     configVersion = currentVersion;
     for (const [key, value] of Object.entries(newMeta)) {
