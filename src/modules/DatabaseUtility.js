@@ -13,7 +13,7 @@ const jsonDbConfig = {
 
 const currentVersion = app.getVersion();
 
-let metaDb, configDb, credentialDb, dataDb, configVersion;
+let metaDb, configDb, credentialDb, dataDb;
 let browserWindow;
 
 module.exports.initializeSession = () => {
@@ -36,7 +36,7 @@ module.exports.initializeSession = () => {
     version: currentVersion,
   };
 
-  const config = {
+  const defaultConfig = {
     useLocal: true,
     apperance: "light",
     showIssue: false,
@@ -113,66 +113,108 @@ module.exports.initializeSession = () => {
         status: false,
       },
     },
+    version: currentVersion,
+  };
+
+  const defaultCredentials = {
+    version: currentVersion,
   };
 
   metaDb = new JSONdb(path.join(configDir, "meta.json"), jsonDbConfig);
-  let metaPath = {
-    version: currentVersion,
+
+  const fileMeta = applyMigrations(
+    "meta",
+    currentVersion,
+    metaDb.get("meta")
+  );
+  const metaData = {
+    ...defaultMeta,
+    ...fileMeta,
   };
-  if (metaDb.has("meta")) {
-    metaPath = metaDb.get("meta");
-  }
 
-  if (!metaPath.configPath) {
-    metaPath.configPath = defaultMeta.configPath;
-  }
-  configDb = new JSONdb(metaPath.configPath, jsonDbConfig);
+  // CTODO remove comments
+  //if (metaDb.has("meta")) {
+  //  metaData = metaDb.get("meta");
+  //}
 
-  if (!metaPath.credentialsPath) {
-    metaPath.credentialsPath = defaultMeta.credentialsPath;
-  }
-  credentialDb = new JSONdb(metaPath.credentialsPath, jsonDbConfig);
+  //if (!metaData.configPath) {
+  //  metaData.configPath = defaultMeta.configPath;
+  //}
+  configDb = new JSONdb(metaData.configPath, jsonDbConfig);
 
-  if (!metaPath.dataPath) {
-    metaPath.dataPath = defaultMeta.dataPath;
-  }
-  dataDb = new JSONdb(metaPath.dataPath, jsonDbConfig);
+  //if (!metaData.credentialsPath) {
+  //  metaData.credentialsPath = defaultMeta.credentialsPath;
+  //}
+  credentialDb = new JSONdb(metaData.credentialsPath, jsonDbConfig);
 
-  if (metaPath.version) {
-    configVersion = metaPath.version;
-  } else {
-    configVersion = "";
-  }
+  //if (!metaData.dataPath) {
+  //  metaData.dataPath = defaultMeta.dataPath;
+  //}
+  dataDb = new JSONdb(metaData.dataPath, jsonDbConfig);
 
   try {
-    metaDb.set("meta", metaPath);
+    metaDb.set("meta", metaData);
 
-    if (!configDb.has("config") || !configDb.get("config").checklist) {
-      configDb.set("config", config);
-    }
+    //if (!configDb.has("config") || !configDb.get("config").checklist) {
+    const fileConfig = applyMigrations(
+      "config",
+      currentVersion,
+      configDb.get("config")
+    );
+    configDb.set("config", {
+      ...defaultConfig,
+      ...fileConfig,
+    );
+    //}
 
-    if (!credentialDb.has("credentials")) {
-      credentialDb.set("credentials", {});
-    }
+    //if (!credentialDb.has("credentials")) {
+    const fileCredentials = applyMigrations(
+      "credentials",
+      currentVersion,
+      credentialDb.get("credentials")
+    );
+    credentialDb.set("credentials", {
+      ...defaultCredentials,
+      ...fileCredentials,
+    );
+    //  credentialDb.set("credentials", { version: currentVersion });
+    //}
 
+    // CTODO - allow recovery of current file
     dataDb.set("id", uuidv4());
     dataDb.set("items", []);
     dataDb.set("notes", {
       content: "",
       text: "",
     });
+    dataDb.set("version", currentVersion);
   } catch (error) {
     console.log(error);
   }
 
-  // TODO - Migrations for config files
-  //        Right now, it just overwrites.
-  if (configVersion !== currentVersion) {
-    let newMeta = metaDb.get("meta");
-    newMeta.version = currentVersion;
-    configVersion = currentVersion;
-    metaDb.set("meta", newMeta);
+};
+
+const applyMigrations = (type, newVersion, data) => {
+  if ( newVersion === data?.version ) {
+    return data;
   }
+
+// Split newVersion and data.version to compare
+
+// let direction = "up";
+// List files in order and determine which apply between the two versions
+// if data.version > newVersion then order files in DESC - direction = "down";
+// else order files in ASC
+
+// let migratedData = Object.assign(data, {});
+// for each migration file
+  // for each key, value in migration[direction][type]
+    // migratedData[value] = migratedData[key];
+    // delete migratedData[key];
+    /// CTODO handle subkeys!!!
+
+// return migratedData;
+
 };
 
 const createSessionDirectory = () => {

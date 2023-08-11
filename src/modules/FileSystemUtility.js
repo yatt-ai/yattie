@@ -180,7 +180,7 @@ module.exports.openSession = async () => {
   if (canceled) {
     return Promise.resolve({
       status: STATUSES.ERROR,
-      message: "no file selected",
+      message: "no file selected", // TODO i18n
     });
   }
 
@@ -196,12 +196,13 @@ module.exports.openSession = async () => {
     );
     const encoded = fs.readFileSync(metaPath, "utf8");
     const metadata = JSON.parse(Buffer.from(encoded, "hex").toString());
+    // CTODO - convert for migrations before updating on all data
     databaseUtility.updateItems(metadata.sessions);
     delete metadata.sessions;
 
     return Promise.resolve({
       status: STATUSES.SUCCESS,
-      message: "Session extracted successfully",
+      message: "Session extracted successfully", // TODO i18n
       metadata: metadata,
     });
   } catch (err) {
