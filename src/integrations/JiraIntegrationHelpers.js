@@ -129,7 +129,7 @@ export default {
       })
       .catch((error) => {
         returnResponse.error = {
-          message: error.message,
+          message: JSON.stringify(error.response.data.errors),
         };
 
         if (
@@ -168,7 +168,7 @@ export default {
         })
         .catch((error) => {
           returnResponse.error = {
-            message: error.message,
+            message: JSON.stringify(error.response.data.errors),
           };
 
           if (
@@ -226,7 +226,7 @@ export default {
       })
       .catch((error) => {
         returnResponse.error = {
-          message: error.message,
+          message: JSON.stringify(error.response.data.errors),
         };
 
         if (
@@ -261,7 +261,7 @@ export default {
       })
       .catch((error) => {
         returnResponse.error = {
-          message: error.message,
+          message: JSON.stringify(error.response.data.errors),
         };
 
         if (
@@ -328,7 +328,7 @@ export default {
       })
       .catch((error) => {
         returnResponse.error = {
-          message: error.message,
+          message: JSON.stringify(error.response.data.errors),
         };
 
         if (
@@ -359,7 +359,7 @@ export default {
     let returnResponse = {};
     await axios.post(url, formData, options).catch((error) => {
       returnResponse.error = {
-        message: error.message,
+        message: JSON.stringify(error.response.data.errors),
       };
 
       if (
@@ -403,7 +403,7 @@ export default {
       })
       .catch((error) => {
         returnResponse.error = {
-          message: error.message,
+          message: JSON.stringify(error.response.data.errors),
         };
 
         if (
