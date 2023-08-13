@@ -500,7 +500,7 @@ export default {
                 !thisField[0]?.required &&
                 (["number", "string"].includes(thisField[0]?.schema?.type) ||
                   (thisField[0]?.schema?.type === "array" &&
-                    thisField[0]?.schema?.items === "json")) //CTODO 
+                    thisField[0]?.schema?.items === "json")) //CTODO
               ) {
                 // Remove unrequired simple fields that haven't changed.
                 this.$delete(this.newIssue.fields, key);
