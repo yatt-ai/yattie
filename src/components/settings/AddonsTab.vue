@@ -33,7 +33,7 @@
             solo
             :rules="[rules.rightLength, rules.noAsterisk]"
             :errorMessages="customErrors"
-            :disabled="!config.aiAssist"
+            :disabled="!config.ai.enabled"
             @focus="emptyKeyOnFocus"
           >
           </v-text-field>
@@ -45,7 +45,7 @@
                 color="white"
                 class="text-capitalize"
                 :style="{ color: currentTheme.black }"
-                :disabled="!config.aiAssist"
+                :disabled="!config?.ai?.enabled"
                 @click="handleCancelOpenAIKey"
               >
                 {{ $tc("caption.cancel", 1) }}
@@ -57,7 +57,7 @@
                 block
                 color="primary"
                 class="text-capitalize"
-                :disabled="!config.aiAssist"
+                :disabled="!config?.ai?.enabled"
                 @click="handleOpenAIKey"
               >
                 {{ $tc("caption.save", 1) }}
