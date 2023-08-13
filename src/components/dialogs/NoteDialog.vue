@@ -67,7 +67,6 @@
                         ? "mdi-robot-off-outline"
                         : "mdi-robot-outline"
                     }}</v-icon>
-                    <v-icon>mdi-robot-outline</v-icon>
                   </v-btn>
                 </template>
               </v-tiptap>
