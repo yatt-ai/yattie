@@ -500,7 +500,12 @@ export default {
                 !thisField[0]?.required &&
                 (["number", "string"].includes(thisField[0]?.schema?.type) ||
                   (thisField[0]?.schema?.type === "array" &&
-                    thisField[0]?.schema?.items === "json")) //CTODO
+                    thisField[0]?.schema?.items === "json"))
+                    // This second set of parameters are to filter JIRA fields
+                    // like "Sprints" which need the data pulled from the api.
+                    // I have removed Sprints from incoming fields though, so
+                    // this may not be necessary.  But it may prevent issues
+                    // with similar fields in the future.
               ) {
                 // Remove unrequired simple fields that haven't changed.
                 this.$delete(this.newIssue.fields, key);
