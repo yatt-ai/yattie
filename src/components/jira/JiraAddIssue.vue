@@ -377,19 +377,6 @@
         </v-card>
       </v-sheet>
     </v-dialog>
-    <v-snackbar v-model="snackBar.enabled" timeout="3000">
-      {{ snackBar.message }}
-      <template v-slot:action="{ attrs }">
-        <v-btn
-          color="primary"
-          text
-          v-bind="attrs"
-          @click="snackBar.enabled = false"
-        >
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-list-item>
 </template>
 
@@ -442,14 +429,13 @@ export default {
       newIssue: {
         fields: {},
       },
+      blankIssue: {
+        fields: {},
+      },
       valid: true,
       rules: [(v) => !!v || "This field is required"],
       dateMenu: false,
       issueConfirmDialog: false,
-      snackBar: {
-        enabled: false,
-        message: "",
-      },
       fieldMappings: {
         description: {
           type: "text",
@@ -485,6 +471,9 @@ export default {
       this.newIssue = {
         fields: {},
       };
+      this.blankIssue = {
+        fields: {},
+      };
     },
     async handleSave() {
       const isValid = this.$refs.form.validate();
@@ -495,6 +484,36 @@ export default {
         const issueType = {
           id: this.issueTypeId,
         };
+
+        for (const [key, value] of Object.entries(this.newIssue.fields)) {
+          let thisField = this.issueFields.filter((field) => field.key === key);
+          if (thisField.length > 0) {
+            if (
+              thisField[0]?.schema?.type === "number" &&
+              value.constructor === String &&
+              value.length > 0
+            ) {
+              this.$set(this.newIssue.fields, key, parseFloat(value));
+            }
+            if (value === this.blankIssue.fields[key]) {
+              if (
+                !thisField[0]?.required &&
+                (["number", "string"].includes(thisField[0]?.schema?.type) ||
+                  (thisField[0]?.schema?.type === "array" &&
+                    thisField[0]?.schema?.items === "json"))
+                    // This second set of parameters are to filter JIRA fields
+                    // like "Sprints" which need the data pulled from the api.
+                    // I have removed Sprints from incoming fields though, so
+                    // this may not be necessary.  But it may prevent issues
+                    // with similar fields in the future.
+              ) {
+                // Remove unrequired simple fields that haven't changed.
+                this.$delete(this.newIssue.fields, key);
+              }
+            }
+          }
+        }
+
         this.$set(this.newIssue.fields, "project", project);
         this.$set(this.newIssue.fields, "issuetype", issueType);
         this.loading = true;
@@ -506,10 +525,10 @@ export default {
         );
         if (response?.error) {
           this.loading = false;
-          this.snackBar.enabled = true;
-          this.snackBar.message = response.error.message
+          let message = response.error.message
             ? response.error.message
             : this.$tc("message.api_error", 1);
+          this.$root.$emit("set-snackbar", message);
           if (response.error?.checkAuth) {
             this.$root.$emit("update-auth", []);
           }
@@ -559,8 +578,8 @@ export default {
           }
         }
       } else {
-        this.snackBar.enabled = true;
-        this.snackBar.message = this.$tc("message.please_fill_required", 1);
+        let message = this.$tc("message.please_fill_required", 1);
+        this.$root.$emit("set-snackbar", message);
       }
     },
     async showDialog() {
@@ -600,10 +619,10 @@ export default {
 
       this.loading = false;
       if (response?.error) {
-        this.snackBar.enabled = true;
-        this.snackBar.message = response.error.message
+        let message = response.error.message
           ? response.error.message
           : this.$tc("message.api_error", 1);
+        this.$root.$emit("set-snackbar", message);
         if (response.error?.checkAuth) {
           this.$root.$emit("update-auth", []);
         }
@@ -616,15 +635,16 @@ export default {
         this.projectId,
         this.issueTypeId
       );
-      this.newIssue = response.blankIssue;
+      this.blankIssue.fields = Object.assign({}, response.blankIssue.fields);
+      this.newIssue = Object.assign({}, response.blankIssue);
       this.issueFields = response.fieldData;
 
       this.loading = false;
       if (response?.error) {
-        this.snackBar.enabled = true;
-        this.snackBar.message = response.error.message
+        let message = response.error.message
           ? response.error.message
           : this.$tc("message.api_error", 1);
+        this.$root.$emit("set-snackbar", message);
         if (response.error?.checkAuth) {
           this.$root.$emit("update-auth", []);
         }
@@ -640,10 +660,10 @@ export default {
 
       this.userLoading = false;
       if (response?.error) {
-        this.snackBar.enabled = true;
-        this.snackBar.message = response.error.message
+        let message = response.error.message
           ? response.error.message
           : this.$tc("message.api_error", 1);
+        this.$root.$emit("set-snackbar", message);
         if (response.error?.checkAuth) {
           this.$root.$emit("update-auth", []);
         }
@@ -659,10 +679,10 @@ export default {
 
       this.issueLoading = false;
       if (response?.error) {
-        this.snackBar.enabled = true;
-        this.snackBar.message = response.error.message
+        let message = response.error.message
           ? response.error.message
           : this.$tc("message.api_error", 1);
+        this.$root.$emit("set-snackbar", message);
         if (response.error?.checkAuth) {
           this.$root.$emit("update-auth", []);
         }

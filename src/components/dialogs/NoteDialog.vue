@@ -67,7 +67,6 @@
                         ? "mdi-robot-off-outline"
                         : "mdi-robot-outline"
                     }}</v-icon>
-                    <v-icon>mdi-robot-outline</v-icon>
                   </v-btn>
                 </template>
               </v-tiptap>
@@ -281,7 +280,7 @@ export default {
   },
   computed: {
     aiAssistEnabled() {
-      return this?.config?.aiAssist || false;
+      return this?.config?.ai?.enabled || false;
     },
     currentTheme() {
       if (this.$vuetify.theme.dark) {

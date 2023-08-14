@@ -129,7 +129,7 @@ export default {
       })
       .catch((error) => {
         returnResponse.error = {
-          message: error.message,
+          message: JSON.stringify(error.response.data.errors),
         };
 
         if (
@@ -168,7 +168,7 @@ export default {
         })
         .catch((error) => {
           returnResponse.error = {
-            message: error.message,
+            message: JSON.stringify(error.response.data.errors),
           };
 
           if (
@@ -226,7 +226,7 @@ export default {
       })
       .catch((error) => {
         returnResponse.error = {
-          message: error.message,
+          message: JSON.stringify(error.response.data.errors),
         };
 
         if (
@@ -261,7 +261,7 @@ export default {
       })
       .catch((error) => {
         returnResponse.error = {
-          message: error.message,
+          message: JSON.stringify(error.response.data.errors),
         };
 
         if (
@@ -303,9 +303,14 @@ export default {
               item &&
               item.key !== "issuetype" &&
               item.key !== "project" &&
+              item.name !== "Sprint" &&
               item.schema.type !== "any" &&
               !["attachment", "issuelinks"].includes(item.schema.system)
             ) {
+              // We exclude fields we will add back in later (projects) and
+              // those that need to have options pulled from the API separately
+              // (Sprints).  We may want to renable the latter at some point
+              // and handle it in a generic way.
               returnResponse.fieldData.push(item);
               if (item.key === "reporter") {
                 const reporter = {
@@ -328,7 +333,7 @@ export default {
       })
       .catch((error) => {
         returnResponse.error = {
-          message: error.message,
+          message: JSON.stringify(error.response.data.errors),
         };
 
         if (
@@ -359,7 +364,7 @@ export default {
     let returnResponse = {};
     await axios.post(url, formData, options).catch((error) => {
       returnResponse.error = {
-        message: error.message,
+        message: JSON.stringify(error.response.data.errors),
       };
 
       if (
@@ -403,7 +408,7 @@ export default {
       })
       .catch((error) => {
         returnResponse.error = {
-          message: error.message,
+          message: JSON.stringify(error.response.data.errors),
         };
 
         if (
