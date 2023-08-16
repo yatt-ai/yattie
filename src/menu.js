@@ -74,13 +74,33 @@ const createMenu = (win) => {
     {
       label: i18n.t("menu.edit"),
       submenu: [
-        { label: i18n.t("menu.undo"), accelerator: "CmdOrCtrl+Z", role: "undo" },
-        { label: i18n.t("menu.redo"), accelerator: "CmdOrCtrl+Y", role: "redo" },
+        {
+          label: i18n.t("menu.undo"),
+          accelerator: "CmdOrCtrl+Z",
+          role: "undo",
+        },
+        {
+          label: i18n.t("menu.redo"),
+          accelerator: "CmdOrCtrl+Y",
+          role: "redo",
+        },
         { type: "separator" },
         { label: i18n.t("menu.cut"), accelerator: "CmdOrCtrl+X", role: "cut" },
-        { label: i18n.t("menu.copy"), accelerator: "CmdOrCtrl+C", role: "copy" },
-        { label: i18n.t("menu.paste"), accelerator: "CmdOrCtrl+V", role: "paste" },
-        { label: i18n.t("menu.select_all"), accelerator: "CmdOrCtrl+A", role: "selectAll" },
+        {
+          label: i18n.t("menu.copy"),
+          accelerator: "CmdOrCtrl+C",
+          role: "copy",
+        },
+        {
+          label: i18n.t("menu.paste"),
+          accelerator: "CmdOrCtrl+V",
+          role: "paste",
+        },
+        {
+          label: i18n.t("menu.select_all"),
+          accelerator: "CmdOrCtrl+A",
+          role: "selectAll",
+        },
       ],
     },
     {
