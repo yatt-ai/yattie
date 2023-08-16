@@ -25,7 +25,7 @@ databaseUtility.initializeSession();
 const startupConfig = databaseUtility.getConfig();
 if (startupConfig.devMode) {
   isDevelopment = true;
-  windowUtility.setDevMode({enabled: true});
+  windowUtility.setDevMode({ enabled: true });
 }
 
 // Scheme must be registered before the app is ready
