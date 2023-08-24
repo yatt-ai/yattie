@@ -16,7 +16,9 @@
           block
           small
           color="primary"
-          @click="quickTest()"
+          v-shortkey="quickTestHotkey"
+          @shortkey="handleQuickTest()"
+          @click="handleQuickTest()"
         >
           {{ $tc("caption.quick_test", 1) }}
         </v-btn>
@@ -28,6 +30,8 @@
           block
           small
           color="primary"
+          v-shortkey="newExploratoryHotkey"
+          @shortkey="newSession()"
           to="main"
         >
           {{ $tc("caption.new_exploratory_session", 1) }}
@@ -38,6 +42,8 @@
           color="primary"
           small
           class="mt-4 text-capitalize open-btn"
+          v-shortkey="openExploratoryHotkey"
+          @shortkey="openSession()"
           @click="openSession()"
         >
           {{ $tc("caption.open_exploratory_session", 1) }}
@@ -190,6 +196,26 @@ export default {
       showMenu: false,
     };
   },
+  computed: {
+    quickTestHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "home.quickTest",
+        this.config.hotkeys
+      );
+    },
+    newExploratoryHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "home.newExploratorySession",
+        this.config.hotkeys
+      );
+    },
+    openExploratoryHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "home.openExploratorySession",
+        this.config.hotkeys
+      );
+    },
+  },
   created() {
     this.getConfig();
     this.getCredentials();
@@ -207,9 +233,7 @@ export default {
 
     // New session
     window.ipc.on("NEW_SESSION", () => {
-      if (this.$router.history.current.path === "/") {
-        this.$router.push("/main");
-      }
+      this.newSession();
     });
   },
   methods: {
@@ -236,6 +260,11 @@ export default {
           }
         });
     },
+    async newSession() {
+      if (this.$router.history.current.path === "/") {
+        this.$router.push("/main");
+      }
+    },
     async openSession() {
       if (!window.ipc) return;
 
@@ -258,7 +287,7 @@ export default {
         }
       }
     },
-    quickTest() {
+    handleQuickTest() {
       this.$store.commit("setQuickTest", true);
       this.$router.push("/main/workspace");
     },

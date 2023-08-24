@@ -102,6 +102,46 @@ const defaultConfig = {
       status: false,
     },
   },
+  hotkeys: {
+    general: {
+      cancel: ["ctrl", "c"],
+      save: ["ctrl", "s"],
+    },
+    home: {
+      quickTest: ["ctrl", "q"],
+      newExploratorySession: ["ctrl", "e"],
+      openExploratorySession: ["ctrl", "o"],
+    },
+    sessionPlanning: {
+      title: ["ctrl", "t"],
+      charter: ["ctrl", "h"],
+      timeLimit: ["ctrl", "l"],
+      preconditions: ["ctrl", "p"],
+      checklist: ["ctrl", "e"],
+      start: "general.save",
+      back: "general.cancel",
+    },
+    workspace: {
+      pause: ["ctrl", "p"],
+      stop: "general.save",
+      video: ["ctrl", "v"],
+      screenshot: ["ctrl", "c"],
+      voice: ["ctrl", "v"],
+      note: ["ctrl", "n"],
+      mindmap: ["ctrl", "m"],
+      changeTarget: ["ctrl", "t"],
+      createIssue: ["ctrl", "i"],
+      back: "general.cancel",
+    },
+    evidence: {
+      name: ["ctrl", "n"],
+      description: ["ctrl", "d"],
+      tags: ["ctrl", "t"],
+      type: ["ctrl", "y"],
+      save: "general.save",
+      cancel: "general.cancel",
+    },
+  },
 };
 
 module.exports.initializeSession = () => {

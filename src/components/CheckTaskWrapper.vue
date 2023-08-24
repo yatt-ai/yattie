@@ -7,7 +7,13 @@
       {{ $tc("caption.checklist", 1) }}
     </div>
     <div class="list">
-      <v-form ref="form" v-model="valid" lazy-validation>
+      <v-form
+        ref="form"
+        v-model="valid"
+        lazy-validation
+        v-shortkey="config.hotkeys.sessionPlanning.checklist"
+        @shortkey="focusField('form')"
+      >
         <div class="" v-for="task in tasks" :key="task.id">
           <v-checkbox
             v-model="task.checked"
