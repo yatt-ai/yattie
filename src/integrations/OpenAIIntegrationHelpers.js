@@ -61,7 +61,6 @@ export default {
 
     credentials.openai = formattedData;
 
-    console.log(`Creds: ${JSON.stringify(credentials.openai)}`);
     window.ipc.invoke(IPC_HANDLERS.DATABASE, {
       func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
       data: credentials,

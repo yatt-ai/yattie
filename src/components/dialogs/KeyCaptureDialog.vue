@@ -43,6 +43,9 @@ export default {
   },
   computed: {
     printBindings() {
+      if (!this.$hotkeyHelper) {
+        return;
+      }
       const currentBindings = [...this.modifierKeys, this.characterKey];
       return this.$hotkeyHelper.printBindings(currentBindings);
     },
@@ -55,7 +58,7 @@ export default {
     },
   },
   mounted() {
-    if (this.$el.getAttribute("keydown-listener") !== "true") {
+    if (this.$el && this.$el.getAttribute("keydown-listener") !== "true") {
       document.addEventListener("keydown", (event) => {
         if (this.closing) return;
 
