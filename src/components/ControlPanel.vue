@@ -755,7 +755,7 @@ export default {
     DurationConfirmDialog,
     AudioErrorDialog,
     EndSessionDialog,
-    MinimizeControlWrapper,
+    //MinimizeControlWrapper,
     JiraExportSession,
     TestRailExportSession,
     JiraAddIssue,
