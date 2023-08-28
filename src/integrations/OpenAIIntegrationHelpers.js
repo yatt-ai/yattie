@@ -8,6 +8,10 @@ import {
 
 export default {
   async enhanceText(credentials, config, field, text) {
+    if (!credentials?.openai?.accessToken) {
+      return { error: "You must provide an OpenAI key in Settings > Addons." };
+    } // TODO - i18n
+
     let returnResponse = {
       content: "",
     };

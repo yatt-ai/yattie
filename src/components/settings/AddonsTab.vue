@@ -138,7 +138,6 @@ export default {
     },
     async handleOpenAIKey() {
       let validates = this.$refs.openAIKey.validate();
-      console.log(this.openAIKey);
       if (validates) {
         const date = dayjs().format("YYYY-MM-DD HH:mm:ss");
         const data = {
@@ -157,6 +156,7 @@ export default {
         );
         if (validate) {
           this.openAIKey = this.sanitizeOpenAIKey(this.credentials);
+          this.customErrors = [];
           this.$refs.openAIKey.resetValidation();
           this.$root.$emit(
             "set-snackbar",
