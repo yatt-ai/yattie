@@ -16,7 +16,11 @@
           </v-btn>
         </template>
       </v-snackbar>
-      <AboutDialog v-model="aboutDialog" :version="aboutVersion" />
+      <AboutDialog
+        v-model="aboutDialog"
+        :version="aboutVersion"
+        :configItem="config"
+      />
     </v-main>
   </v-app>
 </template>

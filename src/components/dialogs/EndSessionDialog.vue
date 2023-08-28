@@ -11,7 +11,9 @@
           <v-btn
             color="primary text-capitalize white__text"
             class="btn-end"
-            @click="endSession"
+            v-shortkey="confirmHotkey"
+            @shortkey="endSession()"
+            @click="endSession()"
           >
             {{ $tc("caption.end_session", 1) }}
           </v-btn>
@@ -19,7 +21,9 @@
             color="white text-capitalize"
             class="btn-end"
             :style="{ color: currentTheme.black }"
-            @click="cancel"
+            v-shortkey="cancelHotkey"
+            @shortkey="handleCancel()"
+            @click="handleCancel()"
           >
             {{ $tc("caption.cancel", 1) }}
           </v-btn>
@@ -37,12 +41,39 @@ export default {
     CheckTaskWrapper,
   },
   props: {
+    configItem: {
+      type: Object,
+      default: () => {},
+    },
     postSessionData: {
       type: Object,
       default: () => {},
     },
   },
+  data() {
+    return {
+      config: this.configItem,
+      showTaskError: false,
+    };
+  },
+  watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
+  },
   computed: {
+    confirmHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.save",
+        this.config.hotkeys
+      );
+    },
+    cancelHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.cancel",
+        this.config.hotkeys
+      );
+    },
     tasks() {
       return this.postSessionData ? this.postSessionData.tasks : [];
     },
@@ -53,11 +84,6 @@ export default {
         return this.$vuetify.theme.themes.light;
       }
     },
-  },
-  data() {
-    return {
-      showTaskError: false,
-    };
   },
   methods: {
     endSession: function () {
@@ -73,7 +99,7 @@ export default {
       this.showTaskError = false;
       this.$emit("proceed", true);
     },
-    cancel: function () {
+    handleCancel: function () {
       this.$emit("proceed", false);
     },
   },

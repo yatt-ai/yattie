@@ -12,6 +12,8 @@
             :color="currentTheme.primary"
             class="text-capitalize btn"
             :style="{ color: currentTheme.white }"
+            v-shortkey="confirmHotkey"
+            @shortkey="$emit('save')"
             @click="$emit('save')"
           >
             {{ $tc("caption.save", 1) }}
@@ -21,6 +23,8 @@
             :color="currentTheme.background"
             class="text-capitalize btn"
             :style="{ color: currentTheme.secondary }"
+            v-shortkey="cancelHotkey"
+            @shortkey="$emit('discard')"
             @click="$emit('discard')"
           >
             {{ $tc("caption.discard", 1) }}
@@ -38,10 +42,36 @@ export default {
     LogoWrapper,
   },
   props: {
+    configItem: {
+      type: Object,
+      default: () => {},
+    },
     title: String,
     text: String,
   },
+  data() {
+    return {
+      config: this.configItem,
+    };
+  },
+  watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
+  },
   computed: {
+    confirmHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.save",
+        this.config.hotkeys
+      );
+    },
+    cancelHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.cancel",
+        this.config.hotkeys
+      );
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;

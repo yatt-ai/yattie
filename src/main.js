@@ -5,10 +5,12 @@ import VTiptap from "@yatt-ai/vuetify-tiptap";
 import router from "./router";
 import store from "./store";
 import integrationHelpers from "./integrations/IntegrationHelpers";
+import hotkeyHelpers from "./helpers/HotkeyHelpers";
 
 import DefaultLayout from "./layouts/Default.vue";
 import MinimizeLayout from "./layouts/Minimize.vue";
 
+import VueShortkey from "vue-shortkey";
 import VueMask from "v-mask";
 import i18n from "./i18n";
 
@@ -32,6 +34,7 @@ library.add(faBookmark);
 library.add(faPlus);
 library.add(faTableList);
 
+Vue.use(VueShortkey);
 Vue.use(VTiptap);
 Vue.use(VueMask);
 
@@ -45,6 +48,8 @@ const plugins = {
   install() {
     Vue.integrationHelpers = integrationHelpers;
     Vue.prototype.$integrationHelpers = integrationHelpers;
+    Vue.hotkeyHelpers = hotkeyHelpers;
+    Vue.prototype.$hotkeyHelpers = hotkeyHelpers;
   },
 };
 Vue.use(plugins);

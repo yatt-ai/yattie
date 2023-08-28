@@ -86,7 +86,12 @@ export default {
           name: this.$tc("caption.addons", 1),
           route: `/settings/addons`,
         },
-        // { id: 7, name: this.$tc("caption.support", 1), route: `/settings/support` },
+        {
+          id: 7,
+          name: this.$tc("caption.hotkeys", 1),
+          route: `/settings/hotkeys`,
+        },
+        // { id: 8, name: this.$tc("caption.support", 1), route: `/settings/support` },
       ],
       metadata: {},
       config: {},

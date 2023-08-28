@@ -1,7 +1,15 @@
 <template>
   <v-container class="wrapper pa-0">
     <div class="top" v-if="this.status === 'pending' || $store.state.quickTest">
-      <v-btn class="text-capitalize pa-0 back-btn" plain @click="back()">
+      <v-btn
+        class="text-capitalize pa-0 back-btn"
+        plain
+        rounded
+        solid
+        v-shortkey="backHotkey"
+        @shortkey="back()"
+        @click="back()"
+      >
         <v-icon class="ma-0">mdi-chevron-left</v-icon>
         {{ $tc("caption.back", 1) }}
       </v-btn>
@@ -67,6 +75,7 @@
           <TestWrapper :config-item="config" :credential-items="credentials" />
           <CheckTaskWrapper
             v-if="showCheckList"
+            :config-item="config"
             :tasks="presession.tasks"
             type="preseesion"
           />
@@ -198,6 +207,12 @@ export default {
     });
   },
   computed: {
+    backHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "workspace.back",
+        this.config.hotkeys
+      );
+    },
     status() {
       return this.$store.state.status;
     },

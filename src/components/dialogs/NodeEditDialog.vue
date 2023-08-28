@@ -24,7 +24,9 @@
             small
             color="currentTheme.primary"
             class="text-capitalize"
-            @click="save"
+            v-shortkey="confirmHotkey"
+            @shortkey="handleSave()"
+            @click="handleSave()"
           >
             {{ $tc("caption.save", 1) }}
           </v-btn>
@@ -32,7 +34,9 @@
             small
             color="currentTheme.background"
             class="text-capitalize"
-            @click="cancel"
+            v-shortkey="cancelHotkey"
+            @shortkey="handleCancel()"
+            @click="handleCancel()"
           >
             {{ $tc("caption.cancel", 1) }}
           </v-btn>
@@ -68,6 +72,18 @@ export default {
     };
   },
   computed: {
+    confirmHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.save",
+        this.config.hotkeys
+      );
+    },
+    cancelHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.cancel",
+        this.config.hotkeys
+      );
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -77,10 +93,10 @@ export default {
     },
   },
   methods: {
-    cancel() {
+    handleCancel() {
       this.$emit("cancel");
     },
-    save() {
+    handleSave() {
       if (this.$refs.form.validate()) {
         this.$emit("save", this.text);
         this.$refs.form.reset();
