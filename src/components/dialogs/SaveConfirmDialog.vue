@@ -11,7 +11,9 @@
             small
             color="currentTheme.primary"
             class="text-uppercase btn"
-            @click="confirm"
+            v-shortkey="confirmHotkey"
+            @shortkey="handleConfirm()"
+            @click="handleConfirm()"
           >
             {{ $tc("ok", 1) }}
           </v-btn>
@@ -29,10 +31,30 @@ export default {
     LogoWrapper,
   },
   props: {
+    configItem: {
+      type: Object,
+      default: () => {},
+    },
     title: String,
     text: String,
   },
+  data() {
+    return {
+      config: this.configItem,
+    };
+  },
+  watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
+  },
   computed: {
+    confirmHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.save",
+        this.config.hotkeys
+      );
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -42,7 +64,7 @@ export default {
     },
   },
   methods: {
-    confirm() {
+    handleConfirm() {
       this.$emit("confirm");
     },
   },

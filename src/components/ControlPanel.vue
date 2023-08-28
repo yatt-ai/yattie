@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <div class="mini-ctrl-wrapper" v-if="viewMode === 'mini'">
-      <MinimizeControlWrapper
+      <!--<MinimizeControlWrapper
         :p-elapsed-time="elapsedTime"
         :p-status="status"
         @pause-session="pauseSession()"
@@ -9,13 +9,13 @@
         @end-session="endSession()"
         @start-record-video="startRecordVideo()"
         @stop-record-video="stopRecordVideo()"
-        @screenshot="screenshot()"
+        @screenshot="handleScreenshot()"
         @start-record-audio="startRecordAudio()"
         @stop-record-audio="stopRecordAudio()"
         @show-note-dialog="showNoteDialog()"
         @show-mindmap-dialog="addMindmap()"
         @show-source-picker="showSourcePickerDialog()"
-      />
+      />-->
     </div>
     <div className="nml-ctrl-wrapper" v-if="viewMode === 'normal'">
       <v-row class="text-center" v-if="status === 'pending'">
@@ -213,6 +213,8 @@
                 small
                 color="default"
                 v-on="on"
+                v-shortkey="pauseHotkey"
+                @shortkey="pauseSession()"
                 @click="pauseSession()"
               >
                 <img
@@ -241,6 +243,8 @@
                 small
                 color="default"
                 v-on="on"
+                v-shortkey="resumeHotkey"
+                @shortkey="resumeSession()"
                 @click="resumeSession()"
               >
                 <img
@@ -269,6 +273,8 @@
                 small
                 color="default"
                 v-on="on"
+                v-shortkey="stopHotkey"
+                @shortkey="endSession()"
                 @click="endSession()"
               >
                 <img
@@ -296,8 +302,10 @@
                 outlined
                 small
                 color="default"
-                v-on="on"
                 :disabled="status === 'pause'"
+                v-on="on"
+                v-shortkey="startVideoHotkey"
+                @shortkey="startRecordVideo()"
                 @click="startRecordVideo()"
               >
                 <img
@@ -325,8 +333,10 @@
                 outlined
                 small
                 color="default"
-                v-on="on"
                 :disabled="status === 'pause'"
+                v-on="on"
+                v-shortkey="stopVideoHotkey"
+                @shortkey="stopRecordVideo()"
                 @click="stopRecordVideo()"
               >
                 <img
@@ -356,7 +366,9 @@
                 color="default"
                 :disabled="status === 'pause'"
                 v-on="on"
-                @click="screenshot()"
+                v-shortkey="screenshotHotkey"
+                @shortkey="handleScreenshot()"
+                @click="handleScreenshot()"
               >
                 <img
                   v-if="$vuetify.theme.dark === false"
@@ -383,8 +395,10 @@
                 outlined
                 small
                 color="default"
-                v-on="on"
                 :disabled="status === 'pause'"
+                v-on="on"
+                v-shortkey="startAudioHotkey"
+                @shortkey="startRecordAudio()"
                 @click="startRecordAudio()"
               >
                 <img
@@ -404,6 +418,7 @@
             <span>{{ $tc("caption.start_audio_record", 1) }}</span>
           </v-tooltip>
           <v-tooltip top v-if="recordAudioStarted">
+            <!-- CTODO test same binding for start/stop -->
             <template v-slot:activator="{ on }">
               <v-btn
                 id="btn_stop_record_audio"
@@ -414,6 +429,8 @@
                 color="default"
                 v-on="on"
                 :disabled="status === 'pause'"
+                v-shortkey="stopAudioHotkey"
+                @shortkey="stopRecordAudio()"
                 @click="stopRecordAudio()"
               >
                 <img
@@ -445,7 +462,9 @@
                 color="default"
                 :disabled="status === 'pause'"
                 v-on="on"
-                @click="showNoteDialog"
+                v-shortkey="noteHotkey"
+                @shortkey="showNoteDialog()"
+                @click="showNoteDialog()"
               >
                 <img
                   v-if="$vuetify.theme.dark === false"
@@ -473,7 +492,9 @@
                 color="default"
                 :disabled="status === 'pause'"
                 v-on="on"
-                @click="addMindmap"
+                v-shortkey="mindmapHotkey"
+                @shortkey="addMindmap()"
+                @click="addMindmap()"
               >
                 <img
                   v-if="$vuetify.theme.dark === false"
@@ -491,7 +512,7 @@
             </template>
             <span>{{ $tc("caption.mind_map", 1) }}</span>
           </v-tooltip>
-          <v-tooltip top>
+          <!--<v-tooltip top>
             <template v-slot:activator="{ on }">
               <v-btn
                 class="control-btn mx-1"
@@ -517,7 +538,7 @@
               </v-btn>
             </template>
             <span>{{ $tc("caption.minimize", 1) }}</span>
-          </v-tooltip>
+          </v-tooltip>-->
           <v-menu offset-y>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
@@ -529,6 +550,8 @@
                 color="default"
                 v-on="on"
                 v-bind="attrs"
+                v-shortkey="changeSourceHotkey"
+                @shortkey="showSourcePickerDialog()"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-dots-vertical
@@ -538,7 +561,7 @@
             </template>
             <v-list>
               <v-list-item
-                @click="showSourcePickerDialog"
+                @click="showSourcePickerDialog()"
                 :disabled="
                   status === 'pause' || recordVideoStarted || recordAudioStarted
                 "
@@ -554,11 +577,14 @@
           cols="12"
           class="d-flex justify-center px-0 pt-0"
           v-if="this.credentials.jira && this.credentials.jira.length > 0"
+          v-shortkey="createIssueHotkey"
+          @shortkey="openIssueMenu"
         >
           <v-menu
             top
             :offset-y="true"
             :close-on-content-click="false"
+            ref="issueMenu"
             v-model="issueCreateDestinationMenu"
           >
             <template v-slot:activator="{ on: issueCreateDestinationMenu }">
@@ -609,59 +635,67 @@
         :sources="sources"
         :sourceId="sourceId"
         :loaded="loaded"
+        :configItem="config"
         @submit-source="startSession"
       />
       <NoteDialog
         v-model="noteDialog"
-        @submit-note="addNote"
         :configItem="config"
         :credentialItems="credentials"
+        @submit-note="addNote"
       />
       <SummaryDialog
         v-model="summaryDialog"
-        @submit-summary="addSummary"
         :configItem="config"
         :credentialItems="credentials"
         :summary="summary"
+        @submit-summary="addSummary"
       />
       <DeleteConfirmDialog
         v-model="deleteConfirmDialog"
         :text="$t('message.confirm_delete')"
+        :configItem="config"
         @confirm="deleteItems"
         @cancel="deleteConfirmDialog = false"
       />
       <ResetConfirmDialog
         v-model="resetConfirmDialog"
         :text="$t('message.confirm_reset')"
+        :configItem="config"
         @confirm="resetSession"
         @cancel="resetConfirmDialog = false"
       />
       <SaveConfirmDialog
         v-model="saveConfirmDialog"
         :text="$t('message.confirm_session_saved')"
+        :configItem="config"
         @confirm="saveConfirmDialog = false"
       />
       <NewSessionDialog
         v-model="newSessionDialog"
         :text="$t('message.confirm_save_progress')"
+        :configItem="config"
         @save="saveSession(callback)"
         @discard="discardSession(callback)"
       />
       <DurationConfirmDialog
         v-model="durationConfirmDialog"
         :text="$t('message.confirm_proceed_session_time')"
+        :configItem="config"
         @end="end"
         @proceed="proceed"
       />
       <AudioErrorDialog
         v-model="audioErrorDialog"
         :text="$t('message.error_recording_audio')"
+        :configItem="config"
         @cancel="audioErrorDialog = false"
       />
       <EndSessionDialog
         v-model="endSessionDialog"
-        @proceed="closeEndSessionDialog"
+        :configItem="config"
         :post-session-data="postSessionData"
+        @proceed="closeEndSessionDialog"
       />
     </div>
   </v-container>
@@ -681,7 +715,7 @@ import NewSessionDialog from "./dialogs/NewSessionDialog.vue";
 import DurationConfirmDialog from "./dialogs/DurationConfirmDialog.vue";
 import AudioErrorDialog from "./dialogs/AudioErrorDialog.vue";
 import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
-import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
+//import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
 
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
@@ -806,6 +840,78 @@ export default {
     },
   },
   computed: {
+    pauseHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "workspace.pause",
+        this.config.hotkeys
+      );
+    },
+    resumeHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "workspace.resume",
+        this.config.hotkeys
+      );
+    },
+    stopHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "workspace.stop",
+        this.config.hotkeys
+      );
+    },
+    startVideoHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "workspace.videoStart",
+        this.config.hotkeys
+      );
+    },
+    stopVideoHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "workspace.videoStop",
+        this.config.hotkeys
+      );
+    },
+    screenshotHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "workspace.screenshot",
+        this.config.hotkeys
+      );
+    },
+    startAudioHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "workspace.audioStart",
+        this.config.hotkeys
+      );
+    },
+    stopAudioHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "workspace.audioStop",
+        this.config.hotkeys
+      );
+    },
+    noteHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "workspace.note",
+        this.config.hotkeys
+      );
+    },
+    mindmapHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "workspace.mindmap",
+        this.config.hotkeys
+      );
+    },
+    changeSourceHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "workspace.changeSource",
+        this.config.hotkeys
+      );
+    },
+    createIssueHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "workspace.createIssue",
+        this.config.hotkeys
+      );
+    },
     postSessionData() {
       if (this.config.checklist) return this.config.checklist.postsession;
       else return {};
@@ -921,6 +1027,15 @@ export default {
     this.timer = 0;
   },
   methods: {
+    openIssueMenu() {
+      this.issueCreateDestinationMenu = true;
+      setTimeout(() => {
+        this.$refs.issueMenu.$children
+          .slice(-1)[0]
+          ?.$el.querySelector(".v-list-item")
+          .focus();
+      }, 150); // TODO - this is probably prone to race conditions
+    },
     bindIPCEvent() {
       if (!window.ipc) return;
 
@@ -990,6 +1105,7 @@ export default {
       if (!this.checkedStatusOfPreSessionTask) {
         return;
       }
+      this.clearSession();
       this.$store.commit("setQuickTest", false);
       this.showSourcePickerDialog();
     },
@@ -1252,7 +1368,7 @@ export default {
       this.changeSessionStatus(this.status);
       this.$store.commit("setStatus", this.status);
     },
-    screenshot() {
+    handleScreenshot() {
       this.fetchSources().then((data) => {
         const list = data.filter((v) => v.id === this.sourceId);
         if (list.length === 0) {

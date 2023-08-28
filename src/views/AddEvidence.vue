@@ -71,7 +71,11 @@
             </v-card>
           </v-menu>
         </div>
-        <div class="check-box">
+        <div
+          class="check-box"
+          v-shortkey="followUpHotkey"
+          @shortkey="toggleFollowUp()"
+        >
           <label
             ><input
               type="checkbox"
@@ -79,19 +83,24 @@
               class="item-select"
               v-model="followUp"
               :disabled="processing"
-              @change="handleFollowUp($event)"
             />{{ $tc("caption.required_follow_up", 1) }}
           </label>
         </div>
-        <v-text-field
-          name="name"
-          color="secondary"
-          :label="$tc('caption.filename', 1)"
-          v-model="name"
-          :suffix="fileSuffix"
-          :disabled="processing"
-          @input="handleName"
-        />
+        <div
+          v-shortkey="nameHotkey"
+          @shortkey="$hotkeyHelpers.focusField($refs, 'nameTextField')"
+        >
+          <v-text-field
+            name="name"
+            color="secondary"
+            :label="$tc('caption.filename', 1)"
+            v-model="name"
+            :suffix="fileSuffix"
+            :disabled="processing"
+            ref="nameTextField"
+            @input="handleName"
+          />
+        </div>
         <v-card v-if="commentLoading" class="loading-wrapper" outlined flat>
           <v-progress-circular
             :color="currentTheme.primary"
@@ -100,63 +109,79 @@
             indeterminate
           ></v-progress-circular>
         </v-card>
-        <v-tiptap
+        <div
           v-else
-          v-model="comment.content"
-          :placeholder="$t('message.insert_comment')"
-          ref="comment"
-          :toolbar="[
-            'headings',
-            '|',
-            'bold',
-            'italic',
-            'underline',
-            '|',
-            'color',
-            '|',
-            'bulletList',
-            'orderedList',
-            '|',
-            'link',
-            'emoji',
-            'blockquote',
-            '|',
-            '#aiAssist',
-          ]"
-          @input="updateComment"
+          v-shortkey="commentHotkey"
+          @shortkey="$hotkeyHelpers.focusField($refs, 'comment')"
         >
-          <template #aiAssist="">
-            <v-btn
-              v-if="aiAssistEnabled"
-              icon
-              small
-              :title="$tc('caption.ai_assist', 1)"
-              @click="handleAISuggestion('comment', $event)"
-            >
-              <v-icon>{{
-                previousComment?.content
-                  ? "mdi-robot-off-outline"
-                  : "mdi-robot-outline"
-              }}</v-icon>
-            </v-btn>
-          </template>
-        </v-tiptap>
-        <vue-tags-input
-          class="input-box"
-          v-model="tagText"
-          :tags="tags"
-          label="Tags"
-          :max-tags="10"
-          :maxlength="20"
-          @tags-changed="handleTags"
-          :placeholder="$t('message.insert_tag')"
-          :disabled="processing"
-        />
+          <v-tiptap
+            v-model="comment.content"
+            :placeholder="$t('message.insert_comment')"
+            ref="comment"
+            :toolbar="[
+              'headings',
+              '|',
+              'bold',
+              'italic',
+              'underline',
+              '|',
+              'color',
+              '|',
+              'bulletList',
+              'orderedList',
+              '|',
+              'link',
+              'emoji',
+              'blockquote',
+              '|',
+              '#aiAssist',
+            ]"
+            @input="updateComment"
+          >
+            <template #aiAssist="">
+              <v-btn
+                v-if="aiAssistEnabled"
+                icon
+                small
+                :title="$tc('caption.ai_assist', 1)"
+                @click="handleAISuggestion('comment', $event)"
+              >
+                <v-icon>{{
+                  previousComment?.content
+                    ? "mdi-robot-off-outline"
+                    : "mdi-robot-outline"
+                }}</v-icon>
+              </v-btn>
+            </template>
+          </v-tiptap>
+        </div>
+        <div
+          v-shortkey="tagsHotkey"
+          @shortkey="$hotkeyHelpers.focusField($refs, 'tags')"
+        >
+          <vue-tags-input
+            ref="tags"
+            class="input-box"
+            v-model="tagText"
+            :tags="tags"
+            label="Tags"
+            :max-tags="10"
+            :maxlength="20"
+            @tags-changed="handleTags"
+            :placeholder="$t('message.insert_tag')"
+            :disabled="processing"
+          />
+        </div>
         <div class="comment-type">
-          <div :style="{ color: currentTheme.secondary }">
+          <div
+            :style="{ color: currentTheme.secondary }"
+            v-shortkey="typeHotkey"
+            @shortkey="openCommentType()"
+          >
             {{ $tc("caption.comment_type", 1) }}
           </div>
           <v-select
+            ref="commentType"
             :items="commentTypes"
             v-model="comment.type"
             :placeholder="$tc('caption.comment_type', 1)"
@@ -187,7 +212,9 @@
           color="white"
           :disabled="processing"
           :style="{ color: currentTheme.black }"
-          @click="handleDiscard"
+          v-shortkey="cancelHotkey"
+          @shortkey="handleDiscard()"
+          @click="handleDiscard()"
         >
           {{ $tc("caption.discard", 1) }}
         </v-btn>
@@ -197,7 +224,9 @@
           small
           color="primary"
           :disabled="processing"
-          @click="handleSave"
+          v-shortkey="saveHotkey"
+          @shortkey="handleSave()"
+          @click="handleSave()"
         >
           {{ $tc("caption.save", 1) }}
         </v-btn>
@@ -265,6 +294,48 @@ export default {
     this.getCredentials();
   },
   computed: {
+    nameHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "evidence.name",
+        this.config.hotkeys
+      );
+    },
+    followUpHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "evidence.followUp",
+        this.config.hotkeys
+      );
+    },
+    commentHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "evidence.comment",
+        this.config.hotkeys
+      );
+    },
+    tagsHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "evidence.tags",
+        this.config.hotkeys
+      );
+    },
+    typeHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "evidence.type",
+        this.config.hotkeys
+      );
+    },
+    saveHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "evidence.save",
+        this.config.hotkeys
+      );
+    },
+    cancelHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "evidence.cancel",
+        this.config.hotkeys
+      );
+    },
     aiAssistEnabled() {
       return this?.config?.aiAssist || false;
     },
@@ -323,6 +394,16 @@ export default {
     this.$root.$on("save-data", this.saveData);
   },
   methods: {
+    toggleFollowUp() {
+      this.followUp = !this.followUp;
+    },
+    openCommentType() {
+      const input = this.$refs.commentType.$el.querySelector(
+        "input:not([type=hidden]),textarea:not([type=hidden])"
+      );
+      input.click();
+      input.focus();
+    },
     fetchItems() {
       if (!window.ipc) return;
 

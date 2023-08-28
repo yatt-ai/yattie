@@ -11,7 +11,9 @@
             small
             :color="currentTheme.primary"
             class="text-capitalize btn"
-            @click="preceed"
+            v-shortkey="proceedHotkey"
+            @shortkey="handleProceed()"
+            @click="handleProceed()"
           >
             {{ $tc("caption.proceed", 1) }}
           </v-btn>
@@ -19,7 +21,9 @@
             small
             color="currentTheme.background"
             class="text-capitalize btn"
-            @click="end"
+            v-shortkey="endHotkey"
+            @shortkey="handleEnd()"
+            @click="handleEnd()"
           >
             {{ $tc("caption.end", 1) }}
           </v-btn>
@@ -37,10 +41,36 @@ export default {
     LogoWrapper,
   },
   props: {
+    configItem: {
+      type: Object,
+      default: () => {},
+    },
     title: String,
     text: String,
   },
+  data() {
+    return {
+      config: this.configItem,
+    };
+  },
+  watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
+  },
   computed: {
+    proceedHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.save",
+        this.config.hotkeys
+      );
+    },
+    endHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.cancel",
+        this.config.hotkeys
+      );
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -50,10 +80,10 @@ export default {
     },
   },
   methods: {
-    preceed() {
+    handleProceed() {
       this.$emit("proceed");
     },
-    end() {
+    handleEnd() {
       this.$emit("end");
     },
   },

@@ -36,8 +36,10 @@
                 small
                 block
                 :color="currentTheme.primary"
-                @click="handleClose"
                 :style="{ color: currentTheme.white }"
+                v-shortkey="closeHotkey"
+                @shortkey="handleClose()"
+                @click="handleClose()"
               >
                 {{ $tc("caption.close", 1) }}
               </v-btn>
@@ -72,7 +74,18 @@ export default {
       config: this.configItem,
     };
   },
+  watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
+  },
   computed: {
+    closeHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.cancel",
+        this.config.hotkeys
+      );
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;

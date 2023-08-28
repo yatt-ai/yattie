@@ -6,14 +6,12 @@
     >
       {{ $tc("caption.checklist", 1) }}
     </div>
-    <div class="list">
-      <v-form
-        ref="form"
-        v-model="valid"
-        lazy-validation
-        v-shortkey="config.hotkeys.sessionPlanning.checklist"
-        @shortkey="focusField('form')"
-      >
+    <div
+      class="list"
+      v-shortkey="checklistHotkey"
+      @shortkey="$hotkeyHelpers.focusField($refs, 'form')"
+    >
+      <v-form ref="form" v-model="valid" lazy-validation>
         <div class="" v-for="task in tasks" :key="task.id">
           <v-checkbox
             v-model="task.checked"
@@ -39,6 +37,10 @@
 export default {
   name: "CheckTaskWrapper",
   props: {
+    configItem: {
+      type: Object,
+      default: () => {},
+    },
     tasks: {
       type: Array,
       default: () => [],
@@ -51,6 +53,7 @@ export default {
   data() {
     return {
       valid: true,
+      config: this.configItem,
     };
   },
   mounted() {
@@ -59,12 +62,23 @@ export default {
     });
   },
   computed: {
+    checklistHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "sessionPlanning.checklist",
+        this.config.hotkeys
+      );
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
       } else {
         return this.$vuetify.theme.themes.light;
       }
+    },
+  },
+  watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
     },
   },
   methods: {
@@ -76,10 +90,11 @@ export default {
       }
     },
     handleValidate() {
-      const isValid = this.$refs.form.validate();
-      if (!isValid) {
-        const el = document.querySelector(".v-messages__wrapper:first-of-type");
-        el.scrollIntoView();
+      if (this.$refs.form) {
+        const isValid = this.$refs.form.validate();
+        if (!isValid) {
+          this.$refs.form.$el.scrollIntoView();
+        }
       }
     },
   },

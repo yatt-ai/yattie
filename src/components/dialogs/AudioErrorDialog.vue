@@ -11,7 +11,9 @@
             small
             :color="currentTheme.primary"
             class="text-capitalize"
-            @click="cancel"
+            v-shortkey="cancelHotkey"
+            @shortkey="handleCancel()"
+            @click="handleCancel()"
           >
             {{ $tc("caption.ok", 1) }}
           </v-btn>
@@ -29,10 +31,30 @@ export default {
     LogoWrapper,
   },
   props: {
+    configItem: {
+      type: Object,
+      default: () => {},
+    },
     title: String,
     text: String,
   },
+  data() {
+    return {
+      config: this.configItem,
+    };
+  },
+  watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
+  },
   computed: {
+    cancelHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.cancel",
+        this.config.hotkeys
+      );
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -42,7 +64,7 @@ export default {
     },
   },
   methods: {
-    cancel() {
+    handleCancel() {
       this.$emit("cancel");
     },
   },

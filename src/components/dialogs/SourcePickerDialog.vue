@@ -45,7 +45,9 @@
             class="text-capitalize"
             small
             :color="currentTheme.background"
-            @click="close"
+            v-shortkey="cancelHotkey"
+            @shortkey="handleClose()"
+            @click="handleClose()"
           >
             {{ $tc("caption.cancel", 1) }}
           </v-btn>
@@ -54,7 +56,9 @@
             small
             color="primary"
             :disabled="!activeSource"
-            @click="select"
+            v-shortkey="confirmHotkey"
+            @shortkey="handleSelect()"
+            @click="handleSelect()"
           >
             {{ $tc("caption.select", 1) }}
           </v-btn>
@@ -68,6 +72,10 @@
 export default {
   name: "SourcePickerDialog",
   props: {
+    configItem: {
+      type: Object,
+      default: () => {},
+    },
     sources: {
       type: Array,
       default: () => [],
@@ -79,15 +87,31 @@ export default {
   },
   data() {
     return {
+      config: this.configItem,
       activeSource: "",
     };
   },
   watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
     sourceId: function () {
       this.activeSource = this.sourceId;
     },
   },
   computed: {
+    confirmHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.save",
+        this.config.hotkeys
+      );
+    },
+    cancelHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.cancel",
+        this.config.hotkeys
+      );
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -97,11 +121,11 @@ export default {
     },
   },
   methods: {
-    close() {
+    handleClose() {
       this.activeSource = "";
       this.$root.$emit("close-sourcepickerdialog");
     },
-    select() {
+    handleSelect() {
       this.$emit("submit-source", this.activeSource);
     },
     setActiveSource(value) {

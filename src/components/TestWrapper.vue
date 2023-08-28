@@ -6,7 +6,7 @@
           <div
             class="subtitle-2 label-text"
             :style="{ color: currentTheme.secondary }"
-            v-shortkey="config.hotkeys.sessionPlanning.title"
+            v-shortkey="titleHotkey"
             @shortkey="$hotkeyHelpers.focusField($refs, 'titleTextField')"
           >
             {{ $tc("caption.title", 1) }}
@@ -44,7 +44,7 @@
           <div
             class="subtitle-2 label-text"
             :style="{ color: currentTheme.secondary }"
-            v-shortkey="config.hotkeys.sessionPlanning.charter"
+            v-shortkey="charterHotkey"
             @shortkey="$hotkeyHelpers.focusField($refs, 'charter')"
           >
             {{ $tc("caption.charter", 1) }}
@@ -135,7 +135,7 @@
           <div
             class="subtitle-2 label-text"
             :style="{ color: currentTheme.secondary }"
-            v-shortkey="config.hotkeys.sessionPlanning.timeLimit"
+            v-shortkey="timeLimitHotkey"
             @shortkey="$hotkeyHelpers.focusField($refs, 'timeLimitTextField')"
           >
             {{ $tc("caption.time_limit", 1) }}
@@ -161,7 +161,7 @@
           <div
             class="subtitle-2 label-text"
             :style="{ color: currentTheme.secondary }"
-            v-shortkey="config.hotkeys.sessionPlanning.preconditions"
+            v-shortkey="preconditionsHotkey"
             @shortkey="$hotkeyHelpers.focusField($refs, 'preconditions')"
           >
             {{ $tc("caption.preconditions", 1) }}
@@ -290,6 +290,36 @@ export default {
     };
   },
   computed: {
+    titleHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "sessionPlanning.title",
+        this.config.hotkeys
+      );
+    },
+    charterHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "sessionPlanning.charter",
+        this.config.hotkeys
+      );
+    },
+    timeLimitHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "sessionPlanning.timeLimit",
+        this.config.hotkeys
+      );
+    },
+    preconditionsHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "sessionPlanning.preconditions",
+        this.config.hotkeys
+      );
+    },
+    checkListHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "sessionPlanning.checklist",
+        this.config.hotkeys
+      );
+    },
     aiAssistEnabled() {
       return this?.config?.aiAssist || false;
     },

@@ -7,6 +7,9 @@ export default {
         bindingCursor = bindingCursor?.[k];
       }
     }
+    if (bindingCursor && bindingCursor.constructor === String) {
+      return this.findBinding(bindingCursor, bindingConfig);
+    }
     return bindingCursor || [];
   },
   printBindings(directBinding, bindingConfig) {
@@ -19,7 +22,7 @@ export default {
     }
   },
   focusField(refs, label) {
-    const el = refs[label].$el;
+    const el = refs[label]?.$el || refs[label];
     let input = el.querySelector(".ProseMirror");
     if (!input) {
       input = el.querySelector(
