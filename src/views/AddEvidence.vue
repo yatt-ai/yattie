@@ -337,7 +337,7 @@ export default {
       );
     },
     aiAssistEnabled() {
-      return this?.config?.aiAssist || false;
+      return this?.config?.ai?.enabled || false;
     },
     fileSuffix() {
       let splitName = [];

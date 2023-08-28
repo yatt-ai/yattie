@@ -205,7 +205,7 @@ export default {
       );
     },
     aiAssistEnabled() {
-      return this?.config?.aiAssist || false;
+      return this?.config?.ai?.enabled || false;
     },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
