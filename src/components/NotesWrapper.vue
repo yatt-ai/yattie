@@ -47,7 +47,7 @@
                     @change="handleSelected($event, item.id)"
                   />
                 </div>
-                <div class="image-wrapper" @dblclick="handleActiveItem(item)">
+                <div class="image-wrapper" @click="handleItemClick(item.id)">
                   <img
                     class="screen-img"
                     style="max-width: 100%"
@@ -156,7 +156,7 @@
                     @change="handleSelected($event, item.id)"
                   />
                 </div>
-                <div class="video-wrapper" @dblclick="handleActiveItem(item)">
+                <div class="video-wrapper" @click="handleItemClick(item.id)">
                   <video
                     controls
                     style="width: 100%"
@@ -265,7 +265,7 @@
                     @change="handleSelected($event, item.id)"
                   />
                 </div>
-                <div class="audio-wrapper" @dblclick="handleActiveItem(item)">
+                <div class="audio-wrapper" @click="handleItemClick(item.id)">
                   <div class="audio-wave">
                     <img :src="item.poster" />
                   </div>
@@ -375,7 +375,7 @@
                     @change="handleSelected($event, item.id)"
                   />
                 </div>
-                <div class="note-wrapper" @dblclick="handleActiveItem(item)">
+                <div class="note-wrapper" @click="handleItemClick(item.id)">
                   <span class="comment-type"
                     >{{ item.comment.type + ": " + item.comment.text }}
                   </span>
@@ -417,7 +417,7 @@
                 <div
                   v-if="item.fileType === 'image'"
                   class="image-wrapper"
-                  @dblclick="handleActiveItem(item)"
+                  @click="handleItemClick(item.id)"
                 >
                   <img
                     class="screen-img"
@@ -428,7 +428,7 @@
                 <div
                   v-else-if="item.fileType === 'video'"
                   class="video-wrapper"
-                  @dblclick="handleActiveItem(item)"
+                  @click="handleItemClick(item.id)"
                 >
                   <video
                     controls
@@ -439,7 +439,7 @@
                 <div
                   v-else-if="item.fileType === 'audio'"
                   class="audio-wrapper"
-                  @dblclick="handleActiveItem(item)"
+                  @click="handleItemClick(item.id)"
                 >
                   <div class="audio-wave">
                     <img :src="item.poster" />
@@ -451,7 +451,7 @@
                 <div
                   v-else
                   class="file-wrapper"
-                  @dblclick="handleActiveItem(item)"
+                  @click="handleItemClick(item.id)"
                 >
                   <div class="file-name">
                     <span>{{ item.fileName }}</span>
@@ -503,7 +503,7 @@
                     @change="handleSelected($event, item.id)"
                   />
                 </div>
-                <div class="image-wrapper" @dblclick="handleActiveItem(item)">
+                <div class="image-wrapper" @click="handleItemClick(item.id)">
                   <img
                     class="screen-img"
                     style="max-width: 100%"
@@ -572,6 +572,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    eventType: {
+      type: String,
+      default: () => "",
+    },
   },
   watch: {
     items: function (newValue) {
@@ -586,6 +590,9 @@ export default {
     selectedItems: function (newValue) {
       this.selected = newValue;
     },
+    eventType: function (newValue) {
+      this.eventName = newValue;
+    },
   },
   data() {
     return {
@@ -594,8 +601,9 @@ export default {
         .slice()
         .reverse()
         .filter((item) => item.sessionType !== "Summary"),
+      eventName: this.eventType,
+      clicks: 0,
       selected: [],
-      activeItem: null,
       emojiMenu: {},
       selectedId: null,
     };
@@ -605,6 +613,18 @@ export default {
       this.emojiMenu[`menu-${item.id}`] = false;
     });
     this.fetchNotes();
+  },
+  computed: {
+    status() {
+      return this.$store.state.status;
+    },
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
   },
   methods: {
     async fetchNotes() {
@@ -627,6 +647,8 @@ export default {
         func: IPC_FUNCTIONS.UPDATE_NOTES,
         data: this.notes,
       });
+
+      // CTODO - upload when enabled; lastUpdate and rate limit to every 120 sec
     },
     handleChange() {
       this.saveData();
@@ -645,9 +667,37 @@ export default {
       }
       this.$root.$emit("update-selected", this.selected);
     },
-    handleActiveItem(item) {
-      this.activeItem = item;
-      this.$emit("submit-session", this.activeItem);
+    handleItemClick(id) {
+      this.clicks++;
+      if (this.clicks === 1) {
+        setTimeout(
+          function () {
+            switch (this.clicks) {
+              case 1:
+                if (this.eventName === "click") {
+                  this.handleActivateEditSession(id);
+                }
+                break;
+              default:
+                if (this.eventName === "dblclick") {
+                  this.handleActivateEditSession(id);
+                }
+            }
+            this.clicks = 0;
+          }.bind(this),
+          200
+        );
+      }
+    },
+    handleActivateEditSession(id) {
+      window.ipc
+        .invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.GET_ITEM_BY_ID,
+          data: id,
+        })
+        .then((data) => {
+          this.$emit("activate-edit-session", data);
+        });
     },
     handleSelectedItem(id) {
       this.selectedId = id;

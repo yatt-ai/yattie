@@ -100,6 +100,8 @@ ipcMain.handle(IPC_HANDLERS.DATABASE, async (event, args) => {
       return databaseUtility.addItem(args.data);
     case IPC_FUNCTIONS.GET_ITEMS:
       return databaseUtility.getItems();
+    case IPC_FUNCTIONS.UPDATE_ITEM:
+      return databaseUtility.updateItem(args.data);
     case IPC_FUNCTIONS.UPDATE_ITEMS:
       return databaseUtility.updateItems(args.data);
     case IPC_FUNCTIONS.DELETE_ITEMS:

@@ -33,7 +33,7 @@ export default {
   },
   watch: {
     item: function (newValue) {
-      this.sessionItem = newValue;
+      this.editSessionItem = newValue;
       this.imageEditorInst.destroy();
       this.imageEditorInst = null;
       this.handleEditor();
@@ -46,7 +46,7 @@ export default {
   },
   data() {
     return {
-      sessionItem: this.item,
+      editSessionItem: this.item,
       imageEditorInst: null,
     };
   },
@@ -56,7 +56,7 @@ export default {
   methods: {
     handleEditor() {
       try {
-        const imgPath = `file://${this.sessionItem.filePath}`;
+        const imgPath = `file://${this.editSessionItem.filePath}`;
         this.imageEditorInst = new ImageEditor(
           document.querySelector(".image-editor"),
           {
@@ -147,7 +147,7 @@ export default {
         IPC_HANDLERS.CAPTURE,
         {
           func: IPC_FUNCTIONS.UPDATE_IMAGE,
-          data: { item: this.sessionItem, url: imgURI },
+          data: { item: this.editSessionItem, url: imgURI },
         }
       );
 
@@ -156,13 +156,13 @@ export default {
         console.log(message);
       } else {
         // Force the timeline component to update the image through a fake QS
-        this.sessionItem.filePath =
-          this.sessionItem.filePath.substring(item.filePath.length) === "?"
+        this.editSessionItem.filePath =
+          this.editSessionItem.filePath.substring(item.filePath.length) === "?"
             ? item.filePath
             : item.filePath + "?";
-        this.$root.$emit("update-session", this.sessionItem);
+        this.$root.$emit("update-edit-item", this.editSessionItem);
         if (needCallback) {
-          this.$root.$emit("save-data", this.sessionItem);
+          this.$root.$emit("save-data", this.editSessionItem);
         }
       }
     },

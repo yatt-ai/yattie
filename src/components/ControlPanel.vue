@@ -977,6 +977,16 @@ export default {
   mounted() {
     // new session
     window.ipc.on("NEW_SESSION", () => {
+      // Redirect back to session start
+      if (this.$store.state.quickTest) {
+        this.callback = () => this.clearSession("/main/workspace");
+      } else {
+        this.callback = () => this.clearSession("/main");
+      }
+      this.newSessionDialog = true;
+    });
+    this.$root.$on("clear-session", () => {
+      // Redirect back to root
       this.callback = () => this.clearSession();
       this.newSessionDialog = true;
     });
@@ -1743,14 +1753,12 @@ export default {
         createdAt: Date.now(),
       };
       if (Object.keys(this.summary).length) {
-        const items = this.items.map((item) => {
-          let temp = Object.assign({}, item);
-          if (temp.sessionType === "Summary") {
-            temp = data;
-          }
-          return temp;
-        });
-        this.$root.$emit("save-session", items);
+        delete data.id;
+        const newSummary = {
+          ...this.summary,
+          ...data,
+        };
+        this.$emit("update-item", newSummary);
       } else {
         this.$emit("add-item", data);
       }
@@ -1848,7 +1856,7 @@ export default {
         callback();
       }
     },
-    async clearSession() {
+    async clearSession(url = "/") {
       this.$root.$emit("new-session");
 
       this.status = SESSION_STATUSES.PENDING;
@@ -1905,8 +1913,8 @@ export default {
 
       this.stopInterval();
       const currentPath = this.$router.history.current.path;
-      if (currentPath !== "/main") {
-        this.$router.push({ path: "/main" });
+      if (currentPath !== url) {
+        this.$router.push({ path: url });
       }
     },
     async resetSession() {
@@ -1940,7 +1948,7 @@ export default {
           });
           this.stopInterval();
           const currentPath = this.$router.history.current.path;
-          if (currentPath !== "/main") {
+          if (currentPath !== "/main" && currentPath !== "/") {
             this.$router.push({ path: "/main" });
           }
         });

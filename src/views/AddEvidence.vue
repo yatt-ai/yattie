@@ -260,7 +260,6 @@ export default {
   data() {
     return {
       item: {},
-      items: [],
       config: {},
       credentials: {},
       comment: {
@@ -289,7 +288,6 @@ export default {
     };
   },
   created() {
-    this.fetchItems();
     this.getConfig();
     this.getCredentials();
   },
@@ -389,7 +387,7 @@ export default {
       });
     });
 
-    this.$root.$on("update-session", this.updateSession);
+    this.$root.$on("update-edit-item", this.updateEditItem);
     this.$root.$on("update-processing", this.updateProcessing);
     this.$root.$on("save-data", this.saveData);
   },
@@ -403,15 +401,6 @@ export default {
       );
       input.click();
       input.focus();
-    },
-    fetchItems() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_ITEMS })
-        .then((result) => {
-          this.items = result;
-        });
     },
     async getConfig() {
       if (!window.ipc) return;
@@ -460,7 +449,7 @@ export default {
       const regex = /(<([^>]+)>)/gi;
       this.comment.text = this.comment.content.replace(regex, "");
     },
-    updateSession(value) {
+    updateEditItem(value) {
       this.item = value;
     },
     updateProcessing(value) {
@@ -512,11 +501,11 @@ export default {
         timer_mark: this.item.timer_mark,
         createdAt: Date.now(),
       };
-      this.items.push(newItem);
+      // CTODO - handle uploading if available
       window.ipc
         .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.UPDATE_ITEMS,
-          data: this.items,
+          func: IPC_FUNCTIONS.ADD_ITEM,
+          data: newItem,
         })
         .then(() => {
           window.ipc.invoke(IPC_HANDLERS.WINDOW, {

@@ -298,7 +298,7 @@
     "connect_to_testrail": "Connect to a TestRail instance",
     "connect_to_jira": "Connect to a JIRA instance",
     "use_app_only_local": "Use the app locally only",
-    "dont_pull_push_data": "Don't pull or push data to external sources",
+    "dont_pull_push_data": "Don't automatically pull or push data to external sources",
     "capture_audio": "Catpure audio with screen recordings",
     "select_default_color": "Select the default annotation color",
     "default_color_description": "This will change the default color of the image annotation tools",

@@ -158,7 +158,7 @@ module.exports.openSession = async () => {
   if (canceled) {
     return Promise.resolve({
       status: STATUSES.ERROR,
-      message: "No file selected",
+      message: "No file selected", // TODO i18n
     });
   }
 
@@ -190,7 +190,7 @@ module.exports.openSession = async () => {
 
     return Promise.resolve({
       status: STATUSES.SUCCESS,
-      message: "Session extracted successfully",
+      message: "Session extracted successfully", // TODO i18n
       state: state,
     });
   } catch (err) {

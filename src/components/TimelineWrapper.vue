@@ -1002,7 +1002,6 @@ export default {
     return {
       itemLists: this.items,
       selected: [],
-      activeSession: {},
       tags: "",
       eventName: this.eventType,
       textTypes: TEXT_TYPES,
@@ -1097,12 +1096,12 @@ export default {
             switch (this.clicks) {
               case 1:
                 if (this.eventName === "click") {
-                  this.handleActiveSession(id);
+                  this.handleActivateEditSession(id);
                 }
                 break;
               default:
                 if (this.eventName === "dblclick") {
-                  this.handleActiveSession(id);
+                  this.handleActivateEditSession(id);
                 }
             }
             this.clicks = 0;
@@ -1121,15 +1120,14 @@ export default {
       });
       this.saveData();
     },
-    handleActiveSession(id) {
+    handleActivateEditSession(id) {
       window.ipc
         .invoke(IPC_HANDLERS.DATABASE, {
           func: IPC_FUNCTIONS.GET_ITEM_BY_ID,
           data: id,
         })
         .then((data) => {
-          this.activeSession = data;
-          this.$emit("submit-session", this.activeSession);
+          this.$emit("activate-edit-session", data);
         });
     },
     dragItem(event, item) {

@@ -47,6 +47,7 @@ export const IPC_FUNCTIONS = {
   UPDATE_STATE: "updateState",
   ADD_ITEM: "addItem",
   GET_ITEMS: "getItems",
+  UPDATE_ITEM: "updateItem",
   UPDATE_ITEMS: "updateItems",
   DELETE_ITEMS: "deleteItems",
   GET_ITEM_BY_ID: "getItemById",

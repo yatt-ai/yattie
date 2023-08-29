@@ -12,7 +12,7 @@ const jsonDbConfig = {
 
 const currentVersion = app.getVersion();
 
-let metaDb, configDb, credentialDb, dataDb, configVersion;
+let metaDb, configDb, credentialDb, dataDb;
 let browserWindow;
 
 const defaultMeta = {
@@ -161,15 +161,36 @@ module.exports.initializeSession = () => {
     metadata = this.getMetadata();
   }
 
+  // CTODO
+  //const fileMeta = applyMigrations(
+  //  "meta",
+  //  currentVersion,
+  //  metaDb.get("meta")
+  //);
+
   if (!metadata.configPath) {
     metadata.configPath = defaultMeta.configPath;
   }
   configDb = new JSONdb(metadata.configPath, jsonDbConfig);
 
+  // CTODO
+  //const fileConfig = applyMigrations(
+  //  "config",
+  //  currentVersion,
+  //  configDb.get("config")
+  //);
+
   if (!metadata.credentialsPath) {
     metadata.credentialsPath = defaultMeta.credentialsPath;
   }
   credentialDb = new JSONdb(metadata.credentialsPath, jsonDbConfig);
+
+  // CTODO
+  //const fileCredentials = applyMigrations(
+  //  "credentials",
+  //  currentVersion,
+  //  credentialDb.get("credentials")
+  //);
 
   if (metadata.sessionDataPath) {
     if (fs.existsSync(metadata.sessionDataPath)) {
@@ -245,6 +266,29 @@ module.exports.initializeSession = () => {
       metaDb.set(key, value);
     }
   }
+};
+
+const applyMigrations = (type, newVersion, data) => {
+  if ( newVersion === data?.version ) {
+    return data;
+  }
+
+// Split newVersion and data.version to compare
+
+// let direction = "up";
+// List files in order and determine which apply between the two versions
+// if data.version > newVersion then order files in DESC - direction = "down";
+// else order files in ASC
+
+// let migratedData = Object.assign(data, {});
+// for each migration file
+  // for each key, value in migration[direction][type]
+    // migratedData[value] = migratedData[key];
+    // delete migratedData[key];
+    /// CTODO handle subkeys!!!
+
+// return migratedData;
+
 };
 
 const createRootSessionDirectory = () => {
@@ -346,6 +390,23 @@ module.exports.addItem = (item) => {
   try {
     let items = dataDb.get("items") || [];
     items.push(item);
+    dataDb.set("items", items);
+    browserWindow = browserUtility.getBrowserWindow();
+    browserWindow.webContents.send("DATA_CHANGE");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.updateItem = (newItem) => {
+  try {
+    debugger;
+    let items = dataDb.get("items").map((item) => {
+      if (item.id === newItem.id) {
+        return newItem;
+      }
+      return item;
+    });
     dataDb.set("items", items);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");
