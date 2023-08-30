@@ -644,7 +644,7 @@
         v-model="saveConfirmDialog"
         ref="saveConfirmDialog"
         :text="$t('message.confirm_session_saved')"
-        @confirm="saveConfirmDialog = false"
+        @confirm="handleSaveConfirmDialog"
       />
       <NewSessionDialog
         v-model="newSessionDialog"
@@ -884,11 +884,7 @@ export default {
     // save session
     window.ipc.on("SAVE_SESSION", () => {
       this.saveSession(() => {
-        this.saveConfirmDialog = true;
-
-        setTimeout(() => {
-          this.$refs.saveConfirmDialog.$refs.confirmBtn.focus();
-        });
+        this.handleSaveConfirmDialog();
       });
     });
 
@@ -1015,6 +1011,12 @@ export default {
       this.resetConfirmDialog = true;
       setTimeout(() => {
         this.$refs.resetConfirmDialog.$refs.confirmBtn.$el.focus();
+      }, 100);
+    },
+    handleSaveConfirmDialog() {
+      this.saveConfirmDialog = true;
+      setTimeout(() => {
+        this.$refs.saveConfirmDialog.$refs.confirmBtn.$el.focus();
       }, 100);
     },
     fetchSources() {
