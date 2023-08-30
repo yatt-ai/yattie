@@ -59,7 +59,7 @@
             block
             :color="currentTheme.primary"
             :style="{ color: currentTheme.white }"
-            @click="deleteConfirmDialog = true"
+            @click="handleDeleteConfirmDialog"
           >
             <v-icon left>mdi-delete</v-icon> {{ $tc("caption.delete", 1) }}
           </v-btn>
@@ -166,7 +166,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="newSessionDialog = true"
+                @click="handleNewSessionDialog"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-content-save
@@ -186,7 +186,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="resetConfirmDialog = true"
+                @click="handleResetConfirmDialog"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-close-circle
@@ -613,11 +613,13 @@
       />
       <NoteDialog
         v-model="noteDialog"
+        ref="noteDialog"
         @submit-note="addNote"
         :configItem="config"
         :credentialItems="credentials"
       />
       <SummaryDialog
+        ref="SummaryDialog"
         v-model="summaryDialog"
         @submit-summary="addSummary"
         :configItem="config"
@@ -626,23 +628,27 @@
       />
       <DeleteConfirmDialog
         v-model="deleteConfirmDialog"
+        ref="deleteConfirmDialog"
         :text="$t('message.confirm_delete')"
         @confirm="deleteItems"
         @cancel="deleteConfirmDialog = false"
       />
       <ResetConfirmDialog
         v-model="resetConfirmDialog"
+        ref="resetConfirmDialog"
         :text="$t('message.confirm_reset')"
         @confirm="resetSession"
         @cancel="resetConfirmDialog = false"
       />
       <SaveConfirmDialog
         v-model="saveConfirmDialog"
+        ref="saveConfirmDialog"
         :text="$t('message.confirm_session_saved')"
         @confirm="saveConfirmDialog = false"
       />
       <NewSessionDialog
         v-model="newSessionDialog"
+        ref="newSessionDialog"
         :text="$t('message.confirm_save_progress')"
         @save="saveSession(callback)"
         @discard="discardSession(callback)"
@@ -872,12 +878,18 @@ export default {
     // new session
     window.ipc.on("NEW_SESSION", () => {
       this.callback = () => this.clearSession();
-      this.newSessionDialog = true;
+      this.handleNewSessionDialog();
     });
 
     // save session
     window.ipc.on("SAVE_SESSION", () => {
-      this.saveSession(() => (this.saveConfirmDialog = true));
+      this.saveSession(() => {
+        this.saveConfirmDialog = true;
+
+        setTimeout(() => {
+          this.$refs.saveConfirmDialog.$refs.confirmBtn.focus();
+        });
+      });
     });
 
     // reset session
@@ -985,6 +997,12 @@ export default {
         }
       });
     },
+    handleNewSessionDialog() {
+      this.newSessionDialog = true;
+      setTimeout(() => {
+        this.$refs.newSessionDialog.$refs.confirmBtn.$el.focus();
+      }, 100);
+    },
     startNewSession() {
       this.$root.$emit("start-new-session");
       if (!this.checkedStatusOfPreSessionTask) {
@@ -992,6 +1010,12 @@ export default {
       }
       this.$store.commit("setQuickTest", false);
       this.showSourcePickerDialog();
+    },
+    handleResetConfirmDialog() {
+      this.resetConfirmDialog = true;
+      setTimeout(() => {
+        this.$refs.resetConfirmDialog.$refs.confirmBtn.$el.focus();
+      }, 100);
     },
     fetchSources() {
       return new Promise(function (resolver, reject) {
@@ -1032,6 +1056,10 @@ export default {
     showNoteDialog() {
       if (this.viewMode === "normal") {
         this.noteDialog = true;
+        // settimeout
+        setTimeout(() => {
+          this.$refs.noteDialog.$refs.comment.editor.commands.focus();
+        });
       } else {
         if (!window.ipc) return;
         window.ipc.invoke(IPC_HANDLERS.WINDOW, {
@@ -1049,6 +1077,12 @@ export default {
     },
     hideNoteDialog() {
       this.noteDialog = false;
+    },
+    handleDeleteConfirmDialog() {
+      this.deleteConfirmDialog = true;
+      setTimeout(() => {
+        this.$refs.deleteConfirmDialog.$refs.confirmBtn.$el.focus();
+      }, 100);
     },
     startInterval() {
       console.log("start interval");
@@ -1180,6 +1214,10 @@ export default {
     showSummaryDialog() {
       if (this.viewMode === "normal") {
         this.summaryDialog = true;
+
+        setTimeout(() => {
+          this.$refs.SummaryDialog.$refs.comment.editor.commandManager.commands.focus();
+        }, 200);
       } else {
         if (!window.ipc) return;
         window.ipc.invoke(IPC_HANDLERS.WINDOW, {
