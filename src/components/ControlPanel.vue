@@ -609,19 +609,19 @@
         :sources="sources"
         :sourceId="sourceId"
         :loaded="loaded"
-        @submit-source="startSession"
+        @submit-source="startSession()"
       />
       <NoteDialog
         v-model="noteDialog"
         ref="noteDialog"
-        @submit-note="addNote"
+        @submit-note="addNote()"
         :configItem="config"
         :credentialItems="credentials"
       />
       <SummaryDialog
         ref="summaryDialog"
         v-model="summaryDialog"
-        @submit-summary="addSummary"
+        @submit-summary="addSummary()"
         :configItem="config"
         :credentialItems="credentials"
         :summary="summary"
@@ -630,21 +630,21 @@
         v-model="deleteConfirmDialog"
         ref="deleteConfirmDialog"
         :text="$t('message.confirm_delete')"
-        @confirm="deleteItems"
+        @confirm="deleteItems()"
         @cancel="deleteConfirmDialog = false"
       />
       <ResetConfirmDialog
         v-model="resetConfirmDialog"
         ref="resetConfirmDialog"
         :text="$t('message.confirm_reset')"
-        @confirm="resetSession"
+        @confirm="resetSession()"
         @cancel="resetConfirmDialog = false"
       />
       <SaveConfirmDialog
         v-model="saveConfirmDialog"
         ref="saveConfirmDialog"
         :text="$t('message.confirm_session_saved')"
-        @confirm="handleSaveConfirmDialog"
+        @confirm="handleSaveConfirmDialog()"
       />
       <NewSessionDialog
         v-model="newSessionDialog"
@@ -656,8 +656,8 @@
       <DurationConfirmDialog
         v-model="durationConfirmDialog"
         :text="$t('message.confirm_proceed_session_time')"
-        @end="end"
-        @proceed="proceed"
+        @end="end()"
+        @proceed="proceed()"
       />
       <AudioErrorDialog
         v-model="audioErrorDialog"
@@ -666,7 +666,7 @@
       />
       <EndSessionDialog
         v-model="endSessionDialog"
-        @proceed="closeEndSessionDialog"
+        @proceed="closeEndSessionDialog()"
         :post-session-data="postSessionData"
       />
     </div>
