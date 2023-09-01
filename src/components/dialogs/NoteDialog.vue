@@ -189,7 +189,9 @@
                 small
                 block
                 :color="currentTheme.background"
-                @click="handleDiscard"
+                v-shortkey="cancelHotkey"
+                @shortkey="handleDiscard()"
+                @click="handleDiscard()"
               >
                 {{ $tc("caption.discard", 1) }}
               </v-btn>
@@ -200,7 +202,9 @@
                 small
                 block
                 color="primary"
-                @click="handleSave"
+                v-shortkey="confirmHotkey"
+                @shortkey="handleSave()"
+                @click="handleSave()"
               >
                 {{ $tc("caption.save", 1) }}
               </v-btn>
@@ -279,6 +283,18 @@ export default {
     };
   },
   computed: {
+    confirmHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.save",
+        this.config.hotkeys
+      );
+    },
+    cancelHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.cancel",
+        this.config.hotkeys
+      );
+    },
     aiAssistEnabled() {
       return this?.config?.ai?.enabled || false;
     },

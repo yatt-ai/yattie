@@ -12,7 +12,9 @@
             ref="confirmBtn"
             :color="currentTheme.primary"
             class="text-capitalize btn"
-            @click="confirm"
+            v-shortkey="confirmHotkey"
+            @shortkey="handleConfirm()"
+            @click="handleConfirm()"
           >
             {{ $tc("caption.confirm", 1) }}
           </v-btn>
@@ -20,7 +22,9 @@
             small
             color="currentTheme.background"
             class="text-capitalize btn"
-            @click="cancel"
+            v-shortkey="cancelHotkey"
+            @shortkey="handleCancel()"
+            @click="handleCancel()"
           >
             {{ $tc("caption.cancel", 1) }}
           </v-btn>
@@ -38,10 +42,36 @@ export default {
     LogoWrapper,
   },
   props: {
+    configItem: {
+      type: Object,
+      default: () => {},
+    },
     title: String,
     text: String,
   },
+  data() {
+    return {
+      config: this.configItem,
+    };
+  },
+  watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
+  },
   computed: {
+    confirmHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.save",
+        this.config.hotkeys
+      );
+    },
+    cancelHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.cancel",
+        this.config.hotkeys
+      );
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -51,10 +81,10 @@ export default {
     },
   },
   methods: {
-    cancel() {
+    handleCancel() {
       this.$emit("cancel");
     },
-    confirm() {
+    handleConfirm() {
       this.$emit("confirm");
     },
   },

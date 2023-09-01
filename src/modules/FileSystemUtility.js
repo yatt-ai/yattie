@@ -158,7 +158,7 @@ module.exports.openSession = async () => {
   if (canceled) {
     return Promise.resolve({
       status: STATUSES.ERROR,
-      message: "no file selected",
+      message: "No file selected",
     });
   }
 
@@ -324,7 +324,7 @@ module.exports.openConfigFile = async () => {
   if (canceled) {
     return Promise.resolve({
       status: STATUSES.ERROR,
-      message: "no file selected",
+      message: "No file selected",
     });
   }
 
@@ -361,7 +361,7 @@ module.exports.openCredentialsFile = async () => {
   if (canceled) {
     return Promise.resolve({
       status: STATUSES.ERROR,
-      message: "no file selected",
+      message: "No file selected",
     });
   }
 

@@ -86,6 +86,7 @@ export const IPC_BIND_KEYS = {
   CLOSED_ENDSESSION_DIALOG: "endsession_dialog_closed",
   CLOSED_SOURCEPICKER_DIALOG: "sourcepicker_dialog_closed",
   CLOSED_SHARE_OAUTH_DIALOG: "share_oauth_dialog_closed",
+  CLOSED_KEY_CAPTURE_DIALOG: "key_capture_dialog_closed",
 };
 
 export const STATUSES = {
@@ -110,6 +111,14 @@ export const SESSION_TYPES = [
   "Note",
   "File",
   "Mindmap",
+];
+
+export const HOTKEY_PAGES = [
+  "general",
+  "home",
+  "sessionPlanning",
+  "workspace",
+  "evidence",
 ];
 
 export const VIEW_MODE = {

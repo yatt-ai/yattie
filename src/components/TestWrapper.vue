@@ -6,6 +6,8 @@
           <div
             class="subtitle-2 label-text"
             :style="{ color: currentTheme.secondary }"
+            v-shortkey="titleHotkey"
+            @shortkey="$hotkeyHelpers.focusField($refs, 'titleTextField')"
           >
             {{ $tc("caption.title", 1) }}
           </div>
@@ -15,8 +17,6 @@
             outlined
             dense
             :height="35"
-            v-model="title"
-            @input="updateTitle"
             :color="currentTheme.secondary"
             :loading="titleLoading"
             :append-icon="
@@ -26,6 +26,9 @@
                   : 'mdi-robot-outline'
                 : ''
             "
+            v-model="title"
+            ref="titleTextField"
+            @input="updateTitle"
             @click:append="handleAISuggestion('title', $event)"
           >
             <template v-slot:progress>
@@ -42,6 +45,8 @@
           <div
             class="subtitle-2 label-text"
             :style="{ color: currentTheme.secondary }"
+            v-shortkey="charterHotkey"
+            @shortkey="$hotkeyHelpers.focusField($refs, 'charter')"
           >
             {{ $tc("caption.charter", 1) }}
           </div>
@@ -131,11 +136,14 @@
           <div
             class="subtitle-2 label-text"
             :style="{ color: currentTheme.secondary }"
+            v-shortkey="timeLimitHotkey"
+            @shortkey="$hotkeyHelpers.focusField($refs, 'timeLimitTextField')"
           >
             {{ $tc("caption.time_limit", 1) }}
           </div>
           <div class="timer-box-wrapper">
             <v-text-field
+              ref="timeLimitTextField"
               placeholder="00:00"
               v-mask="'##:##'"
               outlined
@@ -151,7 +159,20 @@
           </div>
         </div>
         <div class="mt-4 pre-cond">
-          <v-card v-if="charterLoading" class="loading-wrapper" outlined flat>
+          <div
+            class="subtitle-2 label-text"
+            :style="{ color: currentTheme.secondary }"
+            v-shortkey="preconditionsHotkey"
+            @shortkey="$hotkeyHelpers.focusField($refs, 'preconditions')"
+          >
+            {{ $tc("caption.preconditions", 1) }}
+          </div>
+          <v-card
+            v-if="preconditionsLoading"
+            class="loading-wrapper"
+            outlined
+            flat
+          >
             <v-progress-circular
               :color="currentTheme.primary"
               size="70"
@@ -163,7 +184,6 @@
             v-else
             v-model="preconditions.content"
             :placeholder="$t('message.define_required_precondition')"
-            :label="$tc('caption.precondition', 1)"
             ref="preconditions"
             :toolbar="[
               'headings',
@@ -271,6 +291,36 @@ export default {
     };
   },
   computed: {
+    titleHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "sessionPlanning.title",
+        this.config.hotkeys
+      );
+    },
+    charterHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "sessionPlanning.charter",
+        this.config.hotkeys
+      );
+    },
+    timeLimitHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "sessionPlanning.timeLimit",
+        this.config.hotkeys
+      );
+    },
+    preconditionsHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "sessionPlanning.preconditions",
+        this.config.hotkeys
+      );
+    },
+    checkListHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "sessionPlanning.checklist",
+        this.config.hotkeys
+      );
+    },
     aiAssistEnabled() {
       return this?.config?.ai?.enabled || false;
     },
