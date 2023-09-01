@@ -9,6 +9,7 @@
         <v-card-actions>
           <v-btn
             small
+            ref="confirmBtn"
             color="currentTheme.primary"
             class="text-uppercase btn"
             v-shortkey="confirmHotkey"

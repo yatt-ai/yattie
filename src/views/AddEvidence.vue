@@ -389,6 +389,9 @@ export default {
       });
     });
 
+    // Focus on comment
+    this.$refs.comment.editor.commands.focus();
+
     this.$root.$on("update-session", this.updateSession);
     this.$root.$on("update-processing", this.updateProcessing);
     this.$root.$on("save-data", this.saveData);

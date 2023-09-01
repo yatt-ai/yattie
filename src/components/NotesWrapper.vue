@@ -605,6 +605,7 @@ export default {
       this.emojiMenu[`menu-${item.id}`] = false;
     });
     this.fetchNotes();
+    this.$refs.notes.editor.commands.focus();
   },
   methods: {
     async fetchNotes() {

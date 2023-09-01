@@ -59,7 +59,7 @@
             block
             :color="currentTheme.primary"
             :style="{ color: currentTheme.white }"
-            @click="deleteConfirmDialog = true"
+            @click="handleDeleteConfirmDialog()"
           >
             <v-icon left>mdi-delete</v-icon> {{ $tc("caption.delete", 1) }}
           </v-btn>
@@ -92,7 +92,7 @@
             </template>
             <v-card tile>
               <v-list dense>
-                <v-list-item @click="exportItems">
+                <v-list-item @click="exportItems()">
                   <v-list-item-icon class="mr-4">
                     <v-icon>mdi-download</v-icon>
                   </v-list-item-icon>
@@ -145,7 +145,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="resume"
+                @click="resume()"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-play-circle
@@ -166,7 +166,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="newSessionDialog = true"
+                @click="handleNewSessionDialog()"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-content-save
@@ -186,7 +186,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="resetConfirmDialog = true"
+                @click="handleResetConfirmDialog()"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-close-circle
@@ -521,7 +521,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="minimize"
+                @click="minimize()"
               >
                 <img
                   v-if="$vuetify.theme.dark === false"
@@ -635,44 +635,51 @@
         :sources="sources"
         :sourceId="sourceId"
         :loaded="loaded"
+
         :configItem="config"
-        @submit-source="startSession"
+        @submit-source="startSession()"
       />
       <NoteDialog
         v-model="noteDialog"
+        ref="noteDialog"
         :configItem="config"
         :credentialItems="credentials"
-        @submit-note="addNote"
+        @submit-note="addNote()"
       />
       <SummaryDialog
+        ref="summaryDialog"
         v-model="summaryDialog"
         :configItem="config"
         :credentialItems="credentials"
         :summary="summary"
-        @submit-summary="addSummary"
+        @submit-summary="addSummary()"
       />
       <DeleteConfirmDialog
         v-model="deleteConfirmDialog"
+        ref="deleteConfirmDialog"
         :text="$t('message.confirm_delete')"
         :configItem="config"
-        @confirm="deleteItems"
+        @confirm="deleteItems()"
         @cancel="deleteConfirmDialog = false"
       />
       <ResetConfirmDialog
         v-model="resetConfirmDialog"
+        ref="resetConfirmDialog"
         :text="$t('message.confirm_reset')"
         :configItem="config"
-        @confirm="resetSession"
+        @confirm="resetSession()"
         @cancel="resetConfirmDialog = false"
       />
       <SaveConfirmDialog
         v-model="saveConfirmDialog"
+        ref="saveConfirmDialog"
         :text="$t('message.confirm_session_saved')"
         :configItem="config"
-        @confirm="saveConfirmDialog = false"
+        @confirm="handleSaveConfirmDialog()"
       />
       <NewSessionDialog
         v-model="newSessionDialog"
+        ref="newSessionDialog"
         :text="$t('message.confirm_save_progress')"
         :configItem="config"
         @save="saveSession(callback)"
@@ -682,8 +689,8 @@
         v-model="durationConfirmDialog"
         :text="$t('message.confirm_proceed_session_time')"
         :configItem="config"
-        @end="end"
-        @proceed="proceed"
+        @end="end()"
+        @proceed="proceed()"
       />
       <AudioErrorDialog
         v-model="audioErrorDialog"
@@ -695,7 +702,7 @@
         v-model="endSessionDialog"
         :configItem="config"
         :post-session-data="postSessionData"
-        @proceed="closeEndSessionDialog"
+        @proceed="closeEndSessionDialog()"
       />
     </div>
   </v-container>
@@ -978,12 +985,14 @@ export default {
     // new session
     window.ipc.on("NEW_SESSION", () => {
       this.callback = () => this.clearSession();
-      this.newSessionDialog = true;
+      this.handleNewSessionDialog();
     });
 
     // save session
     window.ipc.on("SAVE_SESSION", () => {
-      this.saveSession(() => (this.saveConfirmDialog = true));
+      this.saveSession(() => {
+        this.handleSaveConfirmDialog();
+      });
     });
 
     // reset session
@@ -1100,6 +1109,12 @@ export default {
         }
       });
     },
+    handleNewSessionDialog() {
+      this.newSessionDialog = true;
+      setTimeout(() => {
+        this.$refs.newSessionDialog.$refs.confirmBtn.$el.focus();
+      }, 100);
+    },
     startNewSession() {
       this.$root.$emit("start-new-session");
       if (!this.checkedStatusOfPreSessionTask) {
@@ -1108,6 +1123,18 @@ export default {
       this.clearSession();
       this.$store.commit("setQuickTest", false);
       this.showSourcePickerDialog();
+    },
+    handleResetConfirmDialog() {
+      this.resetConfirmDialog = true;
+      setTimeout(() => {
+        this.$refs.resetConfirmDialog.$refs.confirmBtn.$el.focus();
+      }, 100);
+    },
+    handleSaveConfirmDialog() {
+      this.saveConfirmDialog = true;
+      setTimeout(() => {
+        this.$refs.saveConfirmDialog.$refs.confirmBtn.$el.focus();
+      }, 100);
     },
     fetchSources() {
       return new Promise(function (resolver, reject) {
@@ -1148,6 +1175,10 @@ export default {
     showNoteDialog() {
       if (this.viewMode === "normal") {
         this.noteDialog = true;
+        // settimeout
+        setTimeout(() => {
+          this.$refs.noteDialog.$refs.comment.editor.commands.focus();
+        });
       } else {
         if (!window.ipc) return;
         window.ipc.invoke(IPC_HANDLERS.WINDOW, {
@@ -1165,6 +1196,12 @@ export default {
     },
     hideNoteDialog() {
       this.noteDialog = false;
+    },
+    handleDeleteConfirmDialog() {
+      this.deleteConfirmDialog = true;
+      setTimeout(() => {
+        this.$refs.deleteConfirmDialog.$refs.confirmBtn.$el.focus();
+      }, 100);
     },
     startInterval() {
       console.log("start interval");
@@ -1296,6 +1333,10 @@ export default {
     showSummaryDialog() {
       if (this.viewMode === "normal") {
         this.summaryDialog = true;
+
+        setTimeout(() => {
+          this.$refs.summaryDialog.$refs.comment.editor.commands.focus();
+        }, 200);
       } else {
         if (!window.ipc) return;
         window.ipc.invoke(IPC_HANDLERS.WINDOW, {

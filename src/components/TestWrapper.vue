@@ -13,6 +13,7 @@
           </div>
           <v-text-field
             :placeholder="$t('message.enter_brief_charter_name')"
+            autofocus
             outlined
             dense
             :height="35"
