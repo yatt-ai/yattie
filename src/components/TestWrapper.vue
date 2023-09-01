@@ -374,13 +374,11 @@ export default {
   methods: {
     updateTitle() {
       this.$store.commit("setTitle", this.title);
-      // CTODO - update remote if config enabled
     },
     updateCharter() {
       const regex = /(<([^>]+)>)/gi;
       this.charter.text = this.charter.content.replace(regex, "");
       this.$store.commit("setCharter", this.charter);
-      // CTODO - update remote if config enabled
     },
     updatePreconditions() {
       const regex = /(<([^>]+)>)/gi;
@@ -474,7 +472,6 @@ export default {
       }
       const temp = minutes * 60 + seconds;
       this.$store.commit("setDuration", temp);
-      // CTODO - update remote if config enabled
     },
     handleMindmap(value) {
       const new_nodes = value.nodes.map((obj) => {
@@ -496,7 +493,6 @@ export default {
         connections: new_connections,
       };
       this.$store.commit("setMindmap", data);
-      // CTODO - update remote if config enabled
     },
   },
 };

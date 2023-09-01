@@ -647,8 +647,6 @@ export default {
         func: IPC_FUNCTIONS.UPDATE_NOTES,
         data: this.notes,
       });
-
-      // CTODO - upload when enabled; lastUpdate and rate limit to every 120 sec
     },
     handleChange() {
       this.saveData();

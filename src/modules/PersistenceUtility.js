@@ -23,75 +23,43 @@ const defaultMeta = {
 };
 
 const defaultConfig = {
-  useLocal: true,
-  apperance: "light",
-  showIssue: false,
-  appLabel: false,
+  localOnly: true,
+  theme: "light",
   defaultColor: "#1976D2FF",
   commentType: "Comment",
   audioCapture: false,
   videoQuality: "high",
   debugMode: false,
-  summary: false,
+  summaryRequired: false,
   ai: {
     enabled: false,
   },
-  templates: [
-    {
-      type: "Screenshot",
-      precondition: {
-        content: "",
-        text: "",
-      },
-      issue: "",
-      isBug: false,
+  templates: {
+    Screenshot: {
+      content: "<p>Testing this</p>",
+      text: "Testing this"
     },
-    {
-      type: "Video",
-      precondition: {
-        content: "",
-        text: "",
-      },
-      issue: "",
-      isBug: false,
+    Video: {
+      content: "",
+      text: ""
     },
-    {
-      type: "Audio",
-      precondition: {
-        content: "",
-        text: "",
-      },
-      issue: "",
-      isBug: false,
+    Audio: {
+      content: "",
+      text: ""
     },
-    {
-      type: "Note",
-      precondition: {
-        content: "",
-        text: "",
-      },
-      issue: "",
-      isBug: false,
+    Note: {
+      content: "",
+      text: ""
     },
-    {
-      type: "File",
-      precondition: {
-        content: "",
-        text: "",
-      },
-      issue: "",
-      isBug: false,
+    File: {
+      content: "",
+      text: ""
     },
-    {
-      type: "Mindmap",
-      precondition: {
-        content: "",
-        text: "",
-      },
-      issue: "",
-      isBug: false,
+    Mindmap: {
+      content: "",
+      text: ""
     },
-  ],
+  },
   checklist: {
     presession: {
       tasks: [],
@@ -145,6 +113,7 @@ const defaultConfig = {
       cancel: "general.cancel",
     },
   },
+  version: currentVersion,
 };
 
 module.exports.initializeSession = () => {
@@ -161,134 +130,255 @@ module.exports.initializeSession = () => {
     metadata = this.getMetadata();
   }
 
-  // CTODO
-  //const fileMeta = applyMigrations(
-  //  "meta",
-  //  currentVersion,
-  //  metaDb.get("meta")
-  //);
+  metadata = applyMigrations(
+    "meta",
+    currentVersion,
+    metadata,
+  );
 
   if (!metadata.configPath) {
     metadata.configPath = defaultMeta.configPath;
   }
   configDb = new JSONdb(metadata.configPath, jsonDbConfig);
 
-  // CTODO
-  //const fileConfig = applyMigrations(
-  //  "config",
-  //  currentVersion,
-  //  configDb.get("config")
-  //);
+  const configData = applyMigrations(
+    "config",
+    currentVersion,
+    configDb.JSON(),
+  );
 
   if (!metadata.credentialsPath) {
     metadata.credentialsPath = defaultMeta.credentialsPath;
   }
   credentialDb = new JSONdb(metadata.credentialsPath, jsonDbConfig);
 
-  // CTODO
-  //const fileCredentials = applyMigrations(
-  //  "credentials",
-  //  currentVersion,
-  //  credentialDb.get("credentials")
-  //);
+  const credentialData = applyMigrations(
+    "credentials",
+    currentVersion,
+    credentialDb.JSON(),
+  );
 
+  let sessionData;
   if (metadata.sessionDataPath) {
     if (fs.existsSync(metadata.sessionDataPath)) {
       dataDb = new JSONdb(metadata.sessionDataPath, jsonDbConfig);
+      sessionData = applyMigrations(
+        "data",
+        currentVersion,
+        dataDb.JSON(),
+      );
     } else {
       metaDb.set("sessionDataPath", "");
     }
   }
 
-  if (metadata.version) {
-    configVersion = metadata.version;
-  } else {
-    configVersion = "";
-  }
-
   try {
-    for (const [key, value] of Object.entries(metadata)) {
-      metaDb.set(key, value);
-    }
+    metaDb.JSON(metadata)
+    metaDb.sync();
 
-    if (!configDb.has("config")) {
-      configDb.set("config", defaultConfig);
-    } else {
-      // Recursively ensure all keys that should exist, do.
-      let currentConfig = configDb.get("config");
-      const recursivelyMerge = (oldConfig, newConfig) => {
-        if (!(oldConfig instanceof Object) || Array.isArray(oldConfig)) {
-          if (!oldConfig || oldConfig.constructor !== newConfig.constructor) {
-            // Overwriting if the type has changed in the default
-            return newConfig;
-          }
-          return oldConfig;
-        }
-        if (!(newConfig instanceof Object) || Array.isArray(newConfig)) {
-          return newConfig;
-        }
+    configDb.JSON(configData)
+    configDb.sync();
 
-        let builtConfig = {};
-        for (const key of Object.keys(newConfig)) {
-          builtConfig[key] = recursivelyMerge(
-            oldConfig[key],
-            newConfig[key],
-            `path.${key}`
-          );
-        }
-        for (const key of Object.keys(oldConfig)) {
-          // Preserving keys in the config but not in default
-          if (!Object.keys(newConfig).includes(key)) {
-            builtConfig[key] = oldConfig[key];
-          }
-        }
-        return builtConfig;
-      };
-      // TODO - Handle migrations after merge
-      let fixedConfig = recursivelyMerge(currentConfig, defaultConfig);
-      configDb.set("config", fixedConfig);
-    }
+    credentialDb.JSON(credentialData)
+    credentialDb.sync();
 
-    if (!credentialDb.has("credentials")) {
-      credentialDb.set("credentials", {});
+    if (sessionData) {
+      dataDb.JSON(sessionData)
+      dataDb.sync();
     }
   } catch (error) {
     console.log(error);
   }
+};
 
-  // TODO - Migrations for config files
-  //        Right now, it just overwrites.
-  if (configVersion !== currentVersion) {
-    let newMeta = this.getMetadata() || defaultMeta;
-    newMeta.version = currentVersion;
-    configVersion = currentVersion;
-    for (const [key, value] of Object.entries(newMeta)) {
-      metaDb.set(key, value);
+const recursivelyMerge = (oldConfig, newConfig) => {
+  if (!(oldConfig instanceof Object) || Array.isArray(oldConfig)) {
+    if (!oldConfig || oldConfig.constructor !== newConfig.constructor) {
+      // Overwriting if the type has changed in the default
+      return newConfig;
+    }
+    return oldConfig;
+  }
+  if (!(newConfig instanceof Object) || Array.isArray(newConfig)) {
+    return newConfig;
+  }
+
+  let builtConfig = {};
+  for (const key of Object.keys(newConfig)) {
+    builtConfig[key] = recursivelyMerge(
+      oldConfig[key],
+      newConfig[key],
+      `path.${key}`
+    );
+  }
+  for (const key of Object.keys(oldConfig)) {
+    // Preserving keys in the config but not in default
+    if (!Object.keys(newConfig).includes(key)) {
+      builtConfig[key] = oldConfig[key];
     }
   }
+  return builtConfig;
 };
 
 const applyMigrations = (type, newVersion, data) => {
-  if ( newVersion === data?.version ) {
-    return data;
+  let oldVersion = data.version || "0.0.0";
+  let migratedData = Object.assign(data, {});
+
+  if (newVersion !== oldVersion) {
+    // Split newVersion and oldVersion to compare
+    let splitNewVersion = newVersion.substring(1).split(".");
+    splitNewVersion = splitNewVersion.map((num) => parseInt(num));
+    let splitDataVersion = oldVersion.split(".");
+    splitDataVersion = splitDataVersion.map((num) => parseInt(num));
+    let direction = "up";
+    for (let i=0; i < splitNewVersion.length; i++) {
+      if (splitNewVersion[i] < splitDataVersion[i]) {
+        let direction = "down";
+        break;
+      }
+    }
+  
+    // Read migration files
+    let migrationFiles = fs.readdirSync("./src/modules/migrations/");
+    let migrationVersions = migrationFiles.map((fileName) => {
+      let temp = fileName.substring(1, fileName.length - 3).split(".");
+      return temp.map((num) => parseInt(num));
+    });
+    // List is in order from lowest to highest 
+    if (direction === "down") {
+      migrationFiles.reverse();
+      migrationVersions.reverse();
+    }
+  
+    // Find the the next migration to run.
+    let nextMigrationIndex;
+    for (let i=0; i < migrationVersions.length; i++) {
+      if (direction === "up") {
+        if (migrationVersions[i][0] < splitDataVersion[0]) {
+          continue;
+        }
+        if (migrationVersions[i][0] === splitDataVersion[0]) {
+          if (migrationVersions[i][1] < splitDataVersion[1]) {
+            continue;
+          }
+  
+          if (migrationVersions[i][1] > splitDataVersion[1]) {
+            nextMigrationIndex = i;
+            break;
+          }
+  
+          if (migrationVersions[i][1] === splitDataVersion[1]) {
+            if (migrationVersions[i][2] <= splitDataVersion[2]) {
+              continue;
+            } else {
+              nextMigrationIndex = i;
+              break;
+            }
+          }
+        }
+        if (migrationVersions[i][0] > splitDataVersion[0]) {
+          nextMigrationIndex = i;
+          break;
+        }
+      } else {
+        if (migrationVersions[i][0] > splitDataVersion[0]) {
+          continue;
+        }
+        if (migrationVersions[i][0] === splitDataVersion[0]) {
+          if (migrationVersions[i][1] > splitDataVersion[1]) {
+            continue;
+          }
+  
+          if (migrationVersions[i][1] < splitDataVersion[1]) {
+            nextMigrationIndex = i;
+            break;
+          }
+  
+          if (migrationVersions[i][1] === splitDataVersion[1]) {
+            if (migrationVersions[i][2] >= splitDataVersion[2]) {
+              continue;
+            } else {
+              nextMigrationIndex = i;
+              break;
+            }
+          }
+        }
+        if (migrationVersions[i][0] < splitDataVersion[0]) {
+          nextMigrationIndex = i;
+          break;
+        }
+      }
+    }
+  
+    // Run migrations in order
+    for (
+      const migration of migrationFiles.slice(
+        nextMigrationIndex, migrationFiles.length
+      )
+    ) {
+      const { migrationStruct } = require(`./migrations/${migration}`);
+      if (!migrationStruct[direction][type]) continue;
+
+      // Order of operations here - move first, then functions
+      let moveUpMigrations = {};
+      let moveLateralMigrations = {};
+      let otherMigrations = {};
+      for (
+        const[key, value] of Object.entries(migrationStruct[direction][type])
+      ) {
+        if (value === "..") {
+          moveUpMigrations[key] = value;
+        } else if (value.constructor === String) {
+          moveLateralMigrations[key] = value;
+        } else {
+          otherMigrations[key] = value;
+        }
+      }
+      
+      migratedData = migrateKeys(moveUpMigrations, migratedData);
+      migratedData = migrateKeys(moveLateralMigrations, migratedData);
+      migratedData = migrateKeys(otherMigrations, migratedData);
+    }
   }
 
-// Split newVersion and data.version to compare
+  let updatedData = migratedData;
+  switch (type) {
+    case "meta":
+      updatedData = recursivelyMerge(migratedData, defaultMeta);
+      break;
+    case "config":
+      updatedData = recursivelyMerge(migratedData, defaultConfig);
+      break;
+  }
+  updatedData.version = newVersion;
 
-// let direction = "up";
-// List files in order and determine which apply between the two versions
-// if data.version > newVersion then order files in DESC - direction = "down";
-// else order files in ASC
+  return updatedData;
+};
 
-// let migratedData = Object.assign(data, {});
-// for each migration file
-  // for each key, value in migration[direction][type]
-    // migratedData[value] = migratedData[key];
-    // delete migratedData[key];
-    /// CTODO handle subkeys!!!
-
-// return migratedData;
-
+const migrateKeys = (migrations, data) => {
+  // Apply migration transformations
+  for (
+    const [key, value] of Object.entries(migrations)
+  ) {
+    if (value.constructor === String) {
+      if (value === "..") {
+        for (
+          const [subKey, subValue] of Object.entries(data[key])
+        ) {
+          data[subKey] = subValue;
+        }
+      } else if (value !== "") {
+        data[value] = data[key];
+      }
+      delete data[key];
+  
+    } else if (value.constructor === Function) {
+      if (data[key]) {
+        data[key] = value(data[key]);
+      }
+    }
+  }
+  return data;
 };
 
 const createRootSessionDirectory = () => {
@@ -332,6 +422,7 @@ module.exports.createNewSession = (state) => {
     content: "",
     text: "",
   });
+  dataDb.set("version", currentVersion);
 };
 
 module.exports.getSessionID = () => {
@@ -452,7 +543,7 @@ module.exports.getItemById = (id) => {
 
 module.exports.getConfig = () => {
   try {
-    return configDb.get("config");
+    return configDb.JSON();
   } catch (error) {
     return {};
   }
@@ -460,7 +551,8 @@ module.exports.getConfig = () => {
 
 module.exports.updateConfig = (config) => {
   try {
-    configDb.set("config", config);
+    configDb.JSON(config);
+    configDb.sync();
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("CONFIG_CHANGE");
   } catch (error) {
@@ -470,7 +562,8 @@ module.exports.updateConfig = (config) => {
 
 module.exports.getCredentials = () => {
   try {
-    return credentialDb.get("credentials");
+    const {version: _, ...credentials} = credentialDb.JSON();
+    return credentials;
   } catch (error) {
     return {};
   }
@@ -478,7 +571,8 @@ module.exports.getCredentials = () => {
 
 module.exports.updateCredentials = (credentials) => {
   try {
-    credentialDb.set("credentials", credentials);
+    credentialDb.JSON(credentials);
+    credentialDb.sync();
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("CREDENTIAL_CHANGE");
   } catch (error) {
@@ -488,11 +582,7 @@ module.exports.updateCredentials = (credentials) => {
 
 module.exports.getMetadata = () => {
   try {
-    let metadata = {};
-    for (const key of Object.keys(defaultMeta)) {
-      metadata[key] = metaDb.get(key);
-    }
-    return metadata;
+    return metaDb.JSON();
   } catch (error) {
     console.log(`Unable to retrieve metadata: ${error}`);
     return {};

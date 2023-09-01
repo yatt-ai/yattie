@@ -287,16 +287,12 @@ export default {
         func: IPC_FUNCTIONS.ADD_ITEM,
         data: newItem,
       });
-
-      // CTODO - handle uploading if enabled
     },
     updateItem(newItem) {
       window.ipc.invoke(IPC_HANDLERS.DATABASE, {
         func: IPC_FUNCTIONS.UPDATE_ITEM,
         data: newItem,
       });
-
-      // CTODO - handle uploading if enabled
     },
     updateSelected(value) {
       this.selected = value;

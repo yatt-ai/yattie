@@ -418,7 +418,6 @@
             <span>{{ $tc("caption.start_audio_record", 1) }}</span>
           </v-tooltip>
           <v-tooltip top v-if="recordAudioStarted">
-            <!-- CTODO test same binding for start/stop -->
             <template v-slot:activator="{ on }">
               <v-btn
                 id="btn_stop_record_audio"
@@ -985,6 +984,7 @@ export default {
       }
       this.newSessionDialog = true;
     });
+
     this.$root.$on("clear-session", () => {
       // Redirect back to root
       this.callback = () => this.clearSession();

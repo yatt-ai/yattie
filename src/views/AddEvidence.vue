@@ -501,7 +501,6 @@ export default {
         timer_mark: this.item.timer_mark,
         createdAt: Date.now(),
       };
-      // CTODO - handle uploading if available
       window.ipc
         .invoke(IPC_HANDLERS.DATABASE, {
           func: IPC_FUNCTIONS.ADD_ITEM,
