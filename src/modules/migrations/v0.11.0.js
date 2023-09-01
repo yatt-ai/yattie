@@ -1,9 +1,11 @@
 export const migrationStruct = {
   up: {
     config: {
+      "config": "..",
       "useLocal": "localOnly",
-      "apperance": "appearance",
+      "apperance": "theme",
       "showIssue": "",
+      "appLabel": "",
       "summary": "summaryRequired",
       "templates": (templates) => {
         return templates.reduce((final, template, i) => {
@@ -13,7 +15,6 @@ export const migrationStruct = {
           );
         }, {});
       },
-      "config": "..",
     },
     data: {
       "items": (items) => {
@@ -24,10 +25,9 @@ export const migrationStruct = {
         });
       },
     },
-    meta: {
-      "meta": "",
-      "dataPath": "sessionDataPath",
-    },
+    //credentials: {
+    //  credentials: "..",
+    //},
   },
   down: {
     config: {
@@ -39,4 +39,4 @@ export const migrationStruct = {
       },
     },
   },
-}
+};
