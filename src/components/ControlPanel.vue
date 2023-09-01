@@ -59,7 +59,7 @@
             block
             :color="currentTheme.primary"
             :style="{ color: currentTheme.white }"
-            @click="handleDeleteConfirmDialog"
+            @click="handleDeleteConfirmDialog()"
           >
             <v-icon left>mdi-delete</v-icon> {{ $tc("caption.delete", 1) }}
           </v-btn>
@@ -92,7 +92,7 @@
             </template>
             <v-card tile>
               <v-list dense>
-                <v-list-item @click="exportItems">
+                <v-list-item @click="exportItems()">
                   <v-list-item-icon class="mr-4">
                     <v-icon>mdi-download</v-icon>
                   </v-list-item-icon>
@@ -145,7 +145,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="resume"
+                @click="resume()"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-play-circle
@@ -166,7 +166,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="handleNewSessionDialog"
+                @click="handleNewSessionDialog()"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-content-save
@@ -186,7 +186,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="handleResetConfirmDialog"
+                @click="handleResetConfirmDialog()"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-close-circle
@@ -445,7 +445,7 @@
                 color="default"
                 :disabled="status === 'pause'"
                 v-on="on"
-                @click="showNoteDialog"
+                @click="showNoteDialog()"
               >
                 <img
                   v-if="$vuetify.theme.dark === false"
@@ -473,7 +473,7 @@
                 color="default"
                 :disabled="status === 'pause'"
                 v-on="on"
-                @click="addMindmap"
+                @click="addMindmap()"
               >
                 <img
                   v-if="$vuetify.theme.dark === false"
@@ -500,7 +500,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="minimize"
+                @click="minimize()"
               >
                 <img
                   v-if="$vuetify.theme.dark === false"
@@ -538,7 +538,7 @@
             </template>
             <v-list>
               <v-list-item
-                @click="showSourcePickerDialog"
+                @click="showSourcePickerDialog()"
                 :disabled="
                   status === 'pause' || recordVideoStarted || recordAudioStarted
                 "
@@ -619,7 +619,7 @@
         :credentialItems="credentials"
       />
       <SummaryDialog
-        ref="SummaryDialog"
+        ref="summaryDialog"
         v-model="summaryDialog"
         @submit-summary="addSummary"
         :configItem="config"
@@ -1218,7 +1218,7 @@ export default {
         this.summaryDialog = true;
 
         setTimeout(() => {
-          this.$refs.SummaryDialog.$refs.comment.editor.commandManager.commands.focus();
+          this.$refs.summaryDialog.$refs.comment.editor.commands.focus();
         }, 200);
       } else {
         if (!window.ipc) return;
