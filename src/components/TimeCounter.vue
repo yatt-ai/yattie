@@ -56,9 +56,11 @@ export default {
       }
     },
     remainingTime() {
+      const elapsedTime = this.$store.state.timer;
       const timer = this.$store.state.duration;
+      const remainingSeconds = timer - elapsedTime;
       const date = new Date(null);
-      date.setSeconds(timer);
+      date.setSeconds(remainingSeconds);
       const result = date.toISOString().substr(11, 8);
       return result;
     },

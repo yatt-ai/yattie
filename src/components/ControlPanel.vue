@@ -635,7 +635,6 @@
         :sources="sources"
         :sourceId="sourceId"
         :loaded="loaded"
-
         :configItem="config"
         @submit-source="startSession()"
       />
@@ -984,7 +983,7 @@ export default {
   mounted() {
     // new session
     window.ipc.on("NEW_SESSION", () => {
-      this.callback = () => this.clearSession();
+      this.callback = () => this.startNewSessionFromFileMenu();
       this.handleNewSessionDialog();
     });
 
@@ -1120,7 +1119,7 @@ export default {
       if (!this.checkedStatusOfPreSessionTask) {
         return;
       }
-      this.clearSession();
+      this.newSessionFromButton();
       this.$store.commit("setQuickTest", false);
       this.showSourcePickerDialog();
     },
@@ -1208,9 +1207,7 @@ export default {
       if (!this.interval) {
         this.interval = setInterval(() => {
           this.timer += 1;
-          if (this.duration > 0) {
-            this.duration -= 1;
-          }
+
           this.updateStoreSession();
           if (this.isDuration && this.duration === 0) {
             this.durationConfirmDialog = true;
@@ -1889,16 +1886,40 @@ export default {
         callback();
       }
     },
-    async clearSession() {
-      this.$root.$emit("new-session");
 
+    async startNewSessionFromFileMenu() {
+      // Emitting the reset-duration event
+      this.$root.$emit("reset-duration");
+
+      // Resetting state variables and store
+      this.$store.commit("clearState");
+
+      // Set window size
+      if (window.ipc) {
+        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+          func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
+          data: {
+            width: 800,
+            height: 600,
+          },
+        });
+      }
+
+      // Navigate to main page if not already there
+      const currentPath = this.$router.history.current.path;
+      if (currentPath !== "/main") {
+        this.$router.push({ path: "/main" });
+      }
+    },
+    async newSessionFromButton() {
+      // Update status and reset timers
       this.status = SESSION_STATUSES.PENDING;
       this.changeSessionStatus(SESSION_STATUSES.PENDING);
-
       this.timer = 0;
       this.isDuration = false;
-      this.duration = 0;
+      this.duration = this.$store.state.duration;
 
+      // Clear dialogs
       this.sourcePickerDialog = false;
       this.noteDialog = false;
       this.summaryDialog = false;
@@ -1910,6 +1931,7 @@ export default {
       this.audioErrorDialog = false;
       this.endSessionDialog = false;
 
+      // Persist data to filesystem
       if (!window.ipc) return;
 
       const data = {
@@ -1930,32 +1952,20 @@ export default {
         data: data,
       });
 
-      this.$store.commit("clearState");
-
       await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
         func: IPC_FUNCTIONS.RESET_DATA,
       });
 
-      window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
-        data: {
-          width: 800,
-          height: 600,
-        },
-      });
-
+      // Stop any ongoing intervals
       this.stopInterval();
-      const currentPath = this.$router.history.current.path;
-      if (currentPath !== "/main") {
-        this.$router.push({ path: "/main" });
-      }
     },
+
     async resetSession() {
       if (this.resetConfirmDialog) {
         this.resetConfirmDialog = false;
       }
 
-      this.$root.$emit("reset-duration");
+      // this.$root.$emit("reset-duration");
 
       this.status = SESSION_STATUSES.PENDING;
       this.changeSessionStatus(SESSION_STATUSES.PENDING);
