@@ -1965,8 +1965,6 @@ export default {
         this.resetConfirmDialog = false;
       }
 
-      // this.$root.$emit("reset-duration");
-
       this.status = SESSION_STATUSES.PENDING;
       this.changeSessionStatus(SESSION_STATUSES.PENDING);
 

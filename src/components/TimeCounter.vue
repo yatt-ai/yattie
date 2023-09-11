@@ -16,7 +16,11 @@
               {{ $tc("caption.remaining_time", 1) }}
             </span>
             <span
-              :class="`time-value ${this.$store.state.status}`"
+              :class="[
+                'time-value',
+                this.$store.state.status,
+                { overtime: isOverTimeLimit },
+              ]"
               :style="{ color: currentTheme.secondary }"
               >{{ remainingTime }}</span
             >

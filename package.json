@@ -34,7 +34,6 @@
     "@yatt-ai/vuetify-tiptap": "^1.1.0",
     "adm-zip": "^0.5.9",
     "axios": "^1.2.1",
-    "canvas": "^2.11.2",
     "child_process": "^1.0.2",
     "client-oauth2": "^4.3.3",
     "core-js": "^3.8.3",
