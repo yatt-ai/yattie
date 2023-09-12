@@ -12,11 +12,15 @@
             </span>
           </div>
           <div class="time">
-            <span class="time-title">
+            <span class="time-title" :class="{ overtime: isOverTimeLimit }">
               {{ $tc("caption.remaining_time", 1) }}
             </span>
             <span
-              :class="`time-value ${this.$store.state.status}`"
+              :class="[
+                'time-value',
+                this.$store.state.status,
+                { overtime: isOverTimeLimit },
+              ]"
               :style="{ color: currentTheme.secondary }"
               >{{ remainingTime }}</span
             >
@@ -56,11 +60,23 @@ export default {
       }
     },
     remainingTime() {
+      const elapsedTime = this.$store.state.timer;
       const timer = this.$store.state.duration;
-      const date = new Date(null);
-      date.setSeconds(timer);
-      const result = date.toISOString().substr(11, 8);
-      return result;
+      const remainingSeconds = timer - elapsedTime;
+      if (remainingSeconds >= 0) {
+        const date = new Date(null);
+        date.setSeconds(remainingSeconds);
+        return date.toISOString().substr(11, 8);
+      } else {
+        const date = new Date(null);
+        date.setSeconds(-remainingSeconds);
+        return "-" + date.toISOString().substr(11, 8);
+      }
+    },
+    isOverTimeLimit() {
+      const elapsedTime = this.$store.state.timer;
+      const timer = this.$store.state.duration;
+      return timer - elapsedTime < 0;
     },
   },
 };
@@ -98,5 +114,10 @@ export default {
 .theme--dark .timecounter-wrapper {
   background-color: #374151;
   border-top: 1px solid #4b5563;
+}
+
+.overtime {
+  color: crimson !important;
+  font-weight: bold;
 }
 </style>

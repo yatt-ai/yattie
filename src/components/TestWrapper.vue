@@ -368,7 +368,7 @@ export default {
     },
   },
   mounted() {
-    this.$root.$on("new-session", () => {
+    this.$root.$on("reset-duration", () => {
       this.duration = "";
     });
   },
