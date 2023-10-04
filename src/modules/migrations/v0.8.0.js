@@ -8,7 +8,7 @@ export const migrationStruct = {
   down: {
     meta: {
       "configPath": "meta.configPath",
-      "credentialsPath": "meta.credentialsPath,
+      "credentialsPath": "meta.credentialsPath",
       "sessionDataPath": "meta.dataPath",
       "version": "meta.version",
     },

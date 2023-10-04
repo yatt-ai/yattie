@@ -25,18 +25,52 @@ export const migrationStruct = {
         });
       },
     },
-    //credentials: {
-    //  credentials: "..",
-    //},
+    credentials: {
+      "credentials": "..",
+    },
   },
   down: {
     config: {
-      "localOnly": "useLocal",
+      "localOnly": "config.useLocal",
+      "theme": "config.apperance",
+      "defaultColor": "config.defaultColor",
+      "commentType": "config.commentType",
+      "audioCapture": "config.audioCapture",
+      "videoQuality": "config.videoQuality",
+      "debugMode": "config.debugMode",
+      "summaryRequired": "config.summary",
+      "ai": "config.ai",
+      "templates": "config.templates",
+      "checklist": "config.checklist",
+      "hotkeys": "config.hotkeys",
+      "version": "config.version",
+      "templates": (templates) => {
+        let newTemplates = [];
+        for (const [type, content] of Object.entries(templates)) {
+          newTemplates.push({
+            type,
+            precondition: content,
+            issue: "",
+            isBug: false
+          })
+        }
+        return newTemplates;
+      },
     },
     data: {
-      "items": {
-        "type": "sessionType",
+      "items": (items) => {
+        return items.map((item) => {
+          item.sessionType = item.type;
+          delete item.type;
+          return item;
+        });
       },
+    },
+    credentials: {
+      "yatt": "credentials.yatt",
+      "jira": "credentials.jira",
+      "testrail": "credentials.testrail",
+      "version": "",
     },
   },
 };

@@ -13,6 +13,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    remote: false,
     title: "",
     charter: {
       content: "",
@@ -36,6 +37,13 @@ export default new Vuex.Store({
   },
   getters: {},
   mutations: {
+    setRemote(state, payload) {
+      state.remote = payload;
+      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.UPDATE_STATE,
+        data: state,
+      });
+    },
     setTitle(state, payload) {
       state.title = payload;
       window.ipc.invoke(IPC_HANDLERS.DATABASE, {
@@ -118,6 +126,7 @@ export default new Vuex.Store({
       });
     },
     clearState(state) {
+      state.remote = false;
       state.title = "";
       state.charter = {
         content: "",
@@ -158,6 +167,7 @@ export default new Vuex.Store({
       });
     },
     restoreState(state, payload) {
+      state.remote = payload.remote || false;
       state.title = payload.title;
       state.charter.content = payload?.charter?.content || "";
       state.charter.text = payload?.charter?.text || "";

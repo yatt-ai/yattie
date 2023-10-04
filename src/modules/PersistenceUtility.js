@@ -326,7 +326,10 @@ const applyMigrations = (type, newVersion, data) => {
       for (
         const[key, value] of Object.entries(migrationStruct[direction][type])
       ) {
-        if (value === "..") {
+        if (
+          value === ".." ||
+          (value.length > 1 && value.split(".").length > 1)
+        ) {
           moveUpMigrations[key] = value;
         } else if (value.constructor === String) {
           moveLateralMigrations[key] = value;
@@ -361,16 +364,24 @@ const migrateKeys = (migrations, data) => {
     const [key, value] of Object.entries(migrations)
   ) {
     if (value.constructor === String) {
-      if (value === "..") {
-        for (
-          const [subKey, subValue] of Object.entries(data[key])
-        ) {
-          data[subKey] = subValue;
+      if (data[key]) {
+        if (value === "..") {
+          for (
+            const [subKey, subValue] of Object.entries(data[key])
+          ) {
+            data[subKey] = subValue;
+          }
+        } else if (value.length > 1 && value.split(".") > 1) {
+          if (/^[A-za-z0-9\.-_]+$/.test(value)) {
+            eval(`data.${value} = data[key];`);
+          } else {
+            console.log(`Invalid migration value [${value}] skipping...`);
+          }
+        } else if (value !== "") {
+          data[value] = data[key];
         }
-      } else if (value !== "") {
-        data[value] = data[key];
+        delete data[key];
       }
-      delete data[key];
   
     } else if (value.constructor === Function) {
       if (data[key]) {
