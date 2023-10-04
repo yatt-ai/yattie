@@ -378,13 +378,9 @@ export default {
         this.comment.type = this.config.commentType;
       }
       // set templates by config
-      this.config.templates.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.type === this.item.sessionType) {
-          this.comment.content = temp.precondition.content;
-          this.comment.text = temp.precondition.text;
-        }
-      });
+      const template = this.config.templates[this.item.sessionType];
+      this.comment.content = template.content;
+      this.comment.text = template.text;
     });
 
     this.$root.$on("update-edit-item", this.updateEditItem);

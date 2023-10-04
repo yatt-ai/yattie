@@ -23,10 +23,10 @@
         </div>
         <div class="mb-3 precond">
           <v-tiptap
-            label="Preconditions"
-            v-model="template.precondition.content"
-            :placeholder="$t('message.define_required_precondition')"
-            ref="precondition"
+            label="Text"
+            v-model="template.content"
+            :placeholder="$t('message.default_template_text')"
+            ref="text"
             :toolbar="[
               'headings',
               '|',
@@ -43,7 +43,7 @@
               'emoji',
               'blockquote',
             ]"
-            @input="updatePrecondition"
+            @input="updateText"
           >
           </v-tiptap>
         </div>
@@ -106,7 +106,6 @@
 </template>
 
 <script>
-import { SESSION_TYPES } from "../../modules/constants";
 export default {
   name: "TemplateTab",
   components: {},
@@ -134,40 +133,32 @@ export default {
     return {
       config: this.configItem,
       templates: this.configItem.templates,
-      template: this.configItem.templates[0],
-      type: this.configItem.templates[0].type,
-      sessionTypes: SESSION_TYPES,
+      template: Object.values(this.configItem.templates)[0],
+      type: Object.keys(this.configItem.templates)[0],
+      sessionTypes: Object.keys(this.configItem.templates),
     };
   },
   mounted() {},
   methods: {
-    updatePrecondition() {
+    updateText() {
       const regex = /(<([^>]+)>)/gi;
-      this.template.precondition.text =
-        this.template.precondition.content.replace(regex, "");
+      this.template.text = this.template.content.replace(regex, "");
     },
     handleTemplate() {
-      this.templates.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.type === this.type) {
-          this.template = temp;
-        }
-      });
+      this.template = Object.assign({}, this.templates[this.type]);
     },
     handleCancel() {
-      this.type = this.templates[0].type;
-      this.template = this.templates[0];
+      this.template = Object.values(this.configItem.templates)[0];
+      this.type = Object.keys(this.configItem.templates)[0];
     },
     saveTemplate() {
-      this.templates = this.templates.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.type === this.template.type) {
-          temp = this.template;
-        }
-        return temp;
-      });
+      this.templates[this.type] = this.template;
       this.config.templates = this.templates;
       this.$emit("submit-config", this.config);
+      this.$root.$emit(
+        "set-snackbar",
+        this.$tc("caption.successfully_saved", 1)
+      );
     },
   },
 };

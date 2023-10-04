@@ -105,15 +105,6 @@ export const SESSION_STATUSES = {
   END: "end",
 };
 
-export const SESSION_TYPES = [
-  "Screenshot",
-  "Video",
-  "Audio",
-  "Note",
-  "File",
-  "Mindmap",
-];
-
 export const HOTKEY_PAGES = [
   "general",
   "home",
