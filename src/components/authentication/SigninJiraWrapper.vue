@@ -499,7 +499,7 @@ export default {
             } else {
               tempCredentials.yatt[0].oauthTokenIds = [tokenId];
             }
-            await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+            await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
               func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
               data: tempCredentials,
             });

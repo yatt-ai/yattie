@@ -231,7 +231,7 @@ export default {
               this.credentials[0].type = "jira";
               this.credentials[0].data = jiraData;
 
-              window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+              window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
                 func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
                 data: this.credentials,
               });

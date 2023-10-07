@@ -41,14 +41,14 @@ export default {
   methods: {
     getConfig() {
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CONFIG })
+        .invoke(IPC_HANDLERS.PERSISTENCE, { func: IPC_FUNCTIONS.GET_CONFIG })
         .then((result) => {
           this.config = result;
         });
     },
     getCredentials() {
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
+        .invoke(IPC_HANDLERS.PERSISTENCE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
         .then((result) => {
           this.credentials = result;
         });

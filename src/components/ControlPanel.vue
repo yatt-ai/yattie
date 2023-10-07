@@ -1250,7 +1250,7 @@ export default {
         this.changeSessionStatus(SESSION_STATUSES.START);
       }
 
-      const sessionId = await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      const sessionId = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.GET_SESSION_ID,
       });
 
@@ -1822,11 +1822,11 @@ export default {
     },
     async deleteItems() {
       if (!window.ipc) return;
-      await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.DELETE_ITEMS,
         data: this.selected,
       });
-      await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.DELETE_NOTES,
         data: this.selected,
       });
@@ -1846,7 +1846,7 @@ export default {
     },
     async saveSession(callback = null) {
       this.newSessionDialog = false;
-      const sessionId = await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      const sessionId = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.GET_SESSION_ID,
       });
 
@@ -1922,7 +1922,7 @@ export default {
 
       this.$store.commit("clearState");
 
-      await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.RESET_DATA,
       });
 
@@ -1958,7 +1958,7 @@ export default {
 
       if (!window.ipc) return;
       await window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
+        .invoke(IPC_HANDLERS.PERSISTENCE, {
           func: IPC_FUNCTIONS.RESET_DATA,
         })
         .then(() => {

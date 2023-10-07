@@ -1122,7 +1122,7 @@ export default {
     },
     handleActivateEditSession(id) {
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
+        .invoke(IPC_HANDLERS.PERSISTENCE, {
           func: IPC_FUNCTIONS.GET_ITEM_BY_ID,
           data: id,
         })
@@ -1225,7 +1225,7 @@ export default {
     },
     saveData() {
       if (window.ipc) {
-        window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
           func: IPC_FUNCTIONS.UPDATE_ITEMS,
           data: this.itemLists,
         });

@@ -86,7 +86,7 @@ ipcMain.handle(IPC_HANDLERS.WINDOW, async (event, args) => {
   }
 });
 
-ipcMain.handle(IPC_HANDLERS.DATABASE, async (event, args) => {
+ipcMain.handle(IPC_HANDLERS.PERSISTENCE, async (event, args) => {
   switch (args.func) {
     case IPC_FUNCTIONS.INITIALIZE_SESSION:
       return persistenceUtility.initializeSession();

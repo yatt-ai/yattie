@@ -301,7 +301,7 @@ export default {
       if (!window.ipc) return;
 
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_ITEMS })
+        .invoke(IPC_HANDLERS.PERSISTENCE, { func: IPC_FUNCTIONS.GET_ITEMS })
         .then((result) => {
           this.items = result;
         });
@@ -310,7 +310,7 @@ export default {
       if (!window.ipc) return;
 
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
+        .invoke(IPC_HANDLERS.PERSISTENCE, {
           func: IPC_FUNCTIONS.GET_CONFIG,
         })
         .then((result) => {
@@ -321,7 +321,7 @@ export default {
       if (!window.ipc) return;
 
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
+        .invoke(IPC_HANDLERS.PERSISTENCE, {
           func: IPC_FUNCTIONS.GET_CREDENTIALS,
         })
         .then((result) => {
@@ -373,7 +373,7 @@ export default {
     saveData() {
       if (!window.ipc) return;
 
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_ITEM,
         data: this.editItem,
       });

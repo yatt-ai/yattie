@@ -4,7 +4,7 @@ export default {
   saveSession(credentials, data) {
     // CTODO
     // Pull case and session data
-    const session = await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+    const session = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.GET_CURRENT_SESSION,
       });
 
@@ -33,7 +33,7 @@ export default {
       credentials.yatt = [formattedData];
     }
 
-    window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+    window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
       func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
       data: credentials,
     });

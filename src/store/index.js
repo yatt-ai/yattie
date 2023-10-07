@@ -39,14 +39,14 @@ export default new Vuex.Store({
   mutations: {
     setRemote(state, payload) {
       state.remote = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
       });
     },
     setTitle(state, payload) {
       state.title = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
       });
@@ -54,7 +54,7 @@ export default new Vuex.Store({
     setCharter(state, payload) {
       state.charter.content = payload.content;
       state.charter.text = payload.text;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
       });
@@ -62,7 +62,7 @@ export default new Vuex.Store({
     setMindmap(state, payload) {
       state.mindmap.nodes = payload.nodes;
       state.mindmap.connections = payload.connections;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
       });
@@ -70,42 +70,42 @@ export default new Vuex.Store({
     setPrecondition(state, payload) {
       state.preconditions.content = payload.content;
       state.preconditions.text = payload.text;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
       });
     },
     setDuration(state, payload) {
       state.duration = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
       });
     },
     setStarted(state, payload) {
       state.started = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
       });
     },
     setEnded(state, payload) {
       state.ended = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
       });
     },
     setQuickTest(state, payload) {
       state.quickTest = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
       });
     },
     setPath(state, payload) {
       state.path = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
       });
@@ -120,7 +120,7 @@ export default new Vuex.Store({
       if (state.duration !== payload.duration) {
         state.duration = payload.duration;
       }
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
       });
@@ -148,7 +148,7 @@ export default new Vuex.Store({
       state.started = "";
       state.ended = "";
       state.quickTest = false;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
       });
@@ -161,7 +161,7 @@ export default new Vuex.Store({
       state.started = "";
       state.ended = "";
       state.quickTest = false;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
       });
@@ -184,7 +184,7 @@ export default new Vuex.Store({
       state.ended = payload.ended;
       state.quickTest = payload.quickTest;
       state.path = payload.path;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.UPDATE_STATE,
         data: state,
       });

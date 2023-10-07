@@ -305,7 +305,7 @@ export default {
       if (!window.ipc) return;
 
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
+        .invoke(IPC_HANDLERS.PERSISTENCE, {
           func: IPC_FUNCTIONS.GET_CREDENTIALS,
         })
         .then((credentials) => {

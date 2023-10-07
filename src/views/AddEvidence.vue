@@ -402,7 +402,7 @@ export default {
       if (!window.ipc) return;
 
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
+        .invoke(IPC_HANDLERS.PERSISTENCE, {
           func: IPC_FUNCTIONS.GET_CONFIG,
         })
         .then((result) => {
@@ -413,7 +413,7 @@ export default {
       if (!window.ipc) return;
 
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
+        .invoke(IPC_HANDLERS.PERSISTENCE, {
           func: IPC_FUNCTIONS.GET_CREDENTIALS,
         })
         .then((result) => {
@@ -498,7 +498,7 @@ export default {
         createdAt: Date.now(),
       };
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
+        .invoke(IPC_HANDLERS.PERSISTENCE, {
           func: IPC_FUNCTIONS.ADD_ITEM,
           data: newItem,
         })
