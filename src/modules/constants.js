@@ -1,7 +1,7 @@
 export const IPC_HANDLERS = {
   BROWSER: "browser",
   CAPTURE: "capture",
-  DATABASE: "database",
+  PERSISTENCE: "persistence",
   FILE_SYSTEM: "fileSystem",
   STORE: "store",
   MENU: "menu",
@@ -42,6 +42,7 @@ export const IPC_FUNCTIONS = {
   MOVE_WINDOW: "moveWindow",
 
   INITIALIZE_SESSION: "initializeSession",
+  GET_CURRENT_SESSION: "getCurrentSession",
   GET_SESSION_ID: "getSessionID",
   GET_STATE: "getState",
   UPDATE_STATE: "updateState",

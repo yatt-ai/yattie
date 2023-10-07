@@ -90,6 +90,8 @@ ipcMain.handle(IPC_HANDLERS.DATABASE, async (event, args) => {
   switch (args.func) {
     case IPC_FUNCTIONS.INITIALIZE_SESSION:
       return persistenceUtility.initializeSession();
+    case IPC_FUNCTIONS.GET_CURRENT_SESSION:
+      return persistenceUtility.getCurrentSession();
     case IPC_FUNCTIONS.GET_SESSION_ID:
       return persistenceUtility.getSessionID();
     case IPC_FUNCTIONS.GET_STATE:

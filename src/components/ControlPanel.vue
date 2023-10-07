@@ -565,9 +565,16 @@
                   status === 'pause' || recordVideoStarted || recordAudioStarted
                 "
               >
-                <v-list-item-title>
+                <v-icon class="ddl-icon">mdi-fit-to-screen</v-icon>
+                <v-list-item-content>
                   {{ $tc("caption.change_recording_target", 1) }}
-                </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="showShareDialog()">
+                <v-icon class="ddl-icon">mdi-share-variant</v-icon>
+                <v-list-item-content>
+                  {{ $tc("caption.share_session", 1) }}
+                </v-list-item-content>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -637,6 +644,10 @@
         :configItem="config"
         @submit-source="startSession"
       />
+      <ShareSessionDialog
+        v-model="shareSessionDialog"
+        :session-link="sessionLink"
+      />
       <NoteDialog
         v-model="noteDialog"
         :configItem="config"
@@ -703,6 +714,8 @@
 <script>
 import { VContainer, VRow, VCol, VBtn, VIcon } from "vuetify/lib/components";
 import uuidv4 from "uuid";
+
+import yattIntegrationHelper from "../integrations/YattIntegrationHelpers";
 
 import SourcePickerDialog from "./dialogs/SourcePickerDialog.vue";
 import NoteDialog from "./dialogs/NoteDialog.vue";
@@ -942,6 +955,7 @@ export default {
   data() {
     return {
       sourcePickerDialog: false,
+      shareSessionDialog: false,
       noteDialog: false,
       summaryDialog: false,
       deleteConfirmDialog: false,
@@ -952,6 +966,7 @@ export default {
       audioErrorDialog: false,
       endSessionDialog: false,
       sources: [],
+      sessionLink: "",
       sourceId: this.srcId,
       itemLists: this.items,
       config: this.configItem,
@@ -1151,6 +1166,14 @@ export default {
           });
         }
       });
+    },
+    async showShareSessionDialog() {
+      // CTODO
+      let savedSession = await yattIntegrationHelper.saveSession(
+        this.credentials
+      );
+      this.sessionLink = savedSession?.link;
+      this.shareSessionDialog = true;
     },
     hideSourcePickerDialog() {
       this.sourcePickerDialog = false;
@@ -1986,6 +2009,9 @@ export default {
 </script>
 
 <style scoped>
+.ddl-icon {
+  margin-right: 0.25em;
+}
 .mini-ctrl-wrapper {
   display: flex;
   flex-direction: column;

@@ -1,3 +1,5 @@
+const uuidv4 = require("uuid");
+
 export const migrationStruct = {
   up: {
     config: {
@@ -19,7 +21,11 @@ export const migrationStruct = {
     data: {
       "items": (items) => {
         return items.map((item) => {
+          item.sessionId = item.id;
+          item.caseId = uuidv4();
           item.type = item.sessionType;
+
+          delete item.id;
           delete item.sessionType;
           return item;
         });

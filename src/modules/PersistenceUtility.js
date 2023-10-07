@@ -413,9 +413,6 @@ const getItemById = (id) => {
 };
 
 module.exports.createNewSession = (state) => {
-  if (dataDb) {
-    // TODO - ditching current session, should we save it or do something?
-  }
   const sessionDataPath = path.join(
     configDir,
     "sessions",
@@ -425,7 +422,8 @@ module.exports.createNewSession = (state) => {
 
   metaDb.set("sessionDataPath", sessionDataPath);
   dataDb = new JSONdb(sessionDataPath, jsonDbConfig);
-  dataDb.set("id", state.id);
+  dataDb.set("caseId", state.caseId);
+  dataDb.set("sessionId", state.sessionId);
   delete state.id;
   dataDb.set("state", state);
   dataDb.set("items", []);
@@ -434,6 +432,18 @@ module.exports.createNewSession = (state) => {
     text: "",
   });
   dataDb.set("version", currentVersion);
+};
+
+module.exports.getCurrentSession = () => {
+  try {
+    if (dataDb) {
+      return dataDb.JSON();
+    }
+    return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
 };
 
 module.exports.getSessionID = () => {

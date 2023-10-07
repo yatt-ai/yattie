@@ -1,8 +1,17 @@
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 
 export default {
+  saveSession(credentials, data) {
+    // CTODO
+    // Pull case and session data
+    const session = await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.GET_CURRENT_SESSION,
+      });
+
+    // Post to YATT
+    // Return result (with generated "link" field)
+  },
   saveCredentials(credentials, data) {
-    console.log(`Saving YATT: ${JSON.stringify(data)}`);
     let formattedData = this.formatData(data);
 
     if (!credentials) {

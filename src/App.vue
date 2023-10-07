@@ -22,7 +22,7 @@ export default {
     // Only restore state for the primary window that opens at HomeView
     if (this.$router.history.current.path === "/") {
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
+        .invoke(IPC_HANDLERS.PERSISTENCE, {
           func: IPC_FUNCTIONS.GET_STATE,
         })
         .then((state) => {
