@@ -406,7 +406,7 @@ export default {
 
     window.ipc.on("ACTIVE_SESSION", async (data) => {
       // set theme mode
-      const isDarkMode = this.config.apperance === "dark" ? true : false;
+      const isDarkMode = this.config.theme === "dark" ? true : false;
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode);
 
@@ -523,7 +523,8 @@ export default {
       if (data) {
         this.item.fileName = data.fileName;
         this.item.filePath = data.filePath;
-        this.item.id = data.id;
+        this.item.stepID = data.stepID;
+        this.item.attachmentID = data.attachmentID;
       }
 
       window.ipc

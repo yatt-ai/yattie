@@ -144,12 +144,12 @@ export default {
         data: this.config,
       });
 
-      const isDarkMode = this.config.apperance === "dark" ? true : false;
+      const isDarkMode = this.config.theme === "dark" ? true : false;
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode);
       window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
         func: IPC_FUNCTIONS.SET_APPERANCE,
-        data: { apperance: this.config.apperance },
+        data: { theme: this.config.theme },
       });
     },
     async getCredentials() {

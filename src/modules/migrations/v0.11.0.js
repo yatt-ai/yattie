@@ -3,26 +3,25 @@ const uuidv4 = require("uuid");
 export const migrationStruct = {
   up: {
     config: {
-      "config": "..",
-      "useLocal": "localOnly",
-      "apperance": "theme",
-      "showIssue": "",
-      "appLabel": "",
-      "summary": "summaryRequired",
-      "templates": (templates) => {
-        return templates.reduce((final, template, i) => {
-          return Object.assign(
-            final,
-            {[`${template.type}`]: template.precondition}
-          );
+      config: "..",
+      useLocal: "localOnly",
+      apperance: "theme",
+      showIssue: "",
+      appLabel: "",
+      summary: "summaryRequired",
+      templates: (templates) => {
+        return templates.reduce((final, template) => {
+          return Object.assign(final, {
+            [`${template.type}`]: template.precondition,
+          });
         }, {});
       },
     },
     data: {
-      "items": (items) => {
+      items: (items) => {
         return items.map((item) => {
-          item.sessionId = item.id;
-          item.caseId = uuidv4();
+          item.sessionID = item.id;
+          item.caseID = uuidv4();
           item.type = item.sessionType;
 
           delete item.id;
@@ -32,39 +31,40 @@ export const migrationStruct = {
       },
     },
     credentials: {
-      "credentials": "..",
+      credentials: "..",
     },
   },
+  // CTODO - no dupe keys for multiple transitions... (templates)
   down: {
     config: {
-      "localOnly": "config.useLocal",
-      "theme": "config.apperance",
-      "defaultColor": "config.defaultColor",
-      "commentType": "config.commentType",
-      "audioCapture": "config.audioCapture",
-      "videoQuality": "config.videoQuality",
-      "debugMode": "config.debugMode",
-      "summaryRequired": "config.summary",
-      "ai": "config.ai",
-      "templates": "config.templates",
-      "checklist": "config.checklist",
-      "hotkeys": "config.hotkeys",
-      "version": "config.version",
-      "templates": (templates) => {
+      localOnly: "config.useLocal",
+      theme: "config.apperance",
+      defaultColor: "config.defaultColor",
+      commentType: "config.commentType",
+      audioCapture: "config.audioCapture",
+      videoQuality: "config.videoQuality",
+      debugMode: "config.debugMode",
+      summaryRequired: "config.summary",
+      ai: "config.ai",
+      templates: "config.templates",
+      checklist: "config.checklist",
+      hotkeys: "config.hotkeys",
+      version: "config.version",
+      templates: (templates) => {
         let newTemplates = [];
         for (const [type, content] of Object.entries(templates)) {
           newTemplates.push({
             type,
             precondition: content,
             issue: "",
-            isBug: false
-          })
+            isBug: false,
+          });
         }
         return newTemplates;
       },
     },
     data: {
-      "items": (items) => {
+      items: (items) => {
         return items.map((item) => {
           item.sessionType = item.type;
           delete item.type;
@@ -73,10 +73,10 @@ export const migrationStruct = {
       },
     },
     credentials: {
-      "yatt": "credentials.yatt",
-      "jira": "credentials.jira",
-      "testrail": "credentials.testrail",
-      "version": "",
+      yatt: "credentials.yatt",
+      jira: "credentials.jira",
+      testrail: "credentials.testrail",
+      version: "",
     },
   },
 };

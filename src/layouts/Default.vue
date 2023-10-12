@@ -124,8 +124,8 @@ export default {
       });
     });
 
-    window.ipc.on("SET_THEME", ({ apperance }) => {
-      const isDarkMode = apperance === "dark" ? true : false;
+    window.ipc.on("SET_THEME", ({ theme }) => {
+      const isDarkMode = theme === "dark" ? true : false;
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode);
     });
@@ -182,7 +182,9 @@ export default {
     async getCredentials() {
       if (!window.ipc) return;
       await window.ipc
-        .invoke(IPC_HANDLERS.PERSISTENCE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
+        .invoke(IPC_HANDLERS.PERSISTENCE, {
+          func: IPC_FUNCTIONS.GET_CREDENTIALS,
+        })
         .then((result) => {
           this.credentials = result;
         });

@@ -37,27 +37,27 @@ const defaultConfig = {
   templates: {
     Screenshot: {
       content: "<p>Testing this</p>",
-      text: "Testing this"
+      text: "Testing this",
     },
     Video: {
       content: "",
-      text: ""
+      text: "",
     },
     Audio: {
       content: "",
-      text: ""
+      text: "",
     },
     Note: {
       content: "",
-      text: ""
+      text: "",
     },
     File: {
       content: "",
-      text: ""
+      text: "",
     },
     Mindmap: {
       content: "",
-      text: ""
+      text: "",
     },
   },
   checklist: {
@@ -130,22 +130,14 @@ module.exports.initializeSession = () => {
     metadata = this.getMetadata();
   }
 
-  metadata = applyMigrations(
-    "meta",
-    currentVersion,
-    metadata,
-  );
+  metadata = applyMigrations("meta", currentVersion, metadata);
 
   if (!metadata.configPath) {
     metadata.configPath = defaultMeta.configPath;
   }
   configDb = new JSONdb(metadata.configPath, jsonDbConfig);
 
-  const configData = applyMigrations(
-    "config",
-    currentVersion,
-    configDb.JSON(),
-  );
+  const configData = applyMigrations("config", currentVersion, configDb.JSON());
 
   if (!metadata.credentialsPath) {
     metadata.credentialsPath = defaultMeta.credentialsPath;
@@ -155,35 +147,31 @@ module.exports.initializeSession = () => {
   const credentialData = applyMigrations(
     "credentials",
     currentVersion,
-    credentialDb.JSON(),
+    credentialDb.JSON()
   );
 
   let sessionData;
   if (metadata.sessionDataPath) {
     if (fs.existsSync(metadata.sessionDataPath)) {
       dataDb = new JSONdb(metadata.sessionDataPath, jsonDbConfig);
-      sessionData = applyMigrations(
-        "data",
-        currentVersion,
-        dataDb.JSON(),
-      );
+      sessionData = applyMigrations("data", currentVersion, dataDb.JSON());
     } else {
       metaDb.set("sessionDataPath", "");
     }
   }
 
   try {
-    metaDb.JSON(metadata)
+    metaDb.JSON(metadata);
     metaDb.sync();
 
-    configDb.JSON(configData)
+    configDb.JSON(configData);
     configDb.sync();
 
-    credentialDb.JSON(credentialData)
+    credentialDb.JSON(credentialData);
     credentialDb.sync();
 
     if (sessionData) {
-      dataDb.JSON(sessionData)
+      dataDb.JSON(sessionData);
       dataDb.sync();
     }
   } catch (error) {
@@ -231,28 +219,28 @@ const applyMigrations = (type, newVersion, data) => {
     let splitDataVersion = oldVersion.split(".");
     splitDataVersion = splitDataVersion.map((num) => parseInt(num));
     let direction = "up";
-    for (let i=0; i < splitNewVersion.length; i++) {
+    for (let i = 0; i < splitNewVersion.length; i++) {
       if (splitNewVersion[i] < splitDataVersion[i]) {
         let direction = "down";
         break;
       }
     }
-  
+
     // Read migration files
     let migrationFiles = fs.readdirSync("./src/modules/migrations/");
     let migrationVersions = migrationFiles.map((fileName) => {
       let temp = fileName.substring(1, fileName.length - 3).split(".");
       return temp.map((num) => parseInt(num));
     });
-    // List is in order from lowest to highest 
+    // List is in order from lowest to highest
     if (direction === "down") {
       migrationFiles.reverse();
       migrationVersions.reverse();
     }
-  
+
     // Find the the next migration to run.
     let nextMigrationIndex;
-    for (let i=0; i < migrationVersions.length; i++) {
+    for (let i = 0; i < migrationVersions.length; i++) {
       if (direction === "up") {
         if (migrationVersions[i][0] < splitDataVersion[0]) {
           continue;
@@ -261,12 +249,12 @@ const applyMigrations = (type, newVersion, data) => {
           if (migrationVersions[i][1] < splitDataVersion[1]) {
             continue;
           }
-  
+
           if (migrationVersions[i][1] > splitDataVersion[1]) {
             nextMigrationIndex = i;
             break;
           }
-  
+
           if (migrationVersions[i][1] === splitDataVersion[1]) {
             if (migrationVersions[i][2] <= splitDataVersion[2]) {
               continue;
@@ -288,12 +276,12 @@ const applyMigrations = (type, newVersion, data) => {
           if (migrationVersions[i][1] > splitDataVersion[1]) {
             continue;
           }
-  
+
           if (migrationVersions[i][1] < splitDataVersion[1]) {
             nextMigrationIndex = i;
             break;
           }
-  
+
           if (migrationVersions[i][1] === splitDataVersion[1]) {
             if (migrationVersions[i][2] >= splitDataVersion[2]) {
               continue;
@@ -309,13 +297,12 @@ const applyMigrations = (type, newVersion, data) => {
         }
       }
     }
-  
+
     // Run migrations in order
-    for (
-      const migration of migrationFiles.slice(
-        nextMigrationIndex, migrationFiles.length
-      )
-    ) {
+    for (const migration of migrationFiles.slice(
+      nextMigrationIndex,
+      migrationFiles.length
+    )) {
       const { migrationStruct } = require(`./migrations/${migration}`);
       if (!migrationStruct[direction][type]) continue;
 
@@ -323,9 +310,9 @@ const applyMigrations = (type, newVersion, data) => {
       let moveUpMigrations = {};
       let moveLateralMigrations = {};
       let otherMigrations = {};
-      for (
-        const[key, value] of Object.entries(migrationStruct[direction][type])
-      ) {
+      for (const [key, value] of Object.entries(
+        migrationStruct[direction][type]
+      )) {
         if (
           value === ".." ||
           (value.length > 1 && value.split(".").length > 1)
@@ -337,7 +324,7 @@ const applyMigrations = (type, newVersion, data) => {
           otherMigrations[key] = value;
         }
       }
-      
+
       migratedData = migrateKeys(moveUpMigrations, migratedData);
       migratedData = migrateKeys(moveLateralMigrations, migratedData);
       migratedData = migrateKeys(otherMigrations, migratedData);
@@ -360,15 +347,11 @@ const applyMigrations = (type, newVersion, data) => {
 
 const migrateKeys = (migrations, data) => {
   // Apply migration transformations
-  for (
-    const [key, value] of Object.entries(migrations)
-  ) {
+  for (const [key, value] of Object.entries(migrations)) {
     if (value.constructor === String) {
       if (data[key]) {
         if (value === "..") {
-          for (
-            const [subKey, subValue] of Object.entries(data[key])
-          ) {
+          for (const [subKey, subValue] of Object.entries(data[key])) {
             data[subKey] = subValue;
           }
         } else if (value.length > 1 && value.split(".") > 1) {
@@ -382,7 +365,6 @@ const migrateKeys = (migrations, data) => {
         }
         delete data[key];
       }
-  
     } else if (value.constructor === Function) {
       if (data[key]) {
         data[key] = value(data[key]);
@@ -401,13 +383,13 @@ const createRootSessionDirectory = () => {
 
 const removeItemById = (id) => {
   const data = dataDb.get("items");
-  const updatedData = data.filter((item) => item.id !== id);
+  const updatedData = data.filter((item) => item.stepID !== id);
   dataDb.set("items", updatedData);
 };
 
 const getItemById = (id) => {
   const data = dataDb.get("items");
-  const item = data.find((item) => item.id === id);
+  const item = data.find((item) => item.stepID === id);
 
   return item;
 };
@@ -422,8 +404,8 @@ module.exports.createNewSession = (state) => {
 
   metaDb.set("sessionDataPath", sessionDataPath);
   dataDb = new JSONdb(sessionDataPath, jsonDbConfig);
-  dataDb.set("caseId", state.caseId);
-  dataDb.set("sessionId", state.sessionId);
+  dataDb.set("caseID", state.caseID);
+  dataDb.set("sessionID", state.sessionID);
   delete state.id;
   dataDb.set("state", state);
   dataDb.set("items", []);
@@ -449,10 +431,22 @@ module.exports.getCurrentSession = () => {
 module.exports.getSessionID = () => {
   try {
     if (dataDb) {
-      return dataDb.get("id");
+      return dataDb.get("sessionID");
     }
     return "";
   } catch (error) {
+    console.log(error);
+    return "";
+  }
+};
+
+module.exports.getCaseID = () => {
+  try {
+    if (dataDb) {
+      return dataDb.get("caseID");
+    }
+    return "";
+  } catch (error) { 
     console.log(error);
     return "";
   }
@@ -514,7 +508,7 @@ module.exports.updateItem = (newItem) => {
   try {
     debugger;
     let items = dataDb.get("items").map((item) => {
-      if (item.id === newItem.id) {
+      if (item.stepID === newItem.stepID) {
         return newItem;
       }
       return item;
@@ -583,7 +577,7 @@ module.exports.updateConfig = (config) => {
 
 module.exports.getCredentials = () => {
   try {
-    const {version: _, ...credentials} = credentialDb.JSON();
+    const { version: _, ...credentials } = credentialDb.JSON();
     return credentials;
   } catch (error) {
     return {};

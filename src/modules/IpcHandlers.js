@@ -94,6 +94,8 @@ ipcMain.handle(IPC_HANDLERS.PERSISTENCE, async (event, args) => {
       return persistenceUtility.getCurrentSession();
     case IPC_FUNCTIONS.GET_SESSION_ID:
       return persistenceUtility.getSessionID();
+    case IPC_FUNCTIONS.GET_CASE_ID:
+      return persistenceUtility.getCaseID();
     case IPC_FUNCTIONS.GET_STATE:
       return persistenceUtility.getState();
     case IPC_FUNCTIONS.UPDATE_STATE:

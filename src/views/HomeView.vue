@@ -250,7 +250,9 @@ export default {
       if (!window.ipc) return;
 
       window.ipc
-        .invoke(IPC_HANDLERS.PERSISTENCE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
+        .invoke(IPC_HANDLERS.PERSISTENCE, {
+          func: IPC_FUNCTIONS.GET_CREDENTIALS,
+        })
         .then((result) => {
           this.credentials = result;
           for (const credentialType of Object.keys(this.credentials)) {

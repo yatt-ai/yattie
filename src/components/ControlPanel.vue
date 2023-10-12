@@ -570,7 +570,7 @@
                   {{ $tc("caption.change_recording_target", 1) }}
                 </v-list-item-content>
               </v-list-item>
-              <v-list-item @click="showShareDialog()">
+              <v-list-item @click="showShareSessionDialog()">
                 <v-icon class="ddl-icon">mdi-share-variant</v-icon>
                 <v-list-item-content>
                   {{ $tc("caption.share_session", 1) }}
@@ -647,6 +647,7 @@
       <ShareSessionDialog
         v-model="shareSessionDialog"
         :session-link="sessionLink"
+        :configItem="config"
       />
       <NoteDialog
         v-model="noteDialog"
@@ -718,6 +719,7 @@ import uuidv4 from "uuid";
 import yattIntegrationHelper from "../integrations/YattIntegrationHelpers";
 
 import SourcePickerDialog from "./dialogs/SourcePickerDialog.vue";
+import ShareSessionDialog from "./dialogs/ShareSessionDialog.vue";
 import NoteDialog from "./dialogs/NoteDialog.vue";
 import SummaryDialog from "./dialogs/SummaryDialog.vue";
 import DeleteConfirmDialog from "./dialogs/DeleteConfirmDialog.vue";
@@ -758,6 +760,7 @@ export default {
     VBtn,
     VIcon,
     SourcePickerDialog,
+    ShareSessionDialog,
     NoteDialog,
     SummaryDialog,
     DeleteConfirmDialog,
@@ -1017,6 +1020,7 @@ export default {
     });
 
     this.$root.$on("close-sourcepickerdialog", this.hideSourcePickerDialog);
+    this.$root.$on("close-sharesessiondialog", this.hideShareSessionDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
     this.$root.$on("close-summarydialog", () => {
       this.summaryDialog = false;
@@ -1177,6 +1181,9 @@ export default {
     },
     hideSourcePickerDialog() {
       this.sourcePickerDialog = false;
+    },
+    hideShareSessionDialog() {
+      this.shareSessionDialog = false;
     },
     showNoteDialog() {
       if (this.viewMode === "normal") {
@@ -1440,7 +1447,8 @@ export default {
             console.log(message);
           } else {
             const data = {
-              id: item.id,
+              stepID: item.stepID,
+              attachmentID: item.attachmentID,
               sessionType: "Screenshot",
               fileType: "image",
               fileName: item.fileName,
@@ -1544,9 +1552,10 @@ export default {
             this.$root.$emit("set-snackbar", message);
             console.log(message);
           } else {
-            const { id, fileName, filePath } = item;
+            const { stepID, attachmentID, fileName, filePath } = item;
             const data = {
-              id,
+              stepID,
+              attachmentID,
               sessionType: "Video",
               fileType: "video",
               fileName,
@@ -1676,7 +1685,8 @@ export default {
             console.log(message);
           } else {
             const data = {
-              id: item.id,
+              stepID: item.stepID,
+              attachmentID: item.attachmentID,
               sessionType: "Audio",
               fileType: "audio",
               fileName: item.fileName,
@@ -1749,7 +1759,8 @@ export default {
         console.log(message);
       } else {
         let newItem = {
-          id: item.id,
+          stepID: item.stepID,
+          // CTODO needed? attachmentID: item.attachmentID,
           sessionType: "Note",
           fileType: "text",
           fileName: item.fileName,
@@ -1769,14 +1780,15 @@ export default {
     async addSummary(value) {
       // TODO - handle summary like a regular note and allow additional metadata
       const data = {
-        id: uuidv4(),
+        stepID: uuidv4(),
+        // CTODO needed? attachmentID: uuidv4(),
         sessionType: "Summary",
         comment: value,
         timer_mark: this.timer,
         createdAt: Date.now(),
       };
       if (Object.keys(this.summary).length) {
-        delete data.id;
+        delete data.stepID;
         const newSummary = {
           ...this.summary,
           ...data,
@@ -1791,12 +1803,14 @@ export default {
     addMindmap() {
       // TODO - With transition to try mindmap format, UUID generation should
       //        move to CaptureUtility
-      const id = uuidv4();
+      const stepID = uuidv4();
+      const attachmentID = uuidv4();
       const data = {
-        id,
+        stepID,
+        attachmentID,
         sessionType: "Mindmap",
         fileType: "mindmap",
-        fileName: `mindmap-${id.substring(0, 5)}.png`,
+        fileName: `mindmap-${attachmentID.substring(0, 5)}.png`,
         filePath: "",
         content: {
           nodes: DEFAULT_MAP_NODES,
@@ -1846,12 +1860,16 @@ export default {
     },
     async saveSession(callback = null) {
       this.newSessionDialog = false;
-      const sessionId = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
+      const sessionID, = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.GET_SESSION_ID,
+      });
+      const caseID, = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
+        func: IPC_FUNCTIONS.GET_CASE_ID,
       });
 
       const data = {
-        id: sessionId,
+        sessionID: sessionID,
+        caseID: caseID,
         title: this.$store.state.title,
         charter: this.$store.state.charter,
         mindmap: this.$store.state.mindmap,

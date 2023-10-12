@@ -57,13 +57,13 @@
                       <input
                         type="checkbox"
                         class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
+                        :value="item.stepID"
+                        :checked="checkedItem(item.stepID)"
+                        @change="handleSelected($event, item.stepID)"
                       />
                     </div>
                   </div>
-                  <div class="image-wrapper" @click="handleItemClick(item.id)">
+                  <div class="image-wrapper" @click="handleItemClick(item.stepID)">
                     <img
                       class="screen-img"
                       style="max-width: 100%"
@@ -111,7 +111,7 @@
                         style=""
                         v-for="(emoji, i) in item.emoji"
                         :key="i"
-                        @click="removeEmoji(item.id, emoji)"
+                        @click="removeEmoji(item.stepID, emoji)"
                       >
                         <span class="emoji-icon">{{ emoji.data }}</span>
                         <v-icon x-small>mdi-close</v-icon>
@@ -119,7 +119,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-` + item.id]"
+                      v-model="emojiMenu[`menu-` + item.stepID]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -138,7 +138,7 @@
                                 ...menu,
                                 ...tooltip,
                               }"
-                              @click="handleSelectedItem(item.id)"
+                              @click="handleSelectedItem(item.stepID)"
                             >
                               <img
                                 :src="
@@ -168,7 +168,7 @@
                         name="follow_up"
                         class="item-select"
                         v-model="item.followUp"
-                        @change="handleFollowUp($event, item.id)"
+                        @change="handleFollowUp($event, item.stepID)"
                       />{{ $tc("caption.required_follow_up", 1) }}
                     </label>
                   </div>
@@ -191,15 +191,15 @@
                       <input
                         type="checkbox"
                         class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
+                        :value="item.stepID"
+                        :checked="checkedItem(item.stepID)"
+                        @change="handleSelected($event, item.stepID)"
                       />
                     </div>
                   </div>
                   <div
                     class="video-wrapper"
-                    @click.prevent="handleItemClick(item.id)"
+                    @click.prevent="handleItemClick(item.stepID)"
                   >
                     <video
                       controls
@@ -248,7 +248,7 @@
                         style=""
                         v-for="(emoji, i) in item.emoji"
                         :key="i"
-                        @click="removeEmoji(item.id, emoji)"
+                        @click="removeEmoji(item.stepID, emoji)"
                       >
                         <span class="emoji-icon">{{ emoji.data }}</span>
                         <v-icon x-small>mdi-close</v-icon>
@@ -256,7 +256,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-` + item.id]"
+                      v-model="emojiMenu[`menu-` + item.stepID]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -275,7 +275,7 @@
                                 ...menu,
                                 ...tooltip,
                               }"
-                              @click="handleSelectedItem(item.id)"
+                              @click="handleSelectedItem(item.stepID)"
                             >
                               <img
                                 :src="
@@ -305,7 +305,7 @@
                         name="follow_up"
                         class="item-select"
                         v-model="item.followUp"
-                        @change="handleFollowUp($event, item.id)"
+                        @change="handleFollowUp($event, item.stepID)"
                       />{{ $tc("caption.required_follow_up", 1) }}
                     </label>
                   </div>
@@ -328,13 +328,13 @@
                       <input
                         type="checkbox"
                         class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
+                        :value="item.stepID"
+                        :checked="checkedItem(item.stepID)"
+                        @change="handleSelected($event, item.stepID)"
                       />
                     </div>
                   </div>
-                  <div class="audio-wrapper" @click="handleItemClick(item.id)">
+                  <div class="audio-wrapper" @click="handleItemClick(item.stepID)">
                     <div class="audio-wave">
                       <img :src="`file://${item.poster}`" />
                     </div>
@@ -380,7 +380,7 @@
                         style=""
                         v-for="(emoji, i) in item.emoji"
                         :key="i"
-                        @click="removeEmoji(item.id, emoji)"
+                        @click="removeEmoji(item.stepID, emoji)"
                       >
                         <span class="emoji-icon">{{ emoji.data }}</span>
                         <v-icon x-small>mdi-close</v-icon>
@@ -388,7 +388,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-` + item.id]"
+                      v-model="emojiMenu[`menu-` + item.stepID]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -407,7 +407,7 @@
                                 ...menu,
                                 ...tooltip,
                               }"
-                              @click="handleSelectedItem(item.id)"
+                              @click="handleSelectedItem(item.stepID)"
                             >
                               <img
                                 :src="
@@ -438,7 +438,7 @@
                         name="follow_up"
                         class="item-select"
                         v-model="item.followUp"
-                        @change="handleFollowUp($event, item.id)"
+                        @change="handleFollowUp($event, item.stepID)"
                       />{{ $tc("caption.required_follow_up", 1) }}
                     </label>
                   </div>
@@ -460,13 +460,13 @@
                       <input
                         type="checkbox"
                         class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
+                        :value="item.stepID"
+                        :checked="checkedItem(item.stepID)"
+                        @change="handleSelected($event, item.stepID)"
                       />
                     </div>
                   </div>
-                  <div class="note-wrapper" @click="handleItemClick(item.id)">
+                  <div class="note-wrapper" @click="handleItemClick(item.stepID)">
                     <font-awesome-icon
                       :icon="textTypes[item.comment.type].icon"
                       class="mr-1"
@@ -507,7 +507,7 @@
                         style=""
                         v-for="(emoji, i) in item.emoji"
                         :key="i"
-                        @click="removeEmoji(item.id, emoji)"
+                        @click="removeEmoji(item.stepID, emoji)"
                       >
                         <span class="emoji-icon">{{ emoji.data }}</span>
                         <v-icon x-small>mdi-close</v-icon>
@@ -515,7 +515,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-` + item.id]"
+                      v-model="emojiMenu[`menu-` + item.stepID]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -534,7 +534,7 @@
                                 ...menu,
                                 ...tooltip,
                               }"
-                              @click="handleSelectedItem(item.id)"
+                              @click="handleSelectedItem(item.stepID)"
                             >
                               <img
                                 :src="
@@ -564,7 +564,7 @@
                         name="follow_up"
                         class="item-select"
                         v-model="item.followUp"
-                        @change="handleFollowUp($event, item.id)"
+                        @change="handleFollowUp($event, item.stepID)"
                       />{{ $tc("caption.required_follow_up", 1) }}
                     </label>
                   </div>
@@ -587,16 +587,16 @@
                       <input
                         type="checkbox"
                         class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
+                        :value="item.stepID"
+                        :checked="checkedItem(item.stepID)"
+                        @change="handleSelected($event, item.stepID)"
                       />
                     </div>
                   </div>
                   <div
                     v-if="item.fileType === 'image'"
                     class="file-wrapper image"
-                    @click="handleItemClick(item.id)"
+                    @click="handleItemClick(item.stepID)"
                   >
                     <img
                       class="screen-img"
@@ -607,7 +607,7 @@
                   <div
                     v-else
                     class="file-wrapper file"
-                    @click="handleItemClick(item.id)"
+                    @click="handleItemClick(item.stepID)"
                   >
                     <div class="file-name">
                       <span>{{ item.fileName }}</span>
@@ -657,7 +657,7 @@
                         style=""
                         v-for="(emoji, i) in item.emoji"
                         :key="i"
-                        @click="removeEmoji(item.id, emoji)"
+                        @click="removeEmoji(item.stepID, emoji)"
                       >
                         <span class="emoji-icon">{{ emoji.data }}</span>
                         <v-icon x-small>mdi-close</v-icon>
@@ -665,7 +665,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-` + item.id]"
+                      v-model="emojiMenu[`menu-` + item.stepID]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -684,7 +684,7 @@
                                 ...menu,
                                 ...tooltip,
                               }"
-                              @click="handleSelectedItem(item.id)"
+                              @click="handleSelectedItem(item.stepID)"
                             >
                               <img
                                 :src="
@@ -714,7 +714,7 @@
                         name="follow_up"
                         class="item-select"
                         v-model="item.followUp"
-                        @change="handleFollowUp($event, item.id)"
+                        @change="handleFollowUp($event, item.stepID)"
                       />{{ $tc("caption.required_follow_up", 1) }}
                     </label>
                   </div>
@@ -737,13 +737,13 @@
                       <input
                         type="checkbox"
                         class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
+                        :value="item.stepID"
+                        :checked="checkedItem(item.stepID)"
+                        @change="handleSelected($event, item.stepID)"
                       />
                     </div>
                   </div>
-                  <div class="image-wrapper" @click="handleItemClick(item.id)">
+                  <div class="image-wrapper" @click="handleItemClick(item.stepID)">
                     <img
                       class="screen-img"
                       style="max-width: 100%"
@@ -791,7 +791,7 @@
                         style=""
                         v-for="(emoji, i) in item.emoji"
                         :key="i"
-                        @click="removeEmoji(item.id, emoji)"
+                        @click="removeEmoji(item.stepID, emoji)"
                       >
                         <span class="emoji-icon">{{ emoji.data }}</span>
                         <v-icon x-small>mdi-close</v-icon>
@@ -799,7 +799,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-` + item.id]"
+                      v-model="emojiMenu[`menu-` + item.stepID]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -818,7 +818,7 @@
                                 ...menu,
                                 ...tooltip,
                               }"
-                              @click="handleSelectedItem(item.id)"
+                              @click="handleSelectedItem(item.stepID)"
                             >
                               <img
                                 :src="
@@ -848,7 +848,7 @@
                         name="follow_up"
                         class="item-select"
                         v-model="item.followUp"
-                        @change="handleFollowUp($event, item.id)"
+                        @change="handleFollowUp($event, item.stepID)"
                       />{{ $tc("caption.required_follow_up", 1) }}
                     </label>
                   </div>
@@ -870,13 +870,13 @@
                       <input
                         type="checkbox"
                         class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
+                        :value="item.stepID"
+                        :checked="checkedItem(item.stepID)"
+                        @change="handleSelected($event, item.stepID)"
                       />
                     </div>
                   </div>
-                  <div class="note-wrapper" @click="handleItemClick(item.id)">
+                  <div class="note-wrapper" @click="handleItemClick(item.stepID)">
                     <font-awesome-icon
                       :icon="textTypes[item.comment.type].icon"
                       class="mr-1"
@@ -987,7 +987,7 @@ export default {
       this.itemLists = newValue;
       let newMap = { ...this.emojiMenu };
       this.itemLists.map((item) => {
-        newMap[`menu-${item.id}`] = false;
+        newMap[`menu-${item.stepID}`] = false;
       });
       this.emojiMenu = newMap;
     },
@@ -1030,7 +1030,7 @@ export default {
   mounted() {
     this.emojiMenu = {};
     this.itemLists.map((item) => {
-      this.emojiMenu[`menu-${item.id}`] = false;
+      this.emojiMenu[`menu-${item.stepID}`] = false;
     });
   },
   methods: {
@@ -1057,7 +1057,8 @@ export default {
       } else {
         const data = {
           sessionType: "File",
-          id: item.id,
+          stepID: item.stepID,
+          attachmentID: item.attachmentID,
           fileType: item.fileType,
           fileName: item.fileName,
           filePath: item.filePath,
@@ -1113,7 +1114,7 @@ export default {
     handleFollowUp($event, id) {
       this.itemLists = this.itemLists.map((item) => {
         let temp = Object.assign({}, item);
-        if (temp.id === id) {
+        if (temp.stepID === id) {
           temp.followUp = $event.target.checked;
         }
         return temp;
@@ -1171,7 +1172,8 @@ export default {
         } else {
           const data = {
             sessionType: "File",
-            id: item.id,
+            stepID: item.stepID,
+            attachmentID: item.attachmentID,
             fileType: item.fileType,
             fileName: item.fileName,
             filePath: item.filePath,
@@ -1202,7 +1204,7 @@ export default {
 
       this.itemLists = this.itemLists.map((item) => {
         let temp = Object.assign({}, item);
-        if (temp.id === this.selectedId) {
+        if (temp.stepID === this.selectedId) {
           if (temp.emoji.filter((item) => item.data === emoji.data).length) {
             temp.emoji = temp.emoji.filter((item) => item.data !== emoji.data);
           } else {
@@ -1216,7 +1218,7 @@ export default {
     removeEmoji(id, emoji) {
       this.itemLists = this.itemLists.map((item) => {
         let temp = Object.assign({}, item);
-        if (temp.id === id) {
+        if (temp.stepID === id) {
           temp.emoji = temp.emoji.filter((item) => item.data !== emoji.data);
         }
         return temp;

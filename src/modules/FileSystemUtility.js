@@ -61,8 +61,8 @@ module.exports.exportItems = async (ids) => {
 };
 
 module.exports.createNewSession = async (state) => {
-  state.sessionId = uuidv4();
-  state.caseId = uuidv4();
+  state.sessionID = uuidv4();
+  state.caseID = uuidv4();
   const dataFolder = path.join(configDir, "sessions", state.id);
   if (!fs.existsSync(dataFolder)) {
     fs.mkdirSync(dataFolder, { recursive: true });

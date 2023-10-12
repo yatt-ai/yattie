@@ -46,7 +46,7 @@ module.exports.getMediaSource = async () => {
 
 module.exports.createImage = ({ url, isPoster }) => {
   const imageType = isPoster ? "poster" : "image";
-  const { id, fileName } = generateIDAndName(imageType);
+  const { stepID, attachmentID, fileName } = generateIDAndName(imageType);
   const filePath = path.join(
     configDir,
     "sessions",
@@ -67,7 +67,8 @@ module.exports.createImage = ({ url, isPoster }) => {
   return {
     status: STATUSES.SUCCESS,
     item: {
-      id,
+      stepID,
+      attachmentID,
       fileName,
       filePath,
     },
@@ -80,7 +81,7 @@ module.exports.updateImage = ({ item, url }) => {
   }
   const { fileName } = item.fileName
     ? { fileName: item.fileName }
-    : generateIDAndName("image", item.id);
+    : generateIDAndName("image", item.attachmentID);
 
   const filePath = path.join(
     configDir,
@@ -108,7 +109,7 @@ module.exports.updateImage = ({ item, url }) => {
 };
 
 module.exports.createVideo = ({ buffer }) => {
-  const { id, fileName } = generateIDAndName("video");
+  const { stepID, attachmentID, fileName } = generateIDAndName("video");
   const filePath = path.join(
     configDir,
     "sessions",
@@ -127,7 +128,8 @@ module.exports.createVideo = ({ buffer }) => {
   return {
     status: STATUSES.SUCCESS,
     item: {
-      id,
+      stepID,
+      attachmentID,
       fileName,
       filePath,
     },
@@ -210,7 +212,7 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
           }
           const { fileName } = item.fileName
             ? { fileName: item.fileName }
-            : generateIDAndName("video", item.id);
+            : generateIDAndName("video", item.attachmentID);
           const filePath = path.join(
             configDir,
             "sessions",
@@ -238,7 +240,7 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
     } else {
       const { fileName } = item.fileName
         ? { fileName: item.fileName }
-        : generateIDAndName("video", item.id);
+        : generateIDAndName("video", item.attachmentID);
       const filePath = path.join(
         configDir,
         "sessions",
@@ -265,7 +267,7 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
 };
 
 module.exports.createAudio = ({ buffer }) => {
-  const { id, fileName } = generateIDAndName("audio");
+  const { stepID, attachmentID, fileName } = generateIDAndName("audio");
   const filePath = path.join(
     configDir,
     "sessions",
@@ -284,7 +286,8 @@ module.exports.createAudio = ({ buffer }) => {
   return {
     status: STATUSES.SUCCESS,
     item: {
-      id,
+      stepID,
+      attachmentID,
       fileName,
       filePath,
     },
@@ -294,7 +297,7 @@ module.exports.createAudio = ({ buffer }) => {
 module.exports.updateAudio = ({ item }) => {
   const { fileName } = item.fileName
     ? { fileName: item.fileName }
-    : generateIDAndName("audio", item.id);
+    : generateIDAndName("audio", item.attachmentID);
   const filePath = path.join(
     configDir,
     "sessions",
@@ -329,7 +332,7 @@ module.exports.deleteFile = ({ filePath }) => {
 };
 
 module.exports.saveNote = (comment) => {
-  const { id, fileName } = generateIDAndName("text");
+  const { stepID, attachmentID, fileName } = generateIDAndName("text");
   const filePath = path.join(
     configDir,
     "sessions",
@@ -348,7 +351,8 @@ module.exports.saveNote = (comment) => {
   return {
     status: STATUSES.SUCCESS,
     item: {
-      id,
+      stepID,
+      attachmentID,
       fileName,
       filePath,
     },
@@ -368,7 +372,8 @@ module.exports.uploadEvidence = async () => {
   }
 
   // TODO - Handle multiple files uploaded
-  const id = uuidv4();
+  const stepID = uuidv4();
+  const attachmentID = uuidv4();
   const fileName = path.basename(filePaths[0]);
   const filePath = path.join(
     configDir,
@@ -407,7 +412,8 @@ module.exports.uploadEvidence = async () => {
       return resolve({
         status: STATUSES.SUCCESS,
         item: {
-          id,
+          stepID,
+          attachmentID,
           fileType,
           fileName,
           filePath,
@@ -418,7 +424,8 @@ module.exports.uploadEvidence = async () => {
 };
 
 module.exports.dropFile = async (data) => {
-  const id = uuidv4();
+  const stepID = uuidv4();
+  const attachmentID = uuidv4();
   const fileName = data.name;
   const filePath = path.join(
     configDir,
@@ -456,7 +463,8 @@ module.exports.dropFile = async (data) => {
       return resolve({
         status: STATUSES.SUCCESS,
         item: {
-          id,
+          stepID,
+          attachmentID,
           fileType,
           fileName,
           filePath,
@@ -466,13 +474,14 @@ module.exports.dropFile = async (data) => {
   });
 };
 
-module.exports.setApperance = ({ apperance }) => {
+module.exports.setApperance = ({ theme }) => {
   const browserWindow = browserUtility.getBrowserWindow();
-  browserWindow.webContents.send("SET_THEME", { apperance });
+  browserWindow.webContents.send("SET_THEME", { theme });
 };
 
 const generateIDAndName = (type, uid = undefined) => {
-  let id, idStr, fileName;
+  const stepID = uuidv4();
+  let attachmentID, idStr, fileName;
   let success = false;
   let suffix;
 
@@ -495,8 +504,8 @@ const generateIDAndName = (type, uid = undefined) => {
   }
 
   while (!success) {
-    id = uuidv4();
-    idStr = id.replaceAll("-", "");
+    attachmentID = uuidv4();
+    idStr = attachmentID.replaceAll("-", "");
     for (let i = 0; i < idStr.length - 5; i++) {
       fileName = `${type}-${idStr.substring(i, 5)}.${suffix}`;
       if (
@@ -515,7 +524,7 @@ const generateIDAndName = (type, uid = undefined) => {
     }
   }
   if (uid) {
-    id = uid;
+    attachmentID = uid;
   }
-  return { id, fileName };
+  return { stepID, attachmentID, fileName };
 };

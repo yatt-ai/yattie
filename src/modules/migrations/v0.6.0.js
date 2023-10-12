@@ -1,12 +1,12 @@
 export const migrationStruct = {
   up: {
     meta: {
-      "credentialPath": "credentialsPath",
+      credentialPath: "credentialsPath",
     },
   },
   down: {
     meta: {
-      "credentialsPath": "credentialPath",
+      credentialsPath: "credentialPath",
     },
   },
 };

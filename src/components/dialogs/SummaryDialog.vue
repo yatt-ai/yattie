@@ -157,7 +157,7 @@ export default {
   watch: {
     configItem: function (newValue) {
       this.config = newValue;
-      this.isRequired = this.config.summary;
+      this.isRequired = this.config.summaryRequired;
     },
     credentialItems: function (newValue) {
       this.credentials = newValue;
@@ -184,7 +184,7 @@ export default {
       },
       commentLoading: false,
       commentTypes: Object.keys(TEXT_TYPES),
-      isRequired: this.configItem.summary,
+      isRequired: this.configItem.summaryRequired,
       isEmpty: false,
     };
   },

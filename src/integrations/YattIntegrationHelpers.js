@@ -1,14 +1,48 @@
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 
+import axios from "axios";
+
 export default {
-  saveSession(credentials, data) {
+  getHeaders(credential) {
+    let authHeader;
+    authHeader = `Bearer ${credential.accessToken}`;
+    return {
+      Authorization: authHeader,
+      Accept: "application/json",
+    };
+  },
+  async saveSession(credentials) {
     // CTODO
     // Pull case and session data
+    const url = `${process.env.VUE_APP_YATT_API_URL}/yattie/executions`;
     const session = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
-        func: IPC_FUNCTIONS.GET_CURRENT_SESSION,
-      });
+      func: IPC_FUNCTIONS.GET_CURRENT_SESSION,
+    });
+    if (!credentials?.yatt || credentials?.yatt.length < 1) {
+      // CTODO - create credentials
+    }
+
+    const credential = credentials?.yatt[0];
+    const options = {
+      headers: this.getHeaders(credential),
+    };
 
     // Post to YATT
+    let returnResponse = {
+      link: "",
+    };
+    await axios
+      .patch(url, session, options)
+      .then((postedSession) => {
+        returnResponse.link = postedSession.data.link;
+      })
+      .catch((error) => {
+        returnResponse.error = {
+          message: JSON.stringify(error.response.data.errors),
+        };
+      });
+    return returnResponse;
+
     // Return result (with generated "link" field)
   },
   saveCredentials(credentials, data) {
