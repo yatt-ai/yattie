@@ -17,6 +17,7 @@ import SigninWrapper from "@/components/authentication/SigninWrapper";
 import SigninYattWrapper from "@/components/authentication/SigninYattWrapper";
 import SigninJiraWrapper from "@/components/authentication/SigninJiraWrapper";
 import SigninTestRailWrapper from "@/components/authentication/SigninTestRailWrapper";
+import SigninGithubWrapper from "@/components/authentication/SigninGithubWrapper";
 
 import SettingView from "../views/SettingView.vue";
 import ConnectionsTab from "@/components/settings/ConnectionsTab.vue";
@@ -75,6 +76,12 @@ const routes = [
         path: "signinJira",
         name: "signinJira",
         component: SigninJiraWrapper,
+        props: true,
+      },
+      {
+        path: "signinGithub",
+        name: "signinGithub",
+        component: SigninGithubWrapper,
         props: true,
       },
       {

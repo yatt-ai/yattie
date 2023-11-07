@@ -56,6 +56,7 @@
     "signin_yatt": "Sign in with YATT",
     "signin_jira": "Sign in with JIRA",
     "signin_testrail": "Sign in with TestRail",
+    "signin_github": "Sign in with GitHub",
     "signin_qtest": "Sign in with qTest",
     "signin_practitest": "Sign in with PractiTest",
     "sign_up": "Sign up|Sign Up",
@@ -77,8 +78,6 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "proceed": "Proceed",
-    "end": "End",
-    "end_session": "End session",
     "session_saved": "Session Saved",
     "note_title": "Note title",
     "take_note": "Take a Note",
@@ -208,9 +207,9 @@
     "openai_key": "OpenAI key",
     "invalid_openai_key": "Invalid OpenAI key",
     "openai_key_saved": "OpenAI key successfully saved",
-    "openai_key_validation_failed": "Failed to validate OpenAI key", 
+    "openai_key_validation_failed": "Failed to validate OpenAI key",
     "no_server_oauth_creds": "No shareable OAuth credentials found.",
-    "testrail_instance_url":"Instance URL"
+    "testrail_instance_url": "Instance URL"
   },
   "hotkeys": {
     "general": "General",
@@ -220,12 +219,12 @@
     "evidence": "Evidence capture",
     "cancel": "Cancel",
     "save": "Save",
-    "quickTest": "Quick test", 
-    "newExploratorySession": "New exploratory session", 
+    "quickTest": "Quick test",
+    "newExploratorySession": "New exploratory session",
     "openExploratorySession": "Open exploratory session",
-    "title": "Jump to title", 
+    "title": "Jump to title",
     "charter": "Jump to charter",
-    "timeLimit": "Jump to time limit", 
+    "timeLimit": "Jump to time limit",
     "preconditions": "Jump to preconditoins",
     "checklist": "Jump to checklist",
     "start": "Start",
@@ -316,8 +315,8 @@
     "confirm_jira_issue": "You have not selected any evidence to attach to this issue. If you would like to attach evidence, please go back and select it before creating an issue.",
     "confirm_session_saved": "Session successfully saved on your computer.",
     "user_name": "User name",
-    "is_required":" is required.",
-    "api_key":"Api key",
+    "is_required": " is required.",
+    "api_key": "Api key",
     "instance_url": "Instance URL"
   }
 }

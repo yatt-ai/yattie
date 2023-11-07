@@ -625,6 +625,12 @@
                   :selected="selected"
                   @close-menu="() => (issueCreateDestinationMenu = false)"
                 />
+                <github-add-issue
+                  :credential-items="credentials.jira"
+                  :items="items"
+                  :selected="selected"
+                  @close-menu="() => (issueCreateDestinationMenu = false)"
+                />
               </v-list>
             </v-card>
           </v-menu>
@@ -727,6 +733,7 @@ import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
 
 import JiraAddIssue from "./jira/JiraAddIssue";
+import GithubAddIssue from "./github/GithubAddIssue";
 
 import {
   IPC_HANDLERS,
@@ -765,6 +772,7 @@ export default {
     JiraExportSession,
     TestRailExportSession,
     JiraAddIssue,
+    GithubAddIssue,
   },
   props: {
     items: {

@@ -52,6 +52,19 @@
             block
             outlined
             color="white"
+            @click="signinGithub"
+          >
+            <img :src="require('../../assets/icon/github-mark.png')" />
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_github", 1) }}
+            </div>
+          </v-btn>
+
+          <v-btn
+            class="mb-4 outline-btn jira"
+            block
+            outlined
+            color="white"
             @click="signinTestRail"
           >
             <img :src="require('../../assets/icon/testrail.png')" />
@@ -179,6 +192,9 @@ export default {
     },
     signinTestRail() {
       this.$router.push({ path: "/authentication/signinTestRail" });
+    },
+    signinGithub() {
+      this.$router.push({ path: "/authentication/signinGithub" });
     },
   },
 };
