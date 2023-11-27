@@ -137,7 +137,7 @@ import { Buffer } from "buffer";
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../../modules/constants";
 import yattIntegrationHelper from "../../integrations/YattIntegrationHelpers";
 import integrationHelper from "../../integrations/IntegrationHelpers";
-import jiraIntegrationHelper from "../../integrations/JiraIntegrationHelpers";
+import githubIntegrationHelper from "../../integrations/GithubHelpers";
 export default {
   name: "SigninGithubWrapper",
   props: {
@@ -331,13 +331,14 @@ export default {
         this.$root.$emit("overlay", true);
         const yattURL = "http://localhost:5000"; //`${process.env.VUE_APP_YATT_API_URL}`;
         const redirectURL = `${yattURL}/v1/app/oauth/github/`;
-        const scopes = "repo";
+        const scopes = "repo user gist";
         const clientId = "Iv1.c84b6b2ba3cb1b0f"; //`${process.env.OAUTH_GITHUB_CLIENT_ID}`;
         const serverURL = "https://github.com";
         const tokenId = uuidv4();
-        const url = encodeURI(
-          `${serverURL}/login/oauth/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${redirectURL}`
-        );
+        const state = encodeURIComponent(`https://github.com;${tokenId}`);
+        const url = `${serverURL}/login/oauth/authorize?client_id=${clientId}&scope=${scopes}&state=${state}&redirect_uri=${redirectURL}`;
+
+        console.log(url);
         await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
           func: IPC_FUNCTIONS.OPEN_EXTERNAL_LINK,
           data: url,
@@ -351,7 +352,7 @@ export default {
 
         const pollForToken = async (creds) => {
           await wait(3500);
-          const tokenURL = `${yattURL}/v1/app/oauth/github`;
+          const tokenURL = `${yattURL}/v1/app/oauth/github/token/${tokenId}`;
           let header = {};
           if (creds?.yatt?.length > 0 && creds?.yatt[0]?.accessToken) {
             header.headers = {
@@ -384,9 +385,9 @@ export default {
             ? finalResponse.message
             : this.$tc("caption.log_in_failed", 1);
         } else {
-          if (finalResponse?.data?.jira) {
-            finalResponse.data.jira.yattOauthTokenId = tokenId;
-            finalResponse.data.jira.type = "oauth";
+          if (finalResponse?.data?.github) {
+            finalResponse.data.github.yattOauthTokenId = tokenId;
+            finalResponse.data.github.type = "oauth";
           }
           if (finalResponse?.data?.yatt) {
             finalResponse.data.yatt.oauthTokenIds = [tokenId];
@@ -435,144 +436,30 @@ export default {
         );
       }
 
-      if (data.jira) {
+      if (data.github) {
         let header = {};
-        if (data.jira.accessToken) {
-          let authHeader;
-          if (data.jira.type === "oauth") {
-            authHeader = `Bearer ${data.jira.accessToken}`;
-          } else if (data.jira.type === "basic") {
-            authHeader = `Basic ${data.jira.accessToken}`;
-          } else {
-            this.snackBar.enabled = true;
-            this.snackBar.message = this.$i18n.t("message.invalid_auth_type");
-          }
+        if (data.github.accessToken) {
+          let authHeader = `Bearer ${data.github.accessToken}`;
           header.headers = {
             Authorization: authHeader,
             Accept: "application/json",
           };
 
-          if (data.jira.type === "oauth") {
-            if (!data.jira.url) {
-              // Cloud OAuth
-              await axios
-                .get(
-                  "https://api.atlassian.com/oauth/token/accessible-resources",
-                  header
-                )
-                .then(async (response) => {
-                  await axios
-                    .get("https://api.atlassian.com/me", header)
-                    .then((user) => {
-                      const date = dayjs().format("YYYY-MM-DD HH:mm:ss");
-                      const jiraData = {
-                        ...data.jira,
-                        loggedInAt: date,
-                        lastRefreshed: date,
-                        resource: response.data[0],
-                        profile: user.data,
-                      };
-
-                      this.credentials = jiraIntegrationHelper.saveCredentials(
-                        this.credentials,
-                        jiraData
-                      );
-
-                      setTimeout(() => {
-                        this.loading = false;
-                        this.$root.$emit("overlay", false);
-
-                        if (this.connectWithServerOAuth) {
-                          window.ipc.invoke(IPC_HANDLERS.SERVER, {
-                            func: IPC_FUNCTIONS.STOP_SERVER,
-                          });
-                        }
-
-                        this.$router.push({ path: this.previousRoute.path });
-                      }, 1000);
-                    })
-                    .catch((error) => {
-                      this.snackBar.enabled = true;
-                      this.snackBar.message = error.message
-                        ? error.message
-                        : this.$i18n.t("message.api_error");
-                    });
-                })
-                .catch((error) => {
-                  this.snackBar.enabled = true;
-                  this.snackBar.message = error.message
-                    ? error.message
-                    : this.$i18n.t("message.api_error");
-                });
-            } else {
-              // Server OAuth
-              let resource = {
-                url: "https://" + data.jira.url,
-              };
-              await axios
-                .get(`https://${data.jira.url}/rest/api/2/myself`, header)
-                .then((user) => {
-                  const date = dayjs().format("YYYY-MM-DD HH:mm:ss");
-                  const expDate = dayjs()
-                    .add(data.jira.expiresIn, "second")
-                    .format("YYYY-MM-DD HH:mm:ss");
-                  const jiraData = {
-                    ...data.jira,
-                    loggedInAt: date,
-                    lastRefreshed: date,
-                    expiresAt: expDate,
-                    resource: resource,
-                    profile: {
-                      account_id: user.data.key + "@" + data.jira.url,
-                      email: user.data.emailAddress,
-                      name: user.data.displayName,
-                      picture: user.data.avatarUrls["48x48"],
-                      locale: user.data.locale,
-                    },
-                  };
-
-                  this.credentials = jiraIntegrationHelper.saveCredentials(
-                    this.credentials,
-                    jiraData
-                  );
-
-                  setTimeout(() => {
-                    this.loading = false;
-                    this.$root.$emit("overlay", false);
-                    this.$router.push({ path: this.previousRoute.path });
-                  }, 1000);
-                })
-                .catch((error) => {
-                  this.snackBar.enabled = true;
-                  this.snackBar.message = error.message
-                    ? error.message
-                    : this.$i18n.t("message.api_error");
-                });
-            }
-          } else if (data.jira.type === "basic") {
-            let resource = {
-              url: "https://" + data.jira.url,
-            };
-            await axios
-              .get(`https://${data.jira.url}/rest/api/3/myself`, header)
-              .then((user) => {
+          await axios
+            .get("https://api.github.com/user", header)
+            .then((user) => {
+              if (user && user.data) {
+                console.log(user);
                 const date = dayjs().format("YYYY-MM-DD HH:mm:ss");
-                const jiraData = {
-                  ...data.jira,
+                const githubData = {
+                  ...data.github,
                   loggedInAt: date,
-                  resource: resource,
-                  profile: {
-                    account_id: user.data.accountId,
-                    email: user.data.emailAddress,
-                    name: user.data.displayName,
-                    picture: user.data.avatarUrls["48x48"],
-                    locale: user.data.locale,
-                  },
+                  profile: user.data,
                 };
 
-                this.credentials = jiraIntegrationHelper.saveCredentials(
+                this.credentials = githubIntegrationHelper.saveCredentials(
                   this.credentials,
-                  jiraData
+                  githubData
                 );
 
                 setTimeout(() => {
@@ -580,14 +467,14 @@ export default {
                   this.$root.$emit("overlay", false);
                   this.$router.push({ path: this.previousRoute.path });
                 }, 1000);
-              })
-              .catch((error) => {
-                this.snackBar.enabled = true;
-                this.snackBar.message = error.message
-                  ? error.message
-                  : this.$i18n.t("message.api_error");
-              });
-          }
+              }
+            })
+            .catch((error) => {
+              this.snackBar.enabled = true;
+              this.snackBar.message = error.message
+                ? error.message
+                : this.$i18n.t("message.api_error");
+            });
         } else {
           this.snackBar.enabled = true;
           this.snackBar.message = this.$i18n.t("message.api_error");
