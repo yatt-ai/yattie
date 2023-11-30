@@ -474,6 +474,8 @@ export default {
               this.snackBar.message = error.message
                 ? error.message
                 : this.$i18n.t("message.api_error");
+              console.log("In the catch clause");
+              console.log(error);
             });
         } else {
           this.snackBar.enabled = true;
