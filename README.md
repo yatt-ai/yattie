@@ -106,7 +106,7 @@ To allow Yattie taking screenshots and record your screen please make sure you a
 
 
 
- *We are working on the solution to make screenshots work also on a dev build. This manual will updated as soon we will have a solution 
+ *We are working on the solution to make screenshots work also on a dev build. This manual will be updated as soon we will have a solution 
 
 ## Usage
 
