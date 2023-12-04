@@ -97,6 +97,17 @@ If you're just looking to take it for a spin, check out the pre-built [packages]
 
 TODO - This section could use some love (and screenshots!)
 
+
+### MacOS settings to allow screen recording and screenshots
+To allow Yattie taking screenshots and record your screen please make sure you allowed the app to do that by doing next steps:
+
+- Choose Apple menu > System Settings, then click Privacy & Security in the sidebar. (You may need to scroll down.) 
+- Click Screen Recording on the right. Turn screen recording on for Yattie
+
+
+
+ *We are working on the solution to make screenshots work also on a dev build. This manual will updated as soon we will have a solution 
+
 ## Usage
 
 - You can find a quick waklthrough by the very helpful @parwalrahul at the excellent MoT community [here](https://www.ministryoftesting.com/articles/acfa4d56)!
