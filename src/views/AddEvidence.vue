@@ -172,6 +172,17 @@
             :disabled="processing"
           />
         </div>
+        <v-checkbox
+          v-model="createJiraTicket"
+          label="Also create a Jira ticket"
+        ></v-checkbox>
+        <JiraAddIssueForm
+          v-if="createJiraTicket"
+          :credential-items="credentials.jira"
+          :trigger-save="triggerJiraSaveTicket"
+          :items="[item]"
+          @issueAdded="handleSaveAndClose"
+        />
         <div class="comment-type">
           <div
             :style="{ color: currentTheme.secondary }"
@@ -249,6 +260,8 @@ import {
 } from "../modules/constants";
 
 import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
+import jiraIntegrationHelper from "@/integrations/JiraIntegrationHelpers";
+import JiraAddIssueForm from "@/components/jira/JiraAddIssueForm.vue";
 
 export default {
   name: "AddEvidence",
@@ -256,9 +269,11 @@ export default {
     ReviewWrapper,
     VueTagsInput,
     VEmojiPicker,
+    JiraAddIssueForm,
   },
   data() {
     return {
+    createJiraTicket: false,
       item: {},
       items: [],
       config: {},
@@ -285,6 +300,8 @@ export default {
       ),
       processing: true,
       triggerSaveEvent: false,
+      triggerJiraSaveTicket: false,
+      jiraTicketSaved: false,
       autoSaveEvent: false,
     };
   },
@@ -396,6 +413,17 @@ export default {
     this.$root.$on("update-processing", this.updateProcessing);
     this.$root.$on("save-data", this.saveData);
   },
+  watch: {
+    createJiraTicket: async function (val) {
+      if (val) {
+        let response = await jiraIntegrationHelper.getAllProjects(
+          this.credentials.jira
+        );
+        this.projects = response.projects;
+        console.log(response);
+      }
+    },
+  },
   methods: {
     toggleFollowUp() {
       this.followUp = !this.followUp;
@@ -482,7 +510,14 @@ export default {
         func: IPC_FUNCTIONS.CLOSE_ADD_WINDOW,
       });
     },
-    handleSave() {
+    async handleSave() {
+      if (this.createJiraTicket) {
+        this.triggerJiraSaveTicket = !this.triggerJiraSaveTicket;
+      } else {
+        await this.handleSaveAndClose();
+      }
+    },
+    async handleSaveAndClose() {
       this.triggerSaveEvent = !this.triggerSaveEvent;
     },
     handleName() {
