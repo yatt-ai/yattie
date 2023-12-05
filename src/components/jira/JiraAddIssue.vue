@@ -31,6 +31,7 @@
               :selected="selected"
               :trigger-save="triggerJiraSaveTicket"
               @issueAdded="dialog = false"
+              @error="dialog = false"
             />
           </div>
           <v-divider></v-divider>
@@ -70,7 +71,6 @@
 </template>
 
 <script>
-import jiraIntegrationHelper from "../../integrations/JiraIntegrationHelpers";
 import JiraAddIssueForm from "@/components/jira/JiraAddIssueForm.vue";
 
 export default {
@@ -109,30 +109,6 @@ export default {
       selectedIds: this.selected ? this.selected : [],
       dialog: false,
       loading: false,
-      userLoading: false,
-      issueLoading: false,
-      projects: [],
-      project: null,
-      projectId: null,
-      issueTypeId: null,
-      issueFields: [],
-      users: null,
-      issues: null,
-      newIssue: {
-        fields: {},
-      },
-      blankIssue: {
-        fields: {},
-      },
-      valid: true,
-      rules: [(v) => !!v || "This field is required"],
-      dateMenu: false,
-      issueConfirmDialog: false,
-      fieldMappings: {
-        description: {
-          type: "text",
-        },
-      },
     };
   },
   computed: {
@@ -145,27 +121,9 @@ export default {
     },
   },
   mounted() {},
-  destroyed() {
-    this.handleClear();
-  },
   methods: {
     handleDiscard() {
-      this.handleClear();
       this.dialog = false;
-    },
-    handleClear(leaveProject = true) {
-      if (!leaveProject) {
-        this.project = null;
-        this.projectId = null;
-      }
-      this.issueTypeId = null;
-      this.issueFields = [];
-      this.newIssue = {
-        fields: {},
-      };
-      this.blankIssue = {
-        fields: {},
-      };
     },
     async handleSave() {
       this.triggerJiraSaveTicket = !this.triggerJiraSaveTicket;
@@ -173,112 +131,6 @@ export default {
     async showDialog() {
       this.$emit("close-menu");
       this.dialog = true;
-      this.loading = true;
-      let response = await jiraIntegrationHelper.getAllProjects(
-        this.credentials
-      );
-
-      this.projects = response.projects;
-      this.loading = false;
-      if (response?.error) {
-        this.dialog = false;
-        let message = response.error.message
-          ? response.error.message
-          : this.$tc("message.api_error", 1);
-        message += " " + this.$tc("message.please_try_again", 1);
-        this.$root.$emit("set-snackbar", message);
-        if (response.error?.checkAuth) {
-          this.$root.$emit("update-auth", []);
-        }
-      }
-    },
-    async handleProject() {
-      this.loading = true;
-      let foundProject = this.projects.find(
-        (project) => project.id === this.projectId
-      );
-
-      let response = await jiraIntegrationHelper.getProject(
-        this.credentials[foundProject.credentialIndex],
-        this.projectId
-      );
-      response.project.credentialIndex = foundProject.credentialIndex;
-      this.project = response.project;
-
-      this.loading = false;
-      if (response?.error) {
-        let message = response.error.message
-          ? response.error.message
-          : this.$tc("message.api_error", 1);
-        this.$root.$emit("set-snackbar", message);
-        if (response.error?.checkAuth) {
-          this.$root.$emit("update-auth", []);
-        }
-      }
-    },
-    async handleIssueType() {
-      this.loading = true;
-      let response = await jiraIntegrationHelper.getIssueTypeData(
-        this.credentials[this.project.credentialIndex],
-        this.projectId,
-        this.issueTypeId
-      );
-      this.blankIssue.fields = Object.assign({}, response.blankIssue.fields);
-      this.newIssue = Object.assign({}, response.blankIssue);
-      this.issueFields = response.fieldData;
-
-      this.loading = false;
-      if (response?.error) {
-        let message = response.error.message
-          ? response.error.message
-          : this.$tc("message.api_error", 1);
-        this.$root.$emit("set-snackbar", message);
-        if (response.error?.checkAuth) {
-          this.$root.$emit("update-auth", []);
-        }
-      }
-    },
-    async searchUser(url) {
-      this.userLoading = true;
-      let response = await jiraIntegrationHelper.getProvidedURL(
-        this.credentials[this.project.credentialIndex],
-        url
-      );
-      this.users = response.items;
-
-      this.userLoading = false;
-      if (response?.error) {
-        let message = response.error.message
-          ? response.error.message
-          : this.$tc("message.api_error", 1);
-        this.$root.$emit("set-snackbar", message);
-        if (response.error?.checkAuth) {
-          this.$root.$emit("update-auth", []);
-        }
-      }
-    },
-    async searchIssue() {
-      this.issueLoading = true;
-      let response = await jiraIntegrationHelper.searchIssues(
-        this.credentials[this.project.credentialIndex],
-        { project: this.projectId }
-      );
-      this.issues = response.issues;
-
-      this.issueLoading = false;
-      if (response?.error) {
-        let message = response.error.message
-          ? response.error.message
-          : this.$tc("message.api_error", 1);
-        this.$root.$emit("set-snackbar", message);
-        if (response.error?.checkAuth) {
-          this.$root.$emit("update-auth", []);
-        }
-      }
-    },
-    updateDescription({ content, text }) {
-      this.description.content = content;
-      this.description.text = text;
     },
   },
 };

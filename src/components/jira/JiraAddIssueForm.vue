@@ -340,7 +340,6 @@ export default {
       credentials: this.credentialItems,
       itemLists: this.items,
       selectedIds: this.selected ? this.selected : [],
-      dialog: false,
       loading: false,
       userLoading: false,
       issueLoading: false,
@@ -386,7 +385,6 @@ export default {
   methods: {
     handleDiscard() {
       this.handleClear();
-      this.dialog = false;
     },
     handleClear(leaveProject = true) {
       if (!leaveProject) {
@@ -499,7 +497,7 @@ export default {
           } else {
             this.$emit("issueAdded");
             this.handleClear();
-            this.dialog = false;
+            // this.dialog = false;
             this.$root.$emit(
               "set-snackbar",
               this.$tc("message.successfully_created_issue", 1)
@@ -512,8 +510,6 @@ export default {
       }
     },
     async showDialog() {
-      this.$emit("close-menu");
-      this.dialog = true;
       this.loading = true;
       let response = await jiraIntegrationHelper.getAllProjects(
         this.credentials
@@ -522,7 +518,7 @@ export default {
       this.projects = response.projects;
       this.loading = false;
       if (response?.error) {
-        this.dialog = false;
+        this.$emit("error");
         let message = response.error.message
           ? response.error.message
           : this.$tc("message.api_error", 1);
