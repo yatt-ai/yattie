@@ -9,7 +9,7 @@
         class="subtitle-1 signup-title text-center"
         :style="{ color: currentTheme.secondary }"
       >
-        <span>{{ $tc("caption.signin_jira", 1) }}</span>
+        <span>{{ $tc("caption.signin_github", 1) }}</span>
       </div>
     </div>
     <div class="content mt-2">

@@ -135,7 +135,9 @@ export default {
     });
 
     window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredentials();
+      this.getCredentials().then(() => {
+        this.updateAuth();
+      });
     });
 
     window.ipc.on("ABOUT_DIALOG", async (version) => {
@@ -177,6 +179,8 @@ export default {
           message += this.$tc("message.integrations_expired", 1);
           this.setSnackBar(message);
         }
+      } else {
+        this.checkAuth = false;
       }
     },
     async getCredentials() {
