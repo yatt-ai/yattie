@@ -457,16 +457,17 @@ export default {
           }
         } else {
           let selectedAttachments = [];
-          // if (this.selectedIds.length > 0) {
-          this.items.map((item) => {
-            // if (
-            //   item.sessionType !== "Summary" &&
-            //   this.selectedIds.includes(item.id)
-            // ) {
-            selectedAttachments.push(item);
-            //   }
-          });
-          // }
+          if (!this.inDialog || this.selectedIds.length > 0) {
+            this.items.map((item) => {
+              if (
+                !this.inDialog ||
+                (item.sessionType !== "Summary" &&
+                  this.selectedIds.includes(item.id))
+              ) {
+                selectedAttachments.push(item);
+              }
+            });
+          }
 
           let attachmentResponse;
           if (selectedAttachments.length > 0) {

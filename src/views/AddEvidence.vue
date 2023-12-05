@@ -273,7 +273,7 @@ export default {
   },
   data() {
     return {
-    createJiraTicket: false,
+      createJiraTicket: false,
       item: {},
       items: [],
       config: {},
