@@ -174,7 +174,7 @@
         </div>
         <v-checkbox
           v-model="createJiraTicket"
-          label="Also create a Jira ticket"
+          :label="$tc('caption.create_jira_issue', 1)"
         ></v-checkbox>
         <JiraAddIssueForm
           v-if="createJiraTicket"
