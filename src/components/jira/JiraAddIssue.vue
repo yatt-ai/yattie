@@ -25,8 +25,10 @@
           <v-divider></v-divider>
           <div class="pa-2">
             <JiraAddIssueForm
+              :in-dialog="true"
               :credential-items="credentialItems"
               :items="items"
+              :selected="selected"
               :trigger-save="triggerJiraSaveTicket"
               @issueAdded="dialog = false"
             />

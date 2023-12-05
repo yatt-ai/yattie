@@ -300,6 +300,10 @@ import jiraIntegrationHelper from "../../integrations/JiraIntegrationHelpers";
 export default {
   name: "JiraAddIssueForm",
   props: {
+    inDialog: {
+      type: Boolean,
+      default: () => false,
+    },
     triggerSave: {
       type: Boolean,
       default: () => false,
