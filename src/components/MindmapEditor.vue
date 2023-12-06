@@ -2,6 +2,7 @@
   <div class="wrapper">
     <svg class="mindmap-svg" ref="mountPoint"></svg>
     <node-edit-dialog
+      :config-item="config"
       v-model="nodeEditDialog"
       :title="title"
       @save="updateNode"
@@ -40,6 +41,10 @@ export default {
   name: "MindmapEditor",
   components: { NodeEditDialog },
   props: {
+    configItem: {
+      type: Object,
+      default: () => {},
+    },
     nodesData: {
       type: Array,
       default: () => [],
@@ -62,6 +67,9 @@ export default {
     },
   },
   watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
     nodesData: function (newValue) {
       this.nodes = newValue;
     },
@@ -76,6 +84,7 @@ export default {
   },
   data() {
     return {
+      config: this.configItem,
       simulation: null,
       nodes: this.nodesData,
       connections: this.connectionsData,

@@ -28,6 +28,7 @@
     </div>
     <div v-else-if="sessionItem.fileType === 'mindmap'">
       <mindmap-editor
+        :config-item="config"
         :nodes-data="sessionItem.content.nodes"
         :connections-data="sessionItem.content.connections"
         :edit="true"

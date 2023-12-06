@@ -54,18 +54,26 @@ export default {
     LogoWrapper,
   },
   props: {
+    configItem: {
+      type: Object,
+      default: () => {},
+    },
     title: {
       type: String,
       default: () => "",
     },
   },
   watch: {
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
     title: function () {
       this.text = this.title;
     },
   },
   data() {
     return {
+      config: this.configItem,
       text: "",
       valid: false,
       textRules: [(v) => !!v || "Node title is required"],
