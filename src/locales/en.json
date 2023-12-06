@@ -19,7 +19,7 @@
     "open_session": "Open saved session",
     "test": "Test",
     "timeline": "Timeline",
-    "create_jira_issue": "Create Jira issue",
+    "cancel_creating_issue": "Cancel creating issue",
     "comment_type": "Comment type",
     "add_reaction": "Add reaction...",
     "clear": "Clear",

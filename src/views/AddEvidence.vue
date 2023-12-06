@@ -172,10 +172,80 @@
             :disabled="processing"
           />
         </div>
-        <v-checkbox
-          v-model="createJiraTicket"
-          :label="$tc('caption.create_jira_issue', 1)"
-        ></v-checkbox>
+
+        <div class="flex">
+          <v-menu
+            v-if="!createJiraTicket"
+            top
+            :offset-y="true"
+            :close-on-content-click="false"
+            ref="issueMenu"
+            v-model="issueCreateDestinationMenu"
+          >
+            <template v-slot:activator="{ on: issueCreateDestinationMenu }">
+              <v-tooltip top>
+                <template v-slot:activator="{ on: onTooltip }">
+                  <v-btn
+                    id="btn__bug"
+                    class="control-btn mx-1"
+                    fab
+                    outlined
+                    small
+                    color="default"
+                    v-on="{ ...issueCreateDestinationMenu, ...onTooltip }"
+                  >
+                    <img
+                      v-if="$vuetify.theme.dark === false"
+                      :src="require('../assets/icon/bug.svg')"
+                      width="24"
+                      height="24"
+                    />
+                    <img
+                      v-else
+                      :src="require('../assets/icon/bug-gray.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </v-btn>
+                </template>
+
+                <span>{{ $tc("caption.create_new_issue", 1) }}</span>
+              </v-tooltip>
+            </template>
+            <v-card class="mx-auto" width="150" tile>
+              <v-list dense>
+                <v-list-item
+                  @click="
+                    createJiraTicket = true;
+                    issueCreateDestinationMenu = false;
+                  "
+                >
+                  <v-list-item-icon class="mr-4">
+                    <v-avatar size="24">
+                      <img
+                        :src="require('../assets/icon/jira.png')"
+                        width="24"
+                        alt="avatar"
+                      />
+                    </v-avatar>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>{{
+                      $tc("caption.jira", 1)
+                    }}</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list>
+            </v-card>
+          </v-menu>
+          <v-btn
+            v-if="createJiraTicket"
+            class="text-capitalize pa-0 back-btn"
+            plain
+            @click="createJiraTicket = false"
+            >{{ $tc("caption.cancel_creating_issue", 1) }}</v-btn
+          >
+        </div>
         <JiraAddIssueForm
           v-if="createJiraTicket"
           :credential-items="credentials.jira"
@@ -274,6 +344,7 @@ export default {
   data() {
     return {
       createJiraTicket: false,
+      issueCreateDestinationMenu: false,
       item: {},
       items: [],
       config: {},
@@ -420,7 +491,6 @@ export default {
           this.credentials.jira
         );
         this.projects = response.projects;
-        console.log(response);
       }
     },
   },
