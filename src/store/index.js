@@ -174,10 +174,12 @@ export default new Vuex.Store({
       state.ended = payload.ended;
       state.quickTest = payload.quickTest;
       state.path = payload.path;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      if (this.$isElectron) {
+        window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.UPDATE_STATE,
+          data: state,
+        });
+      }
     },
   },
   actions: {},
