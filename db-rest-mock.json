@@ -39,5 +39,190 @@
         }
       ]
     }
+  },
+  "config": {
+    "useLocal": true,
+    "apperance": "light",
+    "showIssue": false,
+    "appLabel": false,
+    "defaultColor": "#1976D2FF",
+    "commentType": "Comment",
+    "audioCapture": false,
+    "videoQuality": "high",
+    "debugMode": false,
+    "summary": false,
+    "ai": {
+      "enabled": false
+    },
+    "templates": [
+      {
+        "type": "Screenshot",
+        "precondition": {
+          "content": "",
+          "text": ""
+        },
+        "issue": "",
+        "isBug": false
+      },
+      {
+        "type": "Video",
+        "precondition": {
+          "content": "",
+          "text": ""
+        },
+        "issue": "",
+        "isBug": false
+      },
+      {
+        "type": "Audio",
+        "precondition": {
+          "content": "",
+          "text": ""
+        },
+        "issue": "",
+        "isBug": false
+      },
+      {
+        "type": "Note",
+        "precondition": {
+          "content": "",
+          "text": ""
+        },
+        "issue": "",
+        "isBug": false
+      },
+      {
+        "type": "File",
+        "precondition": {
+          "content": "",
+          "text": ""
+        },
+        "issue": "",
+        "isBug": false
+      },
+      {
+        "type": "Mindmap",
+        "precondition": {
+          "content": "",
+          "text": ""
+        },
+        "issue": "",
+        "isBug": false
+      }
+    ],
+    "checklist": {
+      "presession": {
+        "tasks": [],
+        "status": false
+      },
+      "postsession": {
+        "tasks": [],
+        "status": false
+      }
+    },
+    "hotkeys": {
+      "general": {
+        "cancel": ["ctrl", "c"],
+        "save": ["ctrl", "s"]
+      },
+      "home": {
+        "quickTest": ["ctrl", "q"],
+        "newExploratorySession": ["ctrl", "e"],
+        "openExploratorySession": ["ctrl", "o"]
+      },
+      "sessionPlanning": {
+        "title": ["ctrl", "t"],
+        "charter": ["ctrl", "h"],
+        "timeLimit": ["ctrl", "l"],
+        "preconditions": ["ctrl", "p"],
+        "checklist": ["ctrl", "e"],
+        "start": "general.save"
+      },
+      "workspace": {
+        "pause": ["ctrl", "p"],
+        "resume": "workspace.pause",
+        "stop": ["ctrl", "h"],
+        "videoStart": ["ctrl", "v"],
+        "videoStop": "workspace.videoStart",
+        "screenshot": ["ctrl", "r"],
+        "audioStart": ["ctrl", "a"],
+        "audioStop": "workspace.audioStart",
+        "note": ["ctrl", "n"],
+        "mindmap": ["ctrl", "m"],
+        "changeSource": ["ctrl", "o"],
+        "createIssue": ["ctrl", "i"],
+        "back": ["ctrl", "b"]
+      },
+      "evidence": {
+        "name": ["ctrl", "n"],
+        "followUp": ["ctrl", "f"],
+        "comment": ["ctrl", "d"],
+        "tags": ["ctrl", "t"],
+        "type": ["ctrl", "y"],
+        "save": "general.save",
+        "cancel": "general.cancel"
+      }
+    }
+  },
+  "credentials": {
+    "yatt": [
+      {
+        "accessToken": "yatt_3126963554960277506.4795fc30c1abddad599cbadfdf5ce790",
+        "expiresAt": "2024-03-04T04:26:06.000Z",
+        "type": "bearer",
+        "loggedInAt": "2023-12-05 06:26:06",
+        "oauthTokenIds": [
+          "c765843a-02d0-46d1-a164-fb76d2835180",
+          "fb256eff-b145-435e-a664-80b00d63a892"
+        ],
+        "user": {
+          "id": "66fbcc54-9326-11ee-8407-4201ac166005",
+          "email": "isntlazy@gmail.com",
+          "name": "Oleh Korniichuk",
+          "avatar": null
+        },
+        "orgs": []
+      }
+    ],
+    "jira": [
+      {
+        "accessToken": "eyJraWQiOiJmZTM2ZThkMzZjMTA2N2RjYTgyNTg5MmEiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiIzNTE2NTg1Zi1lMzE1LTRkYzYtYTgzYS1jMjJlYmIyMzVkMjIiLCJzdWIiOiI1NTcwNTg6NWRiZDM2NjUtMWQwYS00Yzg4LWJlZjEtYWM4MGE0ZDY3MTVhIiwibmJmIjoxNzAxOTYyMjU5LCJpc3MiOiJodHRwczovL2F1dGguYXRsYXNzaWFuLmNvbSIsImlhdCI6MTcwMTk2MjI1OSwiZXhwIjoxNzAxOTY1ODU5LCJhdWQiOiIzdFBJNnkzVWdPeGpVVVZkMkVMTDNtaFpyNmNHQWF0dCIsImNsaWVudF9pZCI6IjN0UEk2eTNVZ094alVVVmQyRUxMM21oWnI2Y0dBYXR0IiwiaHR0cHM6Ly9pZC5hdGxhc3NpYW4uY29tL3J0aSI6ImRiNTRiMjJkLWEzMDItNDQzMi04NGQwLTY0ZTE5YWFmNWJmZSIsImh0dHBzOi8vaWQuYXRsYXNzaWFuLmNvbS9hdGxfdG9rZW5fdHlwZSI6IkFDQ0VTUyIsImh0dHBzOi8vYXRsYXNzaWFuLmNvbS9zeXN0ZW1BY2NvdW50SWQiOiI2MzhlNmI4OGZkZTA2NGVkYTJmMjBiYzgiLCJodHRwczovL2F0bGFzc2lhbi5jb20vZmlyc3RQYXJ0eSI6ZmFsc2UsImh0dHBzOi8vYXRsYXNzaWFuLmNvbS92ZXJpZmllZCI6dHJ1ZSwidmVyaWZpZWQiOiJ0cnVlIiwiaHR0cHM6Ly9pZC5hdGxhc3NpYW4uY29tL3JlZnJlc2hfY2hhaW5faWQiOiIzdFBJNnkzVWdPeGpVVVZkMkVMTDNtaFpyNmNHQWF0dC01NTcwNTg6NWRiZDM2NjUtMWQwYS00Yzg4LWJlZjEtYWM4MGE0ZDY3MTVhLTlkMWY5YjBmLTJkODAtNDEyMy1iMmIzLTEwYTQ3YTBmMzI1MSIsImh0dHBzOi8vaWQuYXRsYXNzaWFuLmNvbS9wcm9jZXNzUmVnaW9uIjoidXMtZWFzdC0xIiwiaHR0cHM6Ly9hdGxhc3NpYW4uY29tL29hdXRoQ2xpZW50SWQiOiIzdFBJNnkzVWdPeGpVVVZkMkVMTDNtaFpyNmNHQWF0dCIsImh0dHBzOi8vaWQuYXRsYXNzaWFuLmNvbS91anQiOiI4ZDI1NjE1Ni01MGIwLTQ2MGUtOTc2OS01MjhiNzc3YjY5N2QiLCJodHRwczovL2F0bGFzc2lhbi5jb20vc3lzdGVtQWNjb3VudEVtYWlsIjoiZmRkMmNlOTUtYmJjYy00YTMxLTg2N2ItYTM5ZDM4NzdkMTAzQGNvbm5lY3QuYXRsYXNzaWFuLmNvbSIsImh0dHBzOi8vYXRsYXNzaWFuLmNvbS9lbWFpbERvbWFpbiI6ImdtYWlsLmNvbSIsInNjb3BlIjoib2ZmbGluZV9hY2Nlc3MgcmVhZDpqaXJhLXdvcmsgcmVhZDptZSB3cml0ZTpqaXJhLXdvcmsiLCJodHRwczovL2F0bGFzc2lhbi5jb20vM2xvIjp0cnVlLCJodHRwczovL2lkLmF0bGFzc2lhbi5jb20vc2Vzc2lvbl9pZCI6ImE3NjQ0OGM3LWQyZmItNGQ0MC1iOGRmLTExZmVmZGYyZmU2ZiIsImh0dHBzOi8vaWQuYXRsYXNzaWFuLmNvbS92ZXJpZmllZCI6dHJ1ZSwiaHR0cHM6Ly9hdGxhc3NpYW4uY29tL3N5c3RlbUFjY291bnRFbWFpbERvbWFpbiI6ImNvbm5lY3QuYXRsYXNzaWFuLmNvbSJ9.ctuHT1qSF861ZOklPigESgagFGHfw_BwEvcDd7NEwFY7kfIKMX56k_8gdjYGb-WUas8pYh4yKPIgxExhx-E8c9SLLCdoU4VIIikipDI2T0uNvLJdR5OfyiobCqKxj5Y19uOrvggLGKpCNpOVf4-r5bd9J_kvK-2QWSulrYwbJpENFdk1Dc7C4ExmxYfVzSyPAVo3FIVN3BtG3IcUFFGM7QgMuU5PIS2MWykuRU2834XV2WYko4nTMwpQqirrNcZ1RoJhEYq95S_ZpbZ7J0X46hmHU1YewVSWK-zM0hkdIMjMJIQDyodUERxZZ5wbLvF2vxdpDHoTNaGawOIG7ASEww",
+        "yattOauthTokenId": "fb256eff-b145-435e-a664-80b00d63a892",
+        "expiresAt": "2023-12-07T16:17:39.000Z",
+        "type": "oauth",
+        "loggedInAt": "2023-12-05 06:26:25",
+        "lastRefreshed": "2023-12-07 17:24:53",
+        "user": {
+          "id": "557058:5dbd3665-1d0a-4c88-bef1-ac80a4d6715a",
+          "email": "isntlazy@gmail.com",
+          "name": "Oleh Korniichuk",
+          "avatar": "https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/557058:5dbd3665-1d0a-4c88-bef1-ac80a4d6715a/77bc4e72-5783-4a01-8a1a-cb033a7b5e18/128",
+          "locale": "uk",
+          "account_type": "atlassian",
+          "verified": true
+        },
+        "orgs": [
+          {
+            "id": "c06fde6c-a38f-4de2-a7d7-afde9b0edde1",
+            "url": "https://kodt.atlassian.net",
+            "name": "kodt",
+            "avatar": "https://site-admin-avatar-cdn.prod.public.atl-paas.net/avatars/240/globe.png"
+          }
+        ]
+      }
+    ],
+    "testrail": [
+      {
+        "accessToken": "aXNudGxhenlAZ21haWwuY29tOmdvaXlMVFJhNXB1bUEwNmdaNXo3LTYwSVhkV0RWUmh6MFZCNWJBV2NN",
+        "type": "basic",
+        "loggedInAt": "2023-12-06 14:57:29",
+        "user": {
+          "id": 1,
+          "email": "isntlazy@gmail.com",
+          "name": "Oleh Korniichuk"
+        },
+        "url": "isntlazy.testrail.io"
+      }
+    ]
   }
 }

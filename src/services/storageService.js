@@ -15,4 +15,12 @@ export default class StorageService {
   async setState(state) {
     return this.storage.setState(state);
   }
+
+  async getConfig() {
+    return await this.storage.getConfig();
+  }
+
+  async getCredentials() {
+    return await this.storage.getCredentials();
+  }
 }

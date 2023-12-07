@@ -192,11 +192,17 @@ export default {
       config: {},
       credentials: {},
       checkAuth: this.isAuthenticated,
-      loggedInServices: {},
       showMenu: false,
     };
   },
   computed: {
+    loggedInServices() {
+      const services = {};
+      for (const credentialType of Object.keys(this.credentials)) {
+        services[credentialType] = this.credentials[credentialType].length > 0;
+      }
+      return services;
+    },
     quickTestHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "home.quickTest",
@@ -237,28 +243,11 @@ export default {
     });
   },
   methods: {
-    getConfig() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CONFIG })
-        .then((result) => {
-          this.config = result;
-        });
+    async getConfig() {
+      this.config = await this.$storageService.getConfig();
     },
-    getCredentials() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
-        .then((result) => {
-          this.credentials = result;
-          for (const credentialType of Object.keys(this.credentials)) {
-            if (this.credentials[credentialType].length > 0) {
-              this.loggedInServices[credentialType] = true;
-            }
-          }
-        });
+    async getCredentials() {
+      this.credentials = await this.$storageService.getCredentials();
     },
     async newSession() {
       if (this.$router.history.current.path === "/") {
