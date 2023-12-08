@@ -32,6 +32,10 @@ export default {
       }
     }
   },
+  async created() {
+    const config = await this.$storageService.getConfig();
+    this.$store.commit("config/setFullConfig", config);
+  },
 };
 </script>
 <style scoped>

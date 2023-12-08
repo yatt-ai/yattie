@@ -168,6 +168,7 @@ import LogoWrapper from "../components/LogoWrapper.vue";
 import MenuPopover from "../components/MenuPopover.vue";
 
 import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
+import { mapGetters } from "vuex";
 export default {
   name: "HomeView",
   components: {
@@ -189,13 +190,15 @@ export default {
   },
   data() {
     return {
-      config: {},
       credentials: {},
       checkAuth: this.isAuthenticated,
       showMenu: false,
     };
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+    }),
     loggedInServices() {
       const services = {};
       for (const credentialType of Object.keys(this.credentials)) {
@@ -204,38 +207,26 @@ export default {
       return services;
     },
     quickTestHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "home.quickTest",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("home.quickTest", this.hotkeys);
     },
     newExploratoryHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "home.newExploratorySession",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     openExploratoryHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "home.openExploratorySession",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
   },
   created() {
-    this.getConfig();
     this.getCredentials();
   },
   mounted() {
     if (!window.ipc) return;
-
-    window.ipc.on("CONFIG_CHANGE", () => {
-      this.getConfig();
-    });
-
-    window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredentials();
-    });
 
     // New session
     window.ipc.on("NEW_SESSION", () => {
@@ -243,15 +234,12 @@ export default {
     });
   },
   methods: {
-    async getConfig() {
-      this.config = await this.$storageService.getConfig();
-    },
     async getCredentials() {
       this.credentials = await this.$storageService.getCredentials();
     },
     async newSession() {
       if (this.$router.history.current.path === "/") {
-        this.$router.push("/main");
+        await this.$router.push("/main");
       }
     },
     async openSession() {
@@ -272,7 +260,7 @@ export default {
 
         const currentPath = this.$router.history.current.path;
         if (currentPath !== state.path) {
-          this.$router.push({ path: state.path });
+          await this.$router.push({ path: state.path });
         }
       }
     },

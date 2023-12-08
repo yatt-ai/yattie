@@ -5,9 +5,9 @@ import {
   SESSION_STATUSES,
   DEFAULT_CHARTER_MAP_NODES,
   DEFAULT_CHARTER_MAP_CONNECTIONS,
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
 } from "../modules/constants";
+import { auth } from "@/store/modules/auth";
+import { config } from "@/store/modules/config";
 
 Vue.use(Vuex);
 
@@ -38,69 +38,60 @@ export default new Vuex.Store({
   mutations: {
     setTitle(state, payload) {
       state.title = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      if (this.$isElectron) {
+        this.$electronService.updateState(state);
+      }
     },
     setCharter(state, payload) {
       state.charter.content = payload.content;
       state.charter.text = payload.text;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      if (this.$isElectron) {
+        this.$electronService.updateState(state);
+      }
     },
     setMindmap(state, payload) {
       state.mindmap.nodes = payload.nodes;
       state.mindmap.connections = payload.connections;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      if (this.$isElectron) {
+        this.$electronService.updateState(state);
+      }
     },
     setPrecondition(state, payload) {
       state.preconditions.content = payload.content;
       state.preconditions.text = payload.text;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      if (this.$isElectron) {
+        this.$electronService.updateState(state);
+      }
     },
     setDuration(state, payload) {
       state.duration = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      if (this.$isElectron) {
+        this.$electronService.updateState(state);
+      }
     },
     setStarted(state, payload) {
       state.started = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      if (this.$isElectron) {
+        this.$electronService.updateState(state);
+      }
     },
     setEnded(state, payload) {
       state.ended = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      if (this.$isElectron) {
+        this.$electronService.updateState(state);
+      }
     },
     setQuickTest(state, payload) {
       state.quickTest = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      if (this.$isElectron) {
+        this.$electronService.updateState(state);
+      }
     },
     setPath(state, payload) {
       state.path = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      if (this.$isElectron) {
+        this.$electronService.updateState(state);
+      }
     },
     updateSession(state, payload) {
       if (state.status !== payload.status) {
@@ -112,10 +103,9 @@ export default new Vuex.Store({
       if (state.duration !== payload.duration) {
         state.duration = payload.duration;
       }
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      if (this.$isElectron) {
+        this.$electronService.updateState(state);
+      }
     },
     clearState(state) {
       state.title = "";
@@ -139,10 +129,9 @@ export default new Vuex.Store({
       state.started = "";
       state.ended = "";
       state.quickTest = false;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      if (this.$isElectron) {
+        this.$electronService.updateState(state);
+      }
     },
     resetState(state) {
       state.duration = 0;
@@ -152,10 +141,9 @@ export default new Vuex.Store({
       state.started = "";
       state.ended = "";
       state.quickTest = false;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      if (this.$isElectron) {
+        this.$electronService.updateState(state);
+      }
     },
     restoreState(state, payload) {
       state.title = payload.title;
@@ -175,14 +163,14 @@ export default new Vuex.Store({
       state.quickTest = payload.quickTest;
       state.path = payload.path;
       if (this.$isElectron) {
-        window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.UPDATE_STATE,
-          data: state,
-        });
+        this.$electronService.updateState(state);
       }
     },
   },
   actions: {},
-  modules: {},
+  modules: {
+    auth,
+    config,
+  },
   strict: process.env.NODE_ENV !== "production",
 });

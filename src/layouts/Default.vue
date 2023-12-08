@@ -16,11 +16,7 @@
           </v-btn>
         </template>
       </v-snackbar>
-      <AboutDialog
-        v-model="aboutDialog"
-        :version="aboutVersion"
-        :configItem="config"
-      />
+      <AboutDialog v-model="aboutDialog" :version="aboutVersion" />
     </v-main>
   </v-app>
 </template>
@@ -39,7 +35,6 @@ export default {
     aboutDialog: false,
     aboutVersion: null,
     overlay: false,
-    config: {},
     credentials: {},
     checkAuth: false,
     snackBar: {
@@ -48,7 +43,6 @@ export default {
     },
   }),
   created() {
-    this.getConfig();
     this.getCredentials().then(() => {
       this.updateAuth();
     });
@@ -130,10 +124,6 @@ export default {
       localStorage.setItem("isDarkMode", isDarkMode);
     });
 
-    window.ipc.on("CONFIG_CHANGE", () => {
-      this.getConfig();
-    });
-
     window.ipc.on("CREDENTIAL_CHANGE", () => {
       this.getCredentials();
     });
@@ -149,14 +139,6 @@ export default {
     },
     openAboutDialog() {
       this.aboutDialog = true;
-    },
-    getConfig() {
-      if (!window.ipc) return;
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CONFIG })
-        .then((result) => {
-          this.config = result;
-        });
     },
     async setSnackBar(message) {
       this.snackBar.enabled = true;
