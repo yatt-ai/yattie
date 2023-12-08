@@ -35,6 +35,35 @@ export default {
   async created() {
     const config = await this.$storageService.getConfig();
     this.$store.commit("config/setFullConfig", config);
+
+    const credentials = await this.$storageService.getCredentials();
+    this.$store.commit("auth/setCredentials", credentials);
+    if (this.$isElectron) {
+      // todo remove this check when $integrationHelpers will support REST API
+      await this.updateAuth();
+    }
+  },
+  methods: {
+    async updateAuth() {
+      if (
+        this.$store.getters["auth/credentials"] &&
+        Object.entries(this.$store.getters["auth/credentials"]).length > 0
+      ) {
+        let authCheckResponse = await this.$integrationHelpers.checkAuth(
+          this.$store.getters["auth/credentials"]
+        );
+        this.$store.commit("auth/setIsAuthenticated", authCheckResponse.authed);
+        if (authCheckResponse.failedAuth?.length > 0) {
+          // TODO - Prompt the user if they'd like to remove the failing cred
+          let message = "";
+          for (const failedCred of authCheckResponse.failedAuth) {
+            message += `${failedCred.credentialType} `;
+          }
+          message += this.$tc("message.integrations_expired", 1);
+          this.setSnackBar(message);
+        }
+      }
+    },
   },
 };
 </script>

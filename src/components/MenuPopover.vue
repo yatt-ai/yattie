@@ -84,28 +84,21 @@
 <script>
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 import uuidv4 from "uuid";
+import { mapGetters } from "vuex";
 
 export default {
   name: "MenuPopover",
   components: {},
-  props: {
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
-  },
-  watch: {
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
-  },
+  props: {},
   data() {
     return {
-      credentials: this.credentialItems,
       showMenu: false,
     };
   },
   computed: {
+    ...mapGetters({
+      credentials: "auth/credentials",
+    }),
     profileAvatar() {
       for (const cList of Object.values(this.credentials)) {
         if (cList.length > 0) {
@@ -143,11 +136,15 @@ export default {
     },
     logout() {
       this.showMenu = false;
-      this.credentials = {};
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
-        data: this.credentials,
-      });
+      const emptyCredentials = {};
+      this.$store.commit("auth/setCredentials", emptyCredentials);
+
+      if (this.$isElectron) {
+        window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+          func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
+          data: emptyCredentials,
+        });
+      }
     },
   },
 };

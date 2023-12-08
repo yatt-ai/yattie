@@ -1,8 +1,8 @@
 <template>
   <v-container class="wrapper">
     <div class="header">
-      <div class="avatar" v-if="checkAuth">
-        <MenuPopover :credential-items="credentials" />
+      <div class="avatar" v-if="isAuthenticated">
+        <MenuPopover />
       </div>
     </div>
     <div class="content">
@@ -177,35 +177,16 @@ export default {
     LogoWrapper,
     MenuPopover,
   },
-  props: {
-    isAuthenticated: {
-      type: Boolean,
-      default: () => false,
-    },
-  },
-  watch: {
-    isAuthenticated: function (newValue) {
-      this.checkAuth = newValue;
-    },
-  },
   data() {
-    return {
-      credentials: {},
-      checkAuth: this.isAuthenticated,
-      showMenu: false,
-    };
+    return {};
   },
   computed: {
     ...mapGetters({
       hotkeys: "config/hotkeys",
+      credentials: "auth/credentials",
+      isAuthenticated: "auth/isAuthenticated",
+      loggedInServices: "auth/loggedInServices",
     }),
-    loggedInServices() {
-      const services = {};
-      for (const credentialType of Object.keys(this.credentials)) {
-        services[credentialType] = this.credentials[credentialType].length > 0;
-      }
-      return services;
-    },
     quickTestHotkey() {
       return this.$hotkeyHelpers.findBinding("home.quickTest", this.hotkeys);
     },
@@ -222,46 +203,39 @@ export default {
       );
     },
   },
-  created() {
-    this.getCredentials();
-  },
   mounted() {
-    if (!window.ipc) return;
-
-    // New session
-    window.ipc.on("NEW_SESSION", () => {
-      this.newSession();
-    });
+    if (this.$isElectron) {
+      this.$electronService.onNewSession(this.newSession);
+    }
   },
   methods: {
-    async getCredentials() {
-      this.credentials = await this.$storageService.getCredentials();
-    },
     async newSession() {
       if (this.$router.history.current.path === "/") {
         await this.$router.push("/main");
       }
     },
     async openSession() {
-      if (!window.ipc) return;
+      if (this.$isElectron) {
+        const { status, message, state } = await window.ipc.invoke(
+          IPC_HANDLERS.FILE_SYSTEM,
+          {
+            func: IPC_FUNCTIONS.OPEN_SESSION,
+          }
+        );
 
-      const { status, message, state } = await window.ipc.invoke(
-        IPC_HANDLERS.FILE_SYSTEM,
-        {
-          func: IPC_FUNCTIONS.OPEN_SESSION,
+        if (status === STATUSES.ERROR) {
+          this.$root.$emit("set-snackbar", message);
+          console.log(message);
+        } else {
+          this.$store.commit("restoreState", state);
+
+          const currentPath = this.$router.history.current.path;
+          if (currentPath !== state.path) {
+            await this.$router.push({ path: state.path });
+          }
         }
-      );
-
-      if (status === STATUSES.ERROR) {
-        this.$root.$emit("set-snackbar", message);
-        console.log(message);
       } else {
-        this.$store.commit("restoreState", state);
-
-        const currentPath = this.$router.history.current.path;
-        if (currentPath !== state.path) {
-          await this.$router.push({ path: state.path });
-        }
+        // todo Add web version handler
       }
     },
     handleQuickTest() {

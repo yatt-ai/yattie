@@ -2,7 +2,7 @@
   <v-app :style="{ backgroundColor: currentTheme.background }">
     <v-main>
       <v-overlay :absolute="true" :value="overlay"> </v-overlay>
-      <router-view :isAuthenticated="checkAuth" />
+      <router-view :isAuthenticated="$store.getters['auth/isAuthenticated']" />
       <v-snackbar v-model="snackBar.enabled" timeout="3000">
         {{ snackBar.message }}
         <template v-slot:action="{ attrs }">
@@ -36,17 +36,11 @@ export default {
     aboutVersion: null,
     overlay: false,
     credentials: {},
-    checkAuth: false,
     snackBar: {
       enabled: false,
       message: "",
     },
   }),
-  created() {
-    this.getCredentials().then(() => {
-      this.updateAuth();
-    });
-  },
   mounted() {
     this.$root.$on("update-auth", this.updateAuth);
     this.$root.$on("set-snackbar", this.setSnackBar);
@@ -124,9 +118,9 @@ export default {
       localStorage.setItem("isDarkMode", isDarkMode);
     });
 
-    window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredentials();
-    });
+    // window.ipc.on("CREDENTIAL_CHANGE", () => {
+    //   this.getCredentials();
+    // });
 
     window.ipc.on("ABOUT_DIALOG", async (version) => {
       this.aboutVersion = version;
@@ -143,31 +137,6 @@ export default {
     async setSnackBar(message) {
       this.snackBar.enabled = true;
       this.snackBar.message = message;
-    },
-    async updateAuth() {
-      if (this.credentials && Object.entries(this.credentials).length > 0) {
-        let authCheckResponse = await this.$integrationHelpers.checkAuth(
-          this.credentials
-        );
-        this.checkAuth = authCheckResponse.authed;
-        if (authCheckResponse.failedAuth?.length > 0) {
-          // TODO - Prompt the user if they'd like to remove the failing cred
-          let message = "";
-          for (const failedCred of authCheckResponse.failedAuth) {
-            message += `${failedCred.credentialType} `;
-          }
-          message += this.$tc("message.integrations_expired", 1);
-          this.setSnackBar(message);
-        }
-      }
-    },
-    async getCredentials() {
-      if (!window.ipc) return;
-      await window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
-        .then((result) => {
-          this.credentials = result;
-        });
     },
   },
   computed: {
