@@ -21,5 +21,9 @@ export const config = {
       return state;
     },
     hotkeys: (state) => state.hotkeys,
+    checklistPresessionStatus: (state) => state.checklist.presession.status,
+    checklistPresessionTasks: (state) => state.checklist.presession.tasks,
+    checklistPostsessionStatus: (state) => state.checklist.postsession.status,
+    checklistPostsessionTasks: (state) => state.checklist.postsession.tasks,
   },
 };

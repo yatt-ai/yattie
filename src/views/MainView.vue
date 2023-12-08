@@ -38,8 +38,8 @@
         </v-tabs>
       </div>
       <div class="avatar">
-        <div v-if="checkAuth">
-          <MenuPopover :credential-items="credentials" />
+        <div v-if="isAuthenticated">
+          <MenuPopover />
         </div>
         <div v-else>
           <v-menu :nudge-width="100" bottom z-index="99999" offset-y>
@@ -125,6 +125,7 @@ import {
   IPC_FUNCTIONS,
   SESSION_STATUSES,
 } from "../modules/constants";
+import { mapGetters } from "vuex";
 
 export default {
   name: "MainView",
@@ -141,16 +142,7 @@ export default {
     CheckTaskWrapper,
     MenuPopover,
   },
-  props: {
-    isAuthenticated: {
-      type: Boolean,
-      default: () => false,
-    },
-  },
   watch: {
-    isAuthenticated: function (newValue) {
-      this.checkAuth = newValue;
-    },
     presession: {
       handler: function () {
         this.checkStatusOfPreSessionTask();
@@ -165,8 +157,6 @@ export default {
       selected: [],
       activeSession: {},
       config: {},
-      credentials: {},
-      checkAuth: this.isAuthenticated,
       presession: {},
       postsession: {},
       checkedStatusOfPreSessionTask: false,
@@ -177,7 +167,6 @@ export default {
   created() {
     this.fetchItems();
     this.getConfig();
-    this.getCredentials();
   },
   mounted() {
     this.$root.$on("update-selected", this.updateSelected);
@@ -197,21 +186,23 @@ export default {
     window.ipc.on("CONFIG_CHANGE", () => {
       this.getConfig();
     });
-    window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredentials();
-    });
     window.ipc.on("META_CHANGE", () => {
       this.fetchItems();
       this.getConfig();
-      this.getCredentials();
     });
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+      checklistPresessionStatus: "config/checklistPresessionStatus",
+      checklistPostsessionStatus: "config/checklistPostsessionStatus",
+      checklistPostsessionTasks: "config/checklistPostsessionTasks",
+      checklistPresessionTasks: "config/checklistPresessionTasks",
+      isAuthenticated: "auth/isAuthenticated",
+      credentials: "auth/credentials",
+    }),
     backHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "workspace.back",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("workspace.back", this.hotkeys);
     },
     status() {
       return this.$store.state.status;
@@ -249,8 +240,8 @@ export default {
         .then((result) => {
           this.config = result;
           this.presession = {
-            status: this.config.checklist.presession.status,
-            tasks: this.config.checklist.presession.tasks.map((task) => {
+            status: this.checklistPresessionStatus,
+            tasks: this.checklistPresessionTasks.map((task) => {
               return { ...task, checked: false };
             }),
           };
@@ -258,20 +249,11 @@ export default {
           this.checkStatusOfPreSessionTask();
 
           this.postsession = {
-            status: this.config.checklist.postsession.status,
-            tasks: this.config.checklist.postsession.tasks.map((task) => {
+            status: this.checklistPostsessionStatus,
+            tasks: this.checklistPostsessionTasks.map((task) => {
               return { ...task, checked: false };
             }),
           };
-        });
-    },
-    getCredentials() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
-        .then((result) => {
-          this.credentials = result;
         });
     },
     fetchItems() {
