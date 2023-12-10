@@ -45,10 +45,6 @@ export default {
       type: Array,
       default: () => [],
     },
-    type: {
-      type: String,
-      defaut: () => "pressession",
-    },
   },
   data() {
     return {

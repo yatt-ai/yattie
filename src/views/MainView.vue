@@ -72,12 +72,14 @@
     <div class="content">
       <v-tabs-items v-model="activeTab">
         <v-tab-item value="/main" :transition="false">
-          <TestWrapper :config-item="config" :credential-items="credentials" />
+          <TestWrapper
+            :config-item="$store.getters['config/fullConfig']"
+            :credential-items="credentials"
+          />
           <CheckTaskWrapper
             v-if="showCheckList"
-            :config-item="config"
+            :config-item="$store.getters['config/fullConfig']"
             :tasks="presession.tasks"
-            type="preseesion"
           />
         </v-tab-item>
         <v-tab-item value="/main/workspace" :transition="false">
@@ -94,10 +96,10 @@
       <ControlPanel
         :items="items"
         @add-item="addItem"
-        :config-item="config"
+        :config-item="$store.getters['config/fullConfig']"
         :credential-items="credentials"
         :selectedItems="selected"
-        :checkedStatusOfPreSessionTask="checkedStatusOfPreSessionTask"
+        :checkedStatusOfPreSessionTask="uncheckedRequiredPresessionTaskExist"
         view-mode="normal"
       />
       <TimeCounter v-if="$store.state.status !== 'pending'" />
@@ -142,65 +144,61 @@ export default {
     CheckTaskWrapper,
     MenuPopover,
   },
-  watch: {
-    presession: {
-      handler: function () {
-        this.checkStatusOfPreSessionTask();
-      },
-      deep: true,
-    },
-  },
   data() {
     return {
       activeTab: "/main",
       items: [],
       selected: [],
       activeSession: {},
-      config: {},
       presession: {},
-      postsession: {},
-      checkedStatusOfPreSessionTask: false,
       showTaskError: false,
       showMenu: false,
     };
   },
   created() {
-    this.fetchItems();
-    this.getConfig();
+    // this.fetchItems();
   },
   mounted() {
+    this.setInitialPresession();
+    this.fetchItems();
     this.$root.$on("update-selected", this.updateSelected);
     this.$root.$on("save-session", this.saveSession);
     this.$root.$on("new-session", () => {
-      this.presession.tasks = this.presession.tasks.map((item) => {
-        let temp = Object.assign({}, item);
-        temp.checked = false;
-        return temp;
-      });
+      this.setInitialPresession();
     });
     if (!window.ipc) return;
-
+    //
     window.ipc.on("DATA_CHANGE", () => {
+      console.log("data change");
       this.fetchItems();
     });
-    window.ipc.on("CONFIG_CHANGE", () => {
-      this.getConfig();
-    });
+    // window.ipc.on("CONFIG_CHANGE", () => {
+    //   this.getConfig();
+    // });
     window.ipc.on("META_CHANGE", () => {
+      console.log("meta change");
       this.fetchItems();
-      this.getConfig();
+      //   this.getConfig();
     });
   },
   computed: {
     ...mapGetters({
       hotkeys: "config/hotkeys",
       checklistPresessionStatus: "config/checklistPresessionStatus",
-      checklistPostsessionStatus: "config/checklistPostsessionStatus",
-      checklistPostsessionTasks: "config/checklistPostsessionTasks",
       checklistPresessionTasks: "config/checklistPresessionTasks",
       isAuthenticated: "auth/isAuthenticated",
       credentials: "auth/credentials",
     }),
+    uncheckedRequiredPresessionTaskExist() {
+      if (!this.presession.status) {
+        return true;
+      } else {
+        const uncheckedTasks = this.presession.tasks.filter(
+          (task) => !task.checked && task.required
+        );
+        return uncheckedTasks.length === 0;
+      }
+    },
     backHotkey() {
       return this.$hotkeyHelpers.findBinding("workspace.back", this.hotkeys);
     },
@@ -215,46 +213,19 @@ export default {
     },
   },
   methods: {
+    setInitialPresession() {
+      this.presession = {
+        status: this.checklistPresessionStatus,
+        tasks: this.checklistPresessionTasks.map((task) => {
+          return { ...task, checked: false };
+        }),
+      };
+    },
     navigate(link) {
       if (this.$route.path === link || this.status === SESSION_STATUSES.PENDING)
         return;
 
       this.$router.push({ path: link });
-    },
-    checkStatusOfPreSessionTask() {
-      if (!this.presession.status) {
-        this.checkedStatusOfPreSessionTask = true;
-        return;
-      }
-
-      const uncheckedTasks = this.presession.tasks.filter(
-        (task) => !task.checked && task.required
-      );
-      this.checkedStatusOfPreSessionTask = uncheckedTasks.length === 0;
-    },
-    getConfig() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CONFIG })
-        .then((result) => {
-          this.config = result;
-          this.presession = {
-            status: this.checklistPresessionStatus,
-            tasks: this.checklistPresessionTasks.map((task) => {
-              return { ...task, checked: false };
-            }),
-          };
-
-          this.checkStatusOfPreSessionTask();
-
-          this.postsession = {
-            status: this.checklistPostsessionStatus,
-            tasks: this.checklistPostsessionTasks.map((task) => {
-              return { ...task, checked: false };
-            }),
-          };
-        });
     },
     fetchItems() {
       if (!window.ipc) return;
@@ -264,22 +235,26 @@ export default {
         .then((result) => {
           this.items = result;
         });
+
+      console.log(this.items);
     },
     addItem(newItem) {
+      console.log("add item");
       this.items.push(newItem);
       this.saveSession(this.items);
     },
-    updateItems() {
-      this.items = this.items.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.id === this.activeItem.id) {
-          temp = this.activeItem;
-        }
-        return temp;
-      });
-      this.saveSession(this.items);
-    },
+    // updateItems() {
+    //   this.items = this.items.map((item) => {
+    //     let temp = Object.assign({}, item);
+    //     if (temp.id === this.activeItem.id) {
+    //       temp = this.activeItem;
+    //     }
+    //     return temp;
+    //   });
+    //   this.saveSession(this.items);
+    // },
     saveSession(items) {
+      console.log("inside save session");
       if (!window.ipc) return;
 
       window.ipc.invoke(IPC_HANDLERS.DATABASE, {
@@ -291,6 +266,7 @@ export default {
       this.selected = value;
     },
     updateActiveSession(value) {
+      console.log("update active session");
       this.activeSession = value;
       this.openEditWindow(this.activeSession);
       // this.updateItems();

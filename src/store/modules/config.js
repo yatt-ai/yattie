@@ -1,7 +1,18 @@
 import Vue from "vue";
 export const config = {
   namespaced: true,
-  state: () => ({}),
+  state: () => ({
+    checklist: {
+      presession: {
+        status: false,
+        tasks: [],
+      },
+      postsession: {
+        status: false,
+        tasks: [],
+      },
+    },
+  }),
   mutations: {
     setFullConfig(state, payload) {
       // Clear existing state properties
@@ -23,7 +34,18 @@ export const config = {
     hotkeys: (state) => state.hotkeys,
     checklistPresessionStatus: (state) => state.checklist.presession.status,
     checklistPresessionTasks: (state) => state.checklist.presession.tasks,
-    checklistPostsessionStatus: (state) => state.checklist.postsession.status,
+    uncheckedRequiredPresessionTaskExist: (state) => {
+      if (!state.checklist.presession.status) {
+        this.checkedStatusOfPreSessionTask = true;
+      } else {
+        const uncheckedTasks = state.checklist.presession.tasks.filter(
+          (task) => !task.checked && task.required
+        );
+        return uncheckedTasks.length === 0;
+      }
+    },
+    checklistPostsessionStatus: (state) =>
+      state?.checklist?.postsession?.status,
     checklistPostsessionTasks: (state) => state.checklist.postsession.tasks,
   },
 };
