@@ -4,8 +4,8 @@ export default class StorageInterface {
   }
 
   // eslint-disable-next-line
-  async setState(state) {
-    throw new Error("Method 'setState()' must be implemented.");
+  async updateState(state) {
+    throw new Error("Method 'updateState()' must be implemented.");
   }
 
   async getConfig() {
@@ -14,5 +14,13 @@ export default class StorageInterface {
 
   async getCredentials() {
     throw new Error("Method 'getCredentials()' must be implemented.");
+  }
+
+  async getItems() {
+    throw new Error("Method 'fetchItems()' must be implemented.");
+  }
+
+  async updateItems(state) {
+    throw new Error("Method 'updateItems()' must be implemented.");
   }
 }

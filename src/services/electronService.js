@@ -6,6 +6,14 @@ export default class ElectronService {
     window.ipc.on("NEW_SESSION", callback);
   }
 
+  onDataChange(callback) {
+    window.ipc.on("DATA_CHANGE", callback);
+  }
+
+  onMetaChange(callback) {
+    window.ipc.on("META_CHANGE", callback);
+  }
+
   // Invokers
   setWindowSize({ width, height }) {
     window.ipc.invoke(IPC_HANDLERS.WINDOW, {
@@ -16,10 +24,11 @@ export default class ElectronService {
       },
     });
   }
-  updateState(state) {
-    window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-      func: IPC_FUNCTIONS.UPDATE_STATE,
-      data: state,
+
+  openEditWindow(data) {
+    window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.OPEN_EDIT_WINDOW,
+      data: data,
     });
   }
 }

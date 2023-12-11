@@ -12,8 +12,8 @@ export default class StorageService {
     return await this.storage.getState();
   }
 
-  async setState(state) {
-    return this.storage.setState(state);
+  async updateState(state) {
+    return this.storage.updateState(state);
   }
 
   async getConfig() {
@@ -22,5 +22,13 @@ export default class StorageService {
 
   async getCredentials() {
     return await this.storage.getCredentials();
+  }
+
+  async getItems() {
+    return await this.storage.getItems();
+  }
+
+  async updateItems(items) {
+    return this.storage.updateItems(items);
   }
 }

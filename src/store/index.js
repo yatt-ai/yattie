@@ -38,60 +38,42 @@ export default new Vuex.Store({
   mutations: {
     setTitle(state, payload) {
       state.title = payload;
-      if (this.$isElectron) {
-        this.$electronService.updateState(state);
-      }
+      this._vm.$storageService.updateState(state);
     },
     setCharter(state, payload) {
       state.charter.content = payload.content;
       state.charter.text = payload.text;
-      if (this.$isElectron) {
-        this.$electronService.updateState(state);
-      }
+      this._vm.$storageService.updateState(state);
     },
     setMindmap(state, payload) {
       state.mindmap.nodes = payload.nodes;
       state.mindmap.connections = payload.connections;
-      if (this.$isElectron) {
-        this.$electronService.updateState(state);
-      }
+      this._vm.$storageService.updateState(state);
     },
     setPrecondition(state, payload) {
       state.preconditions.content = payload.content;
       state.preconditions.text = payload.text;
-      if (this.$isElectron) {
-        this.$electronService.updateState(state);
-      }
+      this._vm.$storageService.updateState(state);
     },
     setDuration(state, payload) {
       state.duration = payload;
-      if (this.$isElectron) {
-        this.$electronService.updateState(state);
-      }
+      this._vm.$storageService.updateState(state);
     },
     setStarted(state, payload) {
       state.started = payload;
-      if (this.$isElectron) {
-        this.$electronService.updateState(state);
-      }
+      this._vm.$storageService.updateState(state);
     },
     setEnded(state, payload) {
       state.ended = payload;
-      if (this.$isElectron) {
-        this.$electronService.updateState(state);
-      }
+      this._vm.$storageService.updateState(state);
     },
     setQuickTest(state, payload) {
       state.quickTest = payload;
-      if (this.$isElectron) {
-        this.$electronService.updateState(state);
-      }
+      this._vm.$storageService.updateState(state);
     },
     setPath(state, payload) {
       state.path = payload;
-      if (this.$isElectron) {
-        this.$electronService.updateState(state);
-      }
+      this._vm.$storageService.updateState(state);
     },
     updateSession(state, payload) {
       if (state.status !== payload.status) {
@@ -103,9 +85,7 @@ export default new Vuex.Store({
       if (state.duration !== payload.duration) {
         state.duration = payload.duration;
       }
-      if (this.$isElectron) {
-        this.$electronService.updateState(state);
-      }
+      this._vm.$storageService.updateState(state);
     },
     clearState(state) {
       state.title = "";
@@ -129,9 +109,7 @@ export default new Vuex.Store({
       state.started = "";
       state.ended = "";
       state.quickTest = false;
-      if (this.$isElectron) {
-        this.$electronService.updateState(state);
-      }
+      this._vm.$storageService.updateState(state);
     },
     resetState(state) {
       state.duration = 0;
@@ -141,9 +119,7 @@ export default new Vuex.Store({
       state.started = "";
       state.ended = "";
       state.quickTest = false;
-      if (this.$isElectron) {
-        this.$electronService.updateState(state);
-      }
+      this._vm.$storageService.updateState(state);
     },
     restoreState(state, payload) {
       state.title = payload.title;
@@ -162,12 +138,19 @@ export default new Vuex.Store({
       state.ended = payload.ended;
       state.quickTest = payload.quickTest;
       state.path = payload.path;
-      if (this.$isElectron) {
-        this.$electronService.updateState(state);
-      }
+      this._vm.$storageService.updateState(state);
     },
   },
-  actions: {},
+  actions: {
+    // async resetState(context, payload) {
+    //   await this._vm.$storageService.updateState(payload);
+    //   context.commit("resetState", payload);
+    // },
+    // async restoreState(context, payload) {
+    //   await this._vm.$storageService.updateState(payload);
+    //   context.commit("restoreState", payload);
+    // },
+  },
   modules: {
     auth,
     config,

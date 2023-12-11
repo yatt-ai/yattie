@@ -122,11 +122,7 @@ import TimeCounter from "../components/TimeCounter.vue";
 import CheckTaskWrapper from "@/components/CheckTaskWrapper.vue";
 import MenuPopover from "@/components/MenuPopover.vue";
 
-import {
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
-  SESSION_STATUSES,
-} from "../modules/constants";
+import { SESSION_STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
 
 export default {
@@ -155,9 +151,6 @@ export default {
       showMenu: false,
     };
   },
-  created() {
-    // this.fetchItems();
-  },
   mounted() {
     this.setInitialPresession();
     this.fetchItems();
@@ -166,20 +159,11 @@ export default {
     this.$root.$on("new-session", () => {
       this.setInitialPresession();
     });
-    if (!window.ipc) return;
-    //
-    window.ipc.on("DATA_CHANGE", () => {
-      console.log("data change");
-      this.fetchItems();
-    });
-    // window.ipc.on("CONFIG_CHANGE", () => {
-    //   this.getConfig();
-    // });
-    window.ipc.on("META_CHANGE", () => {
-      console.log("meta change");
-      this.fetchItems();
-      //   this.getConfig();
-    });
+
+    if (this.$isElectron) {
+      this.$electronService.onDataChange(this.fetchItems);
+      this.$electronService.onMetaChange(this.fetchItems);
+    }
   },
   computed: {
     ...mapGetters({
@@ -221,61 +205,28 @@ export default {
         }),
       };
     },
-    navigate(link) {
-      if (this.$route.path === link || this.status === SESSION_STATUSES.PENDING)
-        return;
-
-      this.$router.push({ path: link });
-    },
-    fetchItems() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_ITEMS })
-        .then((result) => {
-          this.items = result;
-        });
-
-      console.log(this.items);
+    async fetchItems() {
+      this.items = await this.$storageService.getItems();
     },
     addItem(newItem) {
-      console.log("add item");
       this.items.push(newItem);
       this.saveSession(this.items);
     },
-    // updateItems() {
-    //   this.items = this.items.map((item) => {
-    //     let temp = Object.assign({}, item);
-    //     if (temp.id === this.activeItem.id) {
-    //       temp = this.activeItem;
-    //     }
-    //     return temp;
-    //   });
-    //   this.saveSession(this.items);
-    // },
     saveSession(items) {
-      console.log("inside save session");
-      if (!window.ipc) return;
-
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_ITEMS,
-        data: items,
-      });
+      this.$storageService.updateItems(items);
     },
     updateSelected(value) {
       this.selected = value;
     },
     updateActiveSession(value) {
-      console.log("update active session");
       this.activeSession = value;
       this.openEditWindow(this.activeSession);
-      // this.updateItems();
     },
     openEditWindow(data) {
-      window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.OPEN_EDIT_WINDOW,
-        data: data,
-      });
+      // todo we want to replace electron window with the vuetify dialog instead to make it work for both electron & web
+      if (this.$isElectron) {
+        this.$electronService.openEditWindow(data);
+      }
     },
     back() {
       this.$store.commit("resetState");

@@ -7,8 +7,8 @@ export default class RestApiService extends StorageInterface {
     return response.data;
   }
 
-  async setState(value) {
-    console.log(value);
+  async updateState(state) {
+    console.log(state);
     // saving state endpoint here
   }
 
@@ -20,5 +20,15 @@ export default class RestApiService extends StorageInterface {
   async getCredentials() {
     const response = await axios.get(`http://localhost:3000/credentials`);
     return response.data;
+  }
+
+  async getItems() {
+    const response = await axios.get(`http://localhost:3000/items`);
+    return response.data;
+  }
+
+  async updateItems(items) {
+    console.log(items);
+    // saving state endpoint here
   }
 }

@@ -8,8 +8,11 @@ export default class LocalJsonDbService extends StorageInterface {
     });
   }
 
-  async setState(state) {
-    console.log(state);
+  async updateState(state) {
+    window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      func: IPC_FUNCTIONS.UPDATE_STATE,
+      data: state,
+    });
   }
 
   async getConfig() {
@@ -21,6 +24,19 @@ export default class LocalJsonDbService extends StorageInterface {
   async getCredentials() {
     return await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
       func: IPC_FUNCTIONS.GET_CREDENTIALS,
+    });
+  }
+
+  async getItems() {
+    return await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      func: IPC_FUNCTIONS.GET_ITEMS,
+    });
+  }
+
+  async updateItems(items) {
+    window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      func: IPC_FUNCTIONS.UPDATE_ITEMS,
+      data: items,
     });
   }
 }

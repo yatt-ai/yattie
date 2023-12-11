@@ -21,7 +21,7 @@ export default {
     if (this.$router.history.current.path === "/") {
       const state = await this.$storageService.getState();
       if (Object.keys(state).length) {
-        this.$store.commit("restoreState", state);
+        await this.$store.commit("restoreState", state);
         const currentPath = this.$router.history.current.path;
         if (state.path && currentPath !== state.path) {
           if (state.path.includes("result") && this.$isElectron) {

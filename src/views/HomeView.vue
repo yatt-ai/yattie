@@ -205,6 +205,7 @@ export default {
   },
   mounted() {
     if (this.$isElectron) {
+      // handle electron menu -> New Session
       this.$electronService.onNewSession(this.newSession);
     }
   },
