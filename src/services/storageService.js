@@ -35,4 +35,12 @@ export default class StorageService {
   async updateItems(items) {
     return this.storage.updateItems(items);
   }
+
+  async getNotes() {
+    return await this.storage.getNotes();
+  }
+
+  async updateNotes(notes) {
+    return this.storage.updateNotes(notes);
+  }
 }

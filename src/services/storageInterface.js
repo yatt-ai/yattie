@@ -29,4 +29,13 @@ export default class StorageInterface {
   async updateItems(state) {
     throw new Error("Method 'updateItems()' must be implemented.");
   }
+
+  async getNotes() {
+    throw new Error("Method 'getNotes()' must be implemented.");
+  }
+
+  // eslint-disable-next-line
+  async updateNotes(notes) {
+    throw new Error("Method 'updateNotes()' must be implemented.");
+  }
 }

@@ -73,11 +73,7 @@
       <v-tabs-items v-model="activeTab">
         <v-tab-item value="/main" :transition="false">
           <TestWrapper />
-          <CheckTaskWrapper
-            v-if="showCheckList"
-            :config-item="$store.getters['config/fullConfig']"
-            :tasks="presession.tasks"
-          />
+          <CheckTaskWrapper v-if="showCheckList" :tasks="presession.tasks" />
         </v-tab-item>
         <v-tab-item value="/main/workspace" :transition="false">
           <WorkspaceWrapper

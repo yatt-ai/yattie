@@ -34,13 +34,11 @@
   </div>
 </template>
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   name: "CheckTaskWrapper",
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
     tasks: {
       type: Array,
       default: () => [],
@@ -49,7 +47,6 @@ export default {
   data() {
     return {
       valid: true,
-      config: this.configItem,
     };
   },
   mounted() {
@@ -58,10 +55,13 @@ export default {
     });
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+    }),
     checklistHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "sessionPlanning.checklist",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     currentTheme() {
@@ -70,11 +70,6 @@ export default {
       } else {
         return this.$vuetify.theme.themes.light;
       }
-    },
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
     },
   },
   methods: {
