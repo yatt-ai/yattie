@@ -20,7 +20,7 @@
             :color="currentTheme.secondary"
             :loading="titleLoading"
             :append-icon="
-              aiAssistEnabled
+              isAiAssistEnabled
                 ? previousTitle
                   ? 'mdi-robot-off-outline'
                   : 'mdi-robot-outline'
@@ -104,7 +104,7 @@
               >
                 <template #aiAssist="">
                   <v-btn
-                    v-if="aiAssistEnabled"
+                    v-if="isAiAssistEnabled"
                     icon
                     small
                     :title="$tc('caption.ai_assist', 1)"
@@ -207,7 +207,7 @@
           >
             <template #aiAssist="">
               <v-btn
-                v-if="aiAssistEnabled"
+                v-if="isAiAssistEnabled"
                 icon
                 small
                 :title="$tc('caption.ai_assist', 1)"
@@ -238,6 +238,7 @@ import {
 } from "../modules/constants";
 
 import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
+import { mapGetters } from "vuex";
 
 export default {
   name: "TestWrapper",
@@ -247,16 +248,6 @@ export default {
     VCol,
     VTextField,
     MindmapEditor,
-  },
-  props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
   },
   data() {
     return {
@@ -286,43 +277,44 @@ export default {
       },
       preconditionsLoading: false,
       duration: "",
-      config: this.configItem,
-      credentials: this.credentialItems,
     };
   },
   computed: {
+    ...mapGetters({
+      isAiAssistEnabled: "config/isAiAssistEnabled",
+      hotkeys: "config/hotkeys",
+      config: "config/fullConfig",
+      credentials: "auth/credentials",
+    }),
     titleHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "sessionPlanning.title",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     charterHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "sessionPlanning.charter",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     timeLimitHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "sessionPlanning.timeLimit",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     preconditionsHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "sessionPlanning.preconditions",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     checkListHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "sessionPlanning.checklist",
-        this.config.hotkeys
+        this.hotkeys
       );
-    },
-    aiAssistEnabled() {
-      return this?.config?.ai?.enabled || false;
     },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
@@ -333,12 +325,6 @@ export default {
     },
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
     "$store.state.title": {
       deep: true,
       handler(newValue) {
@@ -475,7 +461,7 @@ export default {
       this.$store.commit("setDuration", temp);
     },
     handleMindmap(value) {
-      const new_nodes = value.nodes.map((obj) => {
+      const newNodes = value.nodes.map((obj) => {
         return {
           id: obj.id,
           text: obj.text,
@@ -483,15 +469,15 @@ export default {
           fy: obj.fy,
         };
       });
-      const new_connections = value.connections.map((obj) => {
+      const newConnections = value.connections.map((obj) => {
         return {
           source: obj.source.id,
           target: obj.target.id,
         };
       });
       const data = {
-        nodes: new_nodes,
-        connections: new_connections,
+        nodes: newNodes,
+        connections: newConnections,
       };
       this.$store.commit("setMindmap", data);
     },

@@ -22,6 +22,11 @@ export default class RestApiService extends StorageInterface {
     return response.data;
   }
 
+  async updateCredentials(credentials) {
+    console.log(credentials);
+    // saving credentials endpoint here
+  }
+
   async getItems() {
     const response = await axios.get(`http://localhost:3000/items`);
     return response.data;

@@ -16,10 +16,16 @@ export default class StorageInterface {
     throw new Error("Method 'getCredentials()' must be implemented.");
   }
 
+  // eslint-disable-next-line
+  async updateCredentials(credentials) {
+    throw new Error("Method 'updateCredentials()' must be implemented.");
+  }
+
   async getItems() {
     throw new Error("Method 'fetchItems()' must be implemented.");
   }
 
+  // eslint-disable-next-line
   async updateItems(state) {
     throw new Error("Method 'updateItems()' must be implemented.");
   }

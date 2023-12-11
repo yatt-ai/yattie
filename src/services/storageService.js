@@ -24,6 +24,10 @@ export default class StorageService {
     return await this.storage.getCredentials();
   }
 
+  async updateCredentials(credentials) {
+    return this.storage.updateCredentials(credentials);
+  }
+
   async getItems() {
     return await this.storage.getItems();
   }

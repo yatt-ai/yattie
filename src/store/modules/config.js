@@ -2,6 +2,9 @@ import Vue from "vue";
 export const config = {
   namespaced: true,
   state: () => ({
+    ai: {
+      enabled: false,
+    },
     checklist: {
       presession: {
         status: false,
@@ -34,16 +37,7 @@ export const config = {
     hotkeys: (state) => state.hotkeys,
     checklistPresessionStatus: (state) => state.checklist.presession.status,
     checklistPresessionTasks: (state) => state.checklist.presession.tasks,
-    uncheckedRequiredPresessionTaskExist: (state) => {
-      if (!state.checklist.presession.status) {
-        this.checkedStatusOfPreSessionTask = true;
-      } else {
-        const uncheckedTasks = state.checklist.presession.tasks.filter(
-          (task) => !task.checked && task.required
-        );
-        return uncheckedTasks.length === 0;
-      }
-    },
+    isAiAssistEnabled: (state) => state.ai?.enabled || false,
     checklistPostsessionStatus: (state) =>
       state?.checklist?.postsession?.status,
     checklistPostsessionTasks: (state) => state.checklist.postsession.tasks,

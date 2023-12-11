@@ -31,4 +31,11 @@ export default class ElectronService {
       data: data,
     });
   }
+
+  async openExternalLink(url) {
+    return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+      func: IPC_FUNCTIONS.OPEN_EXTERNAL_LINK,
+      data: url,
+    });
+  }
 }

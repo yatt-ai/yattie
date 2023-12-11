@@ -48,49 +48,39 @@
 
 <script>
 import LogoWrapper from "../LogoWrapper.vue";
+import { mapGetters } from "vuex";
 export default {
   name: "NodeEditDialog",
   components: {
     LogoWrapper,
   },
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
     title: {
       type: String,
       default: () => "",
     },
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
     title: function () {
       this.text = this.title;
     },
   },
   data() {
     return {
-      config: this.configItem,
       text: "",
       valid: false,
       textRules: [(v) => !!v || "Node title is required"],
     };
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+    }),
     confirmHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.save",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
     },
     cancelHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.cancel",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.cancel", this.hotkeys);
     },
     currentTheme() {
       if (this.$vuetify.theme.dark) {

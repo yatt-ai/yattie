@@ -72,10 +72,7 @@
     <div class="content">
       <v-tabs-items v-model="activeTab">
         <v-tab-item value="/main" :transition="false">
-          <TestWrapper
-            :config-item="$store.getters['config/fullConfig']"
-            :credential-items="credentials"
-          />
+          <TestWrapper />
           <CheckTaskWrapper
             v-if="showCheckList"
             :config-item="$store.getters['config/fullConfig']"
