@@ -32,6 +32,10 @@ export default class StorageService {
     return await this.storage.getItems();
   }
 
+  async getItemById(id) {
+    return await this.storage.getItemById(id);
+  }
+
   async updateItems(items) {
     return this.storage.updateItems(items);
   }

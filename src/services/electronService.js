@@ -25,6 +25,13 @@ export default class ElectronService {
     });
   }
 
+  async openAddWindow(data) {
+    await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.OPEN_ADD_WINDOW,
+      data: { width: 700, height: 800, data },
+    });
+  }
+
   openEditWindow(data) {
     window.ipc.invoke(IPC_HANDLERS.WINDOW, {
       func: IPC_FUNCTIONS.OPEN_EDIT_WINDOW,
@@ -36,6 +43,30 @@ export default class ElectronService {
     return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
       func: IPC_FUNCTIONS.OPEN_EXTERNAL_LINK,
       data: url,
+    });
+  }
+
+  async uploadEvidence() {
+    return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      func: IPC_FUNCTIONS.UPLOAD_EVIDENCE,
+    });
+  }
+
+  async dragItem(item) {
+    return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+      func: IPC_FUNCTIONS.DRAG_ITEM,
+      data: item,
+    });
+  }
+
+  async dropFile(event) {
+    const f = event.dataTransfer.files[0];
+    return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      func: IPC_FUNCTIONS.DROP_FILE,
+      data: {
+        path: f.path,
+        name: f.name,
+      },
     });
   }
 }

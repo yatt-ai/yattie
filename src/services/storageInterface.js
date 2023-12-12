@@ -26,8 +26,13 @@ export default class StorageInterface {
   }
 
   // eslint-disable-next-line
+  async getItemById(id) {
+    throw new Error("Method 'getItemById(id)' must be implemented.");
+  }
+
+  // eslint-disable-next-line
   async updateItems(state) {
-    throw new Error("Method 'updateItems()' must be implemented.");
+    throw new Error("Method 'updateItems(state)' must be implemented.");
   }
 
   async getNotes() {

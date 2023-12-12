@@ -1303,10 +1303,8 @@ export default {
     endSession() {
       if (this.postSessionData.status) {
         this.showEndSessionDialog();
-        return;
       } else {
         this.showSummaryDialog();
-        return;
       }
     },
     async endSessionProcess() {
