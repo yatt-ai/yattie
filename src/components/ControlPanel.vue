@@ -102,11 +102,7 @@
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
-                <div
-                  v-if="
-                    this.credentials.jira && this.credentials.jira.length > 0
-                  "
-                >
+                <div v-if="credentials.jira && credentials.jira.length > 0">
                   <jira-export-session
                     :title="$tc(`caption.export_to_jira`, 1)"
                     :credential-items="credentials.jira"
@@ -116,10 +112,7 @@
                   />
                 </div>
                 <div
-                  v-if="
-                    this.credentials.testrail &&
-                    this.credentials.testrail.length > 0
-                  "
+                  v-if="credentials.testrail && credentials.testrail.length > 0"
                 >
                   <test-rail-export-session
                     :title="$tc(`caption.export_to_testrail`, 1)"
@@ -418,7 +411,7 @@
             <span>{{ $tc("caption.start_audio_record", 1) }}</span>
           </v-tooltip>
           <v-tooltip top v-if="recordAudioStarted">
-            <!-- CTODO test same binding for start/stop -->
+            <!-- TODO test same binding for start/stop -->
             <template v-slot:activator="{ on }">
               <v-btn
                 id="btn_stop_record_audio"
@@ -576,7 +569,7 @@
         <v-col
           cols="12"
           class="d-flex justify-center px-0 pt-0"
-          v-if="this.credentials.jira && this.credentials.jira.length > 0"
+          v-if="credentials.jira && credentials.jira.length > 0"
           v-shortkey="createIssueHotkey"
           @shortkey="openIssueMenu"
         >
@@ -708,7 +701,7 @@
 </template>
 
 <script>
-import { VContainer, VRow, VCol, VBtn, VIcon } from "vuetify/lib/components";
+import { VBtn, VCol, VContainer, VIcon, VRow } from "vuetify/lib/components";
 import uuidv4 from "uuid";
 
 import SourcePickerDialog from "./dialogs/SourcePickerDialog.vue";
@@ -722,24 +715,23 @@ import DurationConfirmDialog from "./dialogs/DurationConfirmDialog.vue";
 import AudioErrorDialog from "./dialogs/AudioErrorDialog.vue";
 import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
 //import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
-
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
 
 import JiraAddIssue from "./jira/JiraAddIssue";
 
 import {
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
-  IPC_BIND_KEYS,
-  SESSION_STATUSES,
-  VIDEO_RESOLUTION,
-  STATUSES,
-} from "../modules/constants";
-import {
-  DEFAULT_MAP_NODES,
   DEFAULT_MAP_CONNECTIONS,
+  DEFAULT_MAP_NODES,
+  IPC_BIND_KEYS,
+  IPC_FUNCTIONS,
+  IPC_HANDLERS,
+  SESSION_STATUSES,
+  STATUSES,
+  VIDEO_RESOLUTION,
 } from "../modules/constants";
+import { mapGetters } from "vuex";
+
 let mediaRecorder;
 let audioContext;
 let dest;
@@ -775,14 +767,6 @@ export default {
       type: Array,
       default: () => [],
     },
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
     checkedStatusOfPreSessionTask: {
       type: Boolean,
       default: () => false,
@@ -810,12 +794,6 @@ export default {
     },
     selectedItems: function (newValue) {
       this.selected = newValue;
-    },
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
     },
     "$store.state.status": {
       deep: true,
@@ -846,76 +824,66 @@ export default {
     },
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+      config: "config/fullConfig",
+      credentials: "auth/credentials",
+    }),
     pauseHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "workspace.pause",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("workspace.pause", this.hotkeys);
     },
     resumeHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "workspace.resume",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("workspace.resume", this.hotkeys);
     },
     stopHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "workspace.stop",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("workspace.stop", this.hotkeys);
     },
     startVideoHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "workspace.videoStart",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     stopVideoHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "workspace.videoStop",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     screenshotHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "workspace.screenshot",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     startAudioHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "workspace.audioStart",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     stopAudioHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "workspace.audioStop",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     noteHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "workspace.note",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("workspace.note", this.hotkeys);
     },
     mindmapHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "workspace.mindmap",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("workspace.mindmap", this.hotkeys);
     },
     changeSourceHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "workspace.changeSource",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     createIssueHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "workspace.createIssue",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     postSessionData() {
@@ -926,8 +894,7 @@ export default {
       const timer = this.timer;
       const date = new Date(null);
       date.setSeconds(timer);
-      const result = date.toISOString().substr(11, 8);
-      return result;
+      return date.toISOString().substr(11, 8);
     },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
@@ -961,8 +928,6 @@ export default {
       sources: [],
       sourceId: this.srcId,
       itemLists: this.items,
-      config: this.configItem,
-      credentials: this.credentialItems,
       audioDevices: [],
       loaded: false,
       status: this.$store.state.status,
@@ -1174,7 +1139,6 @@ export default {
     showNoteDialog() {
       if (this.viewMode === "normal") {
         this.noteDialog = true;
-        // settimeout
         setTimeout(() => {
           this.$refs.noteDialog.$refs.comment.editor.commands.focus();
         });
@@ -1278,7 +1242,7 @@ export default {
       if (this.viewMode === "normal") {
         const currentPath = this.$router.history.current.path;
         if (currentPath !== "/main/workspace") {
-          this.$router.push({ path: "/main/workspace" });
+          await this.$router.push({ path: "/main/workspace" });
         }
       }
     },

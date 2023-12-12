@@ -89,8 +89,6 @@
       <ControlPanel
         :items="items"
         @add-item="addItem"
-        :config-item="$store.getters['config/fullConfig']"
-        :credential-items="credentials"
         :selectedItems="selected"
         :checkedStatusOfPreSessionTask="uncheckedRequiredPresessionTaskExist"
         view-mode="normal"
