@@ -332,7 +332,7 @@ export default {
         const yattURL = "http://localhost:5000"; //`${process.env.VUE_APP_YATT_API_URL}`;
         const redirectURL = `${yattURL}/v1/app/oauth/github/`;
         const scopes = "repo user gist";
-        const clientId = "Iv1.c84b6b2ba3cb1b0f"; //`${process.env.OAUTH_GITHUB_CLIENT_ID}`;
+        const clientId = `${process.env.VUE_APP_OAUTH_GITHUB_CLIENT_ID}`; //`${process.env.OAUTH_GITHUB_CLIENT_ID}`;
         const serverURL = "https://github.com";
         const tokenId = uuidv4();
         const state = encodeURIComponent(`https://github.com;${tokenId}`);

@@ -227,10 +227,6 @@ export default {
       this.getConfig();
     });
 
-    window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredentials();
-    });
-
     // New session
     window.ipc.on("NEW_SESSION", () => {
       this.newSession();

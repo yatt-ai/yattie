@@ -33,10 +33,6 @@ export default {
     window.ipc.on("CONFIG_CHANGE", () => {
       this.getConfig();
     });
-
-    window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredentials();
-    });
   },
   methods: {
     getConfig() {

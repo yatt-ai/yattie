@@ -197,9 +197,7 @@ export default {
     window.ipc.on("CONFIG_CHANGE", () => {
       this.getConfig();
     });
-    window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredentials();
-    });
+
     window.ipc.on("META_CHANGE", () => {
       this.fetchItems();
       this.getConfig();
@@ -224,6 +222,25 @@ export default {
     },
   },
   methods: {
+    async updateAuth() {
+      if (this.credentials && Object.entries(this.credentials).length > 0) {
+        let authCheckResponse = await this.$integrationHelpers.checkAuth(
+          this.credentials
+        );
+        this.checkAuth = authCheckResponse.authed;
+        if (authCheckResponse.failedAuth?.length > 0) {
+          // TODO - Prompt the user if they'd like to remove the failing cred
+          let message = "";
+          for (const failedCred of authCheckResponse.failedAuth) {
+            message += `${failedCred.credentialType} `;
+          }
+          message += this.$tc("message.integrations_expired", 1);
+          this.setSnackBar(message);
+        }
+      } else {
+        this.checkAuth = false;
+      }
+    },
     navigate(link) {
       if (this.$route.path === link || this.status === SESSION_STATUSES.PENDING)
         return;

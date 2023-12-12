@@ -52,6 +52,15 @@ export default {
     this.getCredentials().then(() => {
       this.updateAuth();
     });
+
+    if (window.ipc) {
+      window.ipc.on("CREDENTIAL_CHANGE", () => {
+        this.getCredentials().then(() => {
+          this.updateAuth();
+        });
+        this.$forceUpdate();
+      });
+    }
   },
   mounted() {
     this.$root.$on("update-auth", this.updateAuth);
