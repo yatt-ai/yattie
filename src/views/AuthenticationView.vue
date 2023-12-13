@@ -29,11 +29,7 @@ export default {
       vm.prevRoute = from;
     });
   },
-  mounted() {
-    window.ipc.on("CONFIG_CHANGE", () => {
-      this.getConfig();
-    });
-  },
+  mounted() {},
   methods: {
     getConfig() {
       window.ipc

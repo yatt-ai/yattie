@@ -190,19 +190,6 @@ export default {
       });
     });
     if (!window.ipc) return;
-
-    window.ipc.on("DATA_CHANGE", () => {
-      this.fetchItems();
-    });
-    window.ipc.on("CONFIG_CHANGE", () => {
-      this.getConfig();
-    });
-
-    window.ipc.on("META_CHANGE", () => {
-      this.fetchItems();
-      this.getConfig();
-      this.getCredentials();
-    });
   },
   computed: {
     backHotkey() {
