@@ -13,6 +13,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    id: null,
     title: "",
     charter: {
       content: "",
@@ -33,8 +34,9 @@ export default new Vuex.Store({
     ended: "",
     quickTest: false,
     path: "",
+    preSessionTasks: [],
+    postSessionTasks: [],
   },
-  getters: {},
   mutations: {
     setTitle(state, payload) {
       state.title = payload;
@@ -140,6 +142,20 @@ export default new Vuex.Store({
       state.path = payload.path;
       this._vm.$storageService.updateState(state);
     },
+    setPreSessionTasks(state, payload) {
+      state.preSessionTasks = payload;
+    },
+    togglePreSessionTask(state, { taskId, checked }) {
+      const taskIndex = state.preSessionTasks.findIndex(
+        (task) => task.id === taskId
+      );
+      if (taskIndex !== -1) {
+        state.preSessionTasks[taskIndex].checked = checked;
+      }
+    },
+    setPostSessionTasks(state, payload) {
+      state.postSessionTasks = payload;
+    },
   },
   actions: {
     // async resetState(context, payload) {
@@ -150,6 +166,14 @@ export default new Vuex.Store({
     //   await this._vm.$storageService.updateState(payload);
     //   context.commit("restoreState", payload);
     // },
+  },
+  getters: {
+    uncheckedRequiredPresessionTaskExist(state) {
+      const uncheckedTasks = state.preSessionTasks.filter(
+        (task) => !task.checked && task.required
+      );
+      return uncheckedTasks.length === 0;
+    },
   },
   modules: {
     auth,

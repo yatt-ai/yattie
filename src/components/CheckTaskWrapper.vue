@@ -12,9 +12,10 @@
       @shortkey="$hotkeyHelpers.focusField($refs, 'form')"
     >
       <v-form ref="form" v-model="valid" lazy-validation>
-        <div class="" v-for="task in tasks" :key="task.id">
+        <div v-for="task in tasks" :key="task.id">
           <v-checkbox
-            v-model="task.checked"
+            :value="task.checked"
+            @change="(val) => handleTaskCheck(task.id, val)"
             :rules="rules(task.required)"
             :label="`${task.content}`"
             dense
@@ -73,6 +74,12 @@ export default {
     },
   },
   methods: {
+    handleTaskCheck(taskId, checked) {
+      this.$store.commit("togglePreSessionTask", {
+        taskId,
+        checked: !!checked,
+      });
+    },
     rules(required) {
       if (required) {
         return [(v) => !!v || this.$tc("caption.required_checkbox", 1)];

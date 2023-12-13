@@ -73,7 +73,10 @@
       <v-tabs-items v-model="activeTab">
         <v-tab-item value="/main" :transition="false">
           <TestWrapper />
-          <CheckTaskWrapper v-if="showCheckList" :tasks="presession.tasks" />
+          <CheckTaskWrapper
+            v-if="showCheckList"
+            :tasks="$store.state.preSessionTasks"
+          />
         </v-tab-item>
         <v-tab-item value="/main/workspace" :transition="false">
           <WorkspaceWrapper
@@ -90,7 +93,7 @@
         :items="items"
         @add-item="addItem"
         :selectedItems="selected"
-        :checkedStatusOfPreSessionTask="uncheckedRequiredPresessionTaskExist"
+        :checkedStatusOfPreSessionTask="presessionValid"
         view-mode="normal"
       />
       <TimeCounter v-if="$store.state.status !== 'pending'" />
@@ -137,7 +140,6 @@ export default {
       items: [],
       selected: [],
       activeSession: {},
-      presession: {},
       showTaskError: false,
       showMenu: false,
     };
@@ -164,14 +166,11 @@ export default {
       isAuthenticated: "auth/isAuthenticated",
       credentials: "auth/credentials",
     }),
-    uncheckedRequiredPresessionTaskExist() {
-      if (!this.presession.status) {
+    presessionValid() {
+      if (!this.checklistPresessionStatus) {
         return true;
       } else {
-        const uncheckedTasks = this.presession.tasks.filter(
-          (task) => !task.checked && task.required
-        );
-        return uncheckedTasks.length === 0;
+        return this.$store.getters["uncheckedRequiredPresessionTaskExist"];
       }
     },
     backHotkey() {
@@ -183,18 +182,18 @@ export default {
     showCheckList() {
       return (
         this.$store.state.status === SESSION_STATUSES.PENDING &&
-        this.presession.status
+        this.checklistPresessionStatus
       );
     },
   },
   methods: {
     setInitialPresession() {
-      this.presession = {
-        status: this.checklistPresessionStatus,
-        tasks: this.checklistPresessionTasks.map((task) => {
+      this.$store.commit(
+        "setPreSessionTasks",
+        this.checklistPresessionTasks.map((task) => {
           return { ...task, checked: false };
-        }),
-      };
+        })
+      );
     },
     async fetchItems() {
       this.items = await this.$storageService.getItems();

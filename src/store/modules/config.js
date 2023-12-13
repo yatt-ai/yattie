@@ -38,6 +38,7 @@ export const config = {
     checklistPresessionStatus: (state) => state.checklist.presession.status,
     checklistPresessionTasks: (state) => state.checklist.presession.tasks,
     isAiAssistEnabled: (state) => state.ai?.enabled || false,
+    postSessionData: (state) => state.checklist.postsession,
     checklistPostsessionStatus: (state) =>
       state?.checklist?.postsession?.status,
     checklistPostsessionTasks: (state) => state.checklist.postsession.tasks,

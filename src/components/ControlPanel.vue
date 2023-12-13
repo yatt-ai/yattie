@@ -714,7 +714,6 @@ import NewSessionDialog from "./dialogs/NewSessionDialog.vue";
 import DurationConfirmDialog from "./dialogs/DurationConfirmDialog.vue";
 import AudioErrorDialog from "./dialogs/AudioErrorDialog.vue";
 import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
-//import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
 
@@ -723,7 +722,6 @@ import JiraAddIssue from "./jira/JiraAddIssue";
 import {
   DEFAULT_MAP_CONNECTIONS,
   DEFAULT_MAP_NODES,
-  IPC_BIND_KEYS,
   IPC_FUNCTIONS,
   IPC_HANDLERS,
   SESSION_STATUSES,
@@ -753,7 +751,6 @@ export default {
     DurationConfirmDialog,
     AudioErrorDialog,
     EndSessionDialog,
-    //MinimizeControlWrapper,
     JiraExportSession,
     TestRailExportSession,
     JiraAddIssue,
@@ -826,6 +823,7 @@ export default {
   computed: {
     ...mapGetters({
       hotkeys: "config/hotkeys",
+      postSessionData: "config/postSessionData",
       config: "config/fullConfig",
       credentials: "auth/credentials",
     }),
@@ -886,10 +884,6 @@ export default {
         this.hotkeys
       );
     },
-    postSessionData() {
-      if (this.config.checklist) return this.config.checklist.postsession;
-      else return {};
-    },
     elapsedTime() {
       const timer = this.timer;
       const date = new Date(null);
@@ -946,23 +940,11 @@ export default {
     };
   },
   mounted() {
-    // new session
-    window.ipc.on("NEW_SESSION", () => {
-      this.callback = () => this.startNewSessionFromFileMenu();
-      this.handleNewSessionDialog();
-    });
-
-    // save session
-    window.ipc.on("SAVE_SESSION", () => {
-      this.saveSession(() => {
-        this.handleSaveConfirmDialog();
-      });
-    });
-
-    // reset session
-    window.ipc.on("RESET_SESSION", () => {
-      this.resetConfirmDialog = true;
-    });
+    if (this.$isElectron) {
+      this.$electronService.onNewSession(this.newSession);
+      this.$electronService.onSaveSession(this.handleSaveConfirmDialog);
+      this.$electronService.onResetSession(this.showResetConfirmDialog);
+    }
 
     this.$root.$on("close-sourcepickerdialog", this.hideSourcePickerDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
@@ -990,7 +972,6 @@ export default {
     ) {
       this.showSourcePickerDialog();
     }
-    this.bindIPCEvent();
   },
   beforeDestroy() {
     this.$root.$off("close-sourcepickerdialog", this.hideSourcePickerDialog);
@@ -1000,6 +981,13 @@ export default {
     this.timer = 0;
   },
   methods: {
+    showResetConfirmDialog() {
+      this.resetConfirmDialog = true;
+    },
+    newSession() {
+      this.callback = () => this.startNewSessionFromFileMenu();
+      this.handleNewSessionDialog();
+    },
     openIssueMenu() {
       this.issueCreateDestinationMenu = true;
       setTimeout(() => {
@@ -1008,70 +996,6 @@ export default {
           ?.$el.querySelector(".v-list-item")
           .focus();
       }, 150); // TODO - this is probably prone to race conditions
-    },
-    bindIPCEvent() {
-      if (!window.ipc) return;
-
-      window.ipc.on(IPC_BIND_KEYS.CLOSED_NOTE_DIALOG, (data) => {
-        this.addNote(data);
-      });
-      window.ipc.on(IPC_BIND_KEYS.CLOSED_SUMMARY_DIALOG, (data) => {
-        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-          func: IPC_FUNCTIONS.CLOSE_SESSION_AND_MINIIMIZED_WINDOW,
-          data: {
-            data: {
-              status: this.status,
-              timer: this.timer,
-              duration: this.duration,
-              sourceId: this.sourceId,
-              summary: data,
-            },
-            bindKey: IPC_BIND_KEYS.END_SESSION,
-          },
-        });
-      });
-      window.ipc.on(IPC_BIND_KEYS.CLOSED_ENDSESSION_DIALOG, (data) => {
-        if (data.passed) {
-          this.showSummaryDialog();
-        }
-      });
-      window.ipc.on(IPC_BIND_KEYS.CLOSED_SOURCEPICKER_DIALOG, (data) => {
-        if (data.sourceId) {
-          this.sourceId = data.sourceId;
-          this.$root.$emit("source-id-changed", this.sourceId);
-        }
-      });
-      window.ipc.on(IPC_BIND_KEYS.END_SESSION, (data) => {
-        if (data) {
-          this.timer = data.timer;
-          this.status = data.status;
-          this.duration = data.duration;
-          this.sourceId = data.sourceId;
-          this.updateStoreSession();
-          if (data.summary) {
-            this.addSummary(data.summary);
-          } else {
-            this.endSessionProcess();
-          }
-        } else {
-          this.endSessionProcess();
-        }
-      });
-      window.ipc.on(IPC_BIND_KEYS.CLOSED_MINIMIZE_WINDOW, (data) => {
-        this.status = data.status;
-        this.duration = data.duration;
-        this.timer = data.timer;
-        this.sourceId = data.sourceId;
-
-        if (
-          this.status !== data.status &&
-          data.status === SESSION_STATUSES.START
-        ) {
-          this.startSession(this.sourceId);
-        } else if (data.status === SESSION_STATUSES.PAUSE) {
-          this.pauseSession();
-        }
-      });
     },
     handleNewSessionDialog() {
       this.newSessionDialog = true;
@@ -1101,61 +1025,29 @@ export default {
       }, 100);
     },
     fetchSources() {
-      return new Promise(function (resolver, reject) {
-        if (!window.ipc) return reject();
-        window.ipc
-          .invoke(IPC_HANDLERS.CAPTURE, {
-            func: IPC_FUNCTIONS.GET_MEDIA_SOURCE,
-          })
-          .then((data) => {
-            return resolver(data);
-          });
-      });
+      if (this.$isElectron) {
+        return this.$electronService.getMediaSource();
+      }
+      // todo implement web version for this functionality
     },
-    showSourcePickerDialog() {
-      this.fetchSources().then((data) => {
+    async showSourcePickerDialog() {
+      try {
+        let data = await this.fetchSources();
         this.loaded = true;
         this.sources = data.filter((source) => source.name !== "yattie");
-        if (this.viewMode === "normal") {
-          this.sourcePickerDialog = true;
-        } else {
-          window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-            func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-            data: {
-              path: "sourcepicker",
-              size: {
-                width: 600,
-                height: 500,
-              },
-              data: this.sources,
-            },
-          });
-        }
-      });
+        this.sourcePickerDialog = true;
+      } catch (err) {
+        console.log(err);
+      }
     },
     hideSourcePickerDialog() {
       this.sourcePickerDialog = false;
     },
     showNoteDialog() {
-      if (this.viewMode === "normal") {
-        this.noteDialog = true;
-        setTimeout(() => {
-          this.$refs.noteDialog.$refs.comment.editor.commands.focus();
-        });
-      } else {
-        if (!window.ipc) return;
-        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-          func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-          data: {
-            path: "noteEditor",
-            size: {
-              width: 500,
-              height: 550,
-            },
-            data: this.config,
-          },
-        });
-      }
+      this.noteDialog = true;
+      setTimeout(() => {
+        this.$refs.noteDialog.$refs.comment.editor.commands.focus();
+      });
     },
     hideNoteDialog() {
       this.noteDialog = false;
@@ -1239,11 +1131,9 @@ export default {
         });
       }
 
-      if (this.viewMode === "normal") {
-        const currentPath = this.$router.history.current.path;
-        if (currentPath !== "/main/workspace") {
-          await this.$router.push({ path: "/main/workspace" });
-        }
+      const currentPath = this.$router.history.current.path;
+      if (currentPath !== "/main/workspace") {
+        await this.$router.push({ path: "/main/workspace" });
       }
     },
     pauseSession() {
@@ -1290,44 +1180,14 @@ export default {
       this.$router.push({ path: "/result" }).catch(() => {});
     },
     showSummaryDialog() {
-      if (this.viewMode === "normal") {
-        this.summaryDialog = true;
+      this.summaryDialog = true;
 
-        setTimeout(() => {
-          this.$refs.summaryDialog.$refs.comment.editor.commands.focus();
-        }, 200);
-      } else {
-        if (!window.ipc) return;
-        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-          func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-          data: {
-            path: "summaryEditor",
-            size: {
-              width: 500,
-              height: 500,
-            },
-            data: this.config,
-          },
-        });
-      }
+      setTimeout(() => {
+        this.$refs.summaryDialog.$refs.comment.editor.commands.focus();
+      }, 200);
     },
     showEndSessionDialog() {
-      if (this.viewMode === "normal") {
-        this.endSessionDialog = true;
-      } else {
-        if (!window.ipc) return;
-        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-          func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-          data: {
-            path: "endsession",
-            size: {
-              width: 450,
-              height: 500,
-            },
-            data: this.config,
-          },
-        });
-      }
+      this.endSessionDialog = true;
     },
     closeEndSessionDialog(status) {
       this.endSessionDialog = false;
@@ -1975,13 +1835,6 @@ export default {
       window.ipc.invoke(IPC_HANDLERS.MENU, {
         func: IPC_FUNCTIONS.CHANGE_MENUITEM_STATUS,
         data: { sessionStatus: status },
-      });
-    },
-    async showNotePanel() {
-      if (!window.ipc) return;
-      await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.OPEN_NOTES_WINDOW,
-        data: { width: 700, height: 800 },
       });
     },
   },

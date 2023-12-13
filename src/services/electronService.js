@@ -6,6 +6,14 @@ export default class ElectronService {
     window.ipc.on("NEW_SESSION", callback);
   }
 
+  onSaveSession(callback) {
+    window.ipc.on("SAVE_SESSION", callback);
+  }
+
+  onResetSession(callback) {
+    window.ipc.on("RESET_SESSION", callback);
+  }
+
   onDataChange(callback) {
     window.ipc.on("DATA_CHANGE", callback);
   }
@@ -67,6 +75,12 @@ export default class ElectronService {
         path: f.path,
         name: f.name,
       },
+    });
+  }
+
+  async getMediaSource() {
+    return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      func: IPC_FUNCTIONS.GET_MEDIA_SOURCE,
     });
   }
 }
