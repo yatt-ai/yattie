@@ -38,6 +38,10 @@ export default new Vuex.Store({
     postSessionTasks: [],
   },
   mutations: {
+    setSessionId(state, payload) {
+      state.id = payload;
+      this._vm.$storageService.updateState(state);
+    },
     setTitle(state, payload) {
       state.title = payload;
       this._vm.$storageService.updateState(state);

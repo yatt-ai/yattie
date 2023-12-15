@@ -83,4 +83,39 @@ export default class ElectronService {
       func: IPC_FUNCTIONS.GET_MEDIA_SOURCE,
     });
   }
+
+  async createImage(imgURI, isPoster = false) {
+    return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      func: IPC_FUNCTIONS.CREATE_IMAGE,
+      data: { url: imgURI, isPoster },
+    });
+  }
+
+  async createVideo(buffer) {
+    return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      func: IPC_FUNCTIONS.CREATE_VIDEO,
+      data: { buffer },
+    });
+  }
+
+  async createAudio(buffer) {
+    return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      func: IPC_FUNCTIONS.CREATE_AUDIO,
+      data: { buffer },
+    });
+  }
+
+  async exportItems(items) {
+    return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+      func: IPC_FUNCTIONS.EXPORT_ITEMS,
+      data: items,
+    });
+  }
+
+  async changeMenuBySessionStatus(sessionStatus) {
+    return await window.ipc.invoke(IPC_HANDLERS.MENU, {
+      func: IPC_FUNCTIONS.CHANGE_MENUITEM_STATUS,
+      data: { sessionStatus },
+    });
+  }
 }

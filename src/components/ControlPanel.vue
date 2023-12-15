@@ -722,8 +722,6 @@ import JiraAddIssue from "./jira/JiraAddIssue";
 import {
   DEFAULT_MAP_CONNECTIONS,
   DEFAULT_MAP_NODES,
-  IPC_FUNCTIONS,
-  IPC_HANDLERS,
   SESSION_STATUSES,
   STATUSES,
   VIDEO_RESOLUTION,
@@ -1107,29 +1105,30 @@ export default {
         this.changeSessionStatus(SESSION_STATUSES.START);
       }
 
-      const sessionId = await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.GET_SESSION_ID,
-      });
-
-      if (sessionId === "") {
-        const data = {
-          title: this.$store.state.title,
-          charter: this.$store.state.charter,
-          preconditions: this.$store.state.preconditions,
-          duration: this.$store.state.duration,
-          status: this.$store.state.status,
-          timer: this.$store.state.timer,
-          started: this.$store.state.started,
-          ended: this.$store.state.ended,
-          quickTest: this.$store.state.quickTest,
-          path: this.$route.path,
-        };
-
-        window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-          func: IPC_FUNCTIONS.CREATE_NEW_SESSION,
-          data: data,
-        });
+      // creating new session ID here
+      let sessionId = null;
+      if (!this.$store.state.id) {
+        sessionId = this.$store.state.id;
+      } else {
+        sessionId = uuidv4();
+        this.$store.commit("setSessionId", sessionId);
       }
+
+      const data = {
+        id: sessionId,
+        title: this.$store.state.title,
+        charter: this.$store.state.charter,
+        preconditions: this.$store.state.preconditions,
+        duration: this.$store.state.duration,
+        status: this.$store.state.status,
+        timer: this.$store.state.timer,
+        started: this.$store.state.started,
+        ended: this.$store.state.ended,
+        quickTest: this.$store.state.quickTest,
+        path: this.$route.path,
+      };
+
+      await this.$storageService.createNewSession(data);
 
       const currentPath = this.$router.history.current.path;
       if (currentPath !== "/main/workspace") {
@@ -1168,14 +1167,8 @@ export default {
       this.status = SESSION_STATUSES.END;
       this.changeSessionStatus(SESSION_STATUSES.END);
       this.stopInterval();
-      if (window.ipc) {
-        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-          func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
-          data: {
-            width: 1440,
-            height: 900,
-          },
-        });
+      if (this.$isElectron) {
+        this.$electronService.setWindowSize({ width: 1440, height: 900 });
       }
       this.$router.push({ path: "/result" }).catch(() => {});
     },
@@ -1203,14 +1196,8 @@ export default {
       if (currentPath !== "/main/workspace") {
         this.$router.push({ path: "/main/workspace" });
       }
-      if (window.ipc) {
-        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-          func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
-          data: {
-            width: 800,
-            height: 600,
-          },
-        });
+      if (this.$isElectron) {
+        this.$electronService.setWindowSize({ width: 800, height: 600 });
       }
     },
     end() {
@@ -1252,29 +1239,26 @@ export default {
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           video.remove();
           const imgURI = canvas.toDataURL("image/png");
-          if (!window.ipc) return;
 
-          const { status, message, item } = await window.ipc.invoke(
-            IPC_HANDLERS.CAPTURE,
-            {
-              func: IPC_FUNCTIONS.CREATE_IMAGE,
-              data: { url: imgURI },
+          if (this.$isElectron) {
+            // todo add web implementation
+            const { status, message, item } =
+              this.$electronService.createImage(imgURI);
+
+            if (status === STATUSES.ERROR) {
+              this.$root.$emit("set-snackbar", message);
+              console.log(message);
+            } else {
+              const data = {
+                id: item.id,
+                sessionType: "Screenshot",
+                fileType: "image",
+                fileName: item.fileName,
+                filePath: item.filePath,
+                timer_mark: this.timer,
+              };
+              await this.openAddWindow(data);
             }
-          );
-
-          if (status === STATUSES.ERROR) {
-            this.$root.$emit("set-snackbar", message);
-            console.log(message);
-          } else {
-            const data = {
-              id: item.id,
-              sessionType: "Screenshot",
-              fileType: "image",
-              fileName: item.fileName,
-              filePath: item.filePath,
-              timer_mark: this.timer,
-            };
-            this.openAddWindow(data);
           }
         };
       };
@@ -1333,19 +1317,17 @@ export default {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             video.remove();
             const imgURI = canvas.toDataURL("image/png");
-            const { status, message, item } = await window.ipc.invoke(
-              IPC_HANDLERS.CAPTURE,
-              {
-                func: IPC_FUNCTIONS.CREATE_IMAGE,
-                data: { url: imgURI, isPoster: true },
-              }
-            );
 
-            if (status === STATUSES.ERROR) {
-              this.$root.$emit("set-snackbar", message);
-              console.log("Unable to generate poster for video: " + message);
+            if (this.$isElectron) {
+              const { status, message, item } =
+                await this.$electronService.createImage(imgURI, true);
+
+              if (status === STATUSES.ERROR) {
+                this.$root.$emit("set-snackbar", message);
+                console.log("Unable to generate poster for video: " + message);
+              }
+              poster = item.filePath;
             }
-            poster = item.filePath;
           };
         };
         mediaRecorder.ondataavailable = (e) => {
@@ -1357,31 +1339,26 @@ export default {
           this.recordVideoStarted = false;
           const blob = new Blob(frames, { type: "video/webm;codecs=h264" });
           const buffer = await blob.arrayBuffer();
-          if (!window.ipc) return;
 
-          const { status, message, item } = await window.ipc.invoke(
-            IPC_HANDLERS.CAPTURE,
-            {
-              func: IPC_FUNCTIONS.CREATE_VIDEO,
-              data: { buffer: buffer },
+          if (this.$isElectron) {
+            const { status, message, item } =
+              await this.$electronService.createVideo(buffer);
+            if (status === STATUSES.ERROR) {
+              this.$root.$emit("set-snackbar", message);
+              console.log(message);
+            } else {
+              const { id, fileName, filePath } = item;
+              const data = {
+                id,
+                sessionType: "Video",
+                fileType: "video",
+                fileName,
+                filePath,
+                poster: poster,
+                timer_mark: this.timer,
+              };
+              await this.openAddWindow(data);
             }
-          );
-
-          if (status === STATUSES.ERROR) {
-            this.$root.$emit("set-snackbar", message);
-            console.log(message);
-          } else {
-            const { id, fileName, filePath } = item;
-            const data = {
-              id,
-              sessionType: "Video",
-              fileType: "video",
-              fileName,
-              filePath,
-              poster: poster,
-              timer_mark: this.timer,
-            };
-            this.openAddWindow(data);
           }
         };
         frames = [];
@@ -1490,30 +1467,27 @@ export default {
             type: "audio/mpeg-3",
           });
           const buffer = await blob.arrayBuffer();
-          const { status, message, item } = await window.ipc.invoke(
-            IPC_HANDLERS.CAPTURE,
-            {
-              func: IPC_FUNCTIONS.CREATE_AUDIO,
-              data: { buffer: buffer },
-            }
-          );
+          if (this.$isElectron) {
+            const { status, message, item } =
+              await this.$electronService.createAudio(buffer);
 
-          if (status === STATUSES.ERROR) {
-            this.$root.$emit("set-snackbar", message);
-            console.log(message);
-          } else {
-            const data = {
-              id: item.id,
-              sessionType: "Audio",
-              fileType: "audio",
-              fileName: item.fileName,
-              filePath: item.filePath,
-              timer_mark: this.timer,
-              poster: "",
-            };
-            this.openAddWindow(data);
+            if (status === STATUSES.ERROR) {
+              this.$root.$emit("set-snackbar", message);
+              console.log(message);
+            } else {
+              const data = {
+                id: item.id,
+                sessionType: "Audio",
+                fileType: "audio",
+                fileName: item.fileName,
+                filePath: item.filePath,
+                timer_mark: this.timer,
+                poster: "",
+              };
+              await this.openAddWindow(data);
+            }
+            recordedChunks = [];
           }
-          recordedChunks = [];
         };
         mediaRecorder.start(1000);
       };
@@ -1554,23 +1528,14 @@ export default {
       }
     },
     async openAddWindow(data) {
-      if (!window.ipc) return;
-      await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.OPEN_ADD_WINDOW,
-        data: { width: 700, height: 800, data: data },
-      });
+      if (this.$isElectron) {
+        await this.$electronService.openAddWindow(data);
+      }
     },
     async addNote(data) {
-      if (!window.ipc) return;
-      // Save Note
-      const { status, message, item } = await window.ipc.invoke(
-        IPC_HANDLERS.CAPTURE,
-        {
-          func: IPC_FUNCTIONS.SAVE_NOTE,
-          data: data.comment,
-        }
+      const { status, message, item } = await this.$storageService.saveNote(
+        data.comment
       );
-
       if (status === STATUSES.ERROR) {
         this.$root.$emit("set-snackbar", message);
         console.log(message);
@@ -1615,7 +1580,7 @@ export default {
         this.$emit("add-item", data);
       }
       this.summaryDialog = false;
-      this.endSessionProcess();
+      await this.endSessionProcess();
     },
     addMindmap() {
       // TODO - With transition to try mindmap format, UUID generation should
@@ -1635,52 +1600,24 @@ export default {
       };
       this.openAddWindow(data);
     },
-    async minimize() {
-      const data = {
-        status: this.status,
-        timer: this.timer,
-        duration: this.duration,
-        sourceId: this.sourceId,
-      };
-      localStorage.setItem("state-data", JSON.stringify(data));
-      if (!window.ipc) return;
-      await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.OPEN_MINIMIZE_WINDOW,
-        data: { width: 400, height: 84 },
-      });
-    },
     async deleteItems() {
-      if (!window.ipc) return;
-      await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.DELETE_ITEMS,
-        data: this.selected,
-      });
-      await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.DELETE_NOTES,
-        data: this.selected,
-      });
+      await this.$storageService.deleteItems(this.selected);
       this.selected = [];
       this.$root.$emit("update-selected", this.selected);
       this.deleteConfirmDialog = false;
     },
     async exportItems() {
-      if (window.ipc) {
-        await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-          func: IPC_FUNCTIONS.EXPORT_ITEMS,
-          data: this.selected,
-        });
+      if (this.$isElectron) {
+        await this.$electronService.exportItems(this.selected);
+        this.selected = [];
+        this.$root.$emit("update-selected", this.selected);
       }
-      this.selected = [];
-      this.$root.$emit("update-selected", this.selected);
+      // todo add web handler for items export
     },
     async saveSession(callback = null) {
       this.newSessionDialog = false;
-      const sessionId = await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.GET_SESSION_ID,
-      });
-
       const data = {
-        id: sessionId,
+        id: this.$store.state.id,
         title: this.$store.state.title,
         charter: this.$store.state.charter,
         mindmap: this.$store.state.mindmap,
@@ -1693,11 +1630,7 @@ export default {
         quickTest: this.$store.state.quickTest,
         path: this.$route.path,
       };
-      if (!window.ipc) return;
-      const { status } = await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-        func: IPC_FUNCTIONS.SAVE_SESSION,
-        data: data,
-      });
+      const { status } = await this.$storageService.saveSession(data);
       if (status === STATUSES.SUCCESS && callback) {
         callback();
       }
@@ -1716,21 +1649,14 @@ export default {
       // Resetting state variables and store
       this.$store.commit("clearState");
 
-      // Set window size
-      if (window.ipc) {
-        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-          func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
-          data: {
-            width: 800,
-            height: 600,
-          },
-        });
+      if (this.$isElectron) {
+        this.$electronService.setWindowSize({ width: 800, height: 600 });
       }
 
       // Navigate to main page if not already there
       const currentPath = this.$router.history.current.path;
       if (currentPath !== "/main") {
-        this.$router.push({ path: "/main" });
+        await this.$router.push({ path: "/main" });
       }
     },
     async newSessionFromButton() {
@@ -1753,10 +1679,12 @@ export default {
       this.audioErrorDialog = false;
       this.endSessionDialog = false;
 
-      // Persist data to filesystem
-      if (!window.ipc) return;
+      // creating new session ID here
+      let sessionId = uuidv4();
+      this.$store.commit("setSessionId", sessionId);
 
       const data = {
+        id: sessionId,
         title: this.$store.state.title,
         charter: this.$store.state.charter,
         preconditions: this.$store.state.preconditions,
@@ -1769,14 +1697,8 @@ export default {
         path: this.$route.path,
       };
 
-      await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-        func: IPC_FUNCTIONS.CREATE_NEW_SESSION,
-        data: data,
-      });
-
-      await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.RESET_DATA,
-      });
+      await this.$storageService.createNewSession(data);
+      await this.$storageService.resetData();
 
       // Stop any ongoing intervals
       this.stopInterval();
@@ -1796,25 +1718,15 @@ export default {
 
       this.$store.commit("resetState");
 
-      if (!window.ipc) return;
-      await window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.RESET_DATA,
-        })
-        .then(() => {
-          window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-            func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
-            data: {
-              width: 800,
-              height: 600,
-            },
-          });
-          this.stopInterval();
-          const currentPath = this.$router.history.current.path;
-          if (currentPath !== "/main") {
-            this.$router.push({ path: "/main" });
-          }
-        });
+      await this.$storageService.resetData();
+      if (this.$isElectron) {
+        await this.$electronService.setWindowSize({ width: 800, height: 600 });
+      }
+      this.stopInterval();
+      const currentPath = this.$router.history.current.path;
+      if (currentPath !== "/main") {
+        await this.$router.push({ path: "/main" });
+      }
     },
     getCurrentDateTime() {
       const now = new Date();
@@ -1831,11 +1743,9 @@ export default {
       return currentDateTime;
     },
     changeSessionStatus(status) {
-      if (!window.ipc) return;
-      window.ipc.invoke(IPC_HANDLERS.MENU, {
-        func: IPC_FUNCTIONS.CHANGE_MENUITEM_STATUS,
-        data: { sessionStatus: status },
-      });
+      if (this.$isElectron) {
+        this.$electronService.changeMenuBySessionStatus(status);
+      }
     },
   },
 };

@@ -40,11 +40,31 @@ export default class StorageService {
     return this.storage.updateItems(items);
   }
 
+  async deleteItems(items) {
+    return this.storage.deleteItems(items);
+  }
+
   async getNotes() {
     return await this.storage.getNotes();
   }
 
   async updateNotes(notes) {
     return this.storage.updateNotes(notes);
+  }
+
+  async createNewSession(data) {
+    return this.storage.createNewSession(data);
+  }
+
+  async saveSession(data) {
+    return await this.storage.saveSession(data);
+  }
+
+  async resetData() {
+    return this.storage.resetData();
+  }
+
+  async saveNote(note) {
+    return this.storage.saveNote(note);
   }
 }

@@ -43,4 +43,9 @@ export default class StorageInterface {
   async updateNotes(notes) {
     throw new Error("Method 'updateNotes()' must be implemented.");
   }
+
+  // eslint-disable-next-line
+  async createNewSession(state) {
+    throw new Error("Method 'createNewSession(state)' must be implemented.");
+  }
 }

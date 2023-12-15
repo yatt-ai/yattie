@@ -61,7 +61,8 @@ module.exports.exportItems = async (ids) => {
 };
 
 module.exports.createNewSession = async (state) => {
-  state.id = uuidv4();
+  console.log("state ID", state.id);
+  // state.id = uuidv4();
   const dataFolder = path.join(configDir, "sessions", state.id);
   if (!fs.existsSync(dataFolder)) {
     fs.mkdirSync(dataFolder, { recursive: true });
@@ -173,7 +174,7 @@ module.exports.openSession = async () => {
     const encoded = fs.readFileSync(metaPath, "utf8");
     const state = JSON.parse(Buffer.from(encoded, "hex").toString());
 
-    const id = state.id || uuidv4();
+    const id = state.id;
     const dataFolder = path.join(configDir, "sessions", id);
     if (fs.existsSync(dataFolder)) {
       fs.rmdirSync(dataFolder);
