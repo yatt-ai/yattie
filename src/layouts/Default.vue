@@ -143,12 +143,6 @@ export default {
       this.getConfig();
     });
 
-    window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredentials().then(() => {
-        this.updateAuth();
-      });
-    });
-
     window.ipc.on("ABOUT_DIALOG", async (version) => {
       this.aboutVersion = version;
       this.openAboutDialog();

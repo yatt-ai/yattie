@@ -33,83 +33,6 @@
             >
               {{ $tc("caption.signin_github", 1) }}
             </v-btn>
-
-            <v-btn
-              class="mt-4 mb-4 text-capitalize btn_signup"
-              color="primary"
-              outlined
-              block
-              :loading="loading"
-              @click="useApiKey()"
-            >
-              {{ $tc("caption.login_with_api_key", 1) }}
-            </v-btn>
-          </v-col>
-        </v-row>
-        <v-row v-if="connectWithApi">
-          <v-col cols="12" class="d-flex justify-center pa-0">
-            <img
-              :src="require('../../assets/icon/jira.svg')"
-              alt="jira"
-              width="60"
-            />
-          </v-col>
-          <v-col cols="12" class="pa-0">
-            <div class="subtitle-2 label-text">
-              {{ $tc("caption.user_name", 1) }}
-            </div>
-            <div class="timer-box-wrapper">
-              <v-text-field
-                placeholder="test@example.com"
-                outlined
-                dense
-                v-model="userName"
-                required
-                :rules="rules.userName"
-              />
-            </div>
-          </v-col>
-          <v-col cols="12" class="pa-0">
-            <div class="subtitle-2 label-text">
-              {{ $tc("caption.api_key", 1) }}
-            </div>
-            <div class="timer-box-wrapper">
-              <v-text-field
-                outlined
-                dense
-                v-model="apiKey"
-                required
-                :rules="rules.apiKey"
-              />
-            </div>
-          </v-col>
-          <v-col cols="12" class="pa-0">
-            <div class="subtitle-2 label-text">
-              {{ $tc("caption.jira_instance_url", 1) }}
-            </div>
-            <div class="timer-box-wrapper">
-              <v-text-field
-                outlined
-                dense
-                v-model="instanceUrl"
-                placeholder="mydomain.atlassian.net"
-                required
-                :rules="rules.instanceUrl"
-              />
-            </div>
-          </v-col>
-          <v-col cols="12" class="pa-0">
-            <v-btn
-              class="text-capitalize btn_signup"
-              color="primary"
-              fill
-              small
-              block
-              :loading="loading"
-              @click="signInWithApiKey()"
-            >
-              {{ $tc("caption.sign_in", 1) }}
-            </v-btn>
           </v-col>
         </v-row>
       </v-form>
@@ -133,10 +56,8 @@
 import axios from "axios";
 import dayjs from "dayjs";
 import uuidv4 from "uuid";
-import { Buffer } from "buffer";
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../../modules/constants";
 import yattIntegrationHelper from "../../integrations/YattIntegrationHelpers";
-import integrationHelper from "../../integrations/IntegrationHelpers";
 import githubIntegrationHelper from "../../integrations/GithubHelpers";
 export default {
   name: "SigninGithubWrapper",
@@ -238,12 +159,6 @@ export default {
   },
   methods: {
     back() {
-      if (this.connectWithServerOAuth) {
-        window.ipc.invoke(IPC_HANDLERS.SERVER, {
-          func: IPC_FUNCTIONS.STOP_SERVER,
-        });
-      }
-
       if (this.previousRoute.path.includes("setting")) {
         this.$router.push({ path: this.previousRoute.path });
       } else {
@@ -256,83 +171,16 @@ export default {
         data: url,
       });
     },
-    useServerOAuth() {
-      this.connectWithCloudOAuth = false;
-      this.connectWithApi = false;
-      this.connectWithServerOAuth = true;
-    },
-    useApiKey() {
-      this.connectWithCloudOAuth = false;
-      this.connectWithApi = true;
-      this.connectWithServerOAuth = false;
-    },
-    async signInWithServer() {
-      const isValid = this.$refs.form.validate();
-      if (isValid) {
-        this.loading = true;
-        this.$root.$emit("overlay", true);
-        const codeVerifier = integrationHelper.generateCodeVerifier();
-        const codeChallenge =
-          await integrationHelper.generateCodeChallengeFromVerifier(
-            codeVerifier
-          );
-        await window.ipc
-          .invoke(IPC_HANDLERS.SERVER, {
-            func: IPC_FUNCTIONS.START_SERVER,
-            data: {
-              clientId: this.clientId,
-              clientSecret: this.clientSecret,
-              url: this.instanceUrl,
-              codeVerifier: codeVerifier,
-              codeChallenge: codeChallenge,
-            },
-          })
-          .then(async () => {
-            this.loading = true;
-            this.$root.$emit("overlay", true);
 
-            const url = `http://localhost:${process.env.VUE_APP_SERVER_PORT}/oauth2/atlassian`;
-
-            await axios
-              .get(url)
-              .then(async (response) => {
-                await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-                  func: IPC_FUNCTIONS.OPEN_EXTERNAL_LINK,
-                  data: response.data,
-                });
-                this.loading = false;
-                this.$root.$emit("overlay", false);
-                if (response.status !== 200) {
-                  this.snackBar.enabled = true;
-                  this.snackBar.message = response.data.message
-                    ? response.data.message
-                    : this.$tc("message.api_error", 1);
-                }
-              })
-              .catch((error) => {
-                this.loading = false;
-                this.$root.$emit("overlay", false);
-                this.snackBar.enabled = true;
-                this.snackBar.message = error.message
-                  ? error.message
-                  : this.$tc("message.api_error", 1);
-              });
-          })
-          .catch((error) => {
-            this.snackBar.enabled = true;
-            this.snackBar.message = error ? error : "Failed start server";
-          });
-      }
-    },
     async signInWithCloud() {
       const isValid = this.$refs.form.validate();
       if (isValid) {
         this.loading = true;
         this.$root.$emit("overlay", true);
-        const yattURL = "http://localhost:5000"; //`${process.env.VUE_APP_YATT_API_URL}`;
-        const redirectURL = `${yattURL}/v1/app/oauth/github/`;
+        const yattURL = `${process.env.VUE_APP_YATT_API_URL}`;
+        const redirectURL = `${yattURL}/app/oauth/github/`;
         const scopes = "repo user gist";
-        const clientId = `${process.env.VUE_APP_OAUTH_GITHUB_CLIENT_ID}`; //`${process.env.OAUTH_GITHUB_CLIENT_ID}`;
+        const clientId = `${process.env.VUE_APP_OAUTH_GITHUB_CLIENT_ID}`;
         const serverURL = "https://github.com";
         const tokenId = uuidv4();
         const state = encodeURIComponent(`https://github.com;${tokenId}`);
@@ -352,7 +200,7 @@ export default {
 
         const pollForToken = async (creds) => {
           await wait(3500);
-          const tokenURL = `${yattURL}/v1/app/oauth/github/token/${tokenId}`;
+          const tokenURL = `${yattURL}/app/oauth/github/token/${tokenId}`;
           let header = {};
           if (creds?.yatt?.length > 0 && creds?.yatt[0]?.accessToken) {
             header.headers = {
@@ -410,17 +258,7 @@ export default {
         }
       }
     },
-    async signInWithApiKey() {
-      this.postLogin({
-        jira: {
-          type: "basic",
-          accessToken: Buffer.from(this.userName + ":" + this.apiKey).toString(
-            "base64"
-          ),
-          url: this.instanceUrl,
-        },
-      });
-    },
+
     async postLogin(data) {
       if (data.yatt) {
         const date = dayjs().format("YYYY-MM-DD HH:mm:ss");

@@ -143,7 +143,7 @@ export default {
     },
     logout() {
       this.showMenu = false;
-      this.$set(this, "credentials", {});
+      this.credentials = {};
       window.ipc.invoke(IPC_HANDLERS.DATABASE, {
         func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
         data: this.credentials,

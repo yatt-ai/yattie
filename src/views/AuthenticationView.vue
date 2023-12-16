@@ -29,7 +29,6 @@ export default {
       vm.prevRoute = from;
     });
   },
-  mounted() {},
   methods: {
     getConfig() {
       window.ipc
