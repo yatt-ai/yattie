@@ -160,6 +160,14 @@ export default new Vuex.Store({
     setPostSessionTasks(state, payload) {
       state.postSessionTasks = payload;
     },
+    togglePostSessionTask(state, { taskId, checked }) {
+      const taskIndex = state.postSessionTasks.findIndex(
+        (task) => task.id === taskId
+      );
+      if (taskIndex !== -1) {
+        state.postSessionTasks[taskIndex].checked = checked;
+      }
+    },
   },
   actions: {
     // async resetState(context, payload) {
@@ -172,8 +180,14 @@ export default new Vuex.Store({
     // },
   },
   getters: {
-    uncheckedRequiredPresessionTaskExist(state) {
+    requiredPreSessionTasksChecked(state) {
       const uncheckedTasks = state.preSessionTasks.filter(
+        (task) => !task.checked && task.required
+      );
+      return uncheckedTasks.length === 0;
+    },
+    requiredPostSessionTasksChecked(state) {
+      const uncheckedTasks = state.postSessionTasks.filter(
         (task) => !task.checked && task.required
       );
       return uncheckedTasks.length === 0;

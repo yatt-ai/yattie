@@ -15,7 +15,7 @@
         <div v-for="task in tasks" :key="task.id">
           <v-checkbox
             :value="task.checked"
-            @change="(val) => handleTaskCheck(task.id, val)"
+            @change="(val) => $emit('taskToggle', task.id, val)"
             :rules="rules(task.required)"
             :label="`${task.content}`"
             dense
@@ -54,6 +54,9 @@ export default {
     this.$root.$on("start-new-session", () => {
       this.handleValidate();
     });
+    this.$root.$on("end-session", () => {
+      this.handleValidate();
+    });
   },
   computed: {
     ...mapGetters({
@@ -74,12 +77,6 @@ export default {
     },
   },
   methods: {
-    handleTaskCheck(taskId, checked) {
-      this.$store.commit("togglePreSessionTask", {
-        taskId,
-        checked: !!checked,
-      });
-    },
     rules(required) {
       if (required) {
         return [(v) => !!v || this.$tc("caption.required_checkbox", 1)];

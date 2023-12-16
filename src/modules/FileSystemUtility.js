@@ -61,7 +61,7 @@ module.exports.exportItems = async (ids) => {
 };
 
 module.exports.createNewSession = async (state) => {
-  console.log("state ID", state.id);
+  console.log("createNewSession, state ID:", state.id);
   // state.id = uuidv4();
   const dataFolder = path.join(configDir, "sessions", state.id);
   if (!fs.existsSync(dataFolder)) {
@@ -151,6 +151,7 @@ module.exports.saveSession = async (data) => {
 };
 
 module.exports.openSession = async () => {
+  console.log("openSession");
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openFile"],
     filters: [{ name: "Test File", extensions: ["test"] }],
@@ -203,6 +204,7 @@ module.exports.openSession = async () => {
 };
 
 module.exports.exportSession = async (params) => {
+  console.log("exportSession");
   debugger;
   const timestamp = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms");
   const id = databaseUtility.getSessionID();
@@ -317,6 +319,7 @@ module.exports.exportSession = async (params) => {
 };
 
 module.exports.openConfigFile = async () => {
+  console.log("openConfigFile");
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openFile"],
     filters: [{ name: "Config File", extensions: ["json"] }],
@@ -354,6 +357,7 @@ module.exports.openConfigFile = async () => {
 };
 
 module.exports.openCredentialsFile = async () => {
+  console.log("openCredentialsFile");
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openFile"],
     filters: [{ name: "Credentials File", extensions: ["json"] }],

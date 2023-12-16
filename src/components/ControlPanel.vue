@@ -636,7 +636,7 @@
         ref="noteDialog"
         :configItem="config"
         :credentialItems="credentials"
-        @submit-note="addNote()"
+        @submit-note="addNote"
       />
       <SummaryDialog
         ref="summaryDialog"
@@ -692,9 +692,8 @@
       />
       <EndSessionDialog
         v-model="endSessionDialog"
-        :configItem="config"
         :post-session-data="postSessionData"
-        @proceed="closeEndSessionDialog()"
+        @proceed="closeEndSessionDialog"
       />
     </div>
   </v-container>
@@ -762,7 +761,7 @@ export default {
       type: Array,
       default: () => [],
     },
-    checkedStatusOfPreSessionTask: {
+    preSessionRequirementsMet: {
       type: Boolean,
       default: () => false,
     },
@@ -1003,7 +1002,7 @@ export default {
     },
     startNewSession() {
       this.$root.$emit("start-new-session");
-      if (!this.checkedStatusOfPreSessionTask) {
+      if (!this.preSessionRequirementsMet) {
         return;
       }
       this.newSessionFromButton();
@@ -1107,7 +1106,7 @@ export default {
 
       // creating new session ID here
       let sessionId = null;
-      if (!this.$store.state.id) {
+      if (this.$store.state.id) {
         sessionId = this.$store.state.id;
       } else {
         sessionId = uuidv4();

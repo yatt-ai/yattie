@@ -76,6 +76,7 @@
           <CheckTaskWrapper
             v-if="showCheckList"
             :tasks="$store.state.preSessionTasks"
+            @taskToggle="handleTaskCheck"
           />
         </v-tab-item>
         <v-tab-item value="/main/workspace" :transition="false">
@@ -93,7 +94,7 @@
         :items="items"
         @add-item="addItem"
         :selectedItems="selected"
-        :checkedStatusOfPreSessionTask="presessionValid"
+        :preSessionRequirementsMet="presessionValid"
         view-mode="normal"
       />
       <TimeCounter v-if="$store.state.status !== 'pending'" />
@@ -145,12 +146,14 @@ export default {
     };
   },
   mounted() {
-    this.setInitialPresession();
+    this.setInitialPreSession();
+    this.setInitialPostSession();
     this.fetchItems();
     this.$root.$on("update-selected", this.updateSelected);
     this.$root.$on("save-session", this.saveSession);
     this.$root.$on("new-session", () => {
-      this.setInitialPresession();
+      this.setInitialPreSession();
+      this.setInitialPostSession();
     });
 
     if (this.$isElectron) {
@@ -163,6 +166,7 @@ export default {
       hotkeys: "config/hotkeys",
       checklistPresessionStatus: "config/checklistPresessionStatus",
       checklistPresessionTasks: "config/checklistPresessionTasks",
+      checklistPostsessionTasks: "config/checklistPostsessionTasks",
       isAuthenticated: "auth/isAuthenticated",
       credentials: "auth/credentials",
     }),
@@ -170,7 +174,7 @@ export default {
       if (!this.checklistPresessionStatus) {
         return true;
       } else {
-        return this.$store.getters["uncheckedRequiredPresessionTaskExist"];
+        return this.$store.getters.requiredPreSessionTasksChecked;
       }
     },
     backHotkey() {
@@ -187,10 +191,24 @@ export default {
     },
   },
   methods: {
-    setInitialPresession() {
+    handleTaskCheck(taskId, checked) {
+      this.$store.commit("togglePreSessionTask", {
+        taskId,
+        checked: !!checked,
+      });
+    },
+    setInitialPreSession() {
       this.$store.commit(
         "setPreSessionTasks",
         this.checklistPresessionTasks.map((task) => {
+          return { ...task, checked: false };
+        })
+      );
+    },
+    setInitialPostSession() {
+      this.$store.commit(
+        "setPostSessionTasks",
+        this.checklistPostsessionTasks.map((task) => {
           return { ...task, checked: false };
         })
       );
