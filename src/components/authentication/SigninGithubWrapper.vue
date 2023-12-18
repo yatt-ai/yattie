@@ -143,11 +143,7 @@ export default {
       },
     };
   },
-  mounted() {
-    window.ipc.on("JIRA_LOGIN", (data) => {
-      this.postLogin(data);
-    });
-  },
+
   computed: {
     currentTheme() {
       if (this.$vuetify.theme.dark) {
