@@ -40,6 +40,7 @@
     "d3": "^5.14.2",
     "dayjs": "^1.11.5",
     "detect-file-type": "^0.2.8",
+    "dotenv": "^16.3.1",
     "extract-zip": "^2.0.1",
     "ffmpeg-static": "^5.1.0",
     "ffprobe-static": "^3.1.0",
