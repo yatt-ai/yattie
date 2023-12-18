@@ -10,6 +10,10 @@ export default class ElectronService {
     window.ipc.on("SAVE_SESSION", callback);
   }
 
+  onActiveSession(callback) {
+    window.ipc.on("ACTIVE_SESSION", callback);
+  }
+
   onResetSession(callback) {
     window.ipc.on("RESET_SESSION", callback);
   }
@@ -37,6 +41,12 @@ export default class ElectronService {
     await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
       func: IPC_FUNCTIONS.OPEN_ADD_WINDOW,
       data: { width: 700, height: 800, data },
+    });
+  }
+
+  async closeAddWindow() {
+    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.CLOSE_ADD_WINDOW,
     });
   }
 
@@ -98,6 +108,15 @@ export default class ElectronService {
     });
   }
 
+  async optimizeVideo(filePath) {
+    return window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      func: IPC_FUNCTIONS.OPTIMIZE_VIDEO,
+      data: {
+        filePath,
+      },
+    });
+  }
+
   async createAudio(buffer) {
     return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
       func: IPC_FUNCTIONS.CREATE_AUDIO,
@@ -116,6 +135,13 @@ export default class ElectronService {
     return await window.ipc.invoke(IPC_HANDLERS.MENU, {
       func: IPC_FUNCTIONS.CHANGE_MENUITEM_STATUS,
       data: { sessionStatus },
+    });
+  }
+
+  async deleteFile(filePath) {
+    return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      func: IPC_FUNCTIONS.DELETE_FILE,
+      data: { filePath },
     });
   }
 }

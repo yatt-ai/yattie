@@ -240,15 +240,10 @@ import ReviewWrapper from "../components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import {
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
-  TEXT_TYPES,
-  STATUSES,
-  AI_ENABLED_FIELDS,
-} from "../modules/constants";
+import { TEXT_TYPES, STATUSES, AI_ENABLED_FIELDS } from "../modules/constants";
 
 import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
+import { mapGetters } from "vuex";
 
 export default {
   name: "AddEvidence",
@@ -261,8 +256,6 @@ export default {
     return {
       item: {},
       items: [],
-      config: {},
-      credentials: {},
       comment: {
         type: "",
         content: "",
@@ -294,47 +287,31 @@ export default {
     this.getCredentials();
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+      config: "config/fullConfig",
+      credentials: "auth/credentials",
+    }),
     nameHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "evidence.name",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("evidence.name", this.hotkeys);
     },
     followUpHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "evidence.followUp",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("evidence.followUp", this.hotkeys);
     },
     commentHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "evidence.comment",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("evidence.comment", this.hotkeys);
     },
     tagsHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "evidence.tags",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("evidence.tags", this.hotkeys);
     },
     typeHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "evidence.type",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("evidence.type", this.hotkeys);
     },
     saveHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "evidence.save",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("evidence.save", this.hotkeys);
     },
     cancelHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "evidence.cancel",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("evidence.cancel", this.hotkeys);
     },
     aiAssistEnabled() {
       return this?.config?.ai?.enabled || false;
@@ -355,11 +332,21 @@ export default {
     },
   },
   mounted() {
-    if (!window.ipc) return;
+    if (this.$isElectron) {
+      this.$electronService.onActiveSession(this.activeSession);
+    }
 
-    window.ipc.on("ACTIVE_SESSION", async (data) => {
+    // Focus on comment
+    this.$refs.comment.editor.commands.focus();
+
+    this.$root.$on("update-session", this.updateSession);
+    this.$root.$on("update-processing", this.updateProcessing);
+    this.$root.$on("save-data", this.saveData);
+  },
+  methods: {
+    async activeSession(data) {
       // set theme mode
-      const isDarkMode = this.config.apperance === "dark" ? true : false;
+      const isDarkMode = this.config.apperance === "dark";
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode);
 
@@ -370,7 +357,7 @@ export default {
 
       // optimize video
       if (this.item.fileType === "video") {
-        this.optimizeVideo();
+        await this.optimizeVideo();
       } else {
         this.processing = false;
       }
@@ -387,16 +374,7 @@ export default {
           this.comment.text = temp.precondition.text;
         }
       });
-    });
-
-    // Focus on comment
-    this.$refs.comment.editor.commands.focus();
-
-    this.$root.$on("update-session", this.updateSession);
-    this.$root.$on("update-processing", this.updateProcessing);
-    this.$root.$on("save-data", this.saveData);
-  },
-  methods: {
+    },
     toggleFollowUp() {
       this.followUp = !this.followUp;
     },
@@ -407,57 +385,32 @@ export default {
       input.click();
       input.focus();
     },
-    fetchItems() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_ITEMS })
-        .then((result) => {
-          this.items = result;
-        });
+    async fetchItems() {
+      this.items = await this.$storageService.getItems();
     },
     async getConfig() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_CONFIG,
-        })
-        .then((result) => {
-          this.config = result;
-        });
+      const config = await this.$storageService.getConfig();
+      this.$store.commit("config/setFullConfig", config);
     },
     async getCredentials() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_CREDENTIALS,
-        })
-        .then((result) => {
-          this.credentials = result;
-        });
+      const credentials = await this.$storageService.getCredentials();
+      this.$store.commit("auth/setCredentials", credentials);
     },
     async optimizeVideo() {
-      this.processing = true;
+      if (this.$isElectron) {
+        // todo add web handler for this
+        this.processing = true;
 
-      if (!window.ipc) return;
+        const { status, message } = await this.$electronService.optimizeVideo(
+          this.item.filePath
+        );
 
-      const { status, message } = await window.ipc.invoke(
-        IPC_HANDLERS.CAPTURE,
-        {
-          func: IPC_FUNCTIONS.OPTIMIZE_VIDEO,
-          data: {
-            filePath: this.item.filePath,
-          },
+        if (status === STATUSES.ERROR) {
+          this.$root.$emit("set-snackbar", message);
+          console.log(message);
         }
-      );
-
-      if (status === STATUSES.ERROR) {
-        this.$root.$emit("set-snackbar", message);
-        console.log(message);
+        this.processing = false;
       }
-      this.processing = false;
     },
     updateComment() {
       const regex = /(<([^>]+)>)/gi;
@@ -470,17 +423,11 @@ export default {
       this.processing = value;
     },
     async handleDiscard() {
-      await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-        func: IPC_FUNCTIONS.DELETE_FILE,
-        data: { filePath: this.item.filePath },
-      });
-      await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-        func: IPC_FUNCTIONS.DELETE_FILE,
-        data: { filePath: this.item.poster },
-      });
-      window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.CLOSE_ADD_WINDOW,
-      });
+      if (this.$isElectron) {
+        await this.$electronService.deleteFile(this.item.filePath);
+        await this.$electronService.deleteFile(this.item.poster);
+        await this.$electronService.closeAddWindow();
+      }
     },
     handleSave() {
       this.triggerSaveEvent = !this.triggerSaveEvent;
@@ -516,16 +463,11 @@ export default {
         createdAt: Date.now(),
       };
       this.items.push(newItem);
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.UPDATE_ITEMS,
-          data: this.items,
-        })
-        .then(() => {
-          window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-            func: IPC_FUNCTIONS.CLOSE_ADD_WINDOW,
-          });
-        });
+
+      await this.$storageService.updateItems(this.items);
+      if (this.$isElectron) {
+        await this.$electronService.closeAddWindow();
+      }
     },
     handleClear() {
       this.comment = {

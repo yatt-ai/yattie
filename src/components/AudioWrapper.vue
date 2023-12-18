@@ -216,10 +216,8 @@ export default {
     async handleAudio() {
       const uri = this.wavesurfer.exportImage("image/png", 1, "dataURL");
 
-      let posterResult = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-        func: IPC_FUNCTIONS.CREATE_IMAGE,
-        data: { url: uri, isPoster: true },
-      });
+      let posterResult = await this.$electronService.createImage(uri, true);
+
       if (posterResult.status === STATUSES.ERROR) {
         this.$root.$emit("set-snackbar", posterResult.message);
         console.log(
