@@ -52,6 +52,15 @@ export default {
     this.getCredentials().then(() => {
       this.updateAuth();
     });
+
+    if (window.ipc) {
+      window.ipc.on("CREDENTIAL_CHANGE", () => {
+        this.getCredentials().then(() => {
+          this.updateAuth();
+        });
+        this.$forceUpdate();
+      });
+    }
   },
   mounted() {
     this.$root.$on("update-auth", this.updateAuth);
@@ -132,6 +141,12 @@ export default {
 
     window.ipc.on("CONFIG_CHANGE", () => {
       this.getConfig();
+    });
+
+    window.ipc.on("META_CHANGE", () => {
+      this.fetchItems();
+      this.getConfig();
+      this.getCredentials();
     });
 
     window.ipc.on("ABOUT_DIALOG", async (version) => {

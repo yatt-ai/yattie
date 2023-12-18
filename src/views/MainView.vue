@@ -190,6 +190,9 @@ export default {
       });
     });
     if (!window.ipc) return;
+    window.ipc.on("DATA_CHANGE", () => {
+      this.fetchItems();
+    });
   },
   computed: {
     backHotkey() {
