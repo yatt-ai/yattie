@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
+import { STATUSES } from "../modules/constants";
 import AboutDialog from "../components/dialogs/AboutDialog.vue";
 export default {
   name: "DefaultLayout",
@@ -35,7 +35,6 @@ export default {
     aboutDialog: false,
     aboutVersion: null,
     overlay: false,
-    credentials: {},
     snackBar: {
       enabled: false,
       message: "",
@@ -49,89 +48,54 @@ export default {
     });
     this.$root.$on("close-aboutdialog", this.hideAboutDialog);
 
-    if (!window.ipc) return;
-
-    window.ipc.on("OPEN_CHILD_WINDOW", () => {
-      this.overlay = true;
-      this.$forceUpdate();
-    });
-    window.ipc.on("CLOSE_CHILD_WINDOW", ({ data }) => {
-      this.overlay = false;
-      if (data === "add" || data === "edit") {
-        const currentPath = this.$router.history.current.path;
-        if (currentPath !== "/main/workspace") {
-          this.$router.push({ path: "/main/workspace" });
-        }
-      }
-      this.$forceUpdate();
-    });
-
-    // new session for existing test
-    window.ipc.on("NEW_SESSION_TEST", async () => {
-      console.log("new session for existing test");
-    });
-
-    // new session for existing charter
-    window.ipc.on("NEW_SESSION_CHARTER", async () => {
-      console.log("new session for existing charter");
-    });
-
-    // open session
-    window.ipc.on("OPEN_SESSION", async () => {
-      if (!window.ipc) return;
-
-      const { status, message, state } = await window.ipc.invoke(
-        IPC_HANDLERS.FILE_SYSTEM,
-        {
-          func: IPC_FUNCTIONS.OPEN_SESSION,
-        }
-      );
-
-      if (status === STATUSES.ERROR) {
-        this.setSnackBar(message);
-        console.log(message);
-      } else {
-        this.$store.commit("restoreState", state);
-
-        const currentPath = this.$router.history.current.path;
-        if (currentPath !== state.path) {
-          this.$router.push({ path: state.path });
-        }
-      }
-    });
-
-    // save as charter
-    window.ipc.on("SAVE_AS_CHARTER", async () => {
-      console.log("save as charter");
-    });
-
-    // app setting
-    window.ipc.on("APP_SETTING", async () => {
-      await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.OPEN_SETTING_WINDOW,
+    if (this.$isElectron) {
+      this.$electronService.onOpenChildWindow(() => {
+        this.overlay = true;
+        this.$forceUpdate();
       });
-    });
+      this.$electronService.onCloseChildWindow(({ data }) => {
+        this.overlay = false;
+        if (data === "add" || data === "edit") {
+          const currentPath = this.$router.history.current.path;
+          if (currentPath !== "/main/workspace") {
+            this.$router.push({ path: "/main/workspace" });
+          }
+        }
+        this.$forceUpdate();
+      });
+      this.$electronService.onOpenSession(async () => {
+        const { status, message, state } =
+          await this.$electronService.openSession();
 
-    window.ipc.on("SET_THEME", ({ apperance }) => {
-      const isDarkMode = apperance === "dark" ? true : false;
-      this.$vuetify.theme.dark = isDarkMode;
-      localStorage.setItem("isDarkMode", isDarkMode);
-    });
+        if (status === STATUSES.ERROR) {
+          await this.setSnackBar(message);
+        } else {
+          this.$store.commit("restoreState", state);
 
-    // window.ipc.on("CREDENTIAL_CHANGE", () => {
-    //   this.getCredentials();
-    // });
-
-    window.ipc.on("ABOUT_DIALOG", async (version) => {
-      this.aboutVersion = version;
-      this.openAboutDialog();
-    });
+          const currentPath = this.$router.history.current.path;
+          if (currentPath !== state.path) {
+            await this.$router.push({ path: state.path });
+          }
+        }
+      });
+      this.$electronService.onOpenAboutWindow(this.openAboutDialog);
+      this.$electronService.onOpenSettingWindow(
+        this.$electronService.openSettingWindow
+      );
+      this.$electronService.onSetTheme(this.setTheme);
+    }
   },
   methods: {
+    setTheme({ appearance }) {
+      const isDarkMode = appearance === "dark";
+      this.$vuetify.theme.dark = isDarkMode;
+      localStorage.setItem("isDarkMode", isDarkMode.toString());
+    },
     hideAboutDialog() {
       this.aboutDialog = false;
     },
-    openAboutDialog() {
+    openAboutDialog(version) {
+      this.aboutVersion = version;
       this.aboutDialog = true;
     },
     async setSnackBar(message) {

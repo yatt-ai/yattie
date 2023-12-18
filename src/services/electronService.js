@@ -2,8 +2,27 @@ import { IPC_HANDLERS, IPC_FUNCTIONS } from "@/modules/constants";
 
 export default class ElectronService {
   // Listeners
+
+  onOpenSettingWindow(callback) {
+    window.ipc.on("APP_SETTING", callback);
+  }
+  onOpenAboutWindow(callback) {
+    window.ipc.on("ABOUT_DIALOG", callback);
+  }
+
+  onOpenChildWindow(callback) {
+    window.ipc.on("OPEN_CHILD_WINDOW", callback);
+  }
+
+  onCloseChildWindow(callback) {
+    window.ipc.on("CLOSE_CHILD_WINDOW", callback);
+  }
   onNewSession(callback) {
     window.ipc.on("NEW_SESSION", callback);
+  }
+
+  onOpenSession(callback) {
+    window.ipc.on("OPEN_SESSION", callback);
   }
 
   onSaveSession(callback) {
@@ -26,6 +45,10 @@ export default class ElectronService {
     window.ipc.on("META_CHANGE", callback);
   }
 
+  onSetTheme(callback) {
+    window.ipc.on("SET_THEME", callback);
+  }
+
   // Invokers
   setWindowSize({ width, height }) {
     window.ipc.invoke(IPC_HANDLERS.WINDOW, {
@@ -34,6 +57,12 @@ export default class ElectronService {
         width,
         height,
       },
+    });
+  }
+
+  async openSettingWindow() {
+    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.OPEN_SETTING_WINDOW,
     });
   }
 
@@ -134,6 +163,12 @@ export default class ElectronService {
     return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
       func: IPC_FUNCTIONS.EXPORT_ITEMS,
       data: items,
+    });
+  }
+
+  async openSession() {
+    return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+      func: IPC_FUNCTIONS.OPEN_SESSION,
     });
   }
 
