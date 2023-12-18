@@ -625,12 +625,6 @@
                   :selected="selected"
                   @close-menu="() => (issueCreateDestinationMenu = false)"
                 />
-                <github-add-issue
-                  :credential-items="credentials.jira"
-                  :items="items"
-                  :selected="selected"
-                  @close-menu="() => (issueCreateDestinationMenu = false)"
-                />
               </v-list>
             </v-card>
           </v-menu>
