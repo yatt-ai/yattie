@@ -167,7 +167,7 @@ import { VContainer, VBtn } from "vuetify/lib/components";
 import LogoWrapper from "../components/LogoWrapper.vue";
 import MenuPopover from "../components/MenuPopover.vue";
 
-import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
+import { STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
 export default {
   name: "HomeView",
@@ -217,16 +217,11 @@ export default {
     },
     async openSession() {
       if (this.$isElectron) {
-        const { status, message, state } = await window.ipc.invoke(
-          IPC_HANDLERS.FILE_SYSTEM,
-          {
-            func: IPC_FUNCTIONS.OPEN_SESSION,
-          }
-        );
+        const { status, message, state } =
+          await this.$electronService.openSession();
 
         if (status === STATUSES.ERROR) {
           this.$root.$emit("set-snackbar", message);
-          console.log(message);
         } else {
           this.$store.commit("restoreState", state);
 

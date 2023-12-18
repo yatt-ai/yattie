@@ -107,7 +107,7 @@
 
 <script>
 import WaveSurfer from "wavesurfer.js";
-import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
+import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "@/modules/constants";
 export default {
   name: "AudioWrapper",
   props: {

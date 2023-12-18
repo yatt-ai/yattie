@@ -136,6 +136,13 @@ export default class ElectronService {
     });
   }
 
+  async updateImage(item, url) {
+    return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      func: IPC_FUNCTIONS.UPDATE_IMAGE,
+      data: { item, url },
+    });
+  }
+
   async createVideo(buffer) {
     return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
       func: IPC_FUNCTIONS.CREATE_VIDEO,
