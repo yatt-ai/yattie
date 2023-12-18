@@ -69,13 +69,11 @@
 </template>
 
 <script>
+import {mapGetters} from "vuex";
+
 export default {
   name: "SourcePickerDialog",
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
     sources: {
       type: Array,
       default: () => [],
@@ -87,29 +85,28 @@ export default {
   },
   data() {
     return {
-      config: this.configItem,
       activeSource: "",
     };
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
     sourceId: function () {
       this.activeSource = this.sourceId;
     },
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+    }),
     confirmHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "general.save",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     cancelHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "general.cancel",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     currentTheme() {

@@ -628,7 +628,6 @@
         :sources="sources"
         :sourceId="sourceId"
         :loaded="loaded"
-        :configItem="config"
         @submit-source="startSession()"
       />
       <NoteDialog
@@ -644,7 +643,7 @@
         :configItem="config"
         :credentialItems="credentials"
         :summary="summary"
-        @submit-summary="addSummary()"
+        @submit-summary="addSummary"
       />
       <DeleteConfirmDialog
         v-model="deleteConfirmDialog"
@@ -1184,7 +1183,8 @@ export default {
     closeEndSessionDialog(status) {
       this.endSessionDialog = false;
       if (status) {
-        this.summaryDialog = true;
+        this.showSummaryDialog();
+        // this.summaryDialog = true;
       }
     },
     resume() {

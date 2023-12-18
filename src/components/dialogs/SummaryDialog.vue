@@ -136,6 +136,7 @@
 <script>
 import { TEXT_TYPES, AI_ENABLED_FIELDS } from "../../modules/constants";
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
+import { mapGetters } from "vuex";
 
 export default {
   name: "SummaryDialog",
@@ -192,17 +193,14 @@ export default {
     this.handleClear();
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+    }),
     confirmHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.save",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
     },
     cancelHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.cancel",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.cancel", this.hotkeys);
     },
     aiAssistEnabled() {
       return this?.config?.ai?.enabled || false;
