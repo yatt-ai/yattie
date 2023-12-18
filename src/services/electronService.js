@@ -50,10 +50,16 @@ export default class ElectronService {
     });
   }
 
-  openEditWindow(data) {
-    window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+  async openEditWindow(data) {
+    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
       func: IPC_FUNCTIONS.OPEN_EDIT_WINDOW,
       data: data,
+    });
+  }
+
+  async closeEditWindow() {
+    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.CLOSE_EDIT_WINDOW,
     });
   }
 

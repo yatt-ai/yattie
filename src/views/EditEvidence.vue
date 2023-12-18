@@ -297,12 +297,7 @@ import ReviewWrapper from "../components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import {
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
-  TEXT_TYPES,
-  AI_ENABLED_FIELDS,
-} from "../modules/constants";
+import { TEXT_TYPES, AI_ENABLED_FIELDS } from "../modules/constants";
 
 import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
 
@@ -402,11 +397,17 @@ export default {
     },
   },
   mounted() {
-    if (!window.ipc) return;
-
-    window.ipc.on("ACTIVE_SESSION", async (data) => {
+    if (this.$isElectron) {
+      this.$electronService.onActiveSession(this.activeSession);
+    }
+    this.$root.$on("update-session", this.updateSession);
+    this.$root.$on("update-processing", this.updateProcessing);
+    this.$root.$on("save-data", this.saveData);
+  },
+  methods: {
+    activeSession(data) {
       // set theme mode
-      const isDarkMode = this.config.apperance === "dark" ? true : false;
+      const isDarkMode = this.config.apperance === "dark";
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode);
 
@@ -417,12 +418,7 @@ export default {
       this.name = splitName.slice(0, -1).join(".");
 
       this.processing = false;
-    });
-    this.$root.$on("update-session", this.updateSession);
-    this.$root.$on("update-processing", this.updateProcessing);
-    this.$root.$on("save-data", this.saveData);
-  },
-  methods: {
+    },
     toggleFollowUp() {
       this.item.followUp = !this.item.followUp;
     },
@@ -433,14 +429,8 @@ export default {
       input.click();
       input.focus();
     },
-    fetchItems() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_ITEMS })
-        .then((result) => {
-          this.items = result;
-        });
+    async fetchItems() {
+      this.items = await this.$storageService.getItems();
     },
     updateSession(value) {
       this.item = value;
@@ -449,26 +439,12 @@ export default {
       this.processing = value;
     },
     async getConfig() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_CONFIG,
-        })
-        .then((result) => {
-          this.config = result;
-        });
+      const config = await this.$storageService.getConfig();
+      this.$store.commit("config/setFullConfig", config);
     },
     async getCredentials() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_CREDENTIALS,
-        })
-        .then((result) => {
-          this.credentials = result;
-        });
+      const credentials = await this.$storageService.getCredentials();
+      this.$store.commit("auth/setCredentials", credentials);
     },
     updateComment() {
       const regex = /(<([^>]+)>)/gi;
@@ -495,17 +471,15 @@ export default {
       this.item.comment.text = "";
     },
     handleDiscard() {
-      if (!window.ipc) return;
-
-      window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.CLOSE_EDIT_WINDOW,
-      });
+      if (this.$isElectron) {
+        this.$electronService.closeEditWindow();
+      }
     },
     async handleSave() {
       if (this.item.sessionType !== "Note") {
         this.triggerSaveEvent = true;
       } else {
-        this.saveData(this.item);
+        await this.saveData(this.item);
       }
     },
     handleName() {
@@ -531,17 +505,9 @@ export default {
         return temp;
       });
 
-      if (window.ipc) {
-        window.ipc
-          .invoke(IPC_HANDLERS.DATABASE, {
-            func: IPC_FUNCTIONS.UPDATE_ITEMS,
-            data: this.items,
-          })
-          .then(() => {
-            window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-              func: IPC_FUNCTIONS.CLOSE_EDIT_WINDOW,
-            });
-          });
+      await this.$storageService.updateItems(this.items);
+      if (this.$isElectron) {
+        await this.$electronService.closeEditWindow();
       }
     },
     async handleAISuggestion(field, event) {
