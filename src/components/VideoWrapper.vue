@@ -70,7 +70,7 @@
 </template>
 
 <script>
-import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
+import { STATUSES } from "../modules/constants";
 export default {
   name: "VideoWrapper",
   components: {},
@@ -137,17 +137,12 @@ export default {
       const startVal = this.timeInSeconds(this.start);
       const endVal = this.timeInSeconds(this.end);
       this.handleProcessing(true);
-      const { status, message, item } = await window.ipc.invoke(
-        IPC_HANDLERS.CAPTURE,
-        {
-          func: IPC_FUNCTIONS.UPDATE_VIDEO,
-          data: {
-            item: this.sessionItem,
-            start: startVal,
-            end: endVal,
-            previousDuration: parseInt(this.duration),
-          },
-        }
+
+      const { status, message, item } = await this.$electronService.updateVideo(
+        this.sessionItem,
+        startVal,
+        endVal,
+        parseInt(this.duration)
       );
 
       if (status === STATUSES.ERROR) {

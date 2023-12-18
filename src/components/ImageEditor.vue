@@ -12,7 +12,7 @@ import ImageEditor from "tui-image-editor";
 import "tui-image-editor/dist/tui-image-editor.css";
 import "tui-color-picker/dist/tui-color-picker.css";
 
-import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
+import { STATUSES } from "../modules/constants";
 
 export default {
   name: "EditorPanel",
@@ -142,27 +142,24 @@ export default {
       }
     },
     async handleImage(needCallback = false) {
-      const imgURI = this.imageEditorInst.toDataURL();
-      const { status, message, item } = await window.ipc.invoke(
-        IPC_HANDLERS.CAPTURE,
-        {
-          func: IPC_FUNCTIONS.UPDATE_IMAGE,
-          data: { item: this.sessionItem, url: imgURI },
-        }
-      );
+      if (this.$isElectron) {
+        // todo add web handler
+        const imgURI = this.imageEditorInst.toDataURL();
+        const { status, message, item } =
+          await this.$electronService.updateImage(this.sessionItem, imgURI);
 
-      if (status === STATUSES.ERROR) {
-        this.$root.$emit("set-snackbar", message);
-        console.log(message);
-      } else {
-        // Force the timeline component to update the image through a fake QS
-        this.sessionItem.filePath =
-          this.sessionItem.filePath.substring(item.filePath.length) === "?"
-            ? item.filePath
-            : item.filePath + "?";
-        this.$root.$emit("update-session", this.sessionItem);
-        if (needCallback) {
-          this.$root.$emit("save-data", this.sessionItem);
+        if (status === STATUSES.ERROR) {
+          this.$root.$emit("set-snackbar", message);
+        } else {
+          // Force the timeline component to update the image through a fake QS
+          this.sessionItem.filePath =
+            this.sessionItem.filePath.substring(item.filePath.length) === "?"
+              ? item.filePath
+              : item.filePath + "?";
+          this.$root.$emit("update-session", this.sessionItem);
+          if (needCallback) {
+            this.$root.$emit("save-data", this.sessionItem);
+          }
         }
       }
     },

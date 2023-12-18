@@ -143,10 +143,29 @@ export default class ElectronService {
     });
   }
 
+  async updateAudio(item) {
+    return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      func: IPC_FUNCTIONS.UPDATE_AUDIO,
+      data: { item },
+    });
+  }
+
   async createVideo(buffer) {
     return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
       func: IPC_FUNCTIONS.CREATE_VIDEO,
       data: { buffer },
+    });
+  }
+
+  async updateVideo(item, start, end, previousDuration) {
+    return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      func: IPC_FUNCTIONS.UPDATE_VIDEO,
+      data: {
+        item,
+        start,
+        end,
+        previousDuration,
+      },
     });
   }
 
