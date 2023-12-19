@@ -328,16 +328,14 @@ module.exports.deleteFile = ({ filePath }) => {
   }
 };
 
-module.exports.saveNote = (comment) => {
+module.exports.saveNote = (comment, fileNameToSave = "") => {
   const { id, fileName } = generateIDAndName("text");
   const filePath = path.join(
     configDir,
     "sessions",
     databaseUtility.getSessionID(),
-    fileName
+    fileNameToSave ? fileNameToSave : fileName
   );
-
-  console.log("Note File Path", filePath);
 
   fs.writeFile(filePath, comment.text, function (err) {
     if (err) {
@@ -352,7 +350,7 @@ module.exports.saveNote = (comment) => {
     status: STATUSES.SUCCESS,
     item: {
       id,
-      fileName,
+      fileName: fileNameToSave ? fileNameToSave : fileName,
       filePath,
     },
   };

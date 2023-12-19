@@ -207,16 +207,12 @@ module.exports.exportSession = async (params) => {
   const timestamp = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms");
   // const id = databaseUtility.getSessionID();
   const id = params.id;
-  // const notesFileName = "yattie-session-" + timestamp + "-notes.txt";
+  const notesFileName = "yattie-session-" + timestamp + "-notes.txt";
   const notes = databaseUtility.getNotes();
   let notesFilePath = "";
 
   if (notes.text) {
-    // notesFilePath = captureUtility.saveNote({
-    //   fileName: notesFileName,
-    //   comment: notes,
-    // });
-    const notesItem = captureUtility.saveNote(notes)
+    const notesItem = captureUtility.saveNote(notes, notesFileName)
     notesFilePath = notesItem.item.filePath;
     console.log(notesFilePath);
   }
