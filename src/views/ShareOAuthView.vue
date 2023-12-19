@@ -52,12 +52,6 @@
   </v-container>
 </template>
 <script>
-import {
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
-  IPC_BIND_KEYS,
-} from "../modules/constants";
-
 export default {
   name: "ShareOAuth",
   components: {},
@@ -75,22 +69,17 @@ export default {
     },
   },
   created() {
-    if (!window.ipc) return;
-
-    window.ipc.on(IPC_BIND_KEYS.MODAL_DATA, (data) => {
-      this.credentials = data;
-    });
+    if (this.$isElectron) {
+      this.$electronService.onModalData((data) => {
+        this.credentials = data;
+      });
+    }
   },
   methods: {
-    handleDone() {
-      if (!window.ipc) return;
-
-      window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.CLOSE_MODAL_WINDOW,
-        data: {
-          bindKey: IPC_BIND_KEYS.CLOSED_SHARE_OAUTH_DIALOG,
-        },
-      });
+    async handleDone() {
+      if (this.$isElectron) {
+        await this.$electronService.closeShareOauthWindow();
+      }
     },
   },
 };

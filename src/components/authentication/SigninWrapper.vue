@@ -111,8 +111,6 @@
 </template>
 
 <script>
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../../modules/constants";
-
 export default {
   name: "SigninWrapper",
   components: {},
@@ -164,10 +162,10 @@ export default {
   },
   mounted() {},
   methods: {
-    back: function () {
-      window.ipc.invoke(IPC_HANDLERS.SERVER, {
-        func: IPC_FUNCTIONS.STOP_SERVER,
-      });
+    back: async function () {
+      if (this.$isElectron) {
+        await this.$electronService.stopServer();
+      }
 
       this.$router.back();
     },

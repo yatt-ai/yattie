@@ -1,4 +1,8 @@
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "@/modules/constants";
+import {
+  IPC_HANDLERS,
+  IPC_FUNCTIONS,
+  IPC_BIND_KEYS,
+} from "@/modules/constants";
 
 export default class ElectronService {
   // Listeners
@@ -57,6 +61,14 @@ export default class ElectronService {
     window.ipc.on("SET_THEME", callback);
   }
 
+  onJiraLogin(callback) {
+    window.ipc.on("JIRA_LOGIN", callback);
+  }
+
+  onModalData(callback) {
+    window.ipc.on(IPC_BIND_KEYS.MODAL_DATA, callback);
+  }
+
   // Invokers
   setWindowSize({ width, height }) {
     window.ipc.invoke(IPC_HANDLERS.WINDOW, {
@@ -84,6 +96,15 @@ export default class ElectronService {
   async closeAddWindow() {
     return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
       func: IPC_FUNCTIONS.CLOSE_ADD_WINDOW,
+    });
+  }
+
+  async closeShareOauthWindow() {
+    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.CLOSE_MODAL_WINDOW,
+      data: {
+        bindKey: IPC_BIND_KEYS.CLOSED_SHARE_OAUTH_DIALOG,
+      },
     });
   }
 
@@ -224,6 +245,26 @@ export default class ElectronService {
     return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
       func: IPC_FUNCTIONS.SET_APPEARANCE,
       data: { appearance },
+    });
+  }
+
+  async exportSession(data) {
+    return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+      func: IPC_FUNCTIONS.EXPORT_SESSION,
+      data,
+    });
+  }
+
+  async stopServer() {
+    return await window.ipc.invoke(IPC_HANDLERS.SERVER, {
+      func: IPC_FUNCTIONS.STOP_SERVER,
+    });
+  }
+
+  async startServer(data) {
+    return await window.ipc.invoke(IPC_HANDLERS.SERVER, {
+      func: IPC_FUNCTIONS.START_SERVER,
+      data,
     });
   }
 }
