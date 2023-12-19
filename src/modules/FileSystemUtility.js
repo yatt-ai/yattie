@@ -204,20 +204,22 @@ module.exports.openSession = async () => {
 };
 
 module.exports.exportSession = async (params) => {
-  console.log("exportSession");
-  debugger;
   const timestamp = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms");
-  const id = databaseUtility.getSessionID();
-  const notesFileName = "yattie-session-" + timestamp + "-notes.txt";
+  // const id = databaseUtility.getSessionID();
+  const id = params.id;
+  // const notesFileName = "yattie-session-" + timestamp + "-notes.txt";
   const notes = databaseUtility.getNotes();
   let notesFilePath = "";
-  if (notes.text !== "") {
-    notesFilePath = captureUtility.saveNote({
-      fileName: notesFileName,
-      comment: notes,
-    });
-  }
 
+  if (notes.text) {
+    // notesFilePath = captureUtility.saveNote({
+    //   fileName: notesFileName,
+    //   comment: notes,
+    // });
+    const notesItem = captureUtility.saveNote(notes)
+    notesFilePath = notesItem.item.filePath;
+    console.log(notesFilePath);
+  }
   // show save dialog
   const fileName = "yattie-session-" + timestamp + ".zip";
   const { filePath } = await dialog.showSaveDialog({

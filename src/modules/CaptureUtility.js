@@ -336,6 +336,9 @@ module.exports.saveNote = (comment) => {
     databaseUtility.getSessionID(),
     fileName
   );
+
+  console.log("Note File Path", filePath);
+
   fs.writeFile(filePath, comment.text, function (err) {
     if (err) {
       console.log(err);

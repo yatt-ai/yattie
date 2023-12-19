@@ -126,6 +126,7 @@ export default {
   methods: {
     async exportSession() {
       const data = {
+        id: this.$store.state.id,
         title: this.$store.state.title,
         charter: this.$store.state.charter,
         preconditions: this.$store.state.preconditions,
@@ -134,6 +135,8 @@ export default {
         started: this.$store.state.started,
         ended: this.$store.state.ended,
       };
+
+      console.log(data);
 
       if (!window.ipc) return;
 
