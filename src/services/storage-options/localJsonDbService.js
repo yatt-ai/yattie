@@ -21,9 +21,22 @@ export default class LocalJsonDbService extends StorageInterface {
     });
   }
 
+  async updateConfig(config) {
+    return window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      func: IPC_FUNCTIONS.UPDATE_CONFIG,
+      data: config,
+    });
+  }
+
   async getCredentials() {
     return await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
       func: IPC_FUNCTIONS.GET_CREDENTIALS,
+    });
+  }
+
+  async getMetaData() {
+    return await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      func: IPC_FUNCTIONS.GET_METADATA,
     });
   }
 

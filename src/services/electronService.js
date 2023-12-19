@@ -45,6 +45,14 @@ export default class ElectronService {
     window.ipc.on("META_CHANGE", callback);
   }
 
+  onConfigChange(callback) {
+    window.ipc.on("CONFIG_CHANGE", callback);
+  }
+
+  onCredentialChange(callback) {
+    window.ipc.on("CREDENTIAL_CHANGE", callback);
+  }
+
   onSetTheme(callback) {
     window.ipc.on("SET_THEME", callback);
   }
@@ -209,6 +217,13 @@ export default class ElectronService {
     return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
       func: IPC_FUNCTIONS.DELETE_FILE,
       data: { filePath },
+    });
+  }
+
+  async setAppearance(appearance) {
+    return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      func: IPC_FUNCTIONS.SET_APPEARANCE,
+      data: { appearance },
     });
   }
 }

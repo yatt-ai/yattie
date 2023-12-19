@@ -20,8 +20,16 @@ export default class StorageService {
     return await this.storage.getConfig();
   }
 
+  async updateConfig(config) {
+    return await this.storage.updateConfig(config);
+  }
+
   async getCredentials() {
     return await this.storage.getCredentials();
+  }
+
+  async getMetaData() {
+    return await this.storage.getMetaData();
   }
 
   async updateCredentials(credentials) {

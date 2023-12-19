@@ -9,7 +9,6 @@
 </template>
 
 <script>
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 export default {
   name: "AuthenticationView",
   components: {},
@@ -30,28 +29,19 @@ export default {
     });
   },
   mounted() {
-    window.ipc.on("CONFIG_CHANGE", () => {
-      this.getConfig();
-    });
-
-    window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredentials();
-    });
+    if (this.$isElectron) {
+      this.$electronService.onConfigChange(this.getConfig);
+      this.$electronService.onCredentialChange(this.getCredentials);
+    }
   },
   methods: {
-    getConfig() {
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CONFIG })
-        .then((result) => {
-          this.config = result;
-        });
+    async getConfig() {
+      const config = await this.$storageService.getConfig();
+      this.$store.commit("config/setFullConfig", config);
     },
-    getCredentials() {
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
-        .then((result) => {
-          this.credentials = result;
-        });
+    async getCredentials() {
+      const credentials = await this.$storageService.getCredentials();
+      this.$store.commit("auth/setCredentials", credentials);
     },
   },
 };

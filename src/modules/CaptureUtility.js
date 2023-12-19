@@ -466,9 +466,9 @@ module.exports.dropFile = async (data) => {
   });
 };
 
-module.exports.setApperance = ({ apperance }) => {
+module.exports.setAppearance = ({ appearance }) => {
   const browserWindow = browserUtility.getBrowserWindow();
-  browserWindow.webContents.send("SET_THEME", { apperance });
+  browserWindow.webContents.send("SET_THEME", { appearance });
 };
 
 const generateIDAndName = (type, uid = undefined) => {
