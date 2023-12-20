@@ -84,10 +84,6 @@ export default {
       type: Object,
       default: () => {},
     },
-    // configItem: {
-    //   type: Object,
-    //   default: () => {},
-    // },
     credentialItems: {
       type: Object,
       default: () => {},
@@ -97,9 +93,6 @@ export default {
     metadata: function (newValue) {
       this.meta = newValue;
     },
-    // configItem: function (newValue) {
-    //   this.config = newValue;
-    // },
     credentialItems: function (newValue) {
       this.credentials = newValue;
     },
@@ -120,7 +113,6 @@ export default {
     return {
       meta: this.metadata,
       configToChange: null,
-      // config: this.configItem,
       credentials: this.credentialItems,
       rules: {
         noAsterisk: (value) =>
