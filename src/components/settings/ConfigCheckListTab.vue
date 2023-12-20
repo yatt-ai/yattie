@@ -263,8 +263,6 @@ export default {
       }
     },
     updateData: function (key, data) {
-      if (!window.ipc) return;
-
       const config = {
         ...this.config,
         checklist: {

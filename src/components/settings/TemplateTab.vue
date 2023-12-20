@@ -106,7 +106,7 @@
 </template>
 
 <script>
-import { SESSION_TYPES } from "../../modules/constants";
+import { SESSION_TYPES } from "@/modules/constants";
 import { mapGetters } from "vuex";
 export default {
   name: "TemplateTab",
@@ -126,10 +126,10 @@ export default {
   },
   data() {
     return {
-      templatesToChange: null, // this.config.templates,
+      templatesToChange: null,
       configToChange: null,
-      template: null, // this.config.templates[0],
-      type: null, // this.config.templates[0].type,
+      template: null,
+      type: null,
       sessionTypes: SESSION_TYPES,
     };
   },
