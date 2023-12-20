@@ -59,8 +59,7 @@ export default {
   components: {
     KeyCaptureDialog,
   },
-  props: {
-  },
+  props: {},
   computed: {
     ...mapGetters({
       config: "config/fullConfig",

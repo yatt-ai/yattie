@@ -207,7 +207,7 @@ import ReviewWrapper from "../components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
+import { TEXT_TYPES } from "@/modules/constants";
 
 export default {
   name: "ResultView",
@@ -255,22 +255,16 @@ export default {
     this.$root.$on("save-data", this.updateActiveSession);
     this.$root.$on("update-session", this.updateActiveSession);
 
-    if (!window.ipc) return;
-
-    window.ipc.on("DATA_CHANGE", () => {
-      this.fetchItems();
-    });
-    window.ipc.on("CONFIG_CHANGE", () => {
-      this.getConfig();
-    });
-    window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredentials();
-    });
-    window.ipc.on("META_CHANGE", () => {
-      this.fetchItems();
-      this.getConfig();
-      this.getCredentials();
-    });
+    if (this.$isElectron) {
+      this.$electronService.onDataChange(this.fetchItems);
+      this.$electronService.onConfigChange(this.getConfig);
+      this.$electronService.onCredentialChange(this.getCredentials);
+      this.$electronService.onMetaChange(() => {
+        this.fetchItems();
+        this.getConfig();
+        this.getCredentials();
+      });
+    }
   },
   computed: {
     searchItems() {
@@ -287,36 +281,16 @@ export default {
     },
   },
   methods: {
-    fetchItems() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_ITEMS })
-        .then((result) => {
-          this.items = result;
-        });
+    async fetchItems() {
+      this.items = await this.$storageService.getItems();
     },
-    getConfig() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_CONFIG,
-        })
-        .then((result) => {
-          this.config = result;
-        });
+    async getConfig() {
+      const config = await this.$storageService.getConfig();
+      this.$store.commit("config/setFullConfig", config);
     },
-    getCredentials() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_CREDENTIALS,
-        })
-        .then((result) => {
-          this.credentials = result;
-        });
+    async getCredentials() {
+      const credentials = await this.$storageService.getCredentials();
+      this.$store.commit("auth/setCredentials", credentials);
     },
     selectEmoji(emoji) {
       this.emojiMenu = false;
@@ -368,12 +342,7 @@ export default {
         return temp;
       });
 
-      if (!window.ipc) return;
-
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_ITEMS,
-        data: this.items,
-      });
+      this.$storageService.updateItems(this.items);
     },
     handleClear() {
       this.activeSession.comment = "";
