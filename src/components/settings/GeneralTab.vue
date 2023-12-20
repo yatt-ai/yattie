@@ -199,12 +199,7 @@
 </template>
 
 <script>
-import {
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
-  TEXT_TYPES,
-  STATUSES,
-} from "../../modules/constants";
+import { TEXT_TYPES, STATUSES } from "../../modules/constants";
 export default {
   name: "GeneralTab",
   components: {},
@@ -278,49 +273,26 @@ export default {
       this.$emit("submit-config", this.config);
     },
     async openConfigFile() {
-      const { status, message } = await window.ipc.invoke(
-        IPC_HANDLERS.FILE_SYSTEM,
-        {
-          func: IPC_FUNCTIONS.OPEN_CONFIG_FILE,
+      if (this.$isElectron) {
+        const { status } = await this.$electronService.openConfigFile();
+        if (status === STATUSES.SUCCESS) {
+          this.$root.$emit("change-meta");
         }
-      );
-      console.log(status, message);
-      if (status === STATUSES.SUCCESS) {
-        this.$root.$emit("change-meta");
       }
     },
     async openCredentialsFile() {
-      const { status, message } = await window.ipc.invoke(
-        IPC_HANDLERS.FILE_SYSTEM,
-        {
-          func: IPC_FUNCTIONS.OPEN_CREDENTIALS_FILE,
+      if (this.$isElectron) {
+        const { status } = await this.$electronService.openCredentialsFile();
+        if (status === STATUSES.SUCCESS) {
+          this.$root.$emit("change-meta");
         }
-      );
-      console.log(status, message);
-      if (status === STATUSES.SUCCESS) {
-        this.$root.$emit("change-meta");
       }
     },
-    showOAuthDialog() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_CREDENTIALS,
-        })
-        .then((credentials) => {
-          window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-            func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-            data: {
-              path: "shareOAuth",
-              size: {
-                width: 400,
-                height: 550,
-              },
-              data: credentials,
-            },
-          });
-        });
+    async showOAuthDialog() {
+      const credentials = await this.$storageService.getCredentials();
+      if (this.$isElectron) {
+        await this.$electronService.openShareOauthWindow(credentials);
+      }
     },
   },
 };

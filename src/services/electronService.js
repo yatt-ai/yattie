@@ -108,6 +108,32 @@ export default class ElectronService {
     });
   }
 
+  async openConfigFile() {
+    return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+      func: IPC_FUNCTIONS.OPEN_CONFIG_FILE,
+    });
+  }
+
+  async openCredentialsFile() {
+    return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+      func: IPC_FUNCTIONS.OPEN_CREDENTIALS_FILE,
+    });
+  }
+
+  async openShareOauthWindow(credentials) {
+    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
+      data: {
+        path: "shareOAuth",
+        size: {
+          width: 400,
+          height: 550,
+        },
+        data: credentials,
+      },
+    });
+  }
+
   async openEditWindow(data) {
     return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
       func: IPC_FUNCTIONS.OPEN_EDIT_WINDOW,
