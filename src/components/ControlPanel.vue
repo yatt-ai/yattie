@@ -628,7 +628,7 @@
         :sources="sources"
         :sourceId="sourceId"
         :loaded="loaded"
-        @submit-source="startSession()"
+        @submit-source="startSession"
       />
       <NoteDialog
         v-model="noteDialog"
@@ -1242,7 +1242,9 @@ export default {
           if (this.$isElectron) {
             // todo add web implementation
             const { status, message, item } =
-              this.$electronService.createImage(imgURI);
+              await this.$electronService.createImage(imgURI);
+
+            console.log({ item });
 
             if (status === STATUSES.ERROR) {
               this.$root.$emit("set-snackbar", message);
