@@ -19,6 +19,7 @@
     "open_session": "Open saved session",
     "test": "Test",
     "timeline": "Timeline",
+    "cancel_creating_issue": "Cancel creating issue",
     "comment_type": "Comment type",
     "add_reaction": "Add reaction...",
     "clear": "Clear",
