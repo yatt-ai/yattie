@@ -435,7 +435,7 @@ export default {
     createJiraTicket: async function (val) {
       if (val) {
         let response = await jiraIntegrationHelper.getAllProjects(
-            this.credentials.jira
+          this.credentials.jira
         );
         this.projects = response.projects;
       }
