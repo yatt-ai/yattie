@@ -1774,6 +1774,18 @@ export default {
         this.$electronService.changeMenuBySessionStatus(status);
       }
     },
+    async minimize() {
+      const data = {
+        status: this.status,
+        timer: this.timer,
+        duration: this.duration,
+        sourceId: this.sourceId,
+      };
+      localStorage.setItem("state-data", JSON.stringify(data));
+      if (this.$isElectron) {
+        await this.$electronService.openMinimizeWindow();
+      }
+    },
   },
 };
 </script>

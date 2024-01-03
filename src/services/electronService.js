@@ -190,6 +190,13 @@ export default class ElectronService {
     });
   }
 
+  async openMinimizeWindow() {
+    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.OPEN_MINIMIZE_WINDOW,
+      data: { width: 400, height: 84 },
+    });
+  }
+
   async openEditWindow(data) {
     return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
       func: IPC_FUNCTIONS.OPEN_EDIT_WINDOW,
