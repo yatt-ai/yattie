@@ -134,6 +134,62 @@ export default class ElectronService {
     });
   }
 
+  async openSourcePickerWindow(sources) {
+    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
+      data: {
+        path: "sourcepicker",
+        size: {
+          width: 600,
+          height: 500,
+        },
+        data: sources,
+      },
+    });
+  }
+
+  async openNoteEditorWindow(config) {
+    return window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
+      data: {
+        path: "noteEditor",
+        size: {
+          width: 500,
+          height: 550,
+        },
+        data: config,
+      },
+    });
+  }
+
+  async openSummaryWindow(config) {
+    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
+      data: {
+        path: "summaryEditor",
+        size: {
+          width: 500,
+          height: 500,
+        },
+        data: config,
+      },
+    });
+  }
+
+  async openEndSessionWindow(config) {
+    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
+      data: {
+        path: "endsession",
+        size: {
+          width: 450,
+          height: 500,
+        },
+        data: config,
+      },
+    });
+  }
+
   async openEditWindow(data) {
     return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
       func: IPC_FUNCTIONS.OPEN_EDIT_WINDOW,

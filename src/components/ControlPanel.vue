@@ -1033,7 +1033,13 @@ export default {
         let data = await this.fetchSources();
         this.loaded = true;
         this.sources = data;
-        this.sourcePickerDialog = true;
+        if (this.viewMode === "normal") {
+          this.sourcePickerDialog = true;
+        } else {
+          if (this.$isElectron) {
+            await this.$electronService.openSourcePickerWindow(this.sources);
+          }
+        }
       } catch (err) {
         console.log(err);
       }
@@ -1042,10 +1048,16 @@ export default {
       this.sourcePickerDialog = false;
     },
     showNoteDialog() {
-      this.noteDialog = true;
-      setTimeout(() => {
-        this.$refs.noteDialog.$refs.comment.editor.commands.focus();
-      });
+      if (this.viewMode === "normal") {
+        this.noteDialog = true;
+        setTimeout(() => {
+          this.$refs.noteDialog.$refs.comment.editor.commands.focus();
+        });
+      } else {
+        if (this.$isElectron) {
+          this.$electronService.openNoteEditorWindow(this.config);
+        }
+      }
     },
     hideNoteDialog() {
       this.noteDialog = false;
@@ -1129,9 +1141,11 @@ export default {
         await this.$storageService.createNewSession(data);
       }
 
-      const currentPath = this.$router.history.current.path;
-      if (currentPath !== "/main/workspace") {
-        await this.$router.push({ path: "/main/workspace" });
+      if (this.viewMode === "normal") {
+        const currentPath = this.$router.history.current.path;
+        if (currentPath !== "/main/workspace") {
+          await this.$router.push({ path: "/main/workspace" });
+        }
       }
     },
     pauseSession() {
@@ -1172,20 +1186,31 @@ export default {
       this.$router.push({ path: "/result" }).catch(() => {});
     },
     showSummaryDialog() {
-      this.summaryDialog = true;
+      if (this.viewMode === "normal") {
+        this.summaryDialog = true;
 
-      setTimeout(() => {
-        this.$refs.summaryDialog.$refs.comment.editor.commands.focus();
-      }, 200);
+        setTimeout(() => {
+          this.$refs.summaryDialog.$refs.comment.editor.commands.focus();
+        }, 200);
+      } else {
+        if (this.$isElectron) {
+          this.$electronService.openSummaryWindow(this.config);
+        }
+      }
     },
     showEndSessionDialog() {
-      this.endSessionDialog = true;
+      if (this.viewMode === "normal") {
+        this.endSessionDialog = true;
+      } else {
+        if (this.$isElectron) {
+          this.$electronService.openEndSessionWindow(this.config);
+        }
+      }
     },
     closeEndSessionDialog(status) {
       this.endSessionDialog = false;
       if (status) {
         this.showSummaryDialog();
-        // this.summaryDialog = true;
       }
     },
     resume() {
