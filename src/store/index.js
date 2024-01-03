@@ -169,16 +169,7 @@ export default new Vuex.Store({
       }
     },
   },
-  actions: {
-    // async resetState(context, payload) {
-    //   await this._vm.$storageService.updateState(payload);
-    //   context.commit("resetState", payload);
-    // },
-    // async restoreState(context, payload) {
-    //   await this._vm.$storageService.updateState(payload);
-    //   context.commit("restoreState", payload);
-    // },
-  },
+  actions: {},
   getters: {
     requiredPreSessionTasksChecked(state) {
       const uncheckedTasks = state.preSessionTasks.filter(

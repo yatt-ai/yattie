@@ -113,7 +113,6 @@ export default {
   },
   methods: {
     async openAccountLink(credentialType, credential) {
-      console.log(credentialType, credential);
       if (credentialType === "yatt") {
         const yattUrl = "https://app.yatt.ai/";
         if (this.$isElectron) {

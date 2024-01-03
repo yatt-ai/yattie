@@ -2,9 +2,20 @@ import Vue from "vue";
 export const config = {
   namespaced: true,
   state: () => ({
+    useLocal: true,
+    apperance: "light",
     ai: {
       enabled: false,
     },
+    showIssue: false,
+    appLabel: false,
+    defaultLabel: "#1976D2FF",
+    commentType: "Comment",
+    audioCapture: false,
+    videoQuality: "high",
+    debugMode: false,
+    summary: false,
+    templates: [],
     checklist: {
       presession: {
         status: false,
@@ -14,6 +25,13 @@ export const config = {
         status: false,
         tasks: [],
       },
+    },
+    hotkeys: {
+      evidence: {},
+      general: {},
+      home: {},
+      sessionPlanning: {},
+      workspace: {},
     },
   }),
   mutations: {

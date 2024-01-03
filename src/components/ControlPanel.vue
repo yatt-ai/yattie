@@ -712,6 +712,7 @@ import NewSessionDialog from "./dialogs/NewSessionDialog.vue";
 import DurationConfirmDialog from "./dialogs/DurationConfirmDialog.vue";
 import AudioErrorDialog from "./dialogs/AudioErrorDialog.vue";
 import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
+//import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
 
@@ -747,6 +748,7 @@ export default {
     DurationConfirmDialog,
     AudioErrorDialog,
     EndSessionDialog,
+    // MinimizeControlWrapper,
     JiraExportSession,
     TestRailExportSession,
     JiraAddIssue,
@@ -1030,7 +1032,7 @@ export default {
       try {
         let data = await this.fetchSources();
         this.loaded = true;
-        this.sources = data.filter((source) => source.name !== "yattie");
+        this.sources = data;
         this.sourcePickerDialog = true;
       } catch (err) {
         console.log(err);
@@ -1110,23 +1112,22 @@ export default {
       } else {
         sessionId = uuidv4();
         this.$store.commit("setSessionId", sessionId);
+        const data = {
+          id: sessionId,
+          title: this.$store.state.title,
+          charter: this.$store.state.charter,
+          preconditions: this.$store.state.preconditions,
+          duration: this.$store.state.duration,
+          status: this.$store.state.status,
+          timer: this.$store.state.timer,
+          started: this.$store.state.started,
+          ended: this.$store.state.ended,
+          quickTest: this.$store.state.quickTest,
+          path: this.$route.path,
+        };
+
+        await this.$storageService.createNewSession(data);
       }
-
-      const data = {
-        id: sessionId,
-        title: this.$store.state.title,
-        charter: this.$store.state.charter,
-        preconditions: this.$store.state.preconditions,
-        duration: this.$store.state.duration,
-        status: this.$store.state.status,
-        timer: this.$store.state.timer,
-        started: this.$store.state.started,
-        ended: this.$store.state.ended,
-        quickTest: this.$store.state.quickTest,
-        path: this.$route.path,
-      };
-
-      await this.$storageService.createNewSession(data);
 
       const currentPath = this.$router.history.current.path;
       if (currentPath !== "/main/workspace") {

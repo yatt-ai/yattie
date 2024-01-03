@@ -61,8 +61,6 @@ module.exports.exportItems = async (ids) => {
 };
 
 module.exports.createNewSession = async (state) => {
-  console.log("createNewSession, state ID:", state.id);
-  // state.id = uuidv4();
   const dataFolder = path.join(configDir, "sessions", state.id);
   if (!fs.existsSync(dataFolder)) {
     fs.mkdirSync(dataFolder, { recursive: true });
@@ -205,7 +203,6 @@ module.exports.openSession = async () => {
 
 module.exports.exportSession = async (params) => {
   const timestamp = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms");
-  // const id = databaseUtility.getSessionID();
   const id = params.id;
   const notesFileName = "yattie-session-" + timestamp + "-notes.txt";
   const notes = databaseUtility.getNotes();
