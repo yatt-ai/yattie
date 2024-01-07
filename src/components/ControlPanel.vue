@@ -1183,7 +1183,7 @@ export default {
       if (this.$isElectron) {
         this.$electronService.setWindowSize({ width: 1440, height: 900 });
       }
-      this.$router.push({ path: "/result" }).catch(() => {});
+      await this.$router.push({ path: "/result" });
     },
     showSummaryDialog() {
       if (this.viewMode === "normal") {
