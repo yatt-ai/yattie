@@ -26,6 +26,7 @@ app.disable("x-powered-by");
 
 // modules
 require("./modules/JiraUtility")(app);
+require("./modules/GithubUtility")(app);
 
 try {
   app.listen(port, () => {

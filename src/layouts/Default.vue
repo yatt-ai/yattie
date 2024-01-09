@@ -52,6 +52,15 @@ export default {
     this.getCredentials().then(() => {
       this.updateAuth();
     });
+
+    if (window.ipc) {
+      window.ipc.on("CREDENTIAL_CHANGE", () => {
+        this.getCredentials().then(() => {
+          this.updateAuth();
+        });
+        this.$forceUpdate();
+      });
+    }
   },
   mounted() {
     this.$root.$on("update-auth", this.updateAuth);
@@ -134,7 +143,9 @@ export default {
       this.getConfig();
     });
 
-    window.ipc.on("CREDENTIAL_CHANGE", () => {
+    window.ipc.on("META_CHANGE", () => {
+      this.fetchItems();
+      this.getConfig();
       this.getCredentials();
     });
 
@@ -177,6 +188,8 @@ export default {
           message += this.$tc("message.integrations_expired", 1);
           this.setSnackBar(message);
         }
+      } else {
+        this.checkAuth = false;
       }
     },
     async getCredentials() {

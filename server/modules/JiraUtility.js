@@ -45,21 +45,21 @@ module.exports = (app) => {
       .post(uri)
       .then((data) => {
         const responseData = {};
-        for(const [key, value] of Object.entries(data.data)) {
-            // Convert keys to camel case.
-            const newKey = key.toLowerCase().replace(/([-_][a-z0-9])/g, group =>
-              group
-               .toUpperCase()
-               .replace('-', '')
-               .replace('_', '')
-            );
-            responseData[newKey] = value;
+        for (const [key, value] of Object.entries(data.data)) {
+          // Convert keys to camel case.
+          const newKey = key.toLowerCase().replace(/([-_][a-z0-9])/g, group =>
+            group
+              .toUpperCase()
+              .replace('-', '')
+              .replace('_', '')
+          );
+          responseData[newKey] = value;
         }
         responseData.type = "oauth";
         responseData.url = serverURL;
         responseData.clientId = clientId;
         responseData.clientSecret = clientSecret;
-  
+
         process.send({
           type: "jira",
           data: {

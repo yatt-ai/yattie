@@ -256,21 +256,6 @@ export default {
     this.$root.$on("update-session", this.updateActiveSession);
 
     if (!window.ipc) return;
-
-    window.ipc.on("DATA_CHANGE", () => {
-      this.fetchItems();
-    });
-    window.ipc.on("CONFIG_CHANGE", () => {
-      this.getConfig();
-    });
-    window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredentials();
-    });
-    window.ipc.on("META_CHANGE", () => {
-      this.fetchItems();
-      this.getConfig();
-      this.getCredentials();
-    });
   },
   computed: {
     searchItems() {

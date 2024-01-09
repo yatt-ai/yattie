@@ -223,14 +223,6 @@ export default {
   mounted() {
     if (!window.ipc) return;
 
-    window.ipc.on("CONFIG_CHANGE", () => {
-      this.getConfig();
-    });
-
-    window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredentials();
-    });
-
     // New session
     window.ipc.on("NEW_SESSION", () => {
       this.newSession();

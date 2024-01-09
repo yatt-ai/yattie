@@ -3,6 +3,7 @@ const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 module.exports = {
   transpileDependencies: ["vuetify"],
   configureWebpack: {
+    devtool: "source-map",
     plugins: [new NodePolyfillPlugin()],
     optimization: {
       splitChunks: {
