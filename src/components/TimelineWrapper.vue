@@ -942,7 +942,10 @@
       v-if="itemToEdit"
       v-model="editEvidenceDialog"
       :item-data="itemToEdit"
-      @close="editEvidenceDialog = false"
+      @close="
+        editEvidenceDialog = false;
+        itemToEdit = null;
+      "
     />
   </v-container>
 </template>

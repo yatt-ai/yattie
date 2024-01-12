@@ -721,6 +721,8 @@ import JiraAddIssue from "./jira/JiraAddIssue";
 import {
   DEFAULT_MAP_CONNECTIONS,
   DEFAULT_MAP_NODES,
+  IPC_FUNCTIONS,
+  IPC_HANDLERS,
   SESSION_STATUSES,
   STATUSES,
   VIDEO_RESOLUTION,
@@ -1117,15 +1119,12 @@ export default {
         this.changeSessionStatus(SESSION_STATUSES.START);
       }
 
-      // creating new session ID here
-      let sessionId = null;
-      if (this.$store.state.id) {
-        sessionId = this.$store.state.id;
-      } else {
-        sessionId = uuidv4();
-        this.$store.commit("setSessionId", sessionId);
+      const sessionId = await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+        func: IPC_FUNCTIONS.GET_SESSION_ID,
+      });
+
+      if (sessionId === "") {
         const data = {
-          id: sessionId,
           title: this.$store.state.title,
           charter: this.$store.state.charter,
           preconditions: this.$store.state.preconditions,
@@ -1138,7 +1137,10 @@ export default {
           path: this.$route.path,
         };
 
-        await this.$storageService.createNewSession(data);
+        window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+          func: IPC_FUNCTIONS.CREATE_NEW_SESSION,
+          data: data,
+        });
       }
 
       if (this.viewMode === "normal") {
