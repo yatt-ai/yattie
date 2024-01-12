@@ -449,6 +449,11 @@ export default {
     this.$root.$on("save-data", this.saveData);
   },
   watch: {
+    itemData: function (val) {
+      console.log("itemData changed");
+      console.log(val);
+      this.activeSession();
+    },
     createJiraTicket: async function (val) {
       if (val) {
         let response = await jiraIntegrationHelper.getAllProjects(
@@ -541,8 +546,9 @@ export default {
       if (this.$isElectron) {
         await this.$electronService.deleteFile(this.item.filePath);
         await this.$electronService.deleteFile(this.item.poster);
-        await this.$electronService.closeAddWindow();
+        // await this.$electronService.closeAddWindow();
       }
+      this.$emit("close");
     },
     async handleSave() {
       if (this.createJiraTicket) {
@@ -587,10 +593,6 @@ export default {
       this.items.push(newItem);
 
       await this.$storageService.updateItems(this.items);
-      // if (this.$isElectron) {
-      //   await this.$electronService.closeAddWindow();
-      // }
-      console.log("Inside Save Data");
       this.$emit("close");
     },
     handleClear() {

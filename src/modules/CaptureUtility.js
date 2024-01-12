@@ -370,6 +370,7 @@ module.exports.uploadEvidence = async () => {
 
   // TODO - Handle multiple files uploaded
   const id = uuidv4();
+  console.log({ id });
   const fileName = path.basename(filePaths[0]);
   const filePath = path.join(
     configDir,

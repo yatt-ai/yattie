@@ -1103,6 +1103,7 @@ export default {
       if (this.clicks === 1) {
         setTimeout(
           function () {
+            console.log("trigger from here");
             switch (this.clicks) {
               case 1:
                 if (this.eventName === "click") {
@@ -1132,7 +1133,10 @@ export default {
     },
     async handleActiveSession(id) {
       this.itemToEdit = await this.$storageService.getItemById(id);
+      console.log(this.itemToEdit);
+
       this.editEvidenceDialog = true;
+
       // this.activeSession = await this.$storageService.getItemById(id);
       // this.$emit("submit-session", this.activeSession);
     },

@@ -1,5 +1,6 @@
 <template>
   <v-dialog
+    v-if="Object.keys(item).length"
     v-bind="$attrs"
     v-on="$listeners"
     persistent
@@ -292,7 +293,7 @@
             color="primary"
             :disabled="processing"
             v-shortkey="saveHotkey"
-            @shortkey="handleSave()"
+            @shortkey="handleSave"
             @click="handleSave"
           >
             {{ $tc("caption.save", 1) }}
@@ -476,14 +477,11 @@ export default {
       this.item.comment.text = "";
     },
     handleDiscard() {
-      // if (this.$isElectron) {
-      //   this.$electronService.closeEditWindow();
-      // }
       this.$emit("close");
     },
     async handleSave() {
       if (this.item.sessionType !== "Note") {
-        this.triggerSaveEvent = true;
+        this.triggerSaveEvent = !this.triggerSaveEvent;
       } else {
         await this.saveData(this.item);
       }
@@ -513,9 +511,6 @@ export default {
 
       await this.$storageService.updateItems(this.items);
       this.$emit("close");
-      // if (this.$isElectron) {
-      //   await this.$electronService.closeEditWindow();
-      // }
     },
     async handleAISuggestion(field, event) {
       if (
