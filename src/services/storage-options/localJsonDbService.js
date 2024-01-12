@@ -94,6 +94,12 @@ export default class LocalJsonDbService extends StorageInterface {
     });
   }
 
+  async getSessionId() {
+    return await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      func: IPC_FUNCTIONS.GET_SESSION_ID,
+    });
+  }
+
   async saveSession(data) {
     return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
       func: IPC_FUNCTIONS.SAVE_SESSION,
