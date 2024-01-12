@@ -315,8 +315,8 @@
             color="primary"
             :disabled="processing"
             v-shortkey="saveHotkey"
-            @shortkey="handleSave()"
-            @click="handleSave()"
+            @shortkey="handleSave"
+            @click="handleSave"
           >
             {{ $tc("caption.save", 1) }}
           </v-btn>
@@ -581,6 +581,7 @@ export default {
       this.emojis = this.emojis.filter((item) => item.data !== emoji.data);
     },
     async saveData() {
+      console.log("save data from AddEvidence");
       const newItem = {
         ...this.item,
         comment: this.comment,

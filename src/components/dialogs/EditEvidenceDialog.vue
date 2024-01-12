@@ -351,6 +351,9 @@ export default {
     this.fetchItems();
     this.getConfig();
     this.getCredentials();
+    if (this.$isElectron) {
+      this.activeSession();
+    }
   },
   computed: {
     ...mapGetters({
@@ -398,9 +401,9 @@ export default {
     },
   },
   mounted() {
-    if (this.$isElectron) {
-      this.activeSession();
-    }
+    // if (this.$isElectron) {
+    //   this.activeSession();
+    // }
     this.$root.$on("update-session", this.updateSession);
     this.$root.$on("update-processing", this.updateProcessing);
     this.$root.$on("save-data", this.saveData);

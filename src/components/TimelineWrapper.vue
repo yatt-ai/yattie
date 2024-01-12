@@ -1132,9 +1132,9 @@ export default {
       this.saveData();
     },
     async handleActiveSession(id) {
+      console.log("handleActiveSession", { id });
       this.itemToEdit = await this.$storageService.getItemById(id);
-      console.log(this.itemToEdit);
-
+      console.log("item to edit", this.itemToEdit);
       this.editEvidenceDialog = true;
 
       // this.activeSession = await this.$storageService.getItemById(id);
