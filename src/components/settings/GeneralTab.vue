@@ -34,7 +34,7 @@
         <span class="subtitle-1 ml-2 mt-2 mb-0">
           {{ meta.credentialsPath }}
         </span>
-        <p class="note-caption mt-3 mb-0">
+        <p v-if="serverOAuthCredentials.length" class="note-caption mt-3 mb-0">
           {{ $tc("caption.split_credentials", 1) }}
           <a
             href="#"
@@ -195,14 +195,22 @@
         ></v-select>
       </v-col>
     </v-row>
+    <ShareOAuthDialog
+      v-if="serverOAuthCredentials.length"
+      :server-o-auth-credentials="serverOAuthCredentials"
+      @close="shareOauthDialog = false"
+      v-model="shareOauthDialog"
+    />
   </v-container>
 </template>
 
 <script>
-import { TEXT_TYPES, STATUSES } from "../../modules/constants";
+import { TEXT_TYPES, STATUSES } from "@/modules/constants";
+import ShareOAuthDialog from "@/components/dialogs/ShareOAuthDialog.vue";
+import { mapGetters } from "vuex";
 export default {
   name: "GeneralTab",
-  components: {},
+  components: { ShareOAuthDialog },
   props: {
     metadata: {
       type: Object,
@@ -228,6 +236,15 @@ export default {
     },
   },
   computed: {
+    ...mapGetters({
+      credentials: "auth/credentials",
+    }),
+    serverOAuthCredentials() {
+      let flattened = Object.values(this.credentials).flatMap((c) => c);
+      return flattened.filter(
+        (c) => c.type === "oauth" && c.clientId && c.clientSecret && c.url
+      );
+    },
     showColor() {
       return this.config.defaultColor ? this.config.defaultColor : "#000000";
     },
@@ -254,6 +271,7 @@ export default {
   },
   data() {
     return {
+      shareOauthDialog: false,
       meta: this.metadata,
       config: this.configItem,
       comment: {
@@ -289,10 +307,7 @@ export default {
       }
     },
     async showOAuthDialog() {
-      const credentials = await this.$storageService.getCredentials();
-      if (this.$isElectron) {
-        await this.$electronService.openShareOauthWindow(credentials);
-      }
+      this.shareOauthDialog = true;
     },
   },
 };
