@@ -932,6 +932,21 @@
         </v-btn>
       </v-col>
     </v-row>
+    <AddEvidenceDialog
+      v-if="evidenceData"
+      v-model="addEvidenceDialog"
+      :item-data="evidenceData"
+      @close="addEvidenceDialog = false"
+    />
+    <EditEvidenceDialog
+      v-if="itemToEdit"
+      v-model="editEvidenceDialog"
+      :item-data="itemToEdit"
+      @close="
+        editEvidenceDialog = false;
+        itemToEdit = null;
+      "
+    />
   </v-container>
 </template>
 
@@ -949,11 +964,15 @@ import { VEmojiPicker } from "v-emoji-picker";
 
 import dayjs from "dayjs";
 
-import { STATUSES, TEXT_TYPES } from "../modules/constants";
+import { STATUSES, TEXT_TYPES } from "@/modules/constants";
+import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
+import EditEvidenceDialog from "@/components/dialogs/EditEvidenceDialog.vue";
 
 export default {
   name: "TimelineWrapper",
   components: {
+    EditEvidenceDialog,
+    AddEvidenceDialog,
     VContainer,
     VRow,
     VCol,
@@ -998,6 +1017,7 @@ export default {
       itemLists: this.items,
       selected: [],
       activeSession: {},
+      itemToEdit: null,
       tags: "",
       eventName: this.eventType,
       textTypes: TEXT_TYPES,
@@ -1006,6 +1026,9 @@ export default {
       itemDragging: false,
       emojiMenu: {},
       selectedId: null,
+      addEvidenceDialog: false,
+      evidenceData: null,
+      editEvidenceDialog: false,
     };
   },
   computed: {
@@ -1038,6 +1061,7 @@ export default {
       return hours + ":" + minutes + ":" + seconds;
     },
     async uploadEvidence() {
+      console.log("upload evidence");
       // todo add relative handler for web app
       if (this.$isElectron) {
         const { status, message, item } =
@@ -1054,7 +1078,9 @@ export default {
             filePath: item.filePath,
             timer_mark: this.$store.state.timer,
           };
-          await this.openEditorModal(data);
+          // await this.openEditorModal(data);
+          this.evidenceData = data;
+          this.addEvidenceDialog = true;
         }
       }
     },
@@ -1080,6 +1106,7 @@ export default {
       if (this.clicks === 1) {
         setTimeout(
           function () {
+            console.log("trigger from here");
             switch (this.clicks) {
               case 1:
                 if (this.eventName === "click") {
@@ -1108,8 +1135,13 @@ export default {
       this.saveData();
     },
     async handleActiveSession(id) {
-      this.activeSession = await this.$storageService.getItemById(id);
-      this.$emit("submit-session", this.activeSession);
+      console.log("handleActiveSession", { id });
+      this.itemToEdit = await this.$storageService.getItemById(id);
+      console.log("item to edit", this.itemToEdit);
+      this.editEvidenceDialog = true;
+
+      // this.activeSession = await this.$storageService.getItemById(id);
+      // this.$emit("submit-session", this.activeSession);
     },
     async dragItem(event, item) {
       event.preventDefault();
@@ -1121,6 +1153,7 @@ export default {
       }
     },
     async dropFile(event) {
+      console.log("Drop file");
       event.preventDefault();
       event.stopPropagation();
       this.isDragging = false;

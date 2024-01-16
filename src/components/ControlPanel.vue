@@ -1117,15 +1117,10 @@ export default {
         this.changeSessionStatus(SESSION_STATUSES.START);
       }
 
-      // creating new session ID here
-      let sessionId = null;
-      if (this.$store.state.id) {
-        sessionId = this.$store.state.id;
-      } else {
-        sessionId = uuidv4();
-        this.$store.commit("setSessionId", sessionId);
+      const sessionId = await this.$storageService.getSessionId();
+
+      if (sessionId === "") {
         const data = {
-          id: sessionId,
           title: this.$store.state.title,
           charter: this.$store.state.charter,
           preconditions: this.$store.state.preconditions,
@@ -1183,7 +1178,7 @@ export default {
       if (this.$isElectron) {
         this.$electronService.setWindowSize({ width: 1440, height: 900 });
       }
-      this.$router.push({ path: "/result" }).catch(() => {});
+      await this.$router.push({ path: "/result" });
     },
     showSummaryDialog() {
       if (this.viewMode === "normal") {

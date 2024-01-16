@@ -25,7 +25,6 @@ export default {
         const currentPath = this.$router.history.current.path;
         if (state.path && currentPath !== state.path) {
           if (state.path.includes("result") && this.$isElectron) {
-            // todo replace with dialog as soon dialog will be implemented
             this.$electronService.setWindowSize({ width: 1440, height: 900 });
           }
           await this.$router.push({ path: state.path });

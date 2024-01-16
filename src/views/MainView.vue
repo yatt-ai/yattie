@@ -145,10 +145,13 @@ export default {
       showMenu: false,
     };
   },
+  created() {
+    this.fetchItems();
+  },
   mounted() {
     this.setInitialPreSession();
     this.setInitialPostSession();
-    this.fetchItems();
+    // this.fetchItems();
     this.$root.$on("update-selected", this.updateSelected);
     this.$root.$on("save-session", this.saveSession);
     this.$root.$on("new-session", () => {
@@ -214,6 +217,7 @@ export default {
       );
     },
     async fetchItems() {
+      console.log("fetchItems from Main View");
       this.items = await this.$storageService.getItems();
     },
     addItem(newItem) {

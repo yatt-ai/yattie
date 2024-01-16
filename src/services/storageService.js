@@ -64,6 +64,10 @@ export default class StorageService {
     return this.storage.createNewSession(data);
   }
 
+  async getSessionId() {
+    return this.storage.getSessionId();
+  }
+
   async saveSession(data) {
     return await this.storage.saveSession(data);
   }
