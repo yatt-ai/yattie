@@ -1,8 +1,8 @@
 <template>
   <v-container class="wrapper">
     <div class="header">
-      <div class="avatar" v-if="checkAuth">
-        <MenuPopover :credential-items="credentials" />
+      <div class="avatar" v-if="isAuthenticated">
+        <MenuPopover />
       </div>
     </div>
     <div class="content">
@@ -167,7 +167,8 @@ import { VContainer, VBtn } from "vuetify/lib/components";
 import LogoWrapper from "../components/LogoWrapper.vue";
 import MenuPopover from "../components/MenuPopover.vue";
 
-import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
+import { STATUSES } from "../modules/constants";
+import { mapGetters } from "vuex";
 export default {
   name: "HomeView",
   components: {
@@ -176,115 +177,61 @@ export default {
     LogoWrapper,
     MenuPopover,
   },
-  props: {
-    isAuthenticated: {
-      type: Boolean,
-      default: () => false,
-    },
-  },
-  watch: {
-    isAuthenticated: function (newValue) {
-      this.checkAuth = newValue;
-    },
-  },
   data() {
-    return {
-      config: {},
-      credentials: {},
-      checkAuth: this.isAuthenticated,
-      loggedInServices: {},
-      showMenu: false,
-    };
+    return {};
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+      credentials: "auth/credentials",
+      isAuthenticated: "auth/isAuthenticated",
+      loggedInServices: "auth/loggedInServices",
+    }),
     quickTestHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "home.quickTest",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("home.quickTest", this.hotkeys);
     },
     newExploratoryHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "home.newExploratorySession",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     openExploratoryHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "home.openExploratorySession",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
   },
-  created() {
-    this.getConfig();
-    this.getCredentials();
-  },
   mounted() {
-    if (!window.ipc) return;
-
-    window.ipc.on("CONFIG_CHANGE", () => {
-      this.getConfig();
-    });
-
-    window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredentials();
-    });
-
-    // New session
-    window.ipc.on("NEW_SESSION", () => {
-      this.newSession();
-    });
+    if (this.$isElectron) {
+      // handle electron menu -> New Session
+      this.$electronService.onNewSession(this.newSession);
+    }
   },
   methods: {
-    getConfig() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CONFIG })
-        .then((result) => {
-          this.config = result;
-        });
-    },
-    getCredentials() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
-        .then((result) => {
-          this.credentials = result;
-          for (const credentialType of Object.keys(this.credentials)) {
-            if (this.credentials[credentialType].length > 0) {
-              this.loggedInServices[credentialType] = true;
-            }
-          }
-        });
-    },
     async newSession() {
       if (this.$router.history.current.path === "/") {
-        this.$router.push("/main");
+        await this.$router.push("/main");
       }
     },
     async openSession() {
-      if (!window.ipc) return;
+      if (this.$isElectron) {
+        const { status, message, state } =
+          await this.$electronService.openSession();
 
-      const { status, message, state } = await window.ipc.invoke(
-        IPC_HANDLERS.FILE_SYSTEM,
-        {
-          func: IPC_FUNCTIONS.OPEN_SESSION,
+        if (status === STATUSES.ERROR) {
+          this.$root.$emit("set-snackbar", message);
+        } else {
+          this.$store.commit("restoreState", state);
+
+          const currentPath = this.$router.history.current.path;
+          if (currentPath !== state.path) {
+            await this.$router.push({ path: state.path });
+          }
         }
-      );
-
-      if (status === STATUSES.ERROR) {
-        this.$root.$emit("set-snackbar", message);
-        console.log(message);
       } else {
-        this.$store.commit("restoreState", state);
-
-        const currentPath = this.$router.history.current.path;
-        if (currentPath !== state.path) {
-          this.$router.push({ path: state.path });
-        }
+        // todo Add web version handler
       }
     },
     handleQuickTest() {

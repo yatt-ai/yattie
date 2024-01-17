@@ -3,9 +3,8 @@
     <v-sheet outlined rounded>
       <v-card :style="{ backgroundColor: currentTheme.background }">
         <CheckTaskWrapper
-          :tasks="tasks"
-          :showError="showTaskError"
-          type="postsession"
+          :tasks="$store.state.postSessionTasks"
+          @taskToggle="handleTaskCheck"
         />
         <div class="footer">
           <v-btn
@@ -34,6 +33,7 @@
 </template>
 <script>
 import CheckTaskWrapper from "../CheckTaskWrapper.vue";
+import { mapGetters } from "vuex";
 
 export default {
   name: "EndSessionDialog",
@@ -41,38 +41,23 @@ export default {
     CheckTaskWrapper,
   },
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
     postSessionData: {
       type: Object,
       default: () => {},
     },
   },
   data() {
-    return {
-      config: this.configItem,
-      showTaskError: false,
-    };
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
+    return {};
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+    }),
     confirmHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.save",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
     },
     cancelHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.cancel",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.cancel", this.hotkeys);
     },
     tasks() {
       return this.postSessionData ? this.postSessionData.tasks : [];
@@ -86,18 +71,17 @@ export default {
     },
   },
   methods: {
-    endSession: function () {
-      const uncheckedTasks = this.postSessionData.tasks.filter(
-        (task) => !task.checked && task.required
-      );
-
-      if (uncheckedTasks.length > 0) {
-        this.showTaskError = true;
-        return;
+    handleTaskCheck(taskId, checked) {
+      this.$store.commit("togglePostSessionTask", {
+        taskId,
+        checked: !!checked,
+      });
+    },
+    endSession: async function () {
+      await this.$root.$emit("end-session");
+      if (this.$store.getters.requiredPostSessionTasksChecked) {
+        this.$emit("proceed", true);
       }
-
-      this.showTaskError = false;
-      this.$emit("proceed", true);
     },
     handleCancel: function () {
       this.$emit("proceed", false);

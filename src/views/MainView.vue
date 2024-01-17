@@ -38,8 +38,8 @@
         </v-tabs>
       </div>
       <div class="avatar">
-        <div v-if="checkAuth">
-          <MenuPopover :credential-items="credentials" />
+        <div v-if="isAuthenticated">
+          <MenuPopover />
         </div>
         <div v-else>
           <v-menu :nudge-width="100" bottom z-index="99999" offset-y>
@@ -72,12 +72,11 @@
     <div class="content">
       <v-tabs-items v-model="activeTab">
         <v-tab-item value="/main" :transition="false">
-          <TestWrapper :config-item="config" :credential-items="credentials" />
+          <TestWrapper />
           <CheckTaskWrapper
             v-if="showCheckList"
-            :config-item="config"
-            :tasks="presession.tasks"
-            type="preseesion"
+            :tasks="$store.state.preSessionTasks"
+            @taskToggle="handleTaskCheck"
           />
         </v-tab-item>
         <v-tab-item value="/main/workspace" :transition="false">
@@ -94,10 +93,8 @@
       <ControlPanel
         :items="items"
         @add-item="addItem"
-        :config-item="config"
-        :credential-items="credentials"
         :selectedItems="selected"
-        :checkedStatusOfPreSessionTask="checkedStatusOfPreSessionTask"
+        :preSessionRequirementsMet="presessionValid"
         view-mode="normal"
       />
       <TimeCounter v-if="$store.state.status !== 'pending'" />
@@ -120,11 +117,8 @@ import TimeCounter from "../components/TimeCounter.vue";
 import CheckTaskWrapper from "@/components/CheckTaskWrapper.vue";
 import MenuPopover from "@/components/MenuPopover.vue";
 
-import {
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
-  SESSION_STATUSES,
-} from "../modules/constants";
+import { SESSION_STATUSES } from "../modules/constants";
+import { mapGetters } from "vuex";
 
 export default {
   name: "MainView",
@@ -141,77 +135,53 @@ export default {
     CheckTaskWrapper,
     MenuPopover,
   },
-  props: {
-    isAuthenticated: {
-      type: Boolean,
-      default: () => false,
-    },
-  },
-  watch: {
-    isAuthenticated: function (newValue) {
-      this.checkAuth = newValue;
-    },
-    presession: {
-      handler: function () {
-        this.checkStatusOfPreSessionTask();
-      },
-      deep: true,
-    },
-  },
   data() {
     return {
       activeTab: "/main",
       items: [],
       selected: [],
       activeSession: {},
-      config: {},
-      credentials: {},
-      checkAuth: this.isAuthenticated,
-      presession: {},
-      postsession: {},
-      checkedStatusOfPreSessionTask: false,
       showTaskError: false,
       showMenu: false,
     };
   },
   created() {
     this.fetchItems();
-    this.getConfig();
-    this.getCredentials();
   },
   mounted() {
+    this.setInitialPreSession();
+    this.setInitialPostSession();
+    // this.fetchItems();
     this.$root.$on("update-selected", this.updateSelected);
     this.$root.$on("save-session", this.saveSession);
     this.$root.$on("new-session", () => {
-      this.presession.tasks = this.presession.tasks.map((item) => {
-        let temp = Object.assign({}, item);
-        temp.checked = false;
-        return temp;
-      });
+      this.setInitialPreSession();
+      this.setInitialPostSession();
     });
-    if (!window.ipc) return;
 
-    window.ipc.on("DATA_CHANGE", () => {
-      this.fetchItems();
-    });
-    window.ipc.on("CONFIG_CHANGE", () => {
-      this.getConfig();
-    });
-    window.ipc.on("CREDENTIAL_CHANGE", () => {
-      this.getCredentials();
-    });
-    window.ipc.on("META_CHANGE", () => {
-      this.fetchItems();
-      this.getConfig();
-      this.getCredentials();
-    });
+    if (this.$isElectron) {
+      this.$electronService.onDataChange(this.fetchItems);
+      this.$electronService.onMetaChange(this.fetchItems);
+    }
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+      checklistPresessionStatus: "config/checklistPresessionStatus",
+      checklistPresessionTasks: "config/checklistPresessionTasks",
+      checklistPostsessionTasks: "config/checklistPostsessionTasks",
+      isAuthenticated: "auth/isAuthenticated",
+      credentials: "auth/credentials",
+    }),
+    presessionValid() {
+      if (!this.checklistPresessionStatus) {
+        return true;
+      } else {
+        return this.$store.getters.requiredPreSessionTasksChecked;
+      }
+    },
     backHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "workspace.back",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("workspace.back", this.hotkeys);
     },
     status() {
       return this.$store.state.status;
@@ -219,91 +189,43 @@ export default {
     showCheckList() {
       return (
         this.$store.state.status === SESSION_STATUSES.PENDING &&
-        this.presession.status
+        this.checklistPresessionStatus
       );
     },
   },
   methods: {
-    navigate(link) {
-      if (this.$route.path === link || this.status === SESSION_STATUSES.PENDING)
-        return;
-
-      this.$router.push({ path: link });
+    handleTaskCheck(taskId, checked) {
+      this.$store.commit("togglePreSessionTask", {
+        taskId,
+        checked: !!checked,
+      });
     },
-    checkStatusOfPreSessionTask() {
-      if (!this.presession.status) {
-        this.checkedStatusOfPreSessionTask = true;
-        return;
-      }
-
-      const uncheckedTasks = this.presession.tasks.filter(
-        (task) => !task.checked && task.required
+    setInitialPreSession() {
+      this.$store.commit(
+        "setPreSessionTasks",
+        this.checklistPresessionTasks.map((task) => {
+          return { ...task, checked: false };
+        })
       );
-      this.checkedStatusOfPreSessionTask = uncheckedTasks.length === 0;
     },
-    getConfig() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CONFIG })
-        .then((result) => {
-          this.config = result;
-          this.presession = {
-            status: this.config.checklist.presession.status,
-            tasks: this.config.checklist.presession.tasks.map((task) => {
-              return { ...task, checked: false };
-            }),
-          };
-
-          this.checkStatusOfPreSessionTask();
-
-          this.postsession = {
-            status: this.config.checklist.postsession.status,
-            tasks: this.config.checklist.postsession.tasks.map((task) => {
-              return { ...task, checked: false };
-            }),
-          };
-        });
+    setInitialPostSession() {
+      this.$store.commit(
+        "setPostSessionTasks",
+        this.checklistPostsessionTasks.map((task) => {
+          return { ...task, checked: false };
+        })
+      );
     },
-    getCredentials() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
-        .then((result) => {
-          this.credentials = result;
-        });
-    },
-    fetchItems() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_ITEMS })
-        .then((result) => {
-          this.items = result;
-        });
+    async fetchItems() {
+      console.log("fetchItems from Main View");
+      this.items = await this.$storageService.getItems();
     },
     addItem(newItem) {
       this.items.push(newItem);
       this.saveSession(this.items);
     },
-    updateItems() {
-      this.items = this.items.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.id === this.activeItem.id) {
-          temp = this.activeItem;
-        }
-        return temp;
-      });
-      this.saveSession(this.items);
-    },
     saveSession(items) {
-      if (!window.ipc) return;
-
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_ITEMS,
-        data: items,
-      });
+      this.$storageService.updateItems(items);
     },
     updateSelected(value) {
       this.selected = value;
@@ -311,13 +233,12 @@ export default {
     updateActiveSession(value) {
       this.activeSession = value;
       this.openEditWindow(this.activeSession);
-      // this.updateItems();
     },
     openEditWindow(data) {
-      window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.OPEN_EDIT_WINDOW,
-        data: data,
-      });
+      // todo we want to replace electron window with the vuetify dialog instead to make it work for both electron & web
+      if (this.$isElectron) {
+        this.$electronService.openEditWindow(data);
+      }
     },
     back() {
       this.$store.commit("resetState");

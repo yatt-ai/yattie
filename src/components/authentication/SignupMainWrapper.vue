@@ -122,7 +122,6 @@
 
 <script>
 import axios from "axios";
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../../modules/constants";
 import dayjs from "dayjs";
 
 export default {
@@ -167,9 +166,9 @@ export default {
   },
   computed: {},
   mounted() {
-    window.ipc.on("JIRA_LOGIN", (data) => {
-      this.jiraLogin(data);
-    });
+    if (this.$isElectron) {
+      this.$electronService.onJiraLogin(this.jiraLogin);
+    }
   },
   methods: {
     async callJiraAPI() {
@@ -231,10 +230,7 @@ export default {
               this.credentials[0].type = "jira";
               this.credentials[0].data = jiraData;
 
-              window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-                func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
-                data: this.credentials,
-              });
+              this.$storageService.updateCredentials(this.credentials);
 
               setTimeout(() => {
                 this.loading = false;

@@ -40,8 +40,8 @@ ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
       return captureUtility.updateAudio(args.data);
     case IPC_FUNCTIONS.DROP_FILE:
       return captureUtility.dropFile(args.data);
-    case IPC_FUNCTIONS.SET_APPERANCE:
-      return captureUtility.setApperance(args.data);
+    case IPC_FUNCTIONS.SET_APPEARANCE:
+      return captureUtility.setAppearance(args.data);
     default:
       return null;
   }

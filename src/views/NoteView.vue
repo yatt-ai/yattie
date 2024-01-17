@@ -12,8 +12,6 @@
   </v-container>
 </template>
 <script>
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
-
 export default {
   name: "NoteView",
   components: {},
@@ -23,26 +21,15 @@ export default {
     };
   },
   mounted() {
-    if (!window.ipc) return;
-
-    window.ipc.on("DATA_CHANGE", () => {
-      this.fetchNotes();
-    });
-
+    if (this.$isElectron) {
+      this.$electronService.onDataChange(this.fetchNotes);
+    }
     this.fetchNotes();
   },
   computed: {},
   methods: {
     async fetchNotes() {
-      if (!window.ipc) return;
-
-      await window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_NOTES,
-        })
-        .then((notes) => {
-          this.notes = notes;
-        });
+      return await this.$storageService.getNotes();
     },
   },
 };

@@ -328,14 +328,15 @@ module.exports.deleteFile = ({ filePath }) => {
   }
 };
 
-module.exports.saveNote = (comment) => {
+module.exports.saveNote = (comment, fileNameToSave = "") => {
   const { id, fileName } = generateIDAndName("text");
   const filePath = path.join(
     configDir,
     "sessions",
     databaseUtility.getSessionID(),
-    fileName
+    fileNameToSave ? fileNameToSave : fileName
   );
+
   fs.writeFile(filePath, comment.text, function (err) {
     if (err) {
       console.log(err);
@@ -349,7 +350,7 @@ module.exports.saveNote = (comment) => {
     status: STATUSES.SUCCESS,
     item: {
       id,
-      fileName,
+      fileName: fileNameToSave ? fileNameToSave : fileName,
       filePath,
     },
   };
@@ -369,6 +370,7 @@ module.exports.uploadEvidence = async () => {
 
   // TODO - Handle multiple files uploaded
   const id = uuidv4();
+  console.log({ id });
   const fileName = path.basename(filePaths[0]);
   const filePath = path.join(
     configDir,
@@ -466,9 +468,9 @@ module.exports.dropFile = async (data) => {
   });
 };
 
-module.exports.setApperance = ({ apperance }) => {
+module.exports.setAppearance = ({ appearance }) => {
   const browserWindow = browserUtility.getBrowserWindow();
-  browserWindow.webContents.send("SET_THEME", { apperance });
+  browserWindow.webContents.send("SET_THEME", { appearance });
 };
 
 const generateIDAndName = (type, uid = undefined) => {

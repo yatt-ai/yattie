@@ -5,7 +5,7 @@
       {{ $t("message.speed_hotkey") }}
     </p>
 
-    <v-row>
+    <v-row v-if="configToChange">
       <v-col cols="12" class="pa-4">
         <div class="mb-3 session-type">
           <p class="subtitle-1 mb-1" :style="{ color: currentTheme.secondary }">
@@ -52,25 +52,18 @@
 import { HOTKEY_PAGES } from "../../modules/constants";
 
 import KeyCaptureDialog from "../dialogs/KeyCaptureDialog.vue";
+import { mapGetters } from "vuex";
 
 export default {
   name: "HotkeyTab",
   components: {
     KeyCaptureDialog,
   },
-  props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-      this.hotkeys = newValue.hotkeys;
-    },
-  },
+  props: {},
   computed: {
+    ...mapGetters({
+      config: "config/fullConfig",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -81,8 +74,8 @@ export default {
   },
   data() {
     return {
-      config: this.configItem,
-      hotkeys: this.configItem.hotkeys,
+      configToChange: null,
+      hotkeys: null,
       chosenPage: "",
       hotkeyPages: HOTKEY_PAGES,
       keyCaptureDialog: false,
@@ -99,8 +92,10 @@ export default {
     });
   },
   mounted() {
+    this.configToChange = structuredClone(this.config);
+    this.hotkeys = this.configToChange.hotkeys;
     if (this.chosenPage === "") {
-      this.chosenPage = Object.keys(this.configItem.hotkeys)[0];
+      this.chosenPage = Object.keys(this.configToChange.hotkeys)[0];
     }
   },
   methods: {
@@ -108,16 +103,15 @@ export default {
       if (!key || !bindings) return;
       // Accept key and binding, then update and save
       this.hotkeys[this.chosenPage][key] = bindings;
-      this.config.hotkeys = this.hotkeys;
+      this.configToChange.hotkeys = this.hotkeys;
 
-      this.$emit("submit-config", this.config);
+      this.$emit("submit-config", this.configToChange);
 
       this.keyCaptureDialog = false;
       this.selectedKey = "";
       this.selectedBindings = [];
     },
     showKeyCaptureDialog(key, bindings) {
-      if (!window.ipc) return;
       this.selectedKey = key;
       this.selectedBindings = bindings;
       this.keyCaptureDialog = true;

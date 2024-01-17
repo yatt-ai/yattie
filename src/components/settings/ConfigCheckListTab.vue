@@ -1,5 +1,5 @@
 <template>
-  <v-container class="wrapper">
+  <v-container v-if="configToChange" class="wrapper">
     <div class="title">{{ $tc("caption.session_checklist", 1) }}</div>
     <p class="mt-2 mb-4">
       {{ $t("message.use_pre_post_test_checklist") }}
@@ -132,19 +132,13 @@
   </v-container>
 </template>
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   name: "ConfigCheckListTab",
   components: {},
-  props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-  },
+  props: {},
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
     preTaskList: {
       handler: function () {
         this.updateData("presession", {
@@ -169,7 +163,7 @@ export default {
   },
   data() {
     return {
-      config: this.configItem,
+      configToChange: null,
       preTaskList: [],
       postTaskList: [],
       presessionStatus: false,
@@ -178,6 +172,9 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      config: "config/fullConfig",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -185,6 +182,9 @@ export default {
         return this.$vuetify.theme.themes.light;
       }
     },
+  },
+  mounted() {
+    this.configToChange = structuredClone(this.config);
   },
   methods: {
     fetchData: function () {
@@ -263,17 +263,15 @@ export default {
       }
     },
     updateData: function (key, data) {
-      if (!window.ipc) return;
-
-      const config = {
-        ...this.config,
+      this.configToChange = {
+        ...this.configToChange,
         checklist: {
-          ...this.config.checklist,
+          ...this.configToChange.checklist,
           [key]: data,
         },
       };
 
-      this.$emit("submit-config", config);
+      this.$emit("submit-config", this.configToChange);
     },
     handleStatus: function () {
       if (this.tab === "pre") {

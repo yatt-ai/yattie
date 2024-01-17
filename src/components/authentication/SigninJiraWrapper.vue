@@ -233,7 +233,6 @@ import axios from "axios";
 import dayjs from "dayjs";
 import uuidv4 from "uuid";
 import { Buffer } from "buffer";
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../../modules/constants";
 import yattIntegrationHelper from "../../integrations/YattIntegrationHelpers";
 import integrationHelper from "../../integrations/IntegrationHelpers";
 import jiraIntegrationHelper from "../../integrations/JiraIntegrationHelpers";
@@ -322,9 +321,9 @@ export default {
     };
   },
   mounted() {
-    window.ipc.on("JIRA_LOGIN", (data) => {
-      this.postLogin(data);
-    });
+    if (this.$isElectron) {
+      this.$electronService.onJiraLogin(this.postLogin);
+    }
   },
   computed: {
     currentTheme() {
@@ -336,24 +335,23 @@ export default {
     },
   },
   methods: {
-    back() {
+    async back() {
       if (this.connectWithServerOAuth) {
-        window.ipc.invoke(IPC_HANDLERS.SERVER, {
-          func: IPC_FUNCTIONS.STOP_SERVER,
-        });
+        if (this.$isElectron) {
+          await this.$electronService.stopServer();
+        }
       }
 
       if (this.previousRoute.path.includes("setting")) {
-        this.$router.push({ path: this.previousRoute.path });
+        await this.$router.push({ path: this.previousRoute.path });
       } else {
         this.$router.back();
       }
     },
     openExternalLink(url) {
-      window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-        func: IPC_FUNCTIONS.OPEN_EXTERNAL_LINK,
-        data: url,
-      });
+      if (this.$isElectron) {
+        this.$electronService.openExternalLink(url);
+      }
     },
     useServerOAuth() {
       this.connectWithCloudOAuth = false;
@@ -375,18 +373,17 @@ export default {
           await integrationHelper.generateCodeChallengeFromVerifier(
             codeVerifier
           );
-        await window.ipc
-          .invoke(IPC_HANDLERS.SERVER, {
-            func: IPC_FUNCTIONS.START_SERVER,
-            data: {
+
+        if (this.$isElectron) {
+          try {
+            await this.$electronService.startServer({
               clientId: this.clientId,
               clientSecret: this.clientSecret,
               url: this.instanceUrl,
               codeVerifier: codeVerifier,
               codeChallenge: codeChallenge,
-            },
-          })
-          .then(async () => {
+            });
+
             this.loading = true;
             this.$root.$emit("overlay", true);
 
@@ -395,10 +392,9 @@ export default {
             await axios
               .get(url)
               .then(async (response) => {
-                await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-                  func: IPC_FUNCTIONS.OPEN_EXTERNAL_LINK,
-                  data: response.data,
-                });
+                if (this.$isElectron) {
+                  await this.$electronService.openExternalLink(response.data);
+                }
                 this.loading = false;
                 this.$root.$emit("overlay", false);
                 if (response.status !== 200) {
@@ -416,11 +412,11 @@ export default {
                   ? error.message
                   : this.$tc("message.api_error", 1);
               });
-          })
-          .catch((error) => {
+          } catch (error) {
             this.snackBar.enabled = true;
             this.snackBar.message = error ? error : "Failed start server";
-          });
+          }
+        }
       }
     },
     async signInWithCloud() {
@@ -437,10 +433,9 @@ export default {
         const url = encodeURI(
           `https://auth.atlassian.com/authorize?audience=api.atlassian.com&prompt=consent&client_id=${clientId}&scope=${scopes}&state=${serverURL};${tokenId}&response_type=code&redirect_uri=${redirectURL}`
         );
-        await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-          func: IPC_FUNCTIONS.OPEN_EXTERNAL_LINK,
-          data: url,
-        });
+        if (this.$isElectron) {
+          await this.$electronService.openExternalLink(url);
+        }
 
         const wait = function (period) {
           return new Promise((resolve) => {
@@ -499,17 +494,14 @@ export default {
             } else {
               tempCredentials.yatt[0].oauthTokenIds = [tokenId];
             }
-            await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-              func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
-              data: tempCredentials,
-            });
+            await this.$storageService.updateCredentials(tempCredentials);
           }
-          this.postLogin(finalResponse.data);
+          await this.postLogin(finalResponse.data);
         }
       }
     },
     async signInWithApiKey() {
-      this.postLogin({
+      await this.postLogin({
         jira: {
           type: "basic",
           accessToken: Buffer.from(this.userName + ":" + this.apiKey).toString(
@@ -582,9 +574,9 @@ export default {
                         this.$root.$emit("overlay", false);
 
                         if (this.connectWithServerOAuth) {
-                          window.ipc.invoke(IPC_HANDLERS.SERVER, {
-                            func: IPC_FUNCTIONS.STOP_SERVER,
-                          });
+                          if (this.$isElectron) {
+                            this.$electronService.stopServer();
+                          }
                         }
 
                         this.$router.push({ path: this.previousRoute.path });

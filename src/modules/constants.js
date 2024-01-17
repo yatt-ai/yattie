@@ -36,7 +36,7 @@ export const IPC_FUNCTIONS = {
   OPEN_MODAL_WINDOW: "openModalWindow",
   CLOSE_MODAL_WINDOW: "closeModalWindow",
   SET_WINDOW_SIZE: "setWindowSize",
-  SET_APPERANCE: "setApperance",
+  SET_APPEARANCE: "setAppearance",
   OPEN_NOTES_WINDOW: "openNotesWindow",
   CLOSE_NOTES_WINDOW: "closeNotesWindow",
   MOVE_WINDOW: "moveWindow",

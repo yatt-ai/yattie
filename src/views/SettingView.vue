@@ -43,7 +43,6 @@
 </template>
 
 <script>
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 export default {
   name: "SettingView",
   components: {},
@@ -114,63 +113,32 @@ export default {
   },
   methods: {
     async getMetadata() {
-      if (!window.ipc) return;
-
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_METADATA,
-        })
-        .then((result) => {
-          this.metadata = result;
-        });
+      this.metadata = await this.$storageService.getMetaData();
     },
     async getConfig() {
-      if (!window.ipc) return;
-
-      await window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_CONFIG,
-        })
-        .then((result) => {
-          this.config = result;
-        });
+      const config = await this.$storageService.getConfig();
+      this.$store.commit("config/setFullConfig", config);
     },
     updateConfig(value) {
       this.config = value;
-      if (!window.ipc) return;
+      this.$storageService.updateConfig(this.config);
 
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_CONFIG,
-        data: this.config,
-      });
-
-      const isDarkMode = this.config.apperance === "dark" ? true : false;
+      const isDarkMode = this.config.apperance === "dark";
       this.$vuetify.theme.dark = isDarkMode;
-      localStorage.setItem("isDarkMode", isDarkMode);
-      window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-        func: IPC_FUNCTIONS.SET_APPERANCE,
-        data: { apperance: this.config.apperance },
-      });
+      localStorage.setItem("isDarkMode", isDarkMode.toString());
+
+      if (this.$isElectron) {
+        this.$electronService.setAppearance(this.config.apperance);
+      }
     },
     async getCredentials() {
-      if (!window.ipc) return;
-
-      await window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_CREDENTIALS,
-        })
-        .then((result) => {
-          this.credentials = result;
-        });
+      const credentials = await this.$storageService.getCredentials();
+      this.$store.commit("auth/setCredentials", credentials);
     },
     updateCredentials(value) {
       this.credentials = value;
-      if (!window.ipc) return;
-
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
-        data: this.credentials,
-      });
+      this.$store.commit("auth/setCredentials", this.credentials);
+      this.$storageService.updateCredentials(this.credentials);
     },
   },
 };

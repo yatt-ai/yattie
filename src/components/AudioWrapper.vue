@@ -107,7 +107,8 @@
 
 <script>
 import WaveSurfer from "wavesurfer.js";
-import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
+import { STATUSES } from "@/modules/constants";
+
 export default {
   name: "AudioWrapper",
   props: {
@@ -198,8 +199,7 @@ export default {
       // return this.wavesurfer.getCurrentTime();
       const duration = parseFloat(this.wavesurfer.getDuration());
       const current = parseFloat(this.wavesurfer.getCurrentTime());
-      const result = Math.round((current / duration) * 100);
-      this.currentProgress = result;
+      this.currentProgress = Math.round((current / duration) * 100);
     },
     syncSlideWithAudio() {
       this.wavesurfer.seekTo(this.currentProgress / 100);
@@ -214,35 +214,35 @@ export default {
       this.wavesurfer.setVolume(volume);
     },
     async handleAudio() {
-      const uri = this.wavesurfer.exportImage("image/png", 1, "dataURL");
+      if (this.$isElectron) {
+        // todo add web handler
+        const uri = this.wavesurfer.exportImage("image/png", 1, "dataURL");
 
-      let posterResult = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-        func: IPC_FUNCTIONS.CREATE_IMAGE,
-        data: { url: uri, isPoster: true },
-      });
-      if (posterResult.status === STATUSES.ERROR) {
-        this.$root.$emit("set-snackbar", posterResult.message);
-        console.log(
-          "Unable to generate waveform image: " + posterResult.message
+        let posterResult = await this.$electronService.createImage(uri, true);
+
+        if (posterResult.status === STATUSES.ERROR) {
+          this.$root.$emit("set-snackbar", posterResult.message);
+          console.log(
+            "Unable to generate waveform image: " + posterResult.message
+          );
+        }
+
+        let audioResult = await this.$electronService.updateAudio(
+          this.sessionItem
         );
-      }
 
-      let audioResult = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-        func: IPC_FUNCTIONS.UPDATE_AUDIO,
-        data: { item: this.sessionItem },
-      });
-
-      if (audioResult.status === STATUSES.ERROR) {
-        this.$root.$emit("set-snackbar", audioResult.message);
-        console.log("Unable to update audio file: " + audioResult.message);
+        if (audioResult.status === STATUSES.ERROR) {
+          this.$root.$emit("set-snackbar", audioResult.message);
+          console.log("Unable to update audio file: " + audioResult.message);
+        }
+        this.sessionItem = {
+          ...this.sessionItem,
+          poster: posterResult.item.filePath,
+          ...audioResult.item,
+        };
+        this.$root.$emit("update-session", this.sessionItem);
+        this.$root.$emit("save-data", this.sessionItem);
       }
-      this.sessionItem = {
-        ...this.sessionItem,
-        poster: posterResult.item.filePath,
-        ...audioResult.item,
-      };
-      this.$root.$emit("update-session", this.sessionItem);
-      this.$root.$emit("save-data", this.sessionItem);
     },
   },
 };

@@ -1,6 +1,6 @@
 <template>
   <v-container class="content-wrapper">
-    <v-row>
+    <v-row v-if="configToChange">
       <v-col cols="12" class="border-bottom pa-4 screen-recording-section">
         <p class="body-1" :style="{ color: currentTheme.default }">
           {{ $tc("caption.ai_assist", 1) }}
@@ -13,7 +13,7 @@
           </div>
           <div class="flex-grow-0">
             <v-switch
-              v-model="config.ai.enabled"
+              :value="config.ai.enabled"
               inset
               hide-details
               dense
@@ -73,17 +73,14 @@
 <script>
 import dayjs from "dayjs";
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
-import { DEFAULT_OPENAI_CONFIGS } from "../../modules/constants";
+import { DEFAULT_OPENAI_CONFIGS } from "@/modules/constants";
+import { mapGetters } from "vuex";
 
 export default {
   name: "AddonsTab",
   components: {},
   props: {
     metadata: {
-      type: Object,
-      default: () => {},
-    },
-    configItem: {
       type: Object,
       default: () => {},
     },
@@ -96,14 +93,14 @@ export default {
     metadata: function (newValue) {
       this.meta = newValue;
     },
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
     credentialItems: function (newValue) {
       this.credentials = newValue;
     },
   },
   computed: {
+    ...mapGetters({
+      config: "config/fullConfig",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -115,7 +112,7 @@ export default {
   data() {
     return {
       meta: this.metadata,
-      config: this.configItem,
+      configToChange: null,
       credentials: this.credentialItems,
       rules: {
         noAsterisk: (value) =>
@@ -127,14 +124,17 @@ export default {
       customErrors: [],
     };
   },
+  mounted() {
+    this.configToChange = structuredClone(this.config);
+  },
   methods: {
     handleConfig() {
-      if (this.config.ai.enabled) {
-        this.config.ai.openai = DEFAULT_OPENAI_CONFIGS;
+      if (this.configToChange.ai.enabled) {
+        this.configToChange.ai.openai = DEFAULT_OPENAI_CONFIGS;
       } else {
-        this.config.ai.openai = {};
+        this.configToChange.ai.openai = {};
       }
-      this.$emit("submit-config", this.config);
+      this.$emit("submit-config", this.configToChange);
     },
     async handleOpenAIKey() {
       let validates = this.$refs.openAIKey.validate();

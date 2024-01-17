@@ -61,7 +61,6 @@ module.exports.exportItems = async (ids) => {
 };
 
 module.exports.createNewSession = async (state) => {
-  state.id = uuidv4();
   const dataFolder = path.join(configDir, "sessions", state.id);
   if (!fs.existsSync(dataFolder)) {
     fs.mkdirSync(dataFolder, { recursive: true });
@@ -150,6 +149,7 @@ module.exports.saveSession = async (data) => {
 };
 
 module.exports.openSession = async () => {
+  console.log("openSession");
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openFile"],
     filters: [{ name: "Test File", extensions: ["test"] }],
@@ -173,7 +173,7 @@ module.exports.openSession = async () => {
     const encoded = fs.readFileSync(metaPath, "utf8");
     const state = JSON.parse(Buffer.from(encoded, "hex").toString());
 
-    const id = state.id || uuidv4();
+    const id = state.id;
     const dataFolder = path.join(configDir, "sessions", id);
     if (fs.existsSync(dataFolder)) {
       fs.rmdirSync(dataFolder);
@@ -202,19 +202,17 @@ module.exports.openSession = async () => {
 };
 
 module.exports.exportSession = async (params) => {
-  debugger;
   const timestamp = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms");
-  const id = databaseUtility.getSessionID();
+  const id = params.id;
   const notesFileName = "yattie-session-" + timestamp + "-notes.txt";
   const notes = databaseUtility.getNotes();
   let notesFilePath = "";
-  if (notes.text !== "") {
-    notesFilePath = captureUtility.saveNote({
-      fileName: notesFileName,
-      comment: notes,
-    });
-  }
 
+  if (notes.text) {
+    const notesItem = captureUtility.saveNote(notes, notesFileName)
+    notesFilePath = notesItem.item.filePath;
+    console.log(notesFilePath);
+  }
   // show save dialog
   const fileName = "yattie-session-" + timestamp + ".zip";
   const { filePath } = await dialog.showSaveDialog({
@@ -316,6 +314,7 @@ module.exports.exportSession = async (params) => {
 };
 
 module.exports.openConfigFile = async () => {
+  console.log("openConfigFile");
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openFile"],
     filters: [{ name: "Config File", extensions: ["json"] }],
@@ -353,6 +352,7 @@ module.exports.openConfigFile = async () => {
 };
 
 module.exports.openCredentialsFile = async () => {
+  console.log("openCredentialsFile");
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openFile"],
     filters: [{ name: "Credentials File", extensions: ["json"] }],

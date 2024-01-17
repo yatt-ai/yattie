@@ -253,7 +253,7 @@ export default {
       config: this.configItem,
       comment: {
         type:
-          this.conifgItem &&
+          this.configItem &&
           this.configItem.commentType &&
           this.configItem.commentType !== ""
             ? this.configItem.commentType
@@ -263,7 +263,7 @@ export default {
       },
       previousComment: {
         type:
-          this.conifgItem &&
+          this.configItem &&
           this.configItem.commentType &&
           this.configItem.commentType !== ""
             ? this.configItem.commentType

@@ -12,9 +12,10 @@
       @shortkey="$hotkeyHelpers.focusField($refs, 'form')"
     >
       <v-form ref="form" v-model="valid" lazy-validation>
-        <div class="" v-for="task in tasks" :key="task.id">
+        <div v-for="task in tasks" :key="task.id">
           <v-checkbox
-            v-model="task.checked"
+            :value="task.checked"
+            @change="(val) => $emit('taskToggle', task.id, val)"
             :rules="rules(task.required)"
             :label="`${task.content}`"
             dense
@@ -34,38 +35,37 @@
   </div>
 </template>
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   name: "CheckTaskWrapper",
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
     tasks: {
       type: Array,
       default: () => [],
-    },
-    type: {
-      type: String,
-      defaut: () => "pressession",
     },
   },
   data() {
     return {
       valid: true,
-      config: this.configItem,
     };
   },
   mounted() {
     this.$root.$on("start-new-session", () => {
       this.handleValidate();
     });
+    this.$root.$on("end-session", () => {
+      this.handleValidate();
+    });
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+    }),
     checklistHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "sessionPlanning.checklist",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     currentTheme() {
@@ -74,11 +74,6 @@ export default {
       } else {
         return this.$vuetify.theme.themes.light;
       }
-    },
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
     },
   },
   methods: {

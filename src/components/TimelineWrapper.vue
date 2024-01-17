@@ -932,6 +932,21 @@
         </v-btn>
       </v-col>
     </v-row>
+    <AddEvidenceDialog
+      v-if="evidenceData"
+      v-model="addEvidenceDialog"
+      :item-data="evidenceData"
+      @close="addEvidenceDialog = false"
+    />
+    <EditEvidenceDialog
+      v-if="itemToEdit"
+      v-model="editEvidenceDialog"
+      :item-data="itemToEdit"
+      @close="
+        editEvidenceDialog = false;
+        itemToEdit = null;
+      "
+    />
   </v-container>
 </template>
 
@@ -949,16 +964,15 @@ import { VEmojiPicker } from "v-emoji-picker";
 
 import dayjs from "dayjs";
 
-import {
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
-  STATUSES,
-  TEXT_TYPES,
-} from "../modules/constants";
+import { STATUSES, TEXT_TYPES } from "@/modules/constants";
+import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
+import EditEvidenceDialog from "@/components/dialogs/EditEvidenceDialog.vue";
 
 export default {
   name: "TimelineWrapper",
   components: {
+    EditEvidenceDialog,
+    AddEvidenceDialog,
     VContainer,
     VRow,
     VCol,
@@ -1003,6 +1017,7 @@ export default {
       itemLists: this.items,
       selected: [],
       activeSession: {},
+      itemToEdit: null,
       tags: "",
       eventName: this.eventType,
       textTypes: TEXT_TYPES,
@@ -1011,6 +1026,9 @@ export default {
       itemDragging: false,
       emojiMenu: {},
       selectedId: null,
+      addEvidenceDialog: false,
+      evidenceData: null,
+      editEvidenceDialog: false,
     };
   },
   computed: {
@@ -1043,43 +1061,37 @@ export default {
       return hours + ":" + minutes + ":" + seconds;
     },
     async uploadEvidence() {
-      if (!window.ipc) return;
+      console.log("upload evidence");
+      // todo add relative handler for web app
+      if (this.$isElectron) {
+        const { status, message, item } =
+          await this.$electronService.uploadEvidence();
 
-      const { status, message, item } = await window.ipc.invoke(
-        IPC_HANDLERS.CAPTURE,
-        {
-          func: IPC_FUNCTIONS.UPLOAD_EVIDENCE,
+        if (status === STATUSES.ERROR) {
+          this.$root.$emit("set-snackbar", message);
+        } else {
+          const data = {
+            sessionType: "File",
+            id: item.id,
+            fileType: item.fileType,
+            fileName: item.fileName,
+            filePath: item.filePath,
+            timer_mark: this.$store.state.timer,
+          };
+          // await this.openEditorModal(data);
+          this.evidenceData = data;
+          this.addEvidenceDialog = true;
         }
-      );
-
-      if (status === STATUSES.ERROR) {
-        this.$root.$emit("set-snackbar", message);
-        console.log(message);
-      } else {
-        const data = {
-          sessionType: "File",
-          id: item.id,
-          fileType: item.fileType,
-          fileName: item.fileName,
-          filePath: item.filePath,
-          timer_mark: this.$store.state.timer,
-        };
-        this.openEditorModal(data);
       }
     },
     async openEditorModal(data) {
-      if (!window.ipc) return;
-
-      await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.OPEN_ADD_WINDOW,
-        data: { width: 700, height: 800, data: data },
-      });
+      if (this.$isElectron) {
+        // todo replace with vuetify dialog
+        await this.$electronService.openAddWindow(data);
+      }
     },
     checkedItem(id) {
-      if (this.selected.includes(id)) {
-        return true;
-      }
-      return false;
+      return this.selected.includes(id);
     },
     handleSelected($event, id) {
       if ($event.target.checked && !this.selected.includes(id)) {
@@ -1094,6 +1106,7 @@ export default {
       if (this.clicks === 1) {
         setTimeout(
           function () {
+            console.log("trigger from here");
             switch (this.clicks) {
               case 1:
                 if (this.eventName === "click") {
@@ -1121,55 +1134,41 @@ export default {
       });
       this.saveData();
     },
-    handleActiveSession(id) {
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_ITEM_BY_ID,
-          data: id,
-        })
-        .then((data) => {
-          this.activeSession = data;
-          this.$emit("submit-session", this.activeSession);
-        });
+    async handleActiveSession(id) {
+      console.log("handleActiveSession", { id });
+      this.itemToEdit = await this.$storageService.getItemById(id);
+      console.log("item to edit", this.itemToEdit);
+      this.editEvidenceDialog = true;
+
+      // this.activeSession = await this.$storageService.getItemById(id);
+      // this.$emit("submit-session", this.activeSession);
     },
-    dragItem(event, item) {
+    async dragItem(event, item) {
       event.preventDefault();
-      this.itemDragging = true;
-      if (!window.ipc) return;
-      window.ipc
-        .invoke(IPC_HANDLERS.FILE_SYSTEM, {
-          func: IPC_FUNCTIONS.DRAG_ITEM,
-          data: item,
-        })
-        .then(() => {
-          this.itemDragging = false;
-        });
+      if (this.$isElectron) {
+        // todo make dragging work in the web app
+        this.itemDragging = true;
+        await this.$electronService.dragItem(item);
+        this.itemDragging = false;
+      }
     },
     async dropFile(event) {
+      console.log("Drop file");
       event.preventDefault();
       event.stopPropagation();
       this.isDragging = false;
       if (!this.itemDragging) {
-        if (event.dataTransfer.files.length === 0 || !window.ipc) {
+        if (event.dataTransfer.files.length === 0 || !this.$isElectron) {
           return;
         }
 
         // TODO - Handle multiple files dropped.
-        const f = event.dataTransfer.files[0];
-        const { status, message, item } = await window.ipc.invoke(
-          IPC_HANDLERS.CAPTURE,
-          {
-            func: IPC_FUNCTIONS.DROP_FILE,
-            data: {
-              path: f.path,
-              name: f.name,
-            },
-          }
+        const { status, message, item } = await this.$electronService.dropFile(
+          event
         );
 
         if (status === STATUSES.ERROR) {
           this.$root.$emit("set-snackbar", message);
-          console.log(message);
         } else {
           const data = {
             sessionType: "File",
@@ -1179,7 +1178,7 @@ export default {
             filePath: item.filePath,
             timer_mark: this.$store.state.timer,
           };
-          this.openEditorModal(data);
+          await this.openEditorModal(data);
         }
         this.isDragging = false;
       }
@@ -1225,13 +1224,8 @@ export default {
       });
       this.saveData();
     },
-    saveData() {
-      if (window.ipc) {
-        window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.UPDATE_ITEMS,
-          data: this.itemLists,
-        });
-      }
+    async saveData() {
+      await this.$storageService.updateItems(this.itemLists);
     },
   },
 };

@@ -555,8 +555,6 @@
 import draggable from "vuedraggable";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
-
 export default {
   name: "NotesWrapper",
   components: {
@@ -609,34 +607,19 @@ export default {
   },
   methods: {
     async fetchNotes() {
-      if (!window.ipc) return;
-
-      await window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_NOTES,
-        })
-        .then((notes) => {
-          this.notes = notes;
-        });
+      this.notes = await this.$storageService.getNotes();
     },
     async handleNotes() {
       const regex = /(<([^>]+)>)/gi;
       this.notes.text = this.notes.content.replace(regex, "");
-      if (!window.ipc) return;
 
-      await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_NOTES,
-        data: this.notes,
-      });
+      await this.$storageService.updateNotes(this.notes);
     },
     handleChange() {
       this.saveData();
     },
     checkedItem(id) {
-      if (this.selected.includes(id)) {
-        return true;
-      }
-      return false;
+      return this.selected.includes(id);
     },
     handleSelected($event, id) {
       if ($event.target.checked && !this.selected.includes(id)) {
@@ -688,13 +671,8 @@ export default {
       });
       this.saveData();
     },
-    saveData() {
-      if (window.ipc) {
-        window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.UPDATE_ITEMS,
-          data: this.itemLists.slice().reverse(),
-        });
-      }
+    async saveData() {
+      await this.$storageService.updateItems(this.itemLists.slice().reverse());
     },
   },
 };

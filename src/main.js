@@ -13,6 +13,8 @@ import MinimizeLayout from "./layouts/Minimize.vue";
 import VueShortkey from "vue-shortkey";
 import VueMask from "v-mask";
 import i18n from "./i18n";
+import StorageService from "./services/storageService";
+import ElectronService from "@/services/electronService";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -44,12 +46,19 @@ Vue.component("font-awesome-icon", FontAwesomeIcon);
 
 Vue.config.productionTip = false;
 
+const isElectronApp = navigator.userAgent.includes("Electron");
+
 const plugins = {
   install() {
     Vue.integrationHelpers = integrationHelpers;
     Vue.prototype.$integrationHelpers = integrationHelpers;
     Vue.hotkeyHelpers = hotkeyHelpers;
     Vue.prototype.$hotkeyHelpers = hotkeyHelpers;
+    Vue.prototype.$isElectron = isElectronApp;
+    Vue.prototype.$storageService = new StorageService();
+    if (isElectronApp) {
+      Vue.prototype.$electronService = new ElectronService();
+    }
   },
 };
 Vue.use(plugins);

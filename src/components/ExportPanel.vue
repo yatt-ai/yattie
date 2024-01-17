@@ -73,8 +73,6 @@
 </template>
 
 <script>
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
-
 //import JiraExportSession from "./jira/JiraExportSession";
 //import TestRailExportSession from "./testrail/TestRailExportSession";
 
@@ -126,6 +124,7 @@ export default {
   methods: {
     async exportSession() {
       const data = {
+        id: this.$store.state.id,
         title: this.$store.state.title,
         charter: this.$store.state.charter,
         preconditions: this.$store.state.preconditions,
@@ -135,12 +134,9 @@ export default {
         ended: this.$store.state.ended,
       };
 
-      if (!window.ipc) return;
-
-      await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-        func: IPC_FUNCTIONS.EXPORT_SESSION,
-        data: data,
-      });
+      if (this.$isElectron) {
+        await this.$electronService.exportSession(data);
+      }
     },
   },
 };

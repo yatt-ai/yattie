@@ -7,8 +7,6 @@
 </template>
 
 <script>
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "./modules/constants";
-
 const default_layout = "default";
 
 export default {
@@ -18,32 +16,54 @@ export default {
       return (this.$route.meta.layout || default_layout) + "-layout";
     },
   },
-  beforeCreate() {
+  async beforeCreate() {
     // Only restore state for the primary window that opens at HomeView
     if (this.$router.history.current.path === "/") {
-      window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.GET_STATE,
-        })
-        .then((state) => {
-          if (Object.keys(state).length > 0) {
-            this.$store.commit("restoreState", state);
-            const currentPath = this.$router.history.current.path;
-            if (state.path && currentPath !== state.path) {
-              if (state.path.includes("result")) {
-                window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-                  func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
-                  data: {
-                    width: 1440,
-                    height: 900,
-                  },
-                });
-              }
-              this.$router.push({ path: state.path });
-            }
+      const state = await this.$storageService.getState();
+      if (Object.keys(state).length) {
+        await this.$store.commit("restoreState", state);
+        const currentPath = this.$router.history.current.path;
+        if (state.path && currentPath !== state.path) {
+          if (state.path.includes("result") && this.$isElectron) {
+            this.$electronService.setWindowSize({ width: 1440, height: 900 });
           }
-        });
+          await this.$router.push({ path: state.path });
+        }
+      }
     }
+  },
+  async created() {
+    const config = await this.$storageService.getConfig();
+    this.$store.commit("config/setFullConfig", config);
+
+    const credentials = await this.$storageService.getCredentials();
+    this.$store.commit("auth/setCredentials", credentials);
+    if (this.$isElectron) {
+      // todo remove this check when $integrationHelpers will support REST API
+      await this.updateAuth();
+    }
+  },
+  methods: {
+    async updateAuth() {
+      if (
+        this.$store.getters["auth/credentials"] &&
+        Object.entries(this.$store.getters["auth/credentials"]).length > 0
+      ) {
+        let authCheckResponse = await this.$integrationHelpers.checkAuth(
+          this.$store.getters["auth/credentials"]
+        );
+        this.$store.commit("auth/setIsAuthenticated", authCheckResponse.authed);
+        if (authCheckResponse.failedAuth?.length > 0) {
+          // TODO - Prompt the user if they'd like to remove the failing cred
+          let message = "";
+          for (const failedCred of authCheckResponse.failedAuth) {
+            message += `${failedCred.credentialType} `;
+          }
+          message += this.$tc("message.integrations_expired", 1);
+          this.setSnackBar(message);
+        }
+      }
+    },
   },
 };
 </script>

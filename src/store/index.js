@@ -5,14 +5,15 @@ import {
   SESSION_STATUSES,
   DEFAULT_CHARTER_MAP_NODES,
   DEFAULT_CHARTER_MAP_CONNECTIONS,
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
 } from "../modules/constants";
+import { auth } from "@/store/modules/auth";
+import { config } from "@/store/modules/config";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    id: null,
     title: "",
     charter: {
       content: "",
@@ -33,74 +34,52 @@ export default new Vuex.Store({
     ended: "",
     quickTest: false,
     path: "",
+    preSessionTasks: [],
+    postSessionTasks: [],
   },
-  getters: {},
   mutations: {
+    setSessionId(state, payload) {
+      state.id = payload;
+      this._vm.$storageService.updateState(state);
+    },
     setTitle(state, payload) {
       state.title = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      this._vm.$storageService.updateState(state);
     },
     setCharter(state, payload) {
       state.charter.content = payload.content;
       state.charter.text = payload.text;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      this._vm.$storageService.updateState(state);
     },
     setMindmap(state, payload) {
       state.mindmap.nodes = payload.nodes;
       state.mindmap.connections = payload.connections;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      this._vm.$storageService.updateState(state);
     },
     setPrecondition(state, payload) {
       state.preconditions.content = payload.content;
       state.preconditions.text = payload.text;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      this._vm.$storageService.updateState(state);
     },
     setDuration(state, payload) {
       state.duration = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      this._vm.$storageService.updateState(state);
     },
     setStarted(state, payload) {
       state.started = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      this._vm.$storageService.updateState(state);
     },
     setEnded(state, payload) {
       state.ended = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      this._vm.$storageService.updateState(state);
     },
     setQuickTest(state, payload) {
       state.quickTest = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      this._vm.$storageService.updateState(state);
     },
     setPath(state, payload) {
       state.path = payload;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      this._vm.$storageService.updateState(state);
     },
     updateSession(state, payload) {
       if (state.status !== payload.status) {
@@ -112,10 +91,7 @@ export default new Vuex.Store({
       if (state.duration !== payload.duration) {
         state.duration = payload.duration;
       }
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      this._vm.$storageService.updateState(state);
     },
     clearState(state) {
       state.title = "";
@@ -139,10 +115,7 @@ export default new Vuex.Store({
       state.started = "";
       state.ended = "";
       state.quickTest = false;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      this._vm.$storageService.updateState(state);
     },
     resetState(state) {
       state.duration = 0;
@@ -152,10 +125,7 @@ export default new Vuex.Store({
       state.started = "";
       state.ended = "";
       state.quickTest = false;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      this._vm.$storageService.updateState(state);
     },
     restoreState(state, payload) {
       state.title = payload.title;
@@ -174,13 +144,49 @@ export default new Vuex.Store({
       state.ended = payload.ended;
       state.quickTest = payload.quickTest;
       state.path = payload.path;
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_STATE,
-        data: state,
-      });
+      this._vm.$storageService.updateState(state);
+    },
+    setPreSessionTasks(state, payload) {
+      state.preSessionTasks = payload;
+    },
+    togglePreSessionTask(state, { taskId, checked }) {
+      const taskIndex = state.preSessionTasks.findIndex(
+        (task) => task.id === taskId
+      );
+      if (taskIndex !== -1) {
+        state.preSessionTasks[taskIndex].checked = checked;
+      }
+    },
+    setPostSessionTasks(state, payload) {
+      state.postSessionTasks = payload;
+    },
+    togglePostSessionTask(state, { taskId, checked }) {
+      const taskIndex = state.postSessionTasks.findIndex(
+        (task) => task.id === taskId
+      );
+      if (taskIndex !== -1) {
+        state.postSessionTasks[taskIndex].checked = checked;
+      }
     },
   },
   actions: {},
-  modules: {},
+  getters: {
+    requiredPreSessionTasksChecked(state) {
+      const uncheckedTasks = state.preSessionTasks.filter(
+        (task) => !task.checked && task.required
+      );
+      return uncheckedTasks.length === 0;
+    },
+    requiredPostSessionTasksChecked(state) {
+      const uncheckedTasks = state.postSessionTasks.filter(
+        (task) => !task.checked && task.required
+      );
+      return uncheckedTasks.length === 0;
+    },
+  },
+  modules: {
+    auth,
+    config,
+  },
   strict: process.env.NODE_ENV !== "production",
 });

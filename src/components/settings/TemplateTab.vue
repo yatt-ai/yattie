@@ -5,7 +5,7 @@
       {{ $t("message.improve_note") }}
     </p>
 
-    <v-row>
+    <v-row v-if="template">
       <v-col cols="12" class="pa-4">
         <div class="mb-3 session-type">
           <p class="subtitle-1 mb-1" :style="{ color: currentTheme.secondary }">
@@ -106,22 +106,16 @@
 </template>
 
 <script>
-import { SESSION_TYPES } from "../../modules/constants";
+import { SESSION_TYPES } from "@/modules/constants";
+import { mapGetters } from "vuex";
 export default {
   name: "TemplateTab",
   components: {},
-  props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-  },
+  props: {},
   computed: {
+    ...mapGetters({
+      config: "config/fullConfig",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -132,14 +126,19 @@ export default {
   },
   data() {
     return {
-      config: this.configItem,
-      templates: this.configItem.templates,
-      template: this.configItem.templates[0],
-      type: this.configItem.templates[0].type,
+      templatesToChange: null,
+      configToChange: null,
+      template: null,
+      type: null,
       sessionTypes: SESSION_TYPES,
     };
   },
-  mounted() {},
+  mounted() {
+    this.templatesToChange = structuredClone(this.config.templates);
+    this.configToChange = structuredClone(this.config);
+    this.template = this.configToChange.templates[0];
+    this.type = this.configToChange.templates[0].type;
+  },
   methods: {
     updatePrecondition() {
       const regex = /(<([^>]+)>)/gi;
@@ -147,7 +146,7 @@ export default {
         this.template.precondition.content.replace(regex, "");
     },
     handleTemplate() {
-      this.templates.map((item) => {
+      this.templatesToChange.map((item) => {
         let temp = Object.assign({}, item);
         if (temp.type === this.type) {
           this.template = temp;
@@ -159,15 +158,15 @@ export default {
       this.template = this.templates[0];
     },
     saveTemplate() {
-      this.templates = this.templates.map((item) => {
+      this.templatesToChange = this.templatesToChange.map((item) => {
         let temp = Object.assign({}, item);
         if (temp.type === this.template.type) {
           temp = this.template;
         }
         return temp;
       });
-      this.config.templates = this.templates;
-      this.$emit("submit-config", this.config);
+      this.configToChange.templates = this.templatesToChange;
+      this.$emit("submit-config", this.configToChange);
     },
   },
 };

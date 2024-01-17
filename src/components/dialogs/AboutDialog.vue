@@ -64,26 +64,12 @@ export default {
       type: String,
       default: () => "",
     },
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-  },
-  data() {
-    return {
-      config: this.configItem,
-    };
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
   },
   computed: {
     closeHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "general.cancel",
-        this.config.hotkeys
+        this.$store.getters["config/hotkeys"]
       );
     },
     currentTheme() {

@@ -102,11 +102,7 @@
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
-                <div
-                  v-if="
-                    this.credentials.jira && this.credentials.jira.length > 0
-                  "
-                >
+                <div v-if="credentials.jira && credentials.jira.length > 0">
                   <jira-export-session
                     :title="$tc(`caption.export_to_jira`, 1)"
                     :credential-items="credentials.jira"
@@ -116,10 +112,7 @@
                   />
                 </div>
                 <div
-                  v-if="
-                    this.credentials.testrail &&
-                    this.credentials.testrail.length > 0
-                  "
+                  v-if="credentials.testrail && credentials.testrail.length > 0"
                 >
                   <test-rail-export-session
                     :title="$tc(`caption.export_to_testrail`, 1)"
@@ -418,7 +411,7 @@
             <span>{{ $tc("caption.start_audio_record", 1) }}</span>
           </v-tooltip>
           <v-tooltip top v-if="recordAudioStarted">
-            <!-- CTODO test same binding for start/stop -->
+            <!-- TODO test same binding for start/stop -->
             <template v-slot:activator="{ on }">
               <v-btn
                 id="btn_stop_record_audio"
@@ -576,7 +569,7 @@
         <v-col
           cols="12"
           class="d-flex justify-center px-0 pt-0"
-          v-if="this.credentials.jira && this.credentials.jira.length > 0"
+          v-if="credentials.jira && credentials.jira.length > 0"
           v-shortkey="createIssueHotkey"
           @shortkey="openIssueMenu"
         >
@@ -635,15 +628,14 @@
         :sources="sources"
         :sourceId="sourceId"
         :loaded="loaded"
-        :configItem="config"
-        @submit-source="startSession()"
+        @submit-source="startSession"
       />
       <NoteDialog
         v-model="noteDialog"
         ref="noteDialog"
         :configItem="config"
         :credentialItems="credentials"
-        @submit-note="addNote()"
+        @submit-note="addNote"
       />
       <SummaryDialog
         ref="summaryDialog"
@@ -651,7 +643,7 @@
         :configItem="config"
         :credentialItems="credentials"
         :summary="summary"
-        @submit-summary="addSummary()"
+        @submit-summary="addSummary"
       />
       <DeleteConfirmDialog
         v-model="deleteConfirmDialog"
@@ -699,16 +691,15 @@
       />
       <EndSessionDialog
         v-model="endSessionDialog"
-        :configItem="config"
         :post-session-data="postSessionData"
-        @proceed="closeEndSessionDialog()"
+        @proceed="closeEndSessionDialog"
       />
     </div>
   </v-container>
 </template>
 
 <script>
-import { VContainer, VRow, VCol, VBtn, VIcon } from "vuetify/lib/components";
+import { VBtn, VCol, VContainer, VIcon, VRow } from "vuetify/lib/components";
 import uuidv4 from "uuid";
 
 import SourcePickerDialog from "./dialogs/SourcePickerDialog.vue";
@@ -722,24 +713,20 @@ import DurationConfirmDialog from "./dialogs/DurationConfirmDialog.vue";
 import AudioErrorDialog from "./dialogs/AudioErrorDialog.vue";
 import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
 //import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
-
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
 
 import JiraAddIssue from "./jira/JiraAddIssue";
 
 import {
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
-  IPC_BIND_KEYS,
-  SESSION_STATUSES,
-  VIDEO_RESOLUTION,
-  STATUSES,
-} from "../modules/constants";
-import {
-  DEFAULT_MAP_NODES,
   DEFAULT_MAP_CONNECTIONS,
+  DEFAULT_MAP_NODES,
+  SESSION_STATUSES,
+  STATUSES,
+  VIDEO_RESOLUTION,
 } from "../modules/constants";
+import { mapGetters } from "vuex";
+
 let mediaRecorder;
 let audioContext;
 let dest;
@@ -761,7 +748,7 @@ export default {
     DurationConfirmDialog,
     AudioErrorDialog,
     EndSessionDialog,
-    //MinimizeControlWrapper,
+    // MinimizeControlWrapper,
     JiraExportSession,
     TestRailExportSession,
     JiraAddIssue,
@@ -775,15 +762,7 @@ export default {
       type: Array,
       default: () => [],
     },
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
-    checkedStatusOfPreSessionTask: {
+    preSessionRequirementsMet: {
       type: Boolean,
       default: () => false,
     },
@@ -810,12 +789,6 @@ export default {
     },
     selectedItems: function (newValue) {
       this.selected = newValue;
-    },
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
     },
     "$store.state.status": {
       deep: true,
@@ -846,88 +819,74 @@ export default {
     },
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+      postSessionData: "config/postSessionData",
+      config: "config/fullConfig",
+      credentials: "auth/credentials",
+    }),
     pauseHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "workspace.pause",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("workspace.pause", this.hotkeys);
     },
     resumeHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "workspace.resume",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("workspace.resume", this.hotkeys);
     },
     stopHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "workspace.stop",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("workspace.stop", this.hotkeys);
     },
     startVideoHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "workspace.videoStart",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     stopVideoHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "workspace.videoStop",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     screenshotHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "workspace.screenshot",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     startAudioHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "workspace.audioStart",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     stopAudioHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "workspace.audioStop",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     noteHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "workspace.note",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("workspace.note", this.hotkeys);
     },
     mindmapHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "workspace.mindmap",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("workspace.mindmap", this.hotkeys);
     },
     changeSourceHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "workspace.changeSource",
-        this.config.hotkeys
+        this.hotkeys
       );
     },
     createIssueHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "workspace.createIssue",
-        this.config.hotkeys
+        this.hotkeys
       );
-    },
-    postSessionData() {
-      if (this.config.checklist) return this.config.checklist.postsession;
-      else return {};
     },
     elapsedTime() {
       const timer = this.timer;
       const date = new Date(null);
       date.setSeconds(timer);
-      const result = date.toISOString().substr(11, 8);
-      return result;
+      return date.toISOString().substr(11, 8);
     },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
@@ -961,8 +920,6 @@ export default {
       sources: [],
       sourceId: this.srcId,
       itemLists: this.items,
-      config: this.configItem,
-      credentials: this.credentialItems,
       audioDevices: [],
       loaded: false,
       status: this.$store.state.status,
@@ -981,23 +938,11 @@ export default {
     };
   },
   mounted() {
-    // new session
-    window.ipc.on("NEW_SESSION", () => {
-      this.callback = () => this.startNewSessionFromFileMenu();
-      this.handleNewSessionDialog();
-    });
-
-    // save session
-    window.ipc.on("SAVE_SESSION", () => {
-      this.saveSession(() => {
-        this.handleSaveConfirmDialog();
-      });
-    });
-
-    // reset session
-    window.ipc.on("RESET_SESSION", () => {
-      this.resetConfirmDialog = true;
-    });
+    if (this.$isElectron) {
+      this.$electronService.onNewSession(this.newSession);
+      this.$electronService.onSaveSession(this.handleSaveConfirmDialog);
+      this.$electronService.onResetSession(this.showResetConfirmDialog);
+    }
 
     this.$root.$on("close-sourcepickerdialog", this.hideSourcePickerDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
@@ -1025,7 +970,6 @@ export default {
     ) {
       this.showSourcePickerDialog();
     }
-    this.bindIPCEvent();
   },
   beforeDestroy() {
     this.$root.$off("close-sourcepickerdialog", this.hideSourcePickerDialog);
@@ -1035,6 +979,13 @@ export default {
     this.timer = 0;
   },
   methods: {
+    showResetConfirmDialog() {
+      this.resetConfirmDialog = true;
+    },
+    newSession() {
+      this.callback = () => this.startNewSessionFromFileMenu();
+      this.handleNewSessionDialog();
+    },
     openIssueMenu() {
       this.issueCreateDestinationMenu = true;
       setTimeout(() => {
@@ -1044,70 +995,6 @@ export default {
           .focus();
       }, 150); // TODO - this is probably prone to race conditions
     },
-    bindIPCEvent() {
-      if (!window.ipc) return;
-
-      window.ipc.on(IPC_BIND_KEYS.CLOSED_NOTE_DIALOG, (data) => {
-        this.addNote(data);
-      });
-      window.ipc.on(IPC_BIND_KEYS.CLOSED_SUMMARY_DIALOG, (data) => {
-        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-          func: IPC_FUNCTIONS.CLOSE_SESSION_AND_MINIIMIZED_WINDOW,
-          data: {
-            data: {
-              status: this.status,
-              timer: this.timer,
-              duration: this.duration,
-              sourceId: this.sourceId,
-              summary: data,
-            },
-            bindKey: IPC_BIND_KEYS.END_SESSION,
-          },
-        });
-      });
-      window.ipc.on(IPC_BIND_KEYS.CLOSED_ENDSESSION_DIALOG, (data) => {
-        if (data.passed) {
-          this.showSummaryDialog();
-        }
-      });
-      window.ipc.on(IPC_BIND_KEYS.CLOSED_SOURCEPICKER_DIALOG, (data) => {
-        if (data.sourceId) {
-          this.sourceId = data.sourceId;
-          this.$root.$emit("source-id-changed", this.sourceId);
-        }
-      });
-      window.ipc.on(IPC_BIND_KEYS.END_SESSION, (data) => {
-        if (data) {
-          this.timer = data.timer;
-          this.status = data.status;
-          this.duration = data.duration;
-          this.sourceId = data.sourceId;
-          this.updateStoreSession();
-          if (data.summary) {
-            this.addSummary(data.summary);
-          } else {
-            this.endSessionProcess();
-          }
-        } else {
-          this.endSessionProcess();
-        }
-      });
-      window.ipc.on(IPC_BIND_KEYS.CLOSED_MINIMIZE_WINDOW, (data) => {
-        this.status = data.status;
-        this.duration = data.duration;
-        this.timer = data.timer;
-        this.sourceId = data.sourceId;
-
-        if (
-          this.status !== data.status &&
-          data.status === SESSION_STATUSES.START
-        ) {
-          this.startSession(this.sourceId);
-        } else if (data.status === SESSION_STATUSES.PAUSE) {
-          this.pauseSession();
-        }
-      });
-    },
     handleNewSessionDialog() {
       this.newSessionDialog = true;
       setTimeout(() => {
@@ -1116,7 +1003,7 @@ export default {
     },
     startNewSession() {
       this.$root.$emit("start-new-session");
-      if (!this.checkedStatusOfPreSessionTask) {
+      if (!this.preSessionRequirementsMet) {
         return;
       }
       this.newSessionFromButton();
@@ -1136,37 +1023,26 @@ export default {
       }, 100);
     },
     fetchSources() {
-      return new Promise(function (resolver, reject) {
-        if (!window.ipc) return reject();
-        window.ipc
-          .invoke(IPC_HANDLERS.CAPTURE, {
-            func: IPC_FUNCTIONS.GET_MEDIA_SOURCE,
-          })
-          .then((data) => {
-            return resolver(data);
-          });
-      });
+      if (this.$isElectron) {
+        return this.$electronService.getMediaSource();
+      }
+      // todo implement web version for this functionality
     },
-    showSourcePickerDialog() {
-      this.fetchSources().then((data) => {
+    async showSourcePickerDialog() {
+      try {
+        let data = await this.fetchSources();
         this.loaded = true;
-        this.sources = data.filter((source) => source.name !== "yattie");
+        this.sources = data;
         if (this.viewMode === "normal") {
           this.sourcePickerDialog = true;
         } else {
-          window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-            func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-            data: {
-              path: "sourcepicker",
-              size: {
-                width: 600,
-                height: 500,
-              },
-              data: this.sources,
-            },
-          });
+          if (this.$isElectron) {
+            await this.$electronService.openSourcePickerWindow(this.sources);
+          }
         }
-      });
+      } catch (err) {
+        console.log(err);
+      }
     },
     hideSourcePickerDialog() {
       this.sourcePickerDialog = false;
@@ -1174,23 +1050,13 @@ export default {
     showNoteDialog() {
       if (this.viewMode === "normal") {
         this.noteDialog = true;
-        // settimeout
         setTimeout(() => {
           this.$refs.noteDialog.$refs.comment.editor.commands.focus();
         });
       } else {
-        if (!window.ipc) return;
-        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-          func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-          data: {
-            path: "noteEditor",
-            size: {
-              width: 500,
-              height: 550,
-            },
-            data: this.config,
-          },
-        });
+        if (this.$isElectron) {
+          this.$electronService.openNoteEditorWindow(this.config);
+        }
       }
     },
     hideNoteDialog() {
@@ -1251,9 +1117,7 @@ export default {
         this.changeSessionStatus(SESSION_STATUSES.START);
       }
 
-      const sessionId = await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.GET_SESSION_ID,
-      });
+      const sessionId = await this.$storageService.getSessionId();
 
       if (sessionId === "") {
         const data = {
@@ -1269,16 +1133,13 @@ export default {
           path: this.$route.path,
         };
 
-        window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-          func: IPC_FUNCTIONS.CREATE_NEW_SESSION,
-          data: data,
-        });
+        await this.$storageService.createNewSession(data);
       }
 
       if (this.viewMode === "normal") {
         const currentPath = this.$router.history.current.path;
         if (currentPath !== "/main/workspace") {
-          this.$router.push({ path: "/main/workspace" });
+          await this.$router.push({ path: "/main/workspace" });
         }
       }
     },
@@ -1303,10 +1164,8 @@ export default {
     endSession() {
       if (this.postSessionData.status) {
         this.showEndSessionDialog();
-        return;
       } else {
         this.showSummaryDialog();
-        return;
       }
     },
     async endSessionProcess() {
@@ -1316,16 +1175,10 @@ export default {
       this.status = SESSION_STATUSES.END;
       this.changeSessionStatus(SESSION_STATUSES.END);
       this.stopInterval();
-      if (window.ipc) {
-        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-          func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
-          data: {
-            width: 1440,
-            height: 900,
-          },
-        });
+      if (this.$isElectron) {
+        this.$electronService.setWindowSize({ width: 1440, height: 900 });
       }
-      this.$router.push({ path: "/result" }).catch(() => {});
+      await this.$router.push({ path: "/result" });
     },
     showSummaryDialog() {
       if (this.viewMode === "normal") {
@@ -1335,42 +1188,24 @@ export default {
           this.$refs.summaryDialog.$refs.comment.editor.commands.focus();
         }, 200);
       } else {
-        if (!window.ipc) return;
-        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-          func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-          data: {
-            path: "summaryEditor",
-            size: {
-              width: 500,
-              height: 500,
-            },
-            data: this.config,
-          },
-        });
+        if (this.$isElectron) {
+          this.$electronService.openSummaryWindow(this.config);
+        }
       }
     },
     showEndSessionDialog() {
       if (this.viewMode === "normal") {
         this.endSessionDialog = true;
       } else {
-        if (!window.ipc) return;
-        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-          func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-          data: {
-            path: "endsession",
-            size: {
-              width: 450,
-              height: 500,
-            },
-            data: this.config,
-          },
-        });
+        if (this.$isElectron) {
+          this.$electronService.openEndSessionWindow(this.config);
+        }
       }
     },
     closeEndSessionDialog(status) {
       this.endSessionDialog = false;
       if (status) {
-        this.summaryDialog = true;
+        this.showSummaryDialog();
       }
     },
     resume() {
@@ -1381,14 +1216,8 @@ export default {
       if (currentPath !== "/main/workspace") {
         this.$router.push({ path: "/main/workspace" });
       }
-      if (window.ipc) {
-        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-          func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
-          data: {
-            width: 800,
-            height: 600,
-          },
-        });
+      if (this.$isElectron) {
+        this.$electronService.setWindowSize({ width: 800, height: 600 });
       }
     },
     end() {
@@ -1430,29 +1259,28 @@ export default {
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           video.remove();
           const imgURI = canvas.toDataURL("image/png");
-          if (!window.ipc) return;
 
-          const { status, message, item } = await window.ipc.invoke(
-            IPC_HANDLERS.CAPTURE,
-            {
-              func: IPC_FUNCTIONS.CREATE_IMAGE,
-              data: { url: imgURI },
+          if (this.$isElectron) {
+            // todo add web implementation
+            const { status, message, item } =
+              await this.$electronService.createImage(imgURI);
+
+            console.log({ item });
+
+            if (status === STATUSES.ERROR) {
+              this.$root.$emit("set-snackbar", message);
+              console.log(message);
+            } else {
+              const data = {
+                id: item.id,
+                sessionType: "Screenshot",
+                fileType: "image",
+                fileName: item.fileName,
+                filePath: item.filePath,
+                timer_mark: this.timer,
+              };
+              await this.openAddWindow(data);
             }
-          );
-
-          if (status === STATUSES.ERROR) {
-            this.$root.$emit("set-snackbar", message);
-            console.log(message);
-          } else {
-            const data = {
-              id: item.id,
-              sessionType: "Screenshot",
-              fileType: "image",
-              fileName: item.fileName,
-              filePath: item.filePath,
-              timer_mark: this.timer,
-            };
-            this.openAddWindow(data);
           }
         };
       };
@@ -1511,19 +1339,17 @@ export default {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             video.remove();
             const imgURI = canvas.toDataURL("image/png");
-            const { status, message, item } = await window.ipc.invoke(
-              IPC_HANDLERS.CAPTURE,
-              {
-                func: IPC_FUNCTIONS.CREATE_IMAGE,
-                data: { url: imgURI, isPoster: true },
-              }
-            );
 
-            if (status === STATUSES.ERROR) {
-              this.$root.$emit("set-snackbar", message);
-              console.log("Unable to generate poster for video: " + message);
+            if (this.$isElectron) {
+              const { status, message, item } =
+                await this.$electronService.createImage(imgURI, true);
+
+              if (status === STATUSES.ERROR) {
+                this.$root.$emit("set-snackbar", message);
+                console.log("Unable to generate poster for video: " + message);
+              }
+              poster = item.filePath;
             }
-            poster = item.filePath;
           };
         };
         mediaRecorder.ondataavailable = (e) => {
@@ -1535,31 +1361,26 @@ export default {
           this.recordVideoStarted = false;
           const blob = new Blob(frames, { type: "video/webm;codecs=h264" });
           const buffer = await blob.arrayBuffer();
-          if (!window.ipc) return;
 
-          const { status, message, item } = await window.ipc.invoke(
-            IPC_HANDLERS.CAPTURE,
-            {
-              func: IPC_FUNCTIONS.CREATE_VIDEO,
-              data: { buffer: buffer },
+          if (this.$isElectron) {
+            const { status, message, item } =
+              await this.$electronService.createVideo(buffer);
+            if (status === STATUSES.ERROR) {
+              this.$root.$emit("set-snackbar", message);
+              console.log(message);
+            } else {
+              const { id, fileName, filePath } = item;
+              const data = {
+                id,
+                sessionType: "Video",
+                fileType: "video",
+                fileName,
+                filePath,
+                poster: poster,
+                timer_mark: this.timer,
+              };
+              await this.openAddWindow(data);
             }
-          );
-
-          if (status === STATUSES.ERROR) {
-            this.$root.$emit("set-snackbar", message);
-            console.log(message);
-          } else {
-            const { id, fileName, filePath } = item;
-            const data = {
-              id,
-              sessionType: "Video",
-              fileType: "video",
-              fileName,
-              filePath,
-              poster: poster,
-              timer_mark: this.timer,
-            };
-            this.openAddWindow(data);
           }
         };
         frames = [];
@@ -1668,30 +1489,27 @@ export default {
             type: "audio/mpeg-3",
           });
           const buffer = await blob.arrayBuffer();
-          const { status, message, item } = await window.ipc.invoke(
-            IPC_HANDLERS.CAPTURE,
-            {
-              func: IPC_FUNCTIONS.CREATE_AUDIO,
-              data: { buffer: buffer },
-            }
-          );
+          if (this.$isElectron) {
+            const { status, message, item } =
+              await this.$electronService.createAudio(buffer);
 
-          if (status === STATUSES.ERROR) {
-            this.$root.$emit("set-snackbar", message);
-            console.log(message);
-          } else {
-            const data = {
-              id: item.id,
-              sessionType: "Audio",
-              fileType: "audio",
-              fileName: item.fileName,
-              filePath: item.filePath,
-              timer_mark: this.timer,
-              poster: "",
-            };
-            this.openAddWindow(data);
+            if (status === STATUSES.ERROR) {
+              this.$root.$emit("set-snackbar", message);
+              console.log(message);
+            } else {
+              const data = {
+                id: item.id,
+                sessionType: "Audio",
+                fileType: "audio",
+                fileName: item.fileName,
+                filePath: item.filePath,
+                timer_mark: this.timer,
+                poster: "",
+              };
+              await this.openAddWindow(data);
+            }
+            recordedChunks = [];
           }
-          recordedChunks = [];
         };
         mediaRecorder.start(1000);
       };
@@ -1732,23 +1550,14 @@ export default {
       }
     },
     async openAddWindow(data) {
-      if (!window.ipc) return;
-      await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.OPEN_ADD_WINDOW,
-        data: { width: 700, height: 800, data: data },
-      });
+      if (this.$isElectron) {
+        await this.$electronService.openAddWindow(data);
+      }
     },
     async addNote(data) {
-      if (!window.ipc) return;
-      // Save Note
-      const { status, message, item } = await window.ipc.invoke(
-        IPC_HANDLERS.CAPTURE,
-        {
-          func: IPC_FUNCTIONS.SAVE_NOTE,
-          data: data.comment,
-        }
+      const { status, message, item } = await this.$storageService.saveNote(
+        data.comment
       );
-
       if (status === STATUSES.ERROR) {
         this.$root.$emit("set-snackbar", message);
         console.log(message);
@@ -1793,7 +1602,7 @@ export default {
         this.$emit("add-item", data);
       }
       this.summaryDialog = false;
-      this.endSessionProcess();
+      await this.endSessionProcess();
     },
     addMindmap() {
       // TODO - With transition to try mindmap format, UUID generation should
@@ -1813,52 +1622,24 @@ export default {
       };
       this.openAddWindow(data);
     },
-    async minimize() {
-      const data = {
-        status: this.status,
-        timer: this.timer,
-        duration: this.duration,
-        sourceId: this.sourceId,
-      };
-      localStorage.setItem("state-data", JSON.stringify(data));
-      if (!window.ipc) return;
-      await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.OPEN_MINIMIZE_WINDOW,
-        data: { width: 400, height: 84 },
-      });
-    },
     async deleteItems() {
-      if (!window.ipc) return;
-      await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.DELETE_ITEMS,
-        data: this.selected,
-      });
-      await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.DELETE_NOTES,
-        data: this.selected,
-      });
+      await this.$storageService.deleteItems(this.selected);
       this.selected = [];
       this.$root.$emit("update-selected", this.selected);
       this.deleteConfirmDialog = false;
     },
     async exportItems() {
-      if (window.ipc) {
-        await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-          func: IPC_FUNCTIONS.EXPORT_ITEMS,
-          data: this.selected,
-        });
+      if (this.$isElectron) {
+        await this.$electronService.exportItems(this.selected);
+        this.selected = [];
+        this.$root.$emit("update-selected", this.selected);
       }
-      this.selected = [];
-      this.$root.$emit("update-selected", this.selected);
+      // todo add web handler for items export
     },
     async saveSession(callback = null) {
       this.newSessionDialog = false;
-      const sessionId = await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.GET_SESSION_ID,
-      });
-
       const data = {
-        id: sessionId,
+        id: this.$store.state.id,
         title: this.$store.state.title,
         charter: this.$store.state.charter,
         mindmap: this.$store.state.mindmap,
@@ -1871,11 +1652,7 @@ export default {
         quickTest: this.$store.state.quickTest,
         path: this.$route.path,
       };
-      if (!window.ipc) return;
-      const { status } = await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-        func: IPC_FUNCTIONS.SAVE_SESSION,
-        data: data,
-      });
+      const { status } = await this.$storageService.saveSession(data);
       if (status === STATUSES.SUCCESS && callback) {
         callback();
       }
@@ -1894,21 +1671,14 @@ export default {
       // Resetting state variables and store
       this.$store.commit("clearState");
 
-      // Set window size
-      if (window.ipc) {
-        window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-          func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
-          data: {
-            width: 800,
-            height: 600,
-          },
-        });
+      if (this.$isElectron) {
+        this.$electronService.setWindowSize({ width: 800, height: 600 });
       }
 
       // Navigate to main page if not already there
       const currentPath = this.$router.history.current.path;
       if (currentPath !== "/main") {
-        this.$router.push({ path: "/main" });
+        await this.$router.push({ path: "/main" });
       }
     },
     async newSessionFromButton() {
@@ -1931,10 +1701,12 @@ export default {
       this.audioErrorDialog = false;
       this.endSessionDialog = false;
 
-      // Persist data to filesystem
-      if (!window.ipc) return;
+      // creating new session ID here
+      let sessionId = uuidv4();
+      this.$store.commit("setSessionId", sessionId);
 
       const data = {
+        id: sessionId,
         title: this.$store.state.title,
         charter: this.$store.state.charter,
         preconditions: this.$store.state.preconditions,
@@ -1947,14 +1719,8 @@ export default {
         path: this.$route.path,
       };
 
-      await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-        func: IPC_FUNCTIONS.CREATE_NEW_SESSION,
-        data: data,
-      });
-
-      await window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.RESET_DATA,
-      });
+      await this.$storageService.createNewSession(data);
+      await this.$storageService.resetData();
 
       // Stop any ongoing intervals
       this.stopInterval();
@@ -1974,25 +1740,15 @@ export default {
 
       this.$store.commit("resetState");
 
-      if (!window.ipc) return;
-      await window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, {
-          func: IPC_FUNCTIONS.RESET_DATA,
-        })
-        .then(() => {
-          window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-            func: IPC_FUNCTIONS.SET_WINDOW_SIZE,
-            data: {
-              width: 800,
-              height: 600,
-            },
-          });
-          this.stopInterval();
-          const currentPath = this.$router.history.current.path;
-          if (currentPath !== "/main") {
-            this.$router.push({ path: "/main" });
-          }
-        });
+      await this.$storageService.resetData();
+      if (this.$isElectron) {
+        await this.$electronService.setWindowSize({ width: 800, height: 600 });
+      }
+      this.stopInterval();
+      const currentPath = this.$router.history.current.path;
+      if (currentPath !== "/main") {
+        await this.$router.push({ path: "/main" });
+      }
     },
     getCurrentDateTime() {
       const now = new Date();
@@ -2009,18 +1765,21 @@ export default {
       return currentDateTime;
     },
     changeSessionStatus(status) {
-      if (!window.ipc) return;
-      window.ipc.invoke(IPC_HANDLERS.MENU, {
-        func: IPC_FUNCTIONS.CHANGE_MENUITEM_STATUS,
-        data: { sessionStatus: status },
-      });
+      if (this.$isElectron) {
+        this.$electronService.changeMenuBySessionStatus(status);
+      }
     },
-    async showNotePanel() {
-      if (!window.ipc) return;
-      await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.OPEN_NOTES_WINDOW,
-        data: { width: 700, height: 800 },
-      });
+    async minimize() {
+      const data = {
+        status: this.status,
+        timer: this.timer,
+        duration: this.duration,
+        sourceId: this.sourceId,
+      };
+      localStorage.setItem("state-data", JSON.stringify(data));
+      if (this.$isElectron) {
+        await this.$electronService.openMinimizeWindow();
+      }
     },
   },
 };

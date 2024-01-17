@@ -82,30 +82,22 @@
   </v-menu>
 </template>
 <script>
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 import uuidv4 from "uuid";
+import { mapGetters } from "vuex";
 
 export default {
   name: "MenuPopover",
   components: {},
-  props: {
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
-  },
-  watch: {
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
-  },
+  props: {},
   data() {
     return {
-      credentials: this.credentialItems,
       showMenu: false,
     };
   },
   computed: {
+    ...mapGetters({
+      credentials: "auth/credentials",
+    }),
     profileAvatar() {
       for (const cList of Object.values(this.credentials)) {
         if (cList.length > 0) {
@@ -122,32 +114,36 @@ export default {
   methods: {
     async openAccountLink(credentialType, credential) {
       if (credentialType === "yatt") {
-        await window.ipc
-          .invoke(IPC_HANDLERS.FILE_SYSTEM, {
-            func: IPC_FUNCTIONS.OPEN_EXTERNAL_LINK,
-            data: "https://app.yatt.ai/",
-          })
-          .then(() => {
-            this.showMenu = false;
-          });
+        const yattUrl = "https://app.yatt.ai/";
+        if (this.$isElectron) {
+          await this.$electronService.openExternalLink(yattUrl);
+        } else {
+          window.open(yattUrl, "_blank");
+        }
+        this.showMenu = false;
       } else if (credentialType === "jira") {
-        await window.ipc
-          .invoke(IPC_HANDLERS.FILE_SYSTEM, {
-            func: IPC_FUNCTIONS.OPEN_EXTERNAL_LINK,
-            data: credential.data.resource.url,
-          })
-          .then(() => {
-            this.showMenu = false;
-          });
+        const jiraUrl = credential.orgs[0].url;
+        if (this.$isElectron) {
+          await this.$electronService.openExternalLink(jiraUrl);
+        } else {
+          window.open(jiraUrl, "_blank");
+        }
+        this.showMenu = false;
+      } else if (credentialType === "testrail") {
+        const testRailUrl = `https://${credential.url}`;
+        if (this.$isElectron) {
+          await this.$electronService.openExternalLink(testRailUrl);
+        } else {
+          window.open(testRailUrl, "_blank");
+        }
+        this.showMenu = false;
       }
     },
     logout() {
       this.showMenu = false;
-      this.credentials = {};
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
-        func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
-        data: this.credentials,
-      });
+      const emptyCredentials = {};
+      this.$store.commit("auth/setCredentials", emptyCredentials);
+      this.$storageService.updateCredentials(emptyCredentials);
     },
   },
 };
