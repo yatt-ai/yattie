@@ -262,7 +262,6 @@ const removeItemById = (id) => {
 
 const getItemById = (id) => {
   const data = dataDb.get("items");
-  console.log({ dataDb });
   const item = data.find((item) => item.id === id);
 
   return item;

@@ -1078,7 +1078,6 @@ export default {
             filePath: item.filePath,
             timer_mark: this.$store.state.timer,
           };
-          // await this.openEditorModal(data);
           this.evidenceData = data;
           this.addEvidenceDialog = true;
         }
@@ -1135,13 +1134,8 @@ export default {
       this.saveData();
     },
     async handleActiveSession(id) {
-      console.log("handleActiveSession", { id });
       this.itemToEdit = await this.$storageService.getItemById(id);
-      console.log("item to edit", this.itemToEdit);
       this.editEvidenceDialog = true;
-
-      // this.activeSession = await this.$storageService.getItemById(id);
-      // this.$emit("submit-session", this.activeSession);
     },
     async dragItem(event, item) {
       event.preventDefault();
