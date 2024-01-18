@@ -73,11 +73,9 @@ module.exports.saveSession = async (data) => {
     "yattie-session-" + dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + "-notes.txt";
   const notes = databaseUtility.getNotes();
   let notesFilePath = "";
-  if (notes.text !== "") {
-    notesFilePath = captureUtility.saveNote({
-      fileName: notesFileName,
-      comment: notes,
-    });
+  if (notes.text) {
+    const notesItem = captureUtility.saveNote(notes, notesFileName)
+    notesFilePath = notesItem.item.filePath;
   }
 
   const fileName = "TestSession.test";

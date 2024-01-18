@@ -123,8 +123,9 @@ export default {
   },
   methods: {
     async exportSession() {
+      const sessionId = await this.$storageService.getSessionId();
       const data = {
-        id: this.$store.state.id,
+        id: sessionId,
         title: this.$store.state.title,
         charter: this.$store.state.charter,
         preconditions: this.$store.state.preconditions,
