@@ -1638,8 +1638,9 @@ export default {
     },
     async saveSession(callback = null) {
       this.newSessionDialog = false;
+      const sessionId = await this.$storageService.getSessionId();
       const data = {
-        id: this.$store.state.id,
+        id: sessionId,
         title: this.$store.state.title,
         charter: this.$store.state.charter,
         mindmap: this.$store.state.mindmap,
@@ -1738,7 +1739,7 @@ export default {
       this.isDuration = false;
       this.duration = 0;
 
-      this.$store.commit("resetState");
+      this.$store.commit("clearState");
 
       await this.$storageService.resetData();
       if (this.$isElectron) {
