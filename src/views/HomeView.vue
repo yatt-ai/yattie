@@ -43,8 +43,8 @@
           small
           class="mt-4 text-capitalize open-btn"
           v-shortkey="openExploratoryHotkey"
-          @shortkey="openSession()"
-          @click="openSession()"
+          @shortkey="openSession"
+          @click="openSession"
         >
           {{ $tc("caption.open_exploratory_session", 1) }}
         </v-btn>

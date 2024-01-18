@@ -149,7 +149,6 @@ module.exports.saveSession = async (data) => {
 };
 
 module.exports.openSession = async () => {
-  console.log("openSession");
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openFile"],
     filters: [{ name: "Test File", extensions: ["test"] }],
@@ -176,7 +175,7 @@ module.exports.openSession = async () => {
     const id = state.id;
     const dataFolder = path.join(configDir, "sessions", id);
     if (fs.existsSync(dataFolder)) {
-      fs.rmdirSync(dataFolder);
+      fs.rmSync(dataFolder, { recursive: true });
     }
     fs.renameSync(target, dataFolder);
 
