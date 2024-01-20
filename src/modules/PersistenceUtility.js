@@ -398,7 +398,7 @@ module.exports.createNewSession = (state) => {
   const sessionDataPath = path.join(
     configDir,
     "sessions",
-    state.id,
+    state.sessionID,
     "sessionData.json"
   );
 
@@ -446,7 +446,7 @@ module.exports.getCaseID = () => {
       return dataDb.get("caseID");
     }
     return "";
-  } catch (error) { 
+  } catch (error) {
     console.log(error);
     return "";
   }

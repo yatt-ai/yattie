@@ -1,6 +1,7 @@
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 
 import axios from "axios";
+import dayjs from "dayjs";
 
 export default {
   getHeaders(credential) {
@@ -12,15 +13,17 @@ export default {
     };
   },
   async saveSession(credentials) {
-    // CTODO
+    if (!credentials?.yatt || credentials?.yatt.length < 1) {
+      const url = `${process.env.VUE_APP_YATT_API_URL}/app/signup/token`;
+      const newCredentialsResponse = await axios.get(url);
+      this.saveCredentials(credentials, newCredentialsResponse.data);
+    }
+
     // Pull case and session data
     const url = `${process.env.VUE_APP_YATT_API_URL}/yattie/executions`;
     const session = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
       func: IPC_FUNCTIONS.GET_CURRENT_SESSION,
     });
-    if (!credentials?.yatt || credentials?.yatt.length < 1) {
-      // CTODO - create credentials
-    }
 
     const credential = credentials?.yatt[0];
     const options = {
@@ -77,10 +80,9 @@ export default {
   formatData(data) {
     return {
       accessToken: data.accessToken,
-      jiraOauthTokenId: data.jiraOauthTokenId,
       expiresAt: data.expiresAt,
-      type: data.type,
-      loggedInAt: data.loggedInAt,
+      type: data.type || "bearer",
+      loggedInAt: data.loggedInAt || dayjs().format("YYYY-MM-DD HH:mm:ss"),
       oauthTokenIds: data.oauthTokenIds,
       user: {
         id: data.user.uid,

@@ -47,7 +47,10 @@
                     @change="handleSelected($event, item.stepID)"
                   />
                 </div>
-                <div class="image-wrapper" @click="handleItemClick(item.stepID)">
+                <div
+                  class="image-wrapper"
+                  @click="handleItemClick(item.stepID)"
+                >
                   <img
                     class="screen-img"
                     style="max-width: 100%"
@@ -156,7 +159,10 @@
                     @change="handleSelected($event, item.stepID)"
                   />
                 </div>
-                <div class="video-wrapper" @click="handleItemClick(item.stepID)">
+                <div
+                  class="video-wrapper"
+                  @click="handleItemClick(item.stepID)"
+                >
                   <video
                     controls
                     style="width: 100%"
@@ -265,7 +271,10 @@
                     @change="handleSelected($event, item.stepID)"
                   />
                 </div>
-                <div class="audio-wrapper" @click="handleItemClick(item.stepID)">
+                <div
+                  class="audio-wrapper"
+                  @click="handleItemClick(item.stepID)"
+                >
                   <div class="audio-wave">
                     <img :src="item.poster" />
                   </div>
@@ -503,7 +512,10 @@
                     @change="handleSelected($event, item.stepID)"
                   />
                 </div>
-                <div class="image-wrapper" @click="handleItemClick(item.stepID)">
+                <div
+                  class="image-wrapper"
+                  @click="handleItemClick(item.stepID)"
+                >
                   <img
                     class="screen-img"
                     style="max-width: 100%"

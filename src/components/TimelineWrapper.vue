@@ -63,7 +63,10 @@
                       />
                     </div>
                   </div>
-                  <div class="image-wrapper" @click="handleItemClick(item.stepID)">
+                  <div
+                    class="image-wrapper"
+                    @click="handleItemClick(item.stepID)"
+                  >
                     <img
                       class="screen-img"
                       style="max-width: 100%"
@@ -334,7 +337,10 @@
                       />
                     </div>
                   </div>
-                  <div class="audio-wrapper" @click="handleItemClick(item.stepID)">
+                  <div
+                    class="audio-wrapper"
+                    @click="handleItemClick(item.stepID)"
+                  >
                     <div class="audio-wave">
                       <img :src="`file://${item.poster}`" />
                     </div>
@@ -466,7 +472,10 @@
                       />
                     </div>
                   </div>
-                  <div class="note-wrapper" @click="handleItemClick(item.stepID)">
+                  <div
+                    class="note-wrapper"
+                    @click="handleItemClick(item.stepID)"
+                  >
                     <font-awesome-icon
                       :icon="textTypes[item.comment.type].icon"
                       class="mr-1"
@@ -743,7 +752,10 @@
                       />
                     </div>
                   </div>
-                  <div class="image-wrapper" @click="handleItemClick(item.stepID)">
+                  <div
+                    class="image-wrapper"
+                    @click="handleItemClick(item.stepID)"
+                  >
                     <img
                       class="screen-img"
                       style="max-width: 100%"
@@ -876,7 +888,10 @@
                       />
                     </div>
                   </div>
-                  <div class="note-wrapper" @click="handleItemClick(item.stepID)">
+                  <div
+                    class="note-wrapper"
+                    @click="handleItemClick(item.stepID)"
+                  >
                     <font-awesome-icon
                       :icon="textTypes[item.comment.type].icon"
                       class="mr-1"

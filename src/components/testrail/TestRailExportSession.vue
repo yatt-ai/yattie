@@ -559,7 +559,9 @@ export default {
 
       let attachmentComments = "";
       this.selectedIds.map(async (id, i) => {
-        const item = this.selectedAttachments.find((item) => item.stepID === id);
+        const item = this.selectedAttachments.find(
+          (item) => item.stepID === id
+        );
         attachmentComments += item.comment.type + ": " + item.comment.text;
         if (i !== this.selectedIds.length - 1) {
           attachmentComments += "\n";

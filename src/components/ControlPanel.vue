@@ -1172,7 +1172,7 @@ export default {
       });
     },
     async showShareSessionDialog() {
-      // CTODO
+      // TODO
       let savedSession = await yattIntegrationHelper.saveSession(
         this.credentials
       );
@@ -1860,10 +1860,10 @@ export default {
     },
     async saveSession(callback = null) {
       this.newSessionDialog = false;
-      const sessionID, = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
+      const sessionID = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.GET_SESSION_ID,
       });
-      const caseID, = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
+      const caseID = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.GET_CASE_ID,
       });
 

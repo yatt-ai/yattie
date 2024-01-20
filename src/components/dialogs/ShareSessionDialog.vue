@@ -3,7 +3,7 @@
     v-bind="$attrs"
     v-on="$listeners"
     persistent
-    width="100%"
+    width="50%"
     max-width="600px"
   >
     <v-sheet rounded :style="{ backgroundColor: currentTheme.background }">
