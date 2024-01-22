@@ -31,7 +31,7 @@
           small
           color="primary"
           v-shortkey="newExploratoryHotkey"
-          @shortkey="newSession()"
+          @shortkey="newSession"
           to="main"
         >
           {{ $tc("caption.new_exploratory_session", 1) }}
@@ -211,6 +211,7 @@ export default {
   },
   methods: {
     async newSession() {
+      await this.$store.commit("setQuickTest", false);
       if (this.$router.history.current.path === "/") {
         await this.$router.push("/main");
       }

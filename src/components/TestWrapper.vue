@@ -151,7 +151,7 @@
               v-model="duration"
               @input="handleDuration"
               hide-details="true"
-              :disabled="this.$store.state.status !== 'pending' ? true : false"
+              :disabled="this.$store.state.status !== 'pending'"
             />
             <span class="timer-box-wrapper-label">
               {{ $tc("caption.minute", 1) }}

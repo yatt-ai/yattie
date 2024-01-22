@@ -182,12 +182,32 @@
                 @click="handleResetConfirmDialog()"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
+                  mdi-restart
+                </v-icon>
+                <v-icon color="#D1D5DB" v-else>mdi-restart</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $tc("caption.restart_session", 1) }}</span>
+          </v-tooltip>
+          <v-tooltip top v-if="status !== 'pause'">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                id="btn_reset"
+                class="control-btn mx-1"
+                fab
+                outlined
+                small
+                color="default"
+                v-on="on"
+                @click="finishSession"
+              >
+                <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-close-circle
                 </v-icon>
                 <v-icon color="#D1D5DB" v-else>mdi-close-circle</v-icon>
               </v-btn>
             </template>
-            <span>{{ $tc("caption.clear_session", 1) }}</span>
+            <span>{{ $tc("caption.finish_session", 1) }}</span>
           </v-tooltip>
         </v-col>
       </v-row>
@@ -1727,6 +1747,12 @@ export default {
       this.stopInterval();
     },
 
+    async finishSession() {
+      this.$store.commit("clearState");
+      await this.$storageService.resetData();
+      await this.$router.push("/");
+    },
+
     async resetSession() {
       if (this.resetConfirmDialog) {
         this.resetConfirmDialog = false;
@@ -1739,7 +1765,7 @@ export default {
       this.isDuration = false;
       this.duration = 0;
 
-      this.$store.commit("clearState");
+      this.$store.commit("resetState");
 
       await this.$storageService.resetData();
       if (this.$isElectron) {

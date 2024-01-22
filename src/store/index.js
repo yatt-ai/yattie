@@ -124,7 +124,6 @@ export default new Vuex.Store({
 
       state.started = "";
       state.ended = "";
-      state.quickTest = false;
       this._vm.$storageService.updateState(state);
     },
     restoreState(state, payload) {
