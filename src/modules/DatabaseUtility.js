@@ -140,7 +140,7 @@ const defaultConfig = {
       followUp: ["ctrl", "f"],
       comment: ["ctrl", "d"],
       tags: ["ctrl", "t"],
-      type: ["ctrl", "y"],
+      type: ["ctrl", "l"],
       save: "general.save",
       cancel: "general.cancel",
     },
