@@ -1763,7 +1763,6 @@ export default {
 
       this.timer = 0;
       this.isDuration = false;
-      this.duration = 0;
 
       this.$store.commit("resetState");
 

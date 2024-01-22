@@ -357,6 +357,7 @@ export default {
     this.$root.$on("reset-duration", () => {
       this.duration = "";
     });
+    this.duration = this.formatDuration(this.$store.state.duration);
   },
   methods: {
     updateTitle() {
@@ -442,6 +443,24 @@ export default {
           this.$tc("message.ai_assist_not_empty", 1)
         );
       }
+    },
+    formatDuration(secondsTotal) {
+      if (
+        secondsTotal === "" ||
+        secondsTotal === 0 ||
+        isNaN(secondsTotal) ||
+        secondsTotal < 0
+      ) {
+        return "00:00";
+      }
+
+      const minutes = Math.floor(secondsTotal / 60);
+      const seconds = secondsTotal % 60;
+
+      const formattedMinutes = minutes.toString().padStart(2, "0");
+      const formattedSeconds = seconds.toString().padStart(2, "0");
+
+      return `${formattedMinutes}:${formattedSeconds}`;
     },
     handleDuration() {
       const timeArr = this.duration.split(":");

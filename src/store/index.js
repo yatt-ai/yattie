@@ -118,7 +118,6 @@ export default new Vuex.Store({
       this._vm.$storageService.updateState(state);
     },
     resetState(state) {
-      state.duration = 0;
       state.status = SESSION_STATUSES.PENDING;
       state.timer = 0;
 
