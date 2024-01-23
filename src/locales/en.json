@@ -263,6 +263,7 @@
     "check_update": "Check for updates"
   },
   "message": {
+    "browser_action_attempts": "Waiting for browser action. Attempts:",
     "invalid_html": "Invalid HTML returned",
     "ai_assist_not_empty": "AI assist field cannot be empty",
     "successfully_added_attachment": "Successfully added attachment to issue",

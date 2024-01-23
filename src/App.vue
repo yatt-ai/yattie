@@ -68,7 +68,9 @@ export default {
         if (this.stateToRestore.path.includes("result") && this.$isElectron) {
           this.$electronService.setWindowSize({ width: 1440, height: 900 });
         }
-        await this.$router.push({ path: this.stateToRestore.path });
+        if (this.stateToRestore.path !== "/authentication/signinJira") {
+          await this.$router.push({ path: this.stateToRestore.path });
+        }
       }
       this.showRestoreSessionDialog = false;
     },

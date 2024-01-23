@@ -1,7 +1,7 @@
 <template>
   <v-container class="wrapper">
     <div class="header py-4">
-      <v-btn class="text-capitalize pa-0 back-btn" plain @click="back()">
+      <v-btn class="text-capitalize pa-0 back-btn" plain @click="back">
         <v-icon class="ma-0">mdi-chevron-left</v-icon>
         {{ $tc("caption.back", 1) }}
       </v-btn>
@@ -212,6 +212,16 @@
           </v-col>
         </v-row>
       </v-form>
+      <v-alert
+        class="mt-2"
+        v-if="loading"
+        color="orange"
+        dense
+        text
+        type="warning"
+        >{{ $tc("message.browser_action_attempts", 1) }}
+        {{ currentConnectAttempt }}/{{ connectAttempts }}</v-alert
+      >
     </div>
     <v-snackbar v-model="snackBar.enabled" timeout="3000">
       {{ snackBar.message }}
@@ -276,6 +286,8 @@ export default {
       userName: "",
       apiKey: "",
       instanceUrl: "",
+      currentConnectAttempt: 1,
+      connectAttempts: 10,
       loading: false,
       valid: true,
       rules: {
@@ -454,7 +466,8 @@ export default {
             };
           }
 
-          for (let count = 0; count < 30; count++) {
+          for (let count = 1; count <= this.connectAttempts; count++) {
+            this.currentConnectAttempt = count;
             let response;
             try {
               response = await axios.get(tokenURL, header);
