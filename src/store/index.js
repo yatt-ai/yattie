@@ -94,6 +94,7 @@ export default new Vuex.Store({
       this._vm.$storageService.updateState(state);
     },
     clearState(state) {
+      state.id = null;
       state.title = "";
       state.charter = {
         content: "",
@@ -126,6 +127,7 @@ export default new Vuex.Store({
       this._vm.$storageService.updateState(state);
     },
     restoreState(state, payload) {
+      state.id = payload.id;
       state.title = payload.title;
       state.charter.content = payload?.charter?.content || "";
       state.charter.text = payload?.charter?.text || "";

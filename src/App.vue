@@ -3,36 +3,42 @@
     <component :is="layout">
       <router-view />
     </component>
+    <ResetSessionDialog
+      v-if="renderRestoreSessionDialog"
+      :text="$t('message.confirm_reset_session')"
+      v-model="showRestoreSessionDialog"
+      @confirm="restoreSession"
+      @cancel="clearSession"
+    />
   </div>
 </template>
 
 <script>
+import ResetSessionDialog from "@/components/dialogs/ResetSessionDialog.vue";
+import ResetConfirmDialog from "@/components/dialogs/ResetConfirmDialog.vue";
+
 const default_layout = "default";
 
 export default {
   name: "App",
+  components: { ResetConfirmDialog, ResetSessionDialog },
+  data() {
+    return {
+      showRestoreSessionDialog: false,
+      renderRestoreSessionDialog: false,
+      stateToRestore: {},
+    };
+  },
   computed: {
     layout() {
       return (this.$route.meta.layout || default_layout) + "-layout";
     },
   },
-  async beforeCreate() {
-    // Only restore state for the primary window that opens at HomeView
-    if (this.$router.history.current.path === "/") {
-      const state = await this.$storageService.getState();
-      if (Object.keys(state).length) {
-        await this.$store.commit("restoreState", state);
-        const currentPath = this.$router.history.current.path;
-        if (state.path && currentPath !== state.path) {
-          if (state.path.includes("result") && this.$isElectron) {
-            this.$electronService.setWindowSize({ width: 1440, height: 900 });
-          }
-          await this.$router.push({ path: state.path });
-        }
-      }
-    }
-  },
   async created() {
+    if (this.$router.history.current.path === "/") {
+      this.renderRestoreSessionDialog = true;
+    }
+
     const config = await this.$storageService.getConfig();
     this.$store.commit("config/setFullConfig", config);
 
@@ -43,7 +49,37 @@ export default {
       await this.updateAuth();
     }
   },
+  async mounted() {
+    if (this.renderRestoreSessionDialog) {
+      this.stateToRestore = await this.$storageService.getState();
+      if (Object.keys(this.stateToRestore).length && this.stateToRestore.id) {
+        this.showRestoreSessionDialog = true;
+      }
+    }
+  },
   methods: {
+    async restoreSession() {
+      await this.$store.commit("restoreState", this.stateToRestore);
+      const currentPath = this.$router.history.current.path;
+      if (
+        this.stateToRestore.path &&
+        currentPath !== this.stateToRestore.path
+      ) {
+        if (this.stateToRestore.path.includes("result") && this.$isElectron) {
+          this.$electronService.setWindowSize({ width: 1440, height: 900 });
+        }
+        await this.$router.push({ path: this.stateToRestore.path });
+      }
+      this.showRestoreSessionDialog = false;
+    },
+    async clearSession() {
+      this.$store.commit("clearState");
+      await this.$storageService.resetData();
+      if (this.$router.history.current.path !== "/") {
+        await this.$router.push("/");
+      }
+      this.showRestoreSessionDialog = false;
+    },
     async updateAuth() {
       if (
         this.$store.getters["auth/credentials"] &&
