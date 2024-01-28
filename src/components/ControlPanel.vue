@@ -431,7 +431,6 @@
             <span>{{ $tc("caption.start_audio_record", 1) }}</span>
           </v-tooltip>
           <v-tooltip top v-if="recordAudioStarted">
-            <!-- TODO test same binding for start/stop -->
             <template v-slot:activator="{ on }">
               <v-btn
                 id="btn_stop_record_audio"
@@ -579,9 +578,16 @@
                   status === 'pause' || recordVideoStarted || recordAudioStarted
                 "
               >
-                <v-list-item-title>
+                <v-icon class="ddl-icon">mdi-fit-to-screen</v-icon>
+                <v-list-item-content>
                   {{ $tc("caption.change_recording_target", 1) }}
-                </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="showShareSessionDialog()">
+                <v-icon class="ddl-icon">mdi-share-variant</v-icon>
+                <v-list-item-content>
+                  {{ $tc("caption.share_session", 1) }}
+                </v-list-item-content>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -649,6 +655,11 @@
         :sourceId="sourceId"
         :loaded="loaded"
         @submit-source="startSession"
+      />
+      <ShareSessionDialog
+        v-model="shareSessionDialog"
+        :session-link="sessionLink"
+        :configItem="config"
       />
       <NoteDialog
         v-model="noteDialog"
@@ -722,7 +733,9 @@
 import { VBtn, VCol, VContainer, VIcon, VRow } from "vuetify/lib/components";
 import uuidv4 from "uuid";
 
+import yattIntegrationHelper from "../integrations/YattIntegrationHelpers";
 import SourcePickerDialog from "./dialogs/SourcePickerDialog.vue";
+import ShareSessionDialog from "./dialogs/ShareSessionDialog.vue";
 import NoteDialog from "./dialogs/NoteDialog.vue";
 import SummaryDialog from "./dialogs/SummaryDialog.vue";
 import DeleteConfirmDialog from "./dialogs/DeleteConfirmDialog.vue";
@@ -759,6 +772,7 @@ export default {
     VBtn,
     VIcon,
     SourcePickerDialog,
+    ShareSessionDialog,
     NoteDialog,
     SummaryDialog,
     DeleteConfirmDialog,
@@ -928,6 +942,7 @@ export default {
   data() {
     return {
       sourcePickerDialog: false,
+      shareSessionDialog: false,
       noteDialog: false,
       summaryDialog: false,
       deleteConfirmDialog: false,
@@ -938,6 +953,7 @@ export default {
       audioErrorDialog: false,
       endSessionDialog: false,
       sources: [],
+      sessionLink: "",
       sourceId: this.srcId,
       itemLists: this.items,
       audioDevices: [],
@@ -965,6 +981,7 @@ export default {
     }
 
     this.$root.$on("close-sourcepickerdialog", this.hideSourcePickerDialog);
+    this.$root.$on("close-sharesessiondialog", this.hideShareSessionDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
     this.$root.$on("close-summarydialog", () => {
       this.summaryDialog = false;
@@ -1064,8 +1081,19 @@ export default {
         console.log(err);
       }
     },
+    async showShareSessionDialog() {
+      // TODO
+      let savedSession = await yattIntegrationHelper.saveSession(
+        this.credentials
+      );
+      this.sessionLink = savedSession?.link;
+      this.shareSessionDialog = true;
+    },
     hideSourcePickerDialog() {
       this.sourcePickerDialog = false;
+    },
+    hideShareSessionDialog() {
+      this.shareSessionDialog = false;
     },
     showNoteDialog() {
       if (this.viewMode === "normal") {
@@ -1389,9 +1417,10 @@ export default {
               this.$root.$emit("set-snackbar", message);
               console.log(message);
             } else {
-              const { id, fileName, filePath } = item;
+              const { stepID, attachmentID, fileName, filePath } = item;
               const data = {
-                id,
+                stepID,
+                attachmentID,
                 sessionType: "Video",
                 fileType: "video",
                 fileName,
@@ -1518,7 +1547,8 @@ export default {
               console.log(message);
             } else {
               const data = {
-                id: item.id,
+                stepID: item.stepID,
+                attachmentID: item.attachmentID,
                 sessionType: "Audio",
                 fileType: "audio",
                 fileName: item.fileName,
@@ -1583,7 +1613,7 @@ export default {
         console.log(message);
       } else {
         let newItem = {
-          id: item.id,
+          stepID: item.stepID,
           sessionType: "Note",
           fileType: "text",
           fileName: item.fileName,
@@ -1603,21 +1633,19 @@ export default {
     async addSummary(value) {
       // TODO - handle summary like a regular note and allow additional metadata
       const data = {
-        id: uuidv4(),
+        stepID: uuidv4(),
         sessionType: "Summary",
         comment: value,
         timer_mark: this.timer,
         createdAt: Date.now(),
       };
       if (Object.keys(this.summary).length) {
-        const items = this.items.map((item) => {
-          let temp = Object.assign({}, item);
-          if (temp.sessionType === "Summary") {
-            temp = data;
-          }
-          return temp;
-        });
-        this.$root.$emit("save-session", items);
+        delete data.stepID;
+        const newSummary = {
+          ...this.summary,
+          ...data,
+        };
+        this.$emit("update-item", newSummary);
       } else {
         this.$emit("add-item", data);
       }
@@ -1627,12 +1655,15 @@ export default {
     addMindmap() {
       // TODO - With transition to try mindmap format, UUID generation should
       //        move to CaptureUtility
-      const id = uuidv4();
+      const stepID = uuidv4();
+      const attachmentID = uuidv4();
       const data = {
         id,
+        stepID,
+        attachmentID,
         sessionType: "Mindmap",
         fileType: "mindmap",
-        fileName: `mindmap-${id.substring(0, 5)}.png`,
+        fileName: `mindmap-${attachmentID.substring(0, 5)}.png`,
         filePath: "",
         content: {
           nodes: DEFAULT_MAP_NODES,
@@ -1658,9 +1689,11 @@ export default {
     },
     async saveSession(callback = null) {
       this.newSessionDialog = false;
-      const sessionId = await this.$storageService.getSessionId();
+      const sessionID = await this.$storageService.getSessionId();
+      const caseID = await this.$storageService.getCaseId();
       const data = {
-        id: sessionId,
+        sessionID: sessionID,
+        caseID: caseID,
         title: this.$store.state.title,
         charter: this.$store.state.charter,
         mindmap: this.$store.state.mindmap,
@@ -1812,6 +1845,9 @@ export default {
 </script>
 
 <style scoped>
+.ddl-icon {
+  margin-right: 0.25em;
+}
 .mini-ctrl-wrapper {
   display: flex;
   flex-direction: column;
