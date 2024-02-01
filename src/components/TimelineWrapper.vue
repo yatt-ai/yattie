@@ -41,7 +41,7 @@
               @dragstart="(event) => dragItem(event, item)"
             >
               <v-timeline-item
-                v-if="item.sessionType === 'Screenshot'"
+                v-if="item.fileType === 'image'"
                 color="primary"
                 icon="mdi-camera-plus"
                 fill-dot
@@ -178,7 +178,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Video'"
+                v-if="item.fileType === 'video'"
                 color="primary"
                 icon="mdi-video"
                 fill-dot
@@ -315,7 +315,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Audio'"
+                v-if="item.fileType === 'audio'"
                 color="primary"
                 icon="mdi-microphone"
                 fill-dot
@@ -342,7 +342,7 @@
                     @click="handleItemClick(item.stepID)"
                   >
                     <div class="audio-wave">
-                      <img :src="`file://${item.poster}`" />
+                      <img :src="`file://${item.poster.filePath}`" />
                     </div>
                   </div>
                   <div class="comment-wrapper mt-2 mb-2">
@@ -451,7 +451,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Note'"
+                v-if="item.fileType === 'text'"
                 color="primary"
                 icon="mdi-pencil"
                 fill-dot
@@ -580,7 +580,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'File'"
+                v-if="item.fileType === 'other'"
                 color="primary"
                 icon="mdi-file"
                 fill-dot
@@ -730,7 +730,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Mindmap'"
+                v-if="item.fileType === 'mindmap'"
                 color="primary"
                 icon="mdi-camera-plus"
                 fill-dot
@@ -867,7 +867,9 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Summary' && item.comment.text"
+                v-if="
+                  item?.comment?.commentType === 'Summary' && item.comment.text
+                "
                 color="primary"
                 icon="mdi-pencil"
                 fill-dot
@@ -1071,12 +1073,7 @@ export default {
         console.log(message);
       } else {
         const data = {
-          sessionType: "File",
-          stepID: item.stepID,
-          attachmentID: item.attachmentID,
-          fileType: item.fileType,
-          fileName: item.fileName,
-          filePath: item.filePath,
+          ...item,
           timer_mark: this.$store.state.timer,
         };
         this.openEditorModal(data);
@@ -1186,12 +1183,7 @@ export default {
           console.log(message);
         } else {
           const data = {
-            sessionType: "File",
-            stepID: item.stepID,
-            attachmentID: item.attachmentID,
-            fileType: item.fileType,
-            fileName: item.fileName,
-            filePath: item.filePath,
+            ...item,
             timer_mark: this.$store.state.timer,
           };
           this.openEditorModal(data);

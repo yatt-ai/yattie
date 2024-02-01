@@ -123,8 +123,10 @@ export default {
         this.$root.$emit("set-snackbar", message);
         console.log(message);
       } else {
-        this.editSessionItem.fileName = item.fileName;
-        this.editSessionItem.filePath = item.filePath;
+        this.editSessionItem = {
+          ...this.editSessionItem,
+          ...item,
+        };
         this.$root.$emit("update-edit-item", this.editSessionItem);
         this.$root.$emit("save-data");
       }

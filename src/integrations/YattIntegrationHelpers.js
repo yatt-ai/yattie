@@ -40,10 +40,10 @@ export default {
         returnResponse.link = postedSession.data.link;
       })
       .catch((error) => {
-        returnResponse.error = {
-          message: JSON.stringify(error.response.data.errors),
-        };
+        returnResponse.error = error.response.data.errors;
       });
+
+    // CTODO - take signed attachment URLs and upload them
     return returnResponse;
 
     // Return result (with generated "link" field)

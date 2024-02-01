@@ -54,7 +54,7 @@ module.exports.createImage = ({ url, isPoster }) => {
     fileName
   );
   const base64Data = url.replace(/^data:image\/png;base64,/, "");
-  fs.writeFile(filePath, base64Data, "base64", function (err) {
+  fs.writeFileSync(filePath, base64Data, "base64", function (err) {
     if (err) {
       console.log(err);
       return {
@@ -64,6 +64,7 @@ module.exports.createImage = ({ url, isPoster }) => {
     }
   });
 
+  const fileSize = fs.statSync(filePath).size;
   return {
     status: STATUSES.SUCCESS,
     item: {
@@ -71,6 +72,7 @@ module.exports.createImage = ({ url, isPoster }) => {
       attachmentID,
       fileName,
       filePath,
+      fileSize,
     },
   };
 };
@@ -90,7 +92,7 @@ module.exports.updateImage = ({ item, url }) => {
     fileName
   );
   const base64Data = url.replace(/^data:image\/png;base64,/, "");
-  fs.writeFile(filePath, base64Data, "base64", function (err) {
+  fs.writeFileSync(filePath, base64Data, "base64", function (err) {
     if (err) {
       console.log(err);
       return {
@@ -99,11 +101,14 @@ module.exports.updateImage = ({ item, url }) => {
       };
     }
   });
+
+  const fileSize = fs.statSync(filePath).size;
   return {
     status: STATUSES.SUCCESS,
     item: {
       fileName,
       filePath,
+      fileSize,
     },
   };
 };
@@ -125,6 +130,8 @@ module.exports.createVideo = ({ buffer }) => {
       };
     }
   });
+
+  const fileSize = fs.statSync(filePath).size;
   return {
     status: STATUSES.SUCCESS,
     item: {
@@ -132,6 +139,7 @@ module.exports.createVideo = ({ buffer }) => {
       attachmentID,
       fileName,
       filePath,
+      fileSize,
     },
   };
 };
@@ -169,8 +177,11 @@ module.exports.optimizeVideo = ({ filePath }) => {
             console.log(err);
             return reject({ status: STATUSES.ERROR, message: err });
           }
+
+          const fileSize = fs.statSync(filePath).size;
           return resolve({
             status: STATUSES.SUCCESS,
+            fileSize,
           });
         });
       })
@@ -224,11 +235,14 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
               console.log(err);
               return reject({ status: STATUSES.ERROR, message: err });
             }
+
+            const fileSize = fs.statSync(filePath).size;
             return resolve({
               status: STATUSES.SUCCESS,
               item: {
                 fileName,
                 filePath,
+                fileSize,
               },
             });
           });
@@ -248,18 +262,21 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
         fileName
       );
       if (item.filePath && item.filePath !== filePath) {
-        fs.rename(item.filePath, filePath, function (err) {
+        fs.renameSync(item.filePath, filePath, function (err) {
           if (err) {
             console.log(err);
             return reject({ status: STATUSES.ERROR, message: err });
           }
         });
       }
+
+      const fileSize = fs.statSync(filePath).size;
       return resolve({
         status: STATUSES.SUCCESS,
         item: {
           fileName,
           filePath,
+          fileSize,
         },
       });
     }
@@ -283,6 +300,8 @@ module.exports.createAudio = ({ buffer }) => {
       };
     }
   });
+
+  const fileSize = fs.statSync(filePath).size;
   return {
     status: STATUSES.SUCCESS,
     item: {
@@ -290,6 +309,7 @@ module.exports.createAudio = ({ buffer }) => {
       attachmentID,
       fileName,
       filePath,
+      fileSize,
     },
   };
 };
@@ -306,7 +326,7 @@ module.exports.updateAudio = ({ item }) => {
   );
 
   if (item.filePath && item.filePath !== filePath) {
-    fs.rename(item.filePath, filePath, function (err) {
+    fs.renameSync(item.filePath, filePath, function (err) {
       if (err) {
         console.log(err);
         return {
@@ -316,11 +336,14 @@ module.exports.updateAudio = ({ item }) => {
       }
     });
   }
+
+  const fileSize = fs.statSync(filePath).size;
   return {
     status: STATUSES.SUCCESS,
     item: {
       fileName,
       filePath,
+      fileSize,
     },
   };
 };
@@ -409,6 +432,7 @@ module.exports.uploadEvidence = async () => {
         fileType = "other";
       }
 
+      const fileSize = fs.statSync(filePath).size;
       return resolve({
         status: STATUSES.SUCCESS,
         item: {
@@ -417,6 +441,7 @@ module.exports.uploadEvidence = async () => {
           fileType,
           fileName,
           filePath,
+          fileSize,
         },
       });
     });
@@ -460,6 +485,7 @@ module.exports.dropFile = async (data) => {
         fileType = "other";
       }
 
+      const fileSize = fs.statSync(filePath).size;
       return resolve({
         status: STATUSES.SUCCESS,
         item: {
@@ -468,6 +494,7 @@ module.exports.dropFile = async (data) => {
           fileType,
           fileName,
           filePath,
+          fileSize,
         },
       });
     });

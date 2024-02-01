@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="preview-wrapper" v-if="isProcessing">
-      <img :src="`file://${editSessionItem.poster}`" />
+      <img :src="`file://${editSessionItem.poster.filePath}`" />
       <div class="progress-bar">
         <v-progress-linear
           indeterminate
@@ -158,6 +158,7 @@ export default {
         console.log(message);
       } else {
         this.editSessionItem.filePath = item.filePath;
+        this.editSessionitem.fileSize = item.fileSize;
         this.$root.$emit("update-edit-item", this.editSessionItem);
         if (needCallback) {
           this.$root.$emit("save-data", this.editSessionItem);

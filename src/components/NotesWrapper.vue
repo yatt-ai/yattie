@@ -37,7 +37,7 @@
               :key="i"
               class="draggable-item notes-evidence"
             >
-              <template v-if="item.sessionType === 'Screenshot'">
+              <template v-if="item.fileType === 'image'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
@@ -149,7 +149,7 @@
                   </label>
                 </div>
               </template>
-              <template v-if="item.sessionType === 'Video'">
+              <template v-if="item.fileType === 'video'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
@@ -261,7 +261,7 @@
                   </label>
                 </div>
               </template>
-              <template v-if="item.sessionType === 'Audio'">
+              <template v-if="item.fileType === 'audio'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
@@ -276,7 +276,7 @@
                   @click="handleItemClick(item.stepID)"
                 >
                   <div class="audio-wave">
-                    <img :src="item.poster" />
+                    <img :src="item.poster.filePath" />
                   </div>
                   <div class="audio-play">
                     <v-icon medium>mdi-play-circle</v-icon>
@@ -374,7 +374,8 @@
                   </label>
                 </div>
               </template>
-              <template v-if="item.sessionType === 'Note'">
+              <!-- CTODO -->
+              <template v-if="item.fileType === 'text'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
@@ -413,7 +414,8 @@
                   </label>
                 </div>
               </template>
-              <template v-if="item.sessionType === 'File'">
+              <!-- CTODO -->
+              <template v-if="item.fileType === 'other'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
@@ -451,7 +453,7 @@
                   @click="handleItemClick(item.stepID)"
                 >
                   <div class="audio-wave">
-                    <img :src="item.poster" />
+                    <img :src="item.poster.filePath" />
                   </div>
                   <div class="audio-play">
                     <v-icon medium>mdi-play-circle</v-icon>
@@ -502,7 +504,7 @@
                   </label>
                 </div>
               </template>
-              <template v-if="item.sessionType === 'Mindmap'">
+              <template v-if="item.fileType === 'mindmap'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
@@ -594,7 +596,8 @@ export default {
       this.itemLists = newValue
         .slice()
         .reverse()
-        .filter((item) => item.sessionType !== "Summary");
+        // CTODO vvvvvv
+        .filter((item) => item.fileType !== "summary");
       this.itemLists.map((item) => {
         this.emojiMenu[`menu-${item.stepID}`] = false;
       });
@@ -612,7 +615,8 @@ export default {
       itemLists: this.items
         .slice()
         .reverse()
-        .filter((item) => item.sessionType !== "Summary"),
+        // CTODO vvvvvv
+        .filter((item) => item.fileType !== "summary"),
       eventName: this.eventType,
       clicks: 0,
       selected: [],

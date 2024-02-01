@@ -378,7 +378,7 @@ export default {
         this.comment.type = this.config.commentType;
       }
       // set templates by config
-      const template = this.config.templates[this.item.sessionType];
+      const template = this.config.templates[this.item.fileType];
       this.comment.content = template.content;
       this.comment.text = template.text;
     });
@@ -425,7 +425,7 @@ export default {
 
       if (!window.ipc) return;
 
-      const { status, message } = await window.ipc.invoke(
+      const { status, message, fileSize } = await window.ipc.invoke(
         IPC_HANDLERS.CAPTURE,
         {
           func: IPC_FUNCTIONS.OPTIMIZE_VIDEO,
@@ -438,6 +438,8 @@ export default {
       if (status === STATUSES.ERROR) {
         this.$root.$emit("set-snackbar", message);
         console.log(message);
+      } else {
+        this.item.fileSize = fileSize;
       }
       this.processing = false;
     },
@@ -458,7 +460,7 @@ export default {
       });
       await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
         func: IPC_FUNCTIONS.DELETE_FILE,
-        data: { filePath: this.item.poster },
+        data: { filePath: this.item.poster.filePath },
       });
       window.ipc.invoke(IPC_HANDLERS.WINDOW, {
         func: IPC_FUNCTIONS.CLOSE_ADD_WINDOW,

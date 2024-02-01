@@ -22,7 +22,6 @@ export const migrationStruct = {
         return items.map((item) => {
           item.sessionID = item.id;
           item.caseID = uuidv4();
-          item.type = item.sessionType;
 
           delete item.id;
           delete item.sessionType;
@@ -50,6 +49,7 @@ export const migrationStruct = {
       checklist: "config.checklist",
       hotkeys: "config.hotkeys",
       version: "config.version",
+      // eslint-disable-next-line no-dupe-keys
       templates: (templates) => {
         let newTemplates = [];
         for (const [type, content] of Object.entries(templates)) {
@@ -66,7 +66,21 @@ export const migrationStruct = {
     data: {
       items: (items) => {
         return items.map((item) => {
-          item.sessionType = item.type;
+          switch (item.fileType) {
+            case "text":
+              if (item.comment.commentType === "Summary") {
+                item.sessionType = "Summary";
+              } else {
+                item.sessionType = "Note";
+              }
+              break;
+            case "image":
+              item.sessionType = "Screenshot";
+              break;
+            default:
+              item.sessionType = item.fileType.toUpperCase();
+          }
+
           delete item.type;
           return item;
         });

@@ -7,27 +7,47 @@
     max-width="600px"
   >
     <v-sheet rounded :style="{ backgroundColor: currentTheme.background }">
-      <div class="wrapper">
-        <div class="content">
-          <span :style="{ color: currentTheme.secondary }">
-            <v-input disabled>
-              {{ sessionURL }}
-            </v-input>
-          </span>
-        </div>
-        <div class="footer">
+      <v-card :style="{ backgroundColor: currentTheme.background }">
+        <v-card-title class="text" :style="{ color: currentTheme.secondary }">
+          <!-- CTODO: Title: Share your (Oneric Ocelot's or whatever) test! -->
+        </v-card-title>
+        <v-card-text class="text" :style="{ color: currentTheme.secondary }">
+          <v-text-field
+            v-model="sessionURL"
+            disabled
+            label="Copy Link"
+            type="text"
+            variant="outlined"
+          >
+            <template v-slot:prepend-inner>
+              <v-icon icon="mdi-link" />
+            </template>
+          </v-text-field>
+        </v-card-text>
+        <v-card-actions>
           <v-btn
-            class="text-capitalize"
+            small
+            :color="currentTheme.primary"
+            class="text-capitalize btn"
+            v-shortkey="confirmHotkey"
+            @shortkey="handleCopy()"
+            @click="handleCopy()"
+          >
+            {{ $tc("copy_link", 1) }}
+          </v-btn>
+          <v-btn
             small
             :color="currentTheme.background"
-            v-shortkey="confirmHotkey"
+            class="text-capitalize btn"
+            :style="{ color: currentTheme.secondary }"
+            v-shortkey="cancelHotkey"
             @shortkey="handleClose()"
             @click="handleClose()"
           >
-            {{ $tc("caption.cancel", 1) }}
+            {{ $tc("cancel", 1) }}
           </v-btn>
-        </div>
-      </div>
+        </v-card-actions>
+      </v-card>
     </v-sheet>
   </v-dialog>
 </template>

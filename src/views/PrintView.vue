@@ -94,7 +94,7 @@
 
             <div v-for="(item, i) in items" :key="i">
               <v-timeline-item
-                v-if="item.sessionType === 'Screenshot'"
+                v-if="item.fileType === 'image'"
                 color="primary"
                 icon="mdi-camera-plus"
                 fill-dot
@@ -129,7 +129,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Video'"
+                v-if="item.fileType === 'video'"
                 color="primary"
                 icon="mdi-video"
                 fill-dot
@@ -145,7 +145,7 @@
                   <div class="video-wrapper">
                     <img
                       style="max-width: 100%"
-                      :src="`file://${item.poster}`"
+                      :src="`file://${item.poster.filePath}`"
                     />
                     <v-icon class="video-play" x-large>mdi-play</v-icon>
                   </div>
@@ -165,7 +165,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Audio'"
+                v-if="item.fileType === 'audio'"
                 color="primary"
                 icon="mdi-microphone"
                 fill-dot
@@ -201,8 +201,9 @@
                   </div>
                 </div>
               </v-timeline-item>
+              <!-- CTODO -->
               <v-timeline-item
-                v-if="item.sessionType === 'Note'"
+                v-if="item.fileType === 'text'"
                 color="primary"
                 icon="mdi-pencil"
                 fill-dot
@@ -229,8 +230,9 @@
                   </div>
                 </div>
               </v-timeline-item>
+              <!-- CTODO - these aren't all "other" now -->
               <v-timeline-item
-                v-if="item.sessionType === 'File'"
+                v-if="item.fileType === 'other'"
                 color="primary"
                 icon="mdi-file"
                 fill-dot
@@ -276,8 +278,9 @@
                   </div>
                 </div>
               </v-timeline-item>
+              <!-- CTODO -->
               <v-timeline-item
-                v-if="item.sessionType === 'Mindmap'"
+                v-if="item.fileType === 'mindmap'"
                 color="primary"
                 icon="mdi-camera-plus"
                 fill-dot
@@ -312,8 +315,9 @@
                   </div>
                 </div>
               </v-timeline-item>
+              <!-- CTODO -->
               <v-timeline-item
-                v-if="item.sessionType === 'Summary' && item.comment.text"
+                v-if="item.fileType === 'summary' && item.comment.text"
                 color="primary"
                 icon="mdi-pencil"
                 fill-dot

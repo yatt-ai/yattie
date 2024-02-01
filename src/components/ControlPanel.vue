@@ -948,7 +948,7 @@ export default {
     summary() {
       let summary = {};
       this.items.map((item) => {
-        if (item.sessionType === "Summary") {
+        if (item?.comment?.commentType === "Summary") {
           summary = item;
         }
       });
@@ -1172,12 +1172,15 @@ export default {
       });
     },
     async showShareSessionDialog() {
-      // TODO
       let savedSession = await yattIntegrationHelper.saveSession(
         this.credentials
       );
-      this.sessionLink = savedSession?.link;
-      this.shareSessionDialog = true;
+      if (savedSession?.error) {
+        // CTODO - handle errors
+      } else {
+        this.sessionLink = savedSession?.link;
+        this.shareSessionDialog = true;
+      }
     },
     hideSourcePickerDialog() {
       this.sourcePickerDialog = false;
@@ -1447,12 +1450,8 @@ export default {
             console.log(message);
           } else {
             const data = {
-              stepID: item.stepID,
-              attachmentID: item.attachmentID,
-              sessionType: "Screenshot",
+              ...item,
               fileType: "image",
-              fileName: item.fileName,
-              filePath: item.filePath,
               timer_mark: this.timer,
             };
             this.openAddWindow(data);
@@ -1526,7 +1525,7 @@ export default {
               this.$root.$emit("set-snackbar", message);
               console.log("Unable to generate poster for video: " + message);
             }
-            poster = item.filePath;
+            poster = item;
           };
         };
         mediaRecorder.ondataavailable = (e) => {
@@ -1552,14 +1551,9 @@ export default {
             this.$root.$emit("set-snackbar", message);
             console.log(message);
           } else {
-            const { stepID, attachmentID, fileName, filePath } = item;
             const data = {
-              stepID,
-              attachmentID,
-              sessionType: "Video",
+              ...item,
               fileType: "video",
-              fileName,
-              filePath,
               poster: poster,
               timer_mark: this.timer,
             };
@@ -1685,12 +1679,8 @@ export default {
             console.log(message);
           } else {
             const data = {
-              stepID: item.stepID,
-              attachmentID: item.attachmentID,
-              sessionType: "Audio",
+              ...item,
               fileType: "audio",
-              fileName: item.fileName,
-              filePath: item.filePath,
               timer_mark: this.timer,
               poster: "",
             };
@@ -1703,6 +1693,7 @@ export default {
       this.handleError = (error) => {
         console.log("Error:", error);
       };
+      // CTODO - check out when the below was removed
       // try {
       //   this.audioDevices = await this.getAudioSources();
       //   if (!this.audioDevices.length) {
@@ -1760,8 +1751,6 @@ export default {
       } else {
         let newItem = {
           stepID: item.stepID,
-          // CTODO needed? attachmentID: item.attachmentID,
-          sessionType: "Note",
           fileType: "text",
           fileName: item.fileName,
           filePath: item.filePath,
@@ -1781,8 +1770,7 @@ export default {
       // TODO - handle summary like a regular note and allow additional metadata
       const data = {
         stepID: uuidv4(),
-        // CTODO needed? attachmentID: uuidv4(),
-        sessionType: "Summary",
+        fileType: "text",
         comment: value,
         timer_mark: this.timer,
         createdAt: Date.now(),
@@ -1808,7 +1796,6 @@ export default {
       const data = {
         stepID,
         attachmentID,
-        sessionType: "Mindmap",
         fileType: "mindmap",
         fileName: `mindmap-${attachmentID.substring(0, 5)}.png`,
         filePath: "",

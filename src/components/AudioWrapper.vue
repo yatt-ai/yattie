@@ -238,7 +238,7 @@ export default {
       }
       this.sessionItem = {
         ...this.sessionItem,
-        poster: posterResult.item.filePath,
+        poster: posterResult.item,
         ...audioResult.item,
       };
       this.$root.$emit("update-session", this.sessionItem);

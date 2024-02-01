@@ -12,7 +12,7 @@
             {{ $tc("caption.apply_to", 1) }}
           </p>
           <v-select
-            :items="sessionTypes"
+            :items="evidenceTypes"
             v-model="type"
             :placeholder="$tc('caption.session_type', 1)"
             solo
@@ -135,7 +135,7 @@ export default {
       templates: this.configItem.templates,
       template: Object.values(this.configItem.templates)[0],
       type: Object.keys(this.configItem.templates)[0],
-      sessionTypes: Object.keys(this.configItem.templates),
+      evidenceTypes: Object.keys(this.configItem.templates),
     };
   },
   mounted() {},

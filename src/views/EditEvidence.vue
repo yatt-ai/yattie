@@ -502,7 +502,7 @@ export default {
       });
     },
     async handleSave() {
-      if (this.item.sessionType !== "Note") {
+      if (this.item.fileType !== "text") {
         this.triggerSaveEvent = true;
       } else {
         this.saveData(this.item);

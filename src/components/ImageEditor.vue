@@ -160,6 +160,7 @@ export default {
           this.editSessionItem.filePath.substring(item.filePath.length) === "?"
             ? item.filePath
             : item.filePath + "?";
+        this.editSessionItem.fileSize = item.fileSize;
         this.$root.$emit("update-edit-item", this.editSessionItem);
         if (needCallback) {
           this.$root.$emit("save-data", this.editSessionItem);

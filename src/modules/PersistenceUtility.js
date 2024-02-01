@@ -36,8 +36,8 @@ const defaultConfig = {
   },
   templates: {
     Screenshot: {
-      content: "<p>Testing this</p>",
-      text: "Testing this",
+      content: "",
+      text: "",
     },
     Video: {
       content: "",
@@ -221,7 +221,7 @@ const applyMigrations = (type, newVersion, data) => {
     let direction = "up";
     for (let i = 0; i < splitNewVersion.length; i++) {
       if (splitNewVersion[i] < splitDataVersion[i]) {
-        let direction = "down";
+        direction = "down";
         break;
       }
     }
@@ -355,7 +355,7 @@ const migrateKeys = (migrations, data) => {
             data[subKey] = subValue;
           }
         } else if (value.length > 1 && value.split(".") > 1) {
-          if (/^[A-za-z0-9\.-_]+$/.test(value)) {
+          if (/^[A-za-z0-9.-_]+$/.test(value)) {
             eval(`data.${value} = data[key];`);
           } else {
             console.log(`Invalid migration value [${value}] skipping...`);
@@ -577,6 +577,7 @@ module.exports.updateConfig = (config) => {
 
 module.exports.getCredentials = () => {
   try {
+    // eslint-disable-next-line no-unused-vars
     const { version: _, ...credentials } = credentialDb.JSON();
     return credentials;
   } catch (error) {
