@@ -116,8 +116,8 @@ export default {
       this.metadata = await this.$storageService.getMetaData();
     },
     async getConfig() {
-      this.config = await this.$storageService.getConfig();
-      this.$store.commit("config/setFullConfig", this.config);
+      const config = await this.$storageService.getConfig();
+      this.$store.commit("config/setFullConfig", config);
     },
     updateConfig(value) {
       this.config = value;
@@ -132,8 +132,8 @@ export default {
       }
     },
     async getCredentials() {
-      this.credentials = await this.$storageService.getCredentials();
-      this.$store.commit("auth/setCredentials", this.credentials);
+      const credentials = await this.$storageService.getCredentials();
+      this.$store.commit("auth/setCredentials", credentials);
     },
     updateCredentials(value) {
       this.credentials = value;

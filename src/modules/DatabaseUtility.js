@@ -355,7 +355,6 @@ module.exports.addItem = (item) => {
 };
 
 module.exports.updateItems = (items) => {
-  console.log("update items in DB");
   try {
     dataDb.set("items", items);
     browserWindow = browserUtility.getBrowserWindow();

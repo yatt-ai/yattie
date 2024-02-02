@@ -11,7 +11,7 @@ import { config } from "@/store/modules/config";
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state: {
     id: null,
     title: "",
@@ -190,3 +190,35 @@ export default new Vuex.Store({
   },
   strict: process.env.NODE_ENV !== "production",
 });
+
+// store.subscribe((mutation) => {
+//   if (
+//     mutation.type === "config/addPresessionTask" ||
+//     mutation.type === "config/editPresessionTaskContent" ||
+//     mutation.type === "config/editPresessionTaskRequired" ||
+//     mutation.type === "config/deletePresessionTask"
+//   ) {
+//     const presessionTasks = store.getters["config/checklistPresessionTasks"];
+//     store.commit(
+//       "setPreSessionTasks",
+//       presessionTasks.map((task) => {
+//         return { ...task, checked: false };
+//       })
+//     );
+//   } else if (
+//     mutation.type === "config/addPostsessionTask" ||
+//     mutation.type === "config/editPostsessionTaskContent" ||
+//     mutation.type === "config/editPostsessionTaskRequired" ||
+//     mutation.type === "config/deletePostsessionTask"
+//   ) {
+//     const postsessionTasks = store.getters["config/checklistPostsessionTasks"];
+//     store.commit(
+//       "setPostSessionTasks",
+//       postsessionTasks.map((task) => {
+//         return { ...task, checked: false };
+//       })
+//     );
+//   }
+// });
+
+export default store;
