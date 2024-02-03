@@ -41,7 +41,7 @@
               @dragstart="(event) => dragItem(event, item)"
             >
               <v-timeline-item
-                v-if="item.fileType === 'image'"
+                v-if="getType(item.fileType) === 'image'"
                 color="primary"
                 icon="mdi-camera-plus"
                 fill-dot
@@ -91,7 +91,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -104,7 +104,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item.emoji.length">
+                    <template v-if="item?.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -178,7 +178,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.fileType === 'video'"
+                v-if="getType(item.fileType) === 'video'"
                 color="primary"
                 icon="mdi-video"
                 fill-dot
@@ -228,7 +228,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -241,7 +241,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item.emoji.length">
+                    <template v-if="item?.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -315,7 +315,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.fileType === 'audio'"
+                v-if="getType(item.fileType) === 'audio'"
                 color="primary"
                 icon="mdi-microphone"
                 fill-dot
@@ -363,7 +363,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -376,7 +376,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item.emoji.length">
+                    <template v-if="item?.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -451,7 +451,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.fileType === 'text'"
+                v-if="getType(item.fileType) === 'text'"
                 color="primary"
                 icon="mdi-pencil"
                 fill-dot
@@ -493,7 +493,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -506,7 +506,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item.emoji.length">
+                    <template v-if="item?.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -580,7 +580,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.fileType === 'other'"
+                v-if="getType(item.fileType) === undefined"
                 color="primary"
                 icon="mdi-file"
                 fill-dot
@@ -603,7 +603,7 @@
                     </div>
                   </div>
                   <div
-                    v-if="item.fileType === 'image'"
+                    v-if="getType(item.fileType) === 'image'"
                     class="file-wrapper image"
                     @click="handleItemClick(item.stepID)"
                   >
@@ -643,7 +643,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -656,7 +656,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item.emoji.length">
+                    <template v-if="item?.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -730,7 +730,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.fileType === 'mindmap'"
+                v-if="getType(item.fileType) === 'mindmap'"
                 color="primary"
                 icon="mdi-camera-plus"
                 fill-dot
@@ -780,7 +780,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -793,7 +793,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item.emoji.length">
+                    <template v-if="item?.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -867,9 +867,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="
-                  item?.comment?.commentType === 'Summary' && item.comment.text
-                "
+                v-if="item?.comment?.type === 'Summary' && item.comment.text"
                 color="primary"
                 icon="mdi-pencil"
                 fill-dot
@@ -971,6 +969,7 @@ import {
   IPC_FUNCTIONS,
   STATUSES,
   TEXT_TYPES,
+  FILE_TYPES,
 } from "../modules/constants";
 
 export default {
@@ -1051,6 +1050,9 @@ export default {
     });
   },
   methods: {
+    getType(type) {
+      return FILE_TYPES[type];
+    },
     formatTime(timeInSeconds) {
       const seconds = ("0" + (timeInSeconds % 60)).slice(-2);
       const minutes = ("0" + (parseInt(timeInSeconds / 60, 10) % 60)).slice(-2);

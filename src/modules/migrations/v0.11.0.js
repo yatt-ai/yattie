@@ -1,4 +1,5 @@
 const uuidv4 = require("uuid");
+const { DEFAULT_FILE_TYPES } = require("../constants");
 
 export const migrationStruct = {
   up: {
@@ -66,21 +67,7 @@ export const migrationStruct = {
     data: {
       items: (items) => {
         return items.map((item) => {
-          switch (item.fileType) {
-            case "text":
-              if (item.comment.commentType === "Summary") {
-                item.sessionType = "Summary";
-              } else {
-                item.sessionType = "Note";
-              }
-              break;
-            case "image":
-              item.sessionType = "Screenshot";
-              break;
-            default:
-              item.sessionType = item.fileType.toUpperCase();
-          }
-
+          item.fileType = DEFAULT_FILE_TYPES[item.fileType].type;
           delete item.type;
           return item;
         });

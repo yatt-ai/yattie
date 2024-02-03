@@ -537,7 +537,7 @@ export default {
           if (this.selectedIds.length > 0) {
             this.itemLists.map((item) => {
               if (
-                item?.comment?.commentType !== "Summary" &&
+                item?.comment?.type !== "Summary" &&
                 this.selectedIds.includes(item.id)
               ) {
                 selectedAttachments.push(item);

@@ -10,7 +10,7 @@ const configDir = (app || remote.app).getPath("userData");
 
 const persistenceUtility = require("./PersistenceUtility");
 const captureUtility = require("./CaptureUtility");
-const { STATUSES } = require("./constants");
+const { STATUSES, FILE_TYPES } = require("./constants");
 
 module.exports.exportItems = async (ids) => {
   const fileName =
@@ -39,7 +39,7 @@ module.exports.exportItems = async (ids) => {
             item.filePath.substring(item.filePath.length - 1) !== "?"
               ? item.filePath
               : item.filePath.substring(0, item.filePath.length - 1);
-          zip.addLocalFile(sanitizedPath, item.fileType);
+          zip.addLocalFile(sanitizedPath, FILE_TYPES[item.fileType]);
         }
       });
 
@@ -275,7 +275,7 @@ module.exports.exportSession = async (params) => {
                   item.filePath.substring(item.filePath.length - 1) !== "?"
                     ? item.filePath
                     : item.filePath.substring(0, item.filePath.length - 1);
-                zip.addLocalFile(sanitizedPath, item.fileType);
+                zip.addLocalFile(sanitizedPath, FILE_TYPES[item.fileType]);
               }
             });
 

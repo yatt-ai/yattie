@@ -37,7 +37,7 @@
               :key="i"
               class="draggable-item notes-evidence"
             >
-              <template v-if="item.fileType === 'image'">
+              <template v-if="getType(item.fileType) === 'image'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
@@ -149,7 +149,7 @@
                   </label>
                 </div>
               </template>
-              <template v-if="item.fileType === 'video'">
+              <template v-if="getType(item.fileType) === 'video'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
@@ -261,7 +261,7 @@
                   </label>
                 </div>
               </template>
-              <template v-if="item.fileType === 'audio'">
+              <template v-if="getType(item.fileType) === 'audio'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
@@ -374,8 +374,7 @@
                   </label>
                 </div>
               </template>
-              <!-- CTODO -->
-              <template v-if="item.fileType === 'text'">
+              <template v-if="getType(item.fileType) === 'text'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
@@ -414,8 +413,7 @@
                   </label>
                 </div>
               </template>
-              <!-- CTODO -->
-              <template v-if="item.fileType === 'other'">
+              <template v-if="getType(item.fileType) === undefined">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
@@ -426,7 +424,7 @@
                   />
                 </div>
                 <div
-                  v-if="item.fileType === 'image'"
+                  v-if="getType(item.fileType) === 'image'"
                   class="image-wrapper"
                   @click="handleItemClick(item.stepID)"
                 >
@@ -437,7 +435,7 @@
                   />
                 </div>
                 <div
-                  v-else-if="item.fileType === 'video'"
+                  v-else-if="getType(item.fileType) === 'video'"
                   class="video-wrapper"
                   @click="handleItemClick(item.stepID)"
                 >
@@ -448,7 +446,7 @@
                   ></video>
                 </div>
                 <div
-                  v-else-if="item.fileType === 'audio'"
+                  v-else-if="getType(item.fileType) === 'audio'"
                   class="audio-wrapper"
                   @click="handleItemClick(item.stepID)"
                 >
@@ -504,7 +502,7 @@
                   </label>
                 </div>
               </template>
-              <template v-if="item.fileType === 'mindmap'">
+              <template v-if="getType(item.fileType) === 'mindmap'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
@@ -569,7 +567,7 @@
 import draggable from "vuedraggable";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
+import { IPC_HANDLERS, IPC_FUNCTIONS, FILE_TYPES } from "../modules/constants";
 
 export default {
   name: "NotesWrapper",
@@ -596,8 +594,7 @@ export default {
       this.itemLists = newValue
         .slice()
         .reverse()
-        // CTODO vvvvvv
-        .filter((item) => item.fileType !== "summary");
+        .filter((item) => item.commentType !== "Summary");
       this.itemLists.map((item) => {
         this.emojiMenu[`menu-${item.stepID}`] = false;
       });
@@ -615,8 +612,7 @@ export default {
       itemLists: this.items
         .slice()
         .reverse()
-        // CTODO vvvvvv
-        .filter((item) => item.fileType !== "summary"),
+        .filter((item) => item.comment.type !== "Summary"),
       eventName: this.eventType,
       clicks: 0,
       selected: [],
@@ -643,6 +639,9 @@ export default {
     },
   },
   methods: {
+    getType(type) {
+      return FILE_TYPES[type];
+    },
     async fetchNotes() {
       if (!window.ipc) return;
 

@@ -4,6 +4,7 @@ const fs = require("fs");
 const dayjs = require("dayjs");
 const detect = require("detect-file-type");
 const uuidv4 = require("uuid");
+const crypto = require("crypto");
 
 const ffmpeg = require("fluent-ffmpeg");
 
@@ -22,7 +23,7 @@ ffmpeg.setFfprobePath(ffprobePath.path);
 const browserUtility = require("./BrowserWindowUtility");
 const persistenceUtility = require("./PersistenceUtility");
 
-const { STATUSES } = require("./constants");
+const { STATUSES, DEFAULT_FILE_TYPES } = require("./constants");
 
 const configDir = (app || remote.app).getPath("userData");
 
@@ -45,6 +46,8 @@ module.exports.getMediaSource = async () => {
 };
 
 module.exports.createImage = ({ url, isPoster }) => {
+  const fileType = DEFAULT_FILE_TYPES["image"].type;
+  const fileFormat = DEFAULT_FILE_TYPES["image"].suffix;
   const imageType = isPoster ? "poster" : "image";
   const { stepID, attachmentID, fileName } = generateIDAndName(imageType);
   const filePath = path.join(
@@ -65,6 +68,10 @@ module.exports.createImage = ({ url, isPoster }) => {
   });
 
   const fileSize = fs.statSync(filePath).size;
+  const fileChecksum = crypto
+    .createHash("md5")
+    .update(base64Data, "utf8")
+    .digest("hex");
   return {
     status: STATUSES.SUCCESS,
     item: {
@@ -73,6 +80,8 @@ module.exports.createImage = ({ url, isPoster }) => {
       fileName,
       filePath,
       fileSize,
+      fileChecksum,
+      fileType,
     },
   };
 };
@@ -103,17 +112,24 @@ module.exports.updateImage = ({ item, url }) => {
   });
 
   const fileSize = fs.statSync(filePath).size;
+  const fileChecksum = crypto
+    .createHash("md5")
+    .update(base64Data, "utf8")
+    .digest("hex");
   return {
     status: STATUSES.SUCCESS,
     item: {
       fileName,
       filePath,
       fileSize,
+      fileChecksum,
     },
   };
 };
 
 module.exports.createVideo = ({ buffer }) => {
+  const fileType = DEFAULT_FILE_TYPES["video"].type;
+  const fileFormat = DEFAULT_FILE_TYPES["video"].suffix;
   const { stepID, attachmentID, fileName } = generateIDAndName("video");
   const filePath = path.join(
     configDir,
@@ -132,6 +148,11 @@ module.exports.createVideo = ({ buffer }) => {
   });
 
   const fileSize = fs.statSync(filePath).size;
+  const fileContents = fs.readFileSync(filePath);
+  const fileChecksum = crypto
+    .createHash("md5")
+    .update(fileContents, "utf8")
+    .digest("hex");
   return {
     status: STATUSES.SUCCESS,
     item: {
@@ -140,15 +161,20 @@ module.exports.createVideo = ({ buffer }) => {
       fileName,
       filePath,
       fileSize,
+      fileChecksum,
+      fileType,
     },
   };
 };
 
 module.exports.optimizeVideo = ({ filePath }) => {
+  const fileType = DEFAULT_FILE_TYPES["video"].type;
+  const fileFormat = DEFAULT_FILE_TYPES["video"].suffix;
   const tempName =
     "temp-optimizing-video-" +
     dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") +
-    ".mp4";
+    "." +
+    fileFormat;
   const tempPath = path.join(
     configDir,
     "sessions",
@@ -160,7 +186,7 @@ module.exports.optimizeVideo = ({ filePath }) => {
     ffmpeg(filePath)
       .videoCodec("libx264")
       .audioCodec("aac")
-      .format("mp4")
+      .format(fileFormat)
       .save(tempPath)
       .on("start", function (commandLine) {
         console.log("start : " + commandLine);
@@ -179,9 +205,15 @@ module.exports.optimizeVideo = ({ filePath }) => {
           }
 
           const fileSize = fs.statSync(filePath).size;
+          const fileContents = fs.readFileSync(filePath);
+          const fileChecksum = crypto
+            .createHash("md5")
+            .update(fileContents, "utf8")
+            .digest("hex");
           return resolve({
             status: STATUSES.SUCCESS,
             fileSize,
+            fileChecksum,
           });
         });
       })
@@ -193,10 +225,12 @@ module.exports.optimizeVideo = ({ filePath }) => {
 };
 
 module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
+  const fileFormat = "mp4";
   const tempName =
     "temp-optimizing-video-" +
     dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") +
-    ".mp4";
+    "." +
+    fileFormat;
   const tempPath = path.join(
     configDir,
     "sessions",
@@ -237,12 +271,18 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
             }
 
             const fileSize = fs.statSync(filePath).size;
+            const fileContents = fs.readFileSync(filePath);
+            const fileChecksum = crypto
+              .createHash("md5")
+              .update(fileContents, "utf8")
+              .digest("hex");
             return resolve({
               status: STATUSES.SUCCESS,
               item: {
                 fileName,
                 filePath,
                 fileSize,
+                fileChecksum,
               },
             });
           });
@@ -271,12 +311,18 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
       }
 
       const fileSize = fs.statSync(filePath).size;
+      const fileContents = fs.readFileSync(filePath);
+      const fileChecksum = crypto
+        .createHash("md5")
+        .update(fileContents, "utf8")
+        .digest("hex");
       return resolve({
         status: STATUSES.SUCCESS,
         item: {
           fileName,
           filePath,
           fileSize,
+          fileChecksum,
         },
       });
     }
@@ -284,6 +330,8 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
 };
 
 module.exports.createAudio = ({ buffer }) => {
+  const fileType = DEFAULT_FILE_TYPES["audio"].type;
+  const fileFormat = DEFAULT_FILE_TYPES["audio"].suffix;
   const { stepID, attachmentID, fileName } = generateIDAndName("audio");
   const filePath = path.join(
     configDir,
@@ -302,6 +350,10 @@ module.exports.createAudio = ({ buffer }) => {
   });
 
   const fileSize = fs.statSync(filePath).size;
+  const fileChecksum = crypto
+    .createHash("md5")
+    .update(Buffer.from(buffer), "utf8")
+    .digest("hex");
   return {
     status: STATUSES.SUCCESS,
     item: {
@@ -310,6 +362,8 @@ module.exports.createAudio = ({ buffer }) => {
       fileName,
       filePath,
       fileSize,
+      fileChecksum,
+      fileType,
     },
   };
 };
@@ -338,12 +392,18 @@ module.exports.updateAudio = ({ item }) => {
   }
 
   const fileSize = fs.statSync(filePath).size;
+  const fileContents = fs.readFileSync(filePath);
+  const fileChecksum = crypto
+    .createHash("md5")
+    .update(fileContents, "utf8")
+    .digest("hex");
   return {
     status: STATUSES.SUCCESS,
     item: {
       fileName,
       filePath,
       fileSize,
+      fileChecksum,
     },
   };
 };
@@ -417,22 +477,14 @@ module.exports.uploadEvidence = async () => {
         });
       }
 
-      let fileType = "";
-      if (result) {
-        if (result.mime.substring(0, 6) === "image/") {
-          fileType = "image";
-        } else if (result.mime.substring(0, 6) === "video/") {
-          fileType = "video";
-        } else if (result.mime.substring(0, 6) === "audio/") {
-          fileType = "audio";
-        } else {
-          fileType = "other";
-        }
-      } else {
-        fileType = "other";
-      }
+      let fileType = result.mime;
 
       const fileSize = fs.statSync(filePath).size;
+      const fileContents = fs.readFileSync(filePath);
+      const fileChecksum = crypto
+        .createHash("md5")
+        .update(fileContents, "utf8")
+        .digest("hex");
       return resolve({
         status: STATUSES.SUCCESS,
         item: {
@@ -442,6 +494,15 @@ module.exports.uploadEvidence = async () => {
           fileName,
           filePath,
           fileSize,
+          fileChecksum,
+          comment: {
+            type: "Comment",
+            content: "",
+            text: "",
+          },
+          tags: [],
+          emoji: [],
+          followUp: false,
         },
       });
     });
@@ -470,24 +531,17 @@ module.exports.dropFile = async (data) => {
         });
       }
 
-      let fileType = "";
-      if (result) {
-        if (result.mime.substring(0, 6) === "image/") {
-          fileType = "image";
-        } else if (result.mime.substring(0, 6) === "video/") {
-          fileType = "video";
-        } else if (result.mime.substring(0, 6) === "audio/") {
-          fileType = "audio";
-        } else {
-          fileType = "other";
-        }
-      } else {
-        fileType = "other";
-      }
+      let fileType = result.mime;
 
       const fileSize = fs.statSync(filePath).size;
+      const fileContents = fs.readFileSync(filePath);
+      const fileChecksum = crypto
+        .createHash("md5")
+        .update(fileContents, "utf8")
+        .digest("hex");
       return resolve({
         status: STATUSES.SUCCESS,
+        // TODO - Move item building to a util
         item: {
           stepID,
           attachmentID,
@@ -495,6 +549,15 @@ module.exports.dropFile = async (data) => {
           fileName,
           filePath,
           fileSize,
+          fileChecksum,
+          comment: {
+            type: "Comment",
+            content: "",
+            text: "",
+          },
+          tags: [],
+          emoji: [],
+          followUp: false,
         },
       });
     });
@@ -512,22 +575,13 @@ const generateIDAndName = (type, uid = undefined) => {
   let success = false;
   let suffix;
 
-  switch (type) {
-    case "video":
-      suffix = "mp4";
-      break;
-    case "audio":
-      suffix = "mp3";
-      break;
-    case "image":
-    case "poster":
-      suffix = "png";
-      break;
-    case "text":
-      suffix = "txt";
-      break;
-    default:
-      suffix = "file";
+  if (type === "poster") {
+    type = "image";
+  }
+  if (DEFAULT_FILE_TYPES[type]) {
+    suffix = DEFAULT_FILE_TYPES[type].suffix;
+  } else {
+    suffix = "file";
   }
 
   while (!success) {

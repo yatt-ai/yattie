@@ -377,7 +377,7 @@ export default {
       if (this.selectedIds.length > 0) {
         this.itemLists.map((item) => {
           if (
-            item?.comment?.commentType !== "Summary" &&
+            item?.comment?.type !== "Summary" &&
             this.selectedIds.includes(item.stepID)
           ) {
             selectedAttachments.push(item);
@@ -481,8 +481,6 @@ export default {
             ? error.message
             : this.$tc("message.api_error", 1);
         });
-      //this.selectedItem = item;
-      // CTODO - remove this commneted line with the CTODO below
     },
     async handleSelectRun(item) {
       this.resetResults("test");
@@ -515,7 +513,7 @@ export default {
             : this.$tc("message.api_error", 1);
         });
       this.selectedItem = item;
-      // CTODO - rename "selectedItem" with what it actually is
+      // TODO - rename "selectedItem" with what it actually is
     },
     async handleAddResult(item) {
       this.resetResults("result");

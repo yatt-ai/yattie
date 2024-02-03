@@ -743,6 +743,7 @@ import {
   SESSION_STATUSES,
   VIDEO_RESOLUTION,
   STATUSES,
+  DEFAULT_FILE_TYPES,
 } from "../modules/constants";
 import {
   DEFAULT_MAP_NODES,
@@ -948,7 +949,7 @@ export default {
     summary() {
       let summary = {};
       this.items.map((item) => {
-        if (item?.comment?.commentType === "Summary") {
+        if (item?.comment?.type === "Summary") {
           summary = item;
         }
       });
@@ -1451,7 +1452,6 @@ export default {
           } else {
             const data = {
               ...item,
-              fileType: "image",
               timer_mark: this.timer,
             };
             this.openAddWindow(data);
@@ -1553,7 +1553,6 @@ export default {
           } else {
             const data = {
               ...item,
-              fileType: "video",
               poster: poster,
               timer_mark: this.timer,
             };
@@ -1680,7 +1679,6 @@ export default {
           } else {
             const data = {
               ...item,
-              fileType: "audio",
               timer_mark: this.timer,
               poster: "",
             };
@@ -1693,18 +1691,6 @@ export default {
       this.handleError = (error) => {
         console.log("Error:", error);
       };
-      // CTODO - check out when the below was removed
-      // try {
-      //   this.audioDevices = await this.getAudioSources();
-      //   if (!this.audioDevices.length) {
-      //     this.audioErrorDialog = true;
-      //     return;
-      //   }
-      //   const stream = this.setAudio(this.audioDevices);
-      //   this.handleStream(stream);
-      // } catch (e) {
-      //   console.log(e);
-      // }
       await navigator.mediaDevices.enumerateDevices().then((devices) => {
         this.audioDevices = devices.filter(
           (d) =>
@@ -1751,7 +1737,7 @@ export default {
       } else {
         let newItem = {
           stepID: item.stepID,
-          fileType: "text",
+          fileType: DEFAULT_FILE_TYPES["text"].type,
           fileName: item.fileName,
           filePath: item.filePath,
           comment: data.comment,
@@ -1770,7 +1756,7 @@ export default {
       // TODO - handle summary like a regular note and allow additional metadata
       const data = {
         stepID: uuidv4(),
-        fileType: "text",
+        fileType: DEFAULT_FILE_TYPES["text"].type,
         comment: value,
         timer_mark: this.timer,
         createdAt: Date.now(),
@@ -1796,7 +1782,7 @@ export default {
       const data = {
         stepID,
         attachmentID,
-        fileType: "mindmap",
+        fileType: DEFAULT_FILE_TYPES["mindmap"].type,
         fileName: `mindmap-${attachmentID.substring(0, 5)}.png`,
         filePath: "",
         content: {

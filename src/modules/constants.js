@@ -120,6 +120,47 @@ export const VIEW_MODE = {
   MINI: "minimized",
 };
 
+export const DEFAULT_FILE_TYPES = {
+  image: {
+    type: "image/png",
+    suffix: "png",
+  },
+  video: {
+    type: "video/mp4",
+    suffix: "mp4",
+  },
+  audio: {
+    type: "audio/mp3",
+    suffix: "mp3",
+  },
+  text: {
+    type: "text/plain",
+    suffix: "txt",
+  },
+  mindmap: {
+    type: "application/json",
+    suffix: "mindmap",
+  },
+};
+
+export const FILE_TYPES = {
+  "image/png": "image",
+  "image/jpeg": "image",
+  "image/bmp": "image",
+  "image/gif": "image",
+  "image/svg+xml": "image",
+  "image/webp": "image",
+  "video/mp4": "video",
+  "video/mpeg": "video",
+  "video/webm": "video",
+  "video/x-msvideo": "video",
+  "audio/mp3": "audio",
+  "audio/mpeg": "audio",
+  "audio/wav": "audio",
+  "audio/webm": "audio",
+  "application/mindmap": "mindmap",
+};
+
 export const TEXT_TYPES = {
   Comment: {
     icon: "fa-solid fa-comment",

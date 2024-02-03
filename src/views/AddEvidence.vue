@@ -246,6 +246,7 @@ import {
   TEXT_TYPES,
   STATUSES,
   AI_ENABLED_FIELDS,
+  FILE_TYPES,
 } from "../modules/constants";
 
 import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
@@ -367,7 +368,7 @@ export default {
       this.name = splitName.slice(0, -1).join(".");
 
       // optimize video
-      if (this.item.fileType === "video") {
+      if (FILE_TYPES[this.item.fileType] === "video") {
         this.optimizeVideo();
       } else {
         this.processing = false;
@@ -378,7 +379,7 @@ export default {
         this.comment.type = this.config.commentType;
       }
       // set templates by config
-      const template = this.config.templates[this.item.fileType];
+      const template = this.config.templates[FILE_TYPES[this.item.fileType]];
       this.comment.content = template.content;
       this.comment.text = template.text;
     });
@@ -425,21 +426,20 @@ export default {
 
       if (!window.ipc) return;
 
-      const { status, message, fileSize } = await window.ipc.invoke(
-        IPC_HANDLERS.CAPTURE,
-        {
+      const { status, message, fileSize, fileChecksum } =
+        await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
           func: IPC_FUNCTIONS.OPTIMIZE_VIDEO,
           data: {
             filePath: this.item.filePath,
           },
-        }
-      );
+        });
 
       if (status === STATUSES.ERROR) {
         this.$root.$emit("set-snackbar", message);
         console.log(message);
       } else {
         this.item.fileSize = fileSize;
+        this.item.fileChecksum = fileChecksum;
       }
       this.processing = false;
     },

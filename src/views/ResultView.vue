@@ -34,9 +34,9 @@
             <div
               class="actions-wrapper mt-1 mb-2"
               v-if="
-                editItem.fileType === 'image' ||
-                editItem.fileType === 'video' ||
-                editItem.fileType === 'audio'
+                getType(editItem.fileType) === 'image' ||
+                getType(editItem.fileType) === 'video' ||
+                getType(editItem.fileType) === 'audio'
               "
             >
               <template v-if="editItem.emoji.length">
@@ -210,7 +210,12 @@ import ReviewWrapper from "../components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
+import {
+  IPC_HANDLERS,
+  IPC_FUNCTIONS,
+  TEXT_TYPES,
+  FILE_TYPES,
+} from "../modules/constants";
 
 export default {
   name: "ResultView",
@@ -297,6 +302,9 @@ export default {
     },
   },
   methods: {
+    getType(type) {
+      return FILE_TYPES[type];
+    },
     fetchItems() {
       if (!window.ipc) return;
 
@@ -367,7 +375,7 @@ export default {
       this.saveData();
     },
     handleCommentType(val) {
-      this.editItem.commentType = val;
+      this.editItem.comment.type = val;
       this.saveData();
     },
     saveData() {
@@ -379,8 +387,8 @@ export default {
       });
     },
     handleClear() {
-      this.editItem.comment = "";
-      this.editItem.commentType = "Comment";
+      this.editItem.comment.text = "";
+      this.editItem.comment.type = "Comment";
       this.saveData();
     },
     updateSelected(value) {

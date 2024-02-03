@@ -3,7 +3,7 @@
     <div class="content">
       <div
         class="content-top"
-        v-if="Object.keys(item).length && item.fileType !== 'text'"
+        v-if="Object.keys(item).length && FILE_TYPES[item.fileType] !== 'text'"
       >
         <ReviewWrapper
           :item="item"
@@ -14,7 +14,7 @@
       </div>
       <v-divider></v-divider>
       <div class="content-bottom">
-        <div v-if="item.fileType !== 'text'">
+        <div v-if="FILE_TYPES[item.fileType] !== 'text'">
           <div class="actions-wrapper">
             <template v-if="item.emoji.length">
               <v-btn
@@ -157,7 +157,10 @@
             </template>
           </v-tiptap>
         </div>
-        <div class="actions-wrapper" v-if="item.fileType === 'text'">
+        <div
+          class="actions-wrapper"
+          v-if="FILE_TYPES[item.fileType] === 'text'"
+        >
           <template v-if="item.emoji.length">
             <v-btn
               rounded
@@ -302,6 +305,7 @@ import {
   IPC_FUNCTIONS,
   TEXT_TYPES,
   AI_ENABLED_FIELDS,
+  FILE_TYPES,
 } from "../modules/constants";
 
 import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
@@ -502,7 +506,7 @@ export default {
       });
     },
     async handleSave() {
-      if (this.item.fileType !== "text") {
+      if (FILE_TYPES[this.item.fileType] !== "text") {
         this.triggerSaveEvent = true;
       } else {
         this.saveData(this.item);

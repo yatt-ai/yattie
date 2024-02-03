@@ -2,11 +2,12 @@
   <div
     class="review-wrapper"
     v-if="
-      Object.keys(editSessionItem).length && editSessionItem.fileType !== 'text'
+      Object.keys(editSessionItem).length &&
+      getType(editSessionItem.fileType) !== 'text'
     "
   >
     <div
-      v-if="editSessionItem.fileType === 'image'"
+      v-if="getType(editSessionItem.fileType) === 'image'"
       style="width: 100%; height: 100%"
     >
       <ImageEditor
@@ -15,20 +16,17 @@
         :defaultColor="config.defaultColor"
       />
     </div>
-    <div v-else-if="editSessionItem.fileType === 'video'">
+    <div v-else-if="getType(editSessionItem.fileType) === 'video'">
       <VideoWrapper
         :item="editSessionItem"
         :processing="processing"
         :trigger-save="triggerSaveEvent"
       />
     </div>
-    <div v-else-if="editSessionItem.fileType === 'audio'">
+    <div v-else-if="getType(editSessionItem.fileType) === 'audio'">
       <AudioWrapper :item="editSessionItem" :trigger-save="triggerSaveEvent" />
     </div>
-    <div v-else-if="editSessionItem.fileType === 'other'">
-      <FileWrapper :item="editSessionItem" :trigger-save="triggerSaveEvent" />
-    </div>
-    <div v-else-if="editSessionItem.fileType === 'mindmap'">
+    <div v-else-if="getType(editSessionItem.fileType) === 'mindmap'">
       <mindmap-editor
         :nodes-data="editSessionItem.content.nodes"
         :connections-data="editSessionItem.content.connections"
@@ -37,6 +35,9 @@
         :auto-save="autoSaveEvent"
         @submit-mindmap="handleMindmap"
       />
+    </div>
+    <div v-else>
+      <FileWrapper :item="editSessionItem" :trigger-save="triggerSaveEvent" />
     </div>
   </div>
 </template>
@@ -48,7 +49,12 @@ import AudioWrapper from "./AudioWrapper.vue";
 import FileWrapper from "./FileWrapper.vue";
 import MindmapEditor from "./MindmapEditor.vue";
 
-import { IPC_HANDLERS, IPC_FUNCTIONS, STATUSES } from "../modules/constants";
+import {
+  IPC_HANDLERS,
+  IPC_FUNCTIONS,
+  STATUSES,
+  FILE_TYPES,
+} from "../modules/constants";
 
 export default {
   name: "ReviewWrapper",
@@ -109,6 +115,9 @@ export default {
     };
   },
   methods: {
+    getType(type) {
+      return FILE_TYPES[type];
+    },
     async handleMindmap(value) {
       this.editSessionItem.content.nodes = value.nodes;
       this.editSessionItem.content.connections = value.connections;
