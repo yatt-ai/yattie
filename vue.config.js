@@ -43,7 +43,7 @@ module.exports = {
           },
         ],
         dmg: {
-          artifactName: "{productName}-${version}-${arch}.${ext}",
+          artifactName: "${productName}-${version}-${arch}.${ext}",
           icon: false,
           contents: [
             {
