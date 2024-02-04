@@ -73,11 +73,9 @@ module.exports.saveSession = async (data) => {
     "yattie-session-" + dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + "-notes.txt";
   const notes = databaseUtility.getNotes();
   let notesFilePath = "";
-  if (notes.text !== "") {
-    notesFilePath = captureUtility.saveNote({
-      fileName: notesFileName,
-      comment: notes,
-    });
+  if (notes.text) {
+    const notesItem = captureUtility.saveNote(notes, notesFileName)
+    notesFilePath = notesItem.item.filePath;
   }
 
   const fileName = "TestSession.test";
@@ -149,7 +147,6 @@ module.exports.saveSession = async (data) => {
 };
 
 module.exports.openSession = async () => {
-  console.log("openSession");
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openFile"],
     filters: [{ name: "Test File", extensions: ["test"] }],
@@ -176,7 +173,7 @@ module.exports.openSession = async () => {
     const id = state.id;
     const dataFolder = path.join(configDir, "sessions", id);
     if (fs.existsSync(dataFolder)) {
-      fs.rmdirSync(dataFolder);
+      fs.rmSync(dataFolder, { recursive: true });
     }
     fs.renameSync(target, dataFolder);
 

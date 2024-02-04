@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="configToChange" class="wrapper">
+  <v-container class="wrapper">
     <div class="title">{{ $tc("caption.session_checklist", 1) }}</div>
     <p class="mt-2 mb-4">
       {{ $t("message.use_pre_post_test_checklist") }}
@@ -26,36 +26,59 @@
       <v-tab-item class="presession-wrapper" value="pre" :transition="false">
         <div class="status">
           <v-switch
-            v-model="presessionStatus"
+            :input-value="checklistPresessionStatus"
+            :value="checklistPresessionStatus"
             inset
             hide-details
             dense
             class="mt-0 pt-0"
-            @change="handleStatus"
+            @change="togglePresessionStatus"
           />
           <label>{{ $tc("caption.enable_checklist", 1) }}</label>
         </div>
         <div class="content">
-          <div class="overlay" v-show="!presessionStatus">&nbsp;</div>
+          <div class="overlay" v-show="!checklistPresessionStatus">&nbsp;</div>
           <div class="check-list">
-            <div class="one" v-for="task in preTaskList" :key="task.id">
+            <div
+              class="one"
+              v-for="task in checklistPresessionTasks"
+              :key="task.id"
+            >
               <div class="input-box">
                 <input
                   type="text"
-                  placeholer="Add Task"
-                  v-model="task.content"
+                  placeholder="Add task"
+                  @input="
+                    (evt) =>
+                      $store.commit('config/editPresessionTaskContent', {
+                        id: task.id,
+                        content: evt.target.value,
+                      })
+                  "
+                  :value="task.content"
                 />
                 <div class="check-box">
                   <input
                     type="checkbox"
                     class="item-select"
-                    v-model="task.required"
+                    :value="task.required"
+                    :checked="task.required"
+                    @change="
+                      (evt) =>
+                        $store.commit('config/editPresessionTaskRequired', {
+                          id: task.id,
+                          value: evt.target.checked,
+                        })
+                    "
                   />
                   <span class="label">{{ $tc("caption.required", 1) }}</span>
                 </div>
               </div>
               <div class="func-box">
-                <v-icon @click="deleteTask(task.id)">mdi-delete</v-icon>
+                <v-icon
+                  @click="$store.commit('config/deletePresessionTask', task.id)"
+                  >mdi-delete</v-icon
+                >
               </div>
             </div>
           </div>
@@ -73,34 +96,50 @@
       <v-tab-item class="postsession-wrapper" value="post" :transition="false">
         <div class="status">
           <v-switch
-            v-model="postsessionStatus"
+            :value="checklistPostsessionStatus"
+            :input-value="checklistPostsessionStatus"
             inset
             hide-details
             dense
             class="mt-0 pt-0"
-            @change="handleStatus"
+            @change="togglePostsessionStatus"
           />
           <label>{{ $tc("caption.enable_checklist", 1) }}</label>
         </div>
         <div class="content">
-          <div class="overlay" v-show="!postsessionStatus">&nbsp;</div>
+          <div class="overlay" v-show="!checklistPostsessionStatus">&nbsp;</div>
           <div class="check-list">
             <div
               class="one"
-              v-for="(task, index) in postTaskList"
+              v-for="(task, index) in checklistPostsessionTasks"
               :key="task.id"
             >
               <div class="input-box">
                 <input
                   type="text"
-                  placeholer="Add Task"
-                  v-model="task.content"
+                  placeholder="Add task"
+                  @input="
+                    (evt) =>
+                      $store.commit('config/editPostsessionTaskContent', {
+                        id: task.id,
+                        content: evt.target.value,
+                      })
+                  "
+                  :value="task.content"
                 />
                 <div class="check-box">
                   <input
                     type="checkbox"
                     class="item-select"
-                    v-model="task.required"
+                    :value="task.required"
+                    :checked="task.required"
+                    @input="
+                      (evt) =>
+                        $store.commit('config/editPostsessionTaskRequired', {
+                          id: task.id,
+                          value: evt.target.checked,
+                        })
+                    "
                   />
                   <span class="label">{{ $tc("caption.required", 1) }}</span>
                 </div>
@@ -109,10 +148,15 @@
                 class="func-box"
                 v-if="
                   (index === 0 && task.content !== '') ||
-                  postTaskList.length > 1
+                  checklistPostsessionTasks.length > 1
                 "
               >
-                <v-icon @click="deleteTask(task.id)">mdi-delete</v-icon>
+                <v-icon
+                  @click="
+                    $store.commit('config/deletePostsessionTask', task.id)
+                  "
+                  >mdi-delete</v-icon
+                >
               </div>
             </div>
           </div>
@@ -138,42 +182,18 @@ export default {
   name: "ConfigCheckListTab",
   components: {},
   props: {},
-  watch: {
-    preTaskList: {
-      handler: function () {
-        this.updateData("presession", {
-          status: this.presessionStatus,
-          tasks: this.preTaskList.filter((task) => task.content !== ""),
-        });
-      },
-      deep: true,
-    },
-    postTaskList: {
-      handler: function () {
-        this.updateData("postsession", {
-          status: this.postsessionStatus,
-          tasks: this.postTaskList.filter((task) => task.content !== ""),
-        });
-      },
-      deep: true,
-    },
-  },
-  beforeMount() {
-    this.fetchData();
-  },
   data() {
     return {
-      configToChange: null,
-      preTaskList: [],
-      postTaskList: [],
-      presessionStatus: false,
-      postsessionStatus: false,
       tab: "pre",
     };
   },
   computed: {
     ...mapGetters({
       config: "config/fullConfig",
+      checklistPresessionStatus: "config/checklistPresessionStatus",
+      checklistPresessionTasks: "config/checklistPresessionTasks",
+      checklistPostsessionTasks: "config/checklistPostsessionTasks",
+      checklistPostsessionStatus: "config/checklistPostsessionStatus",
     }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
@@ -183,108 +203,27 @@ export default {
       }
     },
   },
-  mounted() {
-    this.configToChange = structuredClone(this.config);
-  },
   methods: {
-    fetchData: function () {
-      this.preTaskList = this.config.checklist.presession.tasks;
-      this.postTaskList = this.config.checklist.postsession.tasks;
-
-      if (this.preTaskList.length === 0) {
-        this.preTaskList.push({
-          id: new Date().getTime(),
-          content: "",
-          required: false,
-        });
-      }
-
-      if (this.postTaskList.length === 0) {
-        this.postTaskList.push({
-          id: new Date().getTime(),
-          content: "",
-          required: false,
-        });
-      }
-
-      this.presessionStatus = this.config.checklist.presession.status;
-      this.postsessionStatus = this.config.checklist.postsession.status;
-    },
     addTask: function () {
       if (this.tab === "pre") {
-        for (let i = this.preTaskList.length - 1; i > -1; i--) {
-          if (this.preTaskList[i].content === "") {
-            this.preTaskList.splice(i, 1);
-          }
-        }
-        this.preTaskList.push({
+        this.$store.commit("config/addPresessionTask", {
           id: new Date().getTime(),
           content: "",
           required: false,
         });
       } else {
-        for (let i = this.postTaskList.length - 1; i > -1; i--) {
-          if (this.postTaskList[i].content === "") {
-            this.postTaskList.splice(i, 1);
-          }
-        }
-        this.postTaskList.push({
+        this.$store.commit("config/addPostsessionTask", {
           id: new Date().getTime(),
           content: "",
           required: false,
         });
       }
     },
-    deleteTask: function (taskId) {
-      if (this.tab === "pre") {
-        this.preTaskList = this.preTaskList.filter(
-          (task) => task.id !== taskId
-        );
-
-        if (this.preTaskList.length < 1) {
-          this.preTaskList.push({
-            id: new Date().getTime(),
-            content: "",
-            required: false,
-          });
-        }
-      } else {
-        this.postTaskList = this.postTaskList.filter(
-          (task) => task.id !== taskId
-        );
-
-        if (this.postTaskList.length < 1) {
-          this.postTaskList.push({
-            id: new Date().getTime(),
-            content: "",
-            required: false,
-          });
-        }
-      }
+    togglePresessionStatus(value) {
+      this.$store.commit("config/setPresessionStatus", !!value);
     },
-    updateData: function (key, data) {
-      this.configToChange = {
-        ...this.configToChange,
-        checklist: {
-          ...this.configToChange.checklist,
-          [key]: data,
-        },
-      };
-
-      this.$emit("submit-config", this.configToChange);
-    },
-    handleStatus: function () {
-      if (this.tab === "pre") {
-        this.updateData("presession", {
-          status: this.presessionStatus,
-          tasks: this.preTaskList,
-        });
-      } else {
-        this.updateData("postsession", {
-          status: this.postsessionStatus,
-          tasks: this.postTaskList,
-        });
-      }
+    togglePostsessionStatus(value) {
+      this.$store.commit("config/setPostsessionStatus", !!value);
     },
   },
 };
@@ -415,5 +354,12 @@ export default {
 }
 .footer > button {
   max-width: 60% !important;
+}
+
+.v-tab {
+  line-height: 1.2;
+}
+.v-tab.v-tab--active {
+  color: #6d28d9 !important;
 }
 </style>

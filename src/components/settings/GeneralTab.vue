@@ -47,7 +47,7 @@
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 theme-mode-section">
         <p class="body-1" :style="{ color: currentTheme.default }">
-          {{ $tc("caption.apperance", 1) }}
+          {{ $tc("caption.appearance", 1) }}
         </p>
         <v-radio-group
           v-model="config.apperance"

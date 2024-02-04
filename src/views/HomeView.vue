@@ -31,7 +31,7 @@
           small
           color="primary"
           v-shortkey="newExploratoryHotkey"
-          @shortkey="newSession()"
+          @shortkey="newSession"
           to="main"
         >
           {{ $tc("caption.new_exploratory_session", 1) }}
@@ -43,8 +43,8 @@
           small
           class="mt-4 text-capitalize open-btn"
           v-shortkey="openExploratoryHotkey"
-          @shortkey="openSession()"
-          @click="openSession()"
+          @shortkey="openSession"
+          @click="openSession"
         >
           {{ $tc("caption.open_exploratory_session", 1) }}
         </v-btn>
@@ -183,6 +183,8 @@ export default {
   computed: {
     ...mapGetters({
       hotkeys: "config/hotkeys",
+      checklistPresessionTasks: "config/checklistPresessionTasks",
+      checklistPostsessionTasks: "config/checklistPostsessionTasks",
       credentials: "auth/credentials",
       isAuthenticated: "auth/isAuthenticated",
       loggedInServices: "auth/loggedInServices",
@@ -207,10 +209,19 @@ export default {
     if (this.$isElectron) {
       // handle electron menu -> New Session
       this.$electronService.onNewSession(this.newSession);
+      this.$electronService.onConfigChange(() => {
+        this.getConfig();
+      });
     }
   },
   methods: {
+    async getConfig() {
+      const config = await this.$storageService.getConfig();
+      this.$store.commit("config/setFullConfig", config);
+    },
     async newSession() {
+      this.$store.commit("clearState");
+      await this.$store.commit("setQuickTest", false);
       if (this.$router.history.current.path === "/") {
         await this.$router.push("/main");
       }
@@ -234,7 +245,25 @@ export default {
         // todo Add web version handler
       }
     },
+    setInitialPreSession() {
+      this.$store.commit(
+        "setPreSessionTasks",
+        this.checklistPresessionTasks.map((task) => {
+          return { ...task, checked: false };
+        })
+      );
+    },
+    setInitialPostSession() {
+      console.log(456);
+      // this.$store.commit(
+      //   "setPostSessionTasks",
+      //   this.checklistPostsessionTasks.map((task) => {
+      //     return { ...task, checked: false };
+      //   })
+      // );
+    },
     handleQuickTest() {
+      this.$store.commit("clearState");
       this.$store.commit("setQuickTest", true);
       this.$router.push("/main/workspace");
     },

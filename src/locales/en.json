@@ -8,7 +8,7 @@
     "login_with_jira_cloud": "Login with JIRA Cloud",
     "login_with_jira_datacenter": "Login with JIRA Datacenter",
     "login_with_api_key": "Login with API Key",
-    "jira_instance_url": "Instance URL (Leave blank for cloud.)",
+    "jira_instance_url": "Instance URL",
     "instance_url": "Instance URL",
     "share_config": "Got your configuration just how you like it? You can share your config file with your team to standardize your process or help them get started quicker!",
     "key_capture": "Press your new hotkey to update",
@@ -128,6 +128,8 @@
     "resume_session": "Resume session",
     "save_session": "Save session",
     "clear_session": "Clear session",
+    "restart_session": "Restart session",
+    "finish_session": "Finish session",
     "pause_session": "Pause session",
     "start_video_record": "Start video record",
     "stop_video_record": "Stop video record",
@@ -261,6 +263,7 @@
     "check_update": "Check for updates"
   },
   "message": {
+    "browser_action_attempts": "Waiting for browser action. Attempts:",
     "invalid_html": "Invalid HTML returned",
     "ai_assist_not_empty": "AI assist field cannot be empty",
     "successfully_added_attachment": "Successfully added attachment to issue",
@@ -279,6 +282,7 @@
     "enter_service_url": "Enter Service URL",
     "confirm_delete": "Are you sure you want to delete?",
     "confirm_reset": "Are you sure you want to reset?",
+    "confirm_reset_session": "Do you want to reset last session?",
     "confirm_save_progress": "Do you want save current progress?",
     "confirm_proceed_session_time": "Do you want to proceed with testing or end the test session?",
     "insert_note": "Insert your note here",

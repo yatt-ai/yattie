@@ -140,7 +140,7 @@ const defaultConfig = {
       followUp: ["ctrl", "f"],
       comment: ["ctrl", "d"],
       tags: ["ctrl", "t"],
-      type: ["ctrl", "y"],
+      type: ["ctrl", "l"],
       save: "general.save",
       cancel: "general.cancel",
     },
@@ -355,7 +355,6 @@ module.exports.addItem = (item) => {
 };
 
 module.exports.updateItems = (items) => {
-  console.log("update items in DB");
   try {
     dataDb.set("items", items);
     browserWindow = browserUtility.getBrowserWindow();

@@ -46,6 +46,68 @@ export const config = {
         Vue.set(state, key, payload[key]);
       });
     },
+    setPresessionStatus(state, payload) {
+      state.checklist.presession.status = payload;
+      this._vm.$storageService.updateConfig(state);
+    },
+    setPostsessionStatus(state, payload) {
+      state.checklist.postsession.status = payload;
+      this._vm.$storageService.updateConfig(state);
+    },
+    addPresessionTask(state, payload) {
+      state.checklist.presession.tasks.push(payload);
+      this._vm.$storageService.updateConfig(state);
+    },
+    deletePresessionTask(state, id) {
+      state.checklist.presession.tasks =
+        state.checklist.presession.tasks.filter((task) => task.id !== id);
+      this._vm.$storageService.updateConfig(state);
+    },
+    editPresessionTaskContent(state, payload) {
+      const task = state.checklist.presession.tasks.find(
+        (task) => task.id === payload.id
+      );
+      if (task) {
+        task.content = payload.content;
+      }
+      this._vm.$storageService.updateConfig(state);
+    },
+    editPresessionTaskRequired(state, payload) {
+      const task = state.checklist.presession.tasks.find(
+        (task) => task.id === payload.id
+      );
+      if (task) {
+        task.required = payload.value;
+      }
+      this._vm.$storageService.updateConfig(state);
+    },
+    addPostsessionTask(state, payload) {
+      state.checklist.postsession.tasks.push(payload);
+      this._vm.$storageService.updateConfig(state);
+    },
+    deletePostsessionTask(state, id) {
+      state.checklist.postsession.tasks =
+        state.checklist.postsession.tasks.filter((task) => task.id !== id);
+      this._vm.$storageService.updateConfig(state);
+    },
+    editPostsessionTaskContent(state, payload) {
+      const taskToChange = state.checklist.postsession.tasks.find(
+        (task) => task.id === payload.id
+      );
+      if (taskToChange) {
+        taskToChange.content = payload.content;
+      }
+      this._vm.$storageService.updateConfig(state);
+    },
+    editPostsessionTaskRequired(state, payload) {
+      const task = state.checklist.postsession.tasks.find(
+        (task) => task.id === payload.id
+      );
+      if (task) {
+        task.required = payload.value;
+      }
+      this._vm.$storageService.updateConfig(state);
+    },
   },
   actions: {},
   getters: {
