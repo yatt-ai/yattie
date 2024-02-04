@@ -37,16 +37,42 @@ export default {
     await axios
       .patch(url, session, options)
       .then((postedSession) => {
-        returnResponse.link = postedSession.data.link;
+        returnResponse = postedSession.data;
       })
       .catch((error) => {
         returnResponse.error = error.response.data.errors;
       });
 
-    // CTODO - take signed attachment URLs and upload them
-    return returnResponse;
+    // Take signed attachment URLs and upload them
+    returnResponse.steps.map(async (step) => {
+      if (step.uploadURL) {
+        const match = session.items.find(
+          (item) => item.stepID === step.external_id
+        );
+        if (match?.filePath) {
+          const sanitizedPath =
+            match.filePath.substring(match.filePath.length - 1) !== "?"
+              ? match.filePath
+              : match.filePath.substring(0, match.filePath.length - 1);
+          const fetchResponse = await fetch(`file://${sanitizedPath}`);
+          const fileBlob = await fetchResponse.blob();
+          const file = new File([fileBlob], step.uid, { type: match.fileType });
+          await axios
+            .put(step.uploadURL, file, {
+              headers: {
+                "Content-Type": match.fileType,
+                "X-Upload-Content-Length": match.fileSize,
+              },
+            })
+            .catch((error) => {
+              returnResponse.error.push(...error.response.data.errors);
+            });
+        }
+      }
+    });
 
     // Return result (with generated "link" field)
+    return returnResponse;
   },
   saveCredentials(credentials, data) {
     let formattedData = this.formatData(data);

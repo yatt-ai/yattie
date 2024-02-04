@@ -9,7 +9,8 @@
     <v-sheet rounded :style="{ backgroundColor: currentTheme.background }">
       <v-card :style="{ backgroundColor: currentTheme.background }">
         <v-card-title class="text" :style="{ color: currentTheme.secondary }">
-          <!-- CTODO: Title: Share your (Oneric Ocelot's or whatever) test! -->
+          Share {{ credentials.yatt[0].user.name }}'s session
+          <!--span>Not {{ credentials.yatt[0].user.name }}? TODO</span-->
         </v-card-title>
         <v-card-text class="text" :style="{ color: currentTheme.secondary }">
           <v-text-field
@@ -29,11 +30,12 @@
             small
             :color="currentTheme.primary"
             class="text-capitalize btn"
+            :style="{ color: currentTheme.white }"
             v-shortkey="confirmHotkey"
             @shortkey="handleCopy()"
             @click="handleCopy()"
           >
-            {{ $tc("copy_link", 1) }}
+            {{ $tc("caption.copy_link", 1) }}
           </v-btn>
           <v-btn
             small
@@ -44,7 +46,7 @@
             @shortkey="handleClose()"
             @click="handleClose()"
           >
-            {{ $tc("cancel", 1) }}
+            {{ $tc("caption.cancel", 1) }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -60,6 +62,10 @@ export default {
       type: Object,
       default: () => {},
     },
+    credentialItems: {
+      type: Object,
+      default: () => {},
+    },
     sessionLink: {
       type: String,
       default: () => "",
@@ -68,12 +74,16 @@ export default {
   data() {
     return {
       config: this.configItem,
+      credentials: this.credentialItems,
       sessionURL: "",
     };
   },
   watch: {
     configItem: function (newValue) {
       this.config = newValue;
+    },
+    credentialItems: function (newValue) {
+      this.credentials = newValue;
     },
     sessionLink: function () {
       this.sessionURL = this.sessionLink;

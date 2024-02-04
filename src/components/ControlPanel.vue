@@ -647,6 +647,7 @@
       <ShareSessionDialog
         v-model="shareSessionDialog"
         :session-link="sessionLink"
+        :credentialItems="credentials"
         :configItem="config"
       />
       <NoteDialog
@@ -1177,7 +1178,10 @@ export default {
         this.credentials
       );
       if (savedSession?.error) {
-        // CTODO - handle errors
+        this.$root.$emit(
+          "set-snackbar",
+          `Unable to save session: ${savedSession.error}`
+        );
       } else {
         this.sessionLink = savedSession?.link;
         this.shareSessionDialog = true;

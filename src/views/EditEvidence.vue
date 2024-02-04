@@ -3,7 +3,7 @@
     <div class="content">
       <div
         class="content-top"
-        v-if="Object.keys(item).length && FILE_TYPES[item.fileType] !== 'text'"
+        v-if="Object.keys(item).length && getType(item.fileType) !== 'text'"
       >
         <ReviewWrapper
           :item="item"
@@ -14,7 +14,7 @@
       </div>
       <v-divider></v-divider>
       <div class="content-bottom">
-        <div v-if="FILE_TYPES[item.fileType] !== 'text'">
+        <div v-if="getType(item.fileType) !== 'text'">
           <div class="actions-wrapper">
             <template v-if="item.emoji.length">
               <v-btn
@@ -157,10 +157,7 @@
             </template>
           </v-tiptap>
         </div>
-        <div
-          class="actions-wrapper"
-          v-if="FILE_TYPES[item.fileType] === 'text'"
-        >
+        <div class="actions-wrapper" v-if="getType(item.fileType) === 'text'">
           <template v-if="item.emoji.length">
             <v-btn
               rounded
@@ -427,6 +424,9 @@ export default {
     this.$root.$on("save-data", this.saveData);
   },
   methods: {
+    getType(type) {
+      return FILE_TYPES[type];
+    },
     toggleFollowUp() {
       this.item.followUp = !this.item.followUp;
     },

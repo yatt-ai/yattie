@@ -10,6 +10,7 @@
           <v-btn
             small
             :color="currentTheme.primary"
+            :style="{ color: currentTheme.white }"
             class="text-capitalize btn"
             v-shortkey="confirmHotkey"
             @shortkey="handleConfirm()"

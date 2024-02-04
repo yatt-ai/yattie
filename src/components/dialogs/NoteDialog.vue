@@ -189,6 +189,7 @@
                 small
                 block
                 :color="currentTheme.background"
+                :style="{ color: currentTheme.secondary }"
                 v-shortkey="cancelHotkey"
                 @shortkey="handleDiscard()"
                 @click="handleDiscard()"
@@ -201,7 +202,8 @@
                 class="btn"
                 small
                 block
-                color="primary"
+                color="currentTheme.primary"
+                :style="{ color: currentTheme.white }"
                 v-shortkey="confirmHotkey"
                 @shortkey="handleSave()"
                 @click="handleSave()"

@@ -47,7 +47,6 @@ module.exports.getMediaSource = async () => {
 
 module.exports.createImage = ({ url, isPoster }) => {
   const fileType = DEFAULT_FILE_TYPES["image"].type;
-  const fileFormat = DEFAULT_FILE_TYPES["image"].suffix;
   const imageType = isPoster ? "poster" : "image";
   const { stepID, attachmentID, fileName } = generateIDAndName(imageType);
   const filePath = path.join(
@@ -129,7 +128,6 @@ module.exports.updateImage = ({ item, url }) => {
 
 module.exports.createVideo = ({ buffer }) => {
   const fileType = DEFAULT_FILE_TYPES["video"].type;
-  const fileFormat = DEFAULT_FILE_TYPES["video"].suffix;
   const { stepID, attachmentID, fileName } = generateIDAndName("video");
   const filePath = path.join(
     configDir,
@@ -168,7 +166,6 @@ module.exports.createVideo = ({ buffer }) => {
 };
 
 module.exports.optimizeVideo = ({ filePath }) => {
-  const fileType = DEFAULT_FILE_TYPES["video"].type;
   const fileFormat = DEFAULT_FILE_TYPES["video"].suffix;
   const tempName =
     "temp-optimizing-video-" +
@@ -331,7 +328,6 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
 
 module.exports.createAudio = ({ buffer }) => {
   const fileType = DEFAULT_FILE_TYPES["audio"].type;
-  const fileFormat = DEFAULT_FILE_TYPES["audio"].suffix;
   const { stepID, attachmentID, fileName } = generateIDAndName("audio");
   const filePath = path.join(
     configDir,
@@ -495,14 +491,6 @@ module.exports.uploadEvidence = async () => {
           filePath,
           fileSize,
           fileChecksum,
-          comment: {
-            type: "Comment",
-            content: "",
-            text: "",
-          },
-          tags: [],
-          emoji: [],
-          followUp: false,
         },
       });
     });
@@ -550,14 +538,6 @@ module.exports.dropFile = async (data) => {
           filePath,
           fileSize,
           fileChecksum,
-          comment: {
-            type: "Comment",
-            content: "",
-            text: "",
-          },
-          tags: [],
-          emoji: [],
-          followUp: false,
         },
       });
     });

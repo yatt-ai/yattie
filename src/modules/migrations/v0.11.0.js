@@ -12,8 +12,28 @@ export const migrationStruct = {
       summary: "summaryRequired",
       templates: (templates) => {
         return templates.reduce((final, template) => {
+          let newType;
+          switch (template.type) {
+            case "Screenshot":
+              newType = "image";
+              break;
+            case "Video":
+              newType = "video";
+              break;
+            case "Audio":
+              newType = "audio";
+              break;
+            case "Note":
+              newType = "text";
+              break;
+            case "Mindmap":
+              newType = "mindmap";
+              break;
+            default:
+              newType = "file";
+          }
           return Object.assign(final, {
-            [`${template.type}`]: template.precondition,
+            [newType]: template.precondition,
           });
         }, {});
       },
@@ -54,8 +74,28 @@ export const migrationStruct = {
       templates: (templates) => {
         let newTemplates = [];
         for (const [type, content] of Object.entries(templates)) {
+          let oldType;
+          switch (template.type) {
+            case "image":
+              oldType = "Screenshot";
+              break;
+            case "video":
+              oldType = "Video";
+              break;
+            case "audio":
+              oldType = "Audio";
+              break;
+            case "text":
+              oldType = "Note";
+              break;
+            case "mindmap":
+              oldType = "Mindmap";
+              break;
+            default:
+              oldType = "File";
+          }
           newTemplates.push({
-            type,
+            oldType,
             precondition: content,
             issue: "",
             isBug: false,

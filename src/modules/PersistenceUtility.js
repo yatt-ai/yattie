@@ -35,27 +35,27 @@ const defaultConfig = {
     enabled: false,
   },
   templates: {
-    Screenshot: {
+    image: {
       content: "",
       text: "",
     },
-    Video: {
+    video: {
       content: "",
       text: "",
     },
-    Audio: {
+    audio: {
       content: "",
       text: "",
     },
-    Note: {
+    text: {
       content: "",
       text: "",
     },
-    File: {
+    file: {
       content: "",
       text: "",
     },
-    Mindmap: {
+    mindmap: {
       content: "",
       text: "",
     },
