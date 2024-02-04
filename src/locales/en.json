@@ -8,7 +8,7 @@
     "login_with_jira_cloud": "Login with JIRA Cloud",
     "login_with_jira_datacenter": "Login with JIRA Datacenter",
     "login_with_api_key": "Login with API Key",
-    "jira_instance_url": "Instance URL (Leave blank for cloud.)",
+    "jira_instance_url": "Instance URL",
     "instance_url": "Instance URL",
     "share_config": "Got your configuration just how you like it? You can share your config file with your team to standardize your process or help them get started quicker!",
     "key_capture": "Press your new hotkey to update",
