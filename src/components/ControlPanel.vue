@@ -1136,7 +1136,7 @@ export default {
       if (!this.checkedStatusOfPreSessionTask) {
         return;
       }
-      this.clearSession();
+      this.clearSession("/main");
       this.$store.commit("setQuickTest", false);
       this.showSourcePickerDialog();
     },
@@ -1897,23 +1897,23 @@ export default {
 
       if (!window.ipc) return;
 
-      const data = {
-        title: this.$store.state.title,
-        charter: this.$store.state.charter,
-        preconditions: this.$store.state.preconditions,
-        duration: this.$store.state.duration,
-        status: this.$store.state.status,
-        timer: this.$store.state.timer,
-        started: this.$store.state.started,
-        ended: this.$store.state.ended,
-        quickTest: this.$store.state.quickTest,
-        path: this.$route.path,
-      };
+      //const data = {
+      //  title: this.$store.state.title,
+      //  charter: this.$store.state.charter,
+      //  preconditions: this.$store.state.preconditions,
+      //  duration: this.$store.state.duration,
+      //  status: this.$store.state.status,
+      //  timer: this.$store.state.timer,
+      //  started: this.$store.state.started,
+      //  ended: this.$store.state.ended,
+      //  quickTest: this.$store.state.quickTest,
+      //  path: this.$route.path,
+      //};
 
-      await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-        func: IPC_FUNCTIONS.CREATE_NEW_SESSION,
-        data: data,
-      });
+      //await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+      //  func: IPC_FUNCTIONS.CREATE_NEW_SESSION,
+      //  data: data,
+      //});
 
       this.$store.commit("clearState");
 
