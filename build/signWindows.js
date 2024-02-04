@@ -24,6 +24,7 @@ function sign(configuration) {
     const setDir = `cd CodeSignTool/CodeSignTool-v1.3.0-windows`;
     const signFile = `"CodeSignTool" sign -input_file_path="${configuration.path}" -output_dir_path="${TEMP_DIR}" -credential_id="${CREDENTIAL_ID}" -username="${USER_NAME}" -password="${USER_PASSWORD}" -totp_secret="${USER_TOTP}"`;
     const moveFile = `mv "${tempFile}" "${dir}"`;
+    childProcess.execSync(`ls && ls CodeSignTool/`, { stdio: 'inherit' });
     childProcess.execSync(`${setDir} && ${signFile}`, { stdio: 'inherit' });
     childProcess.execSync(`${moveFile}`, { stdio: 'inherit' });
   } else {
