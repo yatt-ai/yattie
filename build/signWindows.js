@@ -21,7 +21,7 @@ function sign(configuration) {
     // y/m interaction so we are creating a new file in a temp directory and
     // then replacing the original file with the signed file.
     const tempFile = path.join(TEMP_DIR, name);
-    const setDir = `cd CodeSignTool/CodeSignTool-v1.3.0-windows`;
+    const setDir = `cd CodeSignTool`;
     const signFile = `"CodeSignTool" sign -input_file_path="${configuration.path}" -output_dir_path="${TEMP_DIR}" -credential_id="${CREDENTIAL_ID}" -username="${USER_NAME}" -password="${USER_PASSWORD}" -totp_secret="${USER_TOTP}"`;
     const moveFile = `mv "${tempFile}" "${dir}"`;
     childProcess.execSync(`ls && ls CodeSignTool/`, { stdio: 'inherit' });
