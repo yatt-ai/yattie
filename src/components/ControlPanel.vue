@@ -1141,6 +1141,7 @@ export default {
 
       if (sessionId === "") {
         const data = {
+          id: uuidv4(),
           title: this.$store.state.title,
           charter: this.$store.state.charter,
           preconditions: this.$store.state.preconditions,
