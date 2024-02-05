@@ -68,9 +68,7 @@ export default {
         date.setSeconds(remainingSeconds);
         return date.toISOString().substr(11, 8);
       } else {
-        const date = new Date(null);
-        date.setSeconds(-remainingSeconds);
-        return "-" + date.toISOString().substr(11, 8);
+        return "00:00";
       }
     },
     isOverTimeLimit() {

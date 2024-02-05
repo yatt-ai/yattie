@@ -1095,7 +1095,7 @@ export default {
           this.timer += 1;
 
           this.updateStoreSession();
-          if (this.isDuration && this.duration === 0) {
+          if (this.isDuration && this.duration <= 0) {
             this.durationConfirmDialog = true;
             this.isDuration = false;
             this.stopInterval();
