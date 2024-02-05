@@ -322,6 +322,11 @@ export default {
                   id: "",
                 };
                 returnResponse.blankIssue.fields[item.key] = parent;
+              } else if (item.key === "priority") {
+                const priority = {
+                  id: item.defaultValue.id || "",
+                };
+                returnResponse.blankIssue.fields[item.key] = priority;
               } else if (item.schema.type === "array") {
                 returnResponse.blankIssue.fields[item.key] = [];
               } else {

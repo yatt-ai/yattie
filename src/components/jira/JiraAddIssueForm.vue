@@ -108,7 +108,6 @@
                         :light="!$vuetify.theme.dark"
                         :vuetify="$vuetify"
                         :placeholder="$t('message.insert_note')"
-                        ref="newIssue.fields[item.key]"
                         :toolbar="[
                           'headings',
                           '|',
@@ -171,7 +170,7 @@
                       <v-select
                         dense
                         outlined
-                        placeholder="Select a Item"
+                        placeholder="Select an Item"
                         :items="item.allowedValues"
                         item-value="id"
                         item-text="value"
@@ -196,7 +195,15 @@
                         {{ item.name }}
                       </div>
                       <v-row class="mx-1 mb-1" justify="start">
+                        <div
+                          v-if="item.allowedValues.length < 1"
+                          class="subtitle-3 label-text mt-3"
+                          :style="{ color: currentTheme.secondary }"
+                        >
+                          {{ $t("caption.no_values_found") }}
+                        </div>
                         <v-checkbox
+                          v-else
                           v-for="(arrayItem, index) in item.allowedValues"
                           :key="index"
                           light
@@ -259,6 +266,49 @@
                           </div>
                         </template>
                       </v-autocomplete>
+                    </div>
+                    <div v-else-if="item.schema.type === 'priority'">
+                      <div
+                        class="subtitle-2 label-text"
+                        :style="{ color: currentTheme.secondary }"
+                      >
+                        {{ item.name }}
+                      </div>
+                      <v-select
+                        dense
+                        outlined
+                        placeholder="Select an Item"
+                        :items="item.allowedValues"
+                        item-value="id"
+                        item-text="name"
+                        v-model="newIssue.fields[item.key]"
+                        :required="item.required"
+                      >
+                        <template v-slot:selection="{ attr, on, item }">
+                          <div class="user-item" v-bind="attr" v-on="on">
+                            <v-avatar size="20">
+                              <img
+                                :src="item.iconUrl"
+                                width="24"
+                                alt="avatar"
+                              />
+                            </v-avatar>
+                            {{ item.name }}
+                          </div>
+                        </template>
+                        <template v-slot:item="{ item }">
+                          <div class="user-item">
+                            <v-avatar size="24">
+                              <img
+                                :src="item.iconUrl"
+                                width="24"
+                                alt="avatar"
+                              />
+                            </v-avatar>
+                            {{ item.name }}
+                          </div>
+                        </template>
+                      </v-select>
                     </div>
                     <div v-else-if="item.schema.type === 'issuelink'">
                       <div
