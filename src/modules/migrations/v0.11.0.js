@@ -54,7 +54,6 @@ export const migrationStruct = {
       credentials: "..",
     },
   },
-  // CTODO - no dupe keys for multiple transitions... (templates)
   down: {
     config: {
       localOnly: "config.useLocal",

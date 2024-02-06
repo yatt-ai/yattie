@@ -594,7 +594,7 @@ export default {
       this.itemLists = newValue
         .slice()
         .reverse()
-        .filter((item) => item.commentType !== "Summary");
+        .filter((item) => item?.comment?.type !== "Summary");
       this.itemLists.map((item) => {
         this.emojiMenu[`menu-${item.stepID}`] = false;
       });

@@ -76,7 +76,7 @@
             <template v-if="emoji.length">
               <v-btn
                 rounded
-                color="primary"
+                :color="primary"
                 class="pa-0 mb-1"
                 height="26"
                 min-width="45"
@@ -202,7 +202,7 @@
                 class="btn"
                 small
                 block
-                color="currentTheme.primary"
+                :color="currentTheme.primary"
                 :style="{ color: currentTheme.white }"
                 v-shortkey="confirmHotkey"
                 @shortkey="handleSave()"

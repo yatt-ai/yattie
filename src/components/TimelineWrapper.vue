@@ -91,7 +91,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -104,7 +104,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item?.emoji.length">
+                    <template v-if="item.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -228,7 +228,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -241,7 +241,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item?.emoji.length">
+                    <template v-if="item.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -363,7 +363,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -376,7 +376,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item?.emoji.length">
+                    <template v-if="item.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -493,7 +493,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -506,7 +506,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item?.emoji.length">
+                    <template v-if="item.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -643,7 +643,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -656,7 +656,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item?.emoji.length">
+                    <template v-if="item.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -780,7 +780,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -793,7 +793,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item?.emoji.length">
+                    <template v-if="item.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -867,7 +867,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item?.comment?.type === 'Summary' && item.comment.text"
+                v-if="item.comment.type === 'Summary' && item.comment.text"
                 color="primary"
                 icon="mdi-pencil"
                 fill-dot

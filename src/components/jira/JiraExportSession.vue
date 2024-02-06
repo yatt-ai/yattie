@@ -232,7 +232,7 @@ export default {
       if (this.selectedIds.length > 0) {
         this.itemLists.map((item) => {
           if (
-            item?.comment?.type !== "Summary" &&
+            item.comment.type !== "Summary" &&
             this.selectedIds.includes(item.stepID)
           ) {
             selectedAttachments.push(item);

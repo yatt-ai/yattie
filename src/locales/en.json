@@ -205,7 +205,8 @@
     "openai_key": "OpenAI key",
     "invalid_openai_key": "Invalid OpenAI key",
     "openai_key_saved": "OpenAI key successfully saved",
-    "openai_key_validation_failed": "Failed to validate OpenAI key","successfully_saved": "Successfully saved!",
+    "openai_key_validation_failed": "Failed to validate OpenAI key",
+    "successfully_saved": "Successfully saved!",
     "no_server_oauth_creds": "No shareable OAuth credentials found.",
     "testrail_instance_url":"Instance URL"
   },
