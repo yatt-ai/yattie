@@ -3,48 +3,44 @@
     v-bind="$attrs"
     v-on="$listeners"
     persistent
-    width="100%"
+    width="50%"
     max-width="600px"
   >
     <v-sheet rounded :style="{ backgroundColor: currentTheme.background }">
-      <div class="wrapper">
-        <div class="header">
-          <span :style="{ color: currentTheme.secondary }">
-            {{ $tc("message.select_window_to_record_session", 1) }}
-          </span>
-        </div>
-        <div class="content">
-          <v-radio-group v-model="activeSource">
-            <v-row class="session-list">
-              <v-col
-                class="session-item"
-                cols="6"
-                xs="6"
-                sm="4"
-                md="4"
-                v-for="item in sources"
-                :key="item.id"
-              >
-                <div class="session-img">
-                  <img :src="item.thumbnail" :alt="item.name" />
-                </div>
-                <div class="session-name">
-                  <p :style="{ color: currentTheme.secondary }">
-                    {{ item.name }}
-                  </p>
-                </div>
-                <div class="session-radio">
-                  <v-radio dense :value="item.id" :ripple="false"></v-radio>
-                </div>
-              </v-col>
-            </v-row>
-          </v-radio-group>
-        </div>
-        <div class="footer">
+      <v-card :style="{ backgroundColor: currentTheme.background }">
+        <v-card-title class="text" :style="{ color: currentTheme.secondary }">
+          Share {{ credentials.yatt[0].user.name }}'s session
+          <!--span>Not {{ credentials.yatt[0].user.name }}? TODO</span-->
+        </v-card-title>
+        <v-card-text class="text" :style="{ color: currentTheme.secondary }">
+          <v-text-field
+            v-model="sessionURL"
+            disabled
+            label="Copy Link"
+            type="text"
+            variant="outlined"
+          >
+            <template v-slot:prepend-inner>
+              <v-icon icon="mdi-link" />
+            </template>
+          </v-text-field>
+        </v-card-text>
+        <v-card-actions>
           <v-btn
-            class="text-capitalize"
+            small
+            :color="currentTheme.primary"
+            class="text-capitalize btn"
+            :style="{ color: currentTheme.white }"
+            v-shortkey="confirmHotkey"
+            @shortkey="handleCopy()"
+            @click="handleCopy()"
+          >
+            {{ $tc("caption.copy_link", 1) }}
+          </v-btn>
+          <v-btn
             small
             :color="currentTheme.background"
+            class="text-capitalize btn"
             :style="{ color: currentTheme.secondary }"
             v-shortkey="cancelHotkey"
             @shortkey="handleClose()"
@@ -52,58 +48,59 @@
           >
             {{ $tc("caption.cancel", 1) }}
           </v-btn>
-          <v-btn
-            class="text-capitalize"
-            small
-            :color="currentTheme.primary"
-            :style="{ color: currentTheme.white }"
-            :disabled="!activeSource"
-            v-shortkey="confirmHotkey"
-            @shortkey="handleSelect()"
-            @click="handleSelect()"
-          >
-            {{ $tc("caption.select", 1) }}
-          </v-btn>
-        </div>
-      </div>
+        </v-card-actions>
+      </v-card>
     </v-sheet>
   </v-dialog>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-
 export default {
-  name: "SourcePickerDialog",
+  name: "ShareSessionDialog",
   props: {
-    sources: {
-      type: Array,
-      default: () => [],
+    configItem: {
+      type: Object,
+      default: () => {},
     },
-    sourceId: {
+    credentialItems: {
+      type: Object,
+      default: () => {},
+    },
+    sessionLink: {
       type: String,
       default: () => "",
     },
   },
   data() {
     return {
-      activeSource: "",
+      config: this.configItem,
+      credentials: this.credentialItems,
+      sessionURL: "",
     };
   },
   watch: {
-    sourceId: function () {
-      this.activeSource = this.sourceId;
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
+    credentialItems: function (newValue) {
+      this.credentials = newValue;
+    },
+    sessionLink: function () {
+      this.sessionURL = this.sessionLink;
     },
   },
   computed: {
-    ...mapGetters({
-      hotkeys: "config/hotkeys",
-    }),
     confirmHotkey() {
-      return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
+      return this.$hotkeyHelpers.findBinding(
+        "general.save",
+        this.config.hotkeys
+      );
     },
     cancelHotkey() {
-      return this.$hotkeyHelpers.findBinding("general.cancel", this.hotkeys);
+      return this.$hotkeyHelpers.findBinding(
+        "general.cancel",
+        this.config.hotkeys
+      );
     },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
@@ -116,13 +113,7 @@ export default {
   methods: {
     handleClose() {
       this.activeSource = "";
-      this.$root.$emit("close-sourcepickerdialog");
-    },
-    handleSelect() {
-      this.$emit("submit-source", this.activeSource);
-    },
-    setActiveSource(value) {
-      this.activeSource = value;
+      this.$root.$emit("close-sharesessiondialog");
     },
   },
 };

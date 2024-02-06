@@ -59,7 +59,7 @@
             block
             :color="currentTheme.primary"
             :style="{ color: currentTheme.white }"
-            @click="handleDeleteConfirmDialog()"
+            @click="handleDeleteConfirmDialog"
           >
             <v-icon left>mdi-delete</v-icon> {{ $tc("caption.delete", 1) }}
           </v-btn>
@@ -92,7 +92,7 @@
             </template>
             <v-card tile>
               <v-list dense>
-                <v-list-item @click="exportItems()">
+                <v-list-item @click="exportItems">
                   <v-list-item-icon class="mr-4">
                     <v-icon>mdi-download</v-icon>
                   </v-list-item-icon>
@@ -138,7 +138,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="resume()"
+                @click="resume"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-play-circle
@@ -159,7 +159,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="handleNewSessionDialog()"
+                @click="handleNewSessionDialog"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-content-save
@@ -179,7 +179,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="handleResetConfirmDialog()"
+                @click="handleResetConfirmDialog"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-restart
@@ -534,7 +534,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="minimize()"
+                @click="minimize"
               >
                 <img
                   v-if="$vuetify.theme.dark === false"
@@ -579,9 +579,16 @@
                   status === 'pause' || recordVideoStarted || recordAudioStarted
                 "
               >
-                <v-list-item-title>
+                <v-icon class="ddl-icon">mdi-fit-to-screen</v-icon>
+                <v-list-item-content>
                   {{ $tc("caption.change_recording_target", 1) }}
-                </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="showShareSessionDialog()">
+                <v-icon class="ddl-icon">mdi-share-variant</v-icon>
+                <v-list-item-content>
+                  {{ $tc("caption.share_session", 1) }}
+                </v-list-item-content>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -650,6 +657,12 @@
         :loaded="loaded"
         @submit-source="startSession"
       />
+      <ShareSessionDialog
+        v-model="shareSessionDialog"
+        :session-link="sessionLink"
+        :credentialItems="credentials"
+        :configItem="config"
+      />
       <NoteDialog
         v-model="noteDialog"
         ref="noteDialog"
@@ -670,7 +683,7 @@
         ref="deleteConfirmDialog"
         :text="$t('message.confirm_delete')"
         :configItem="config"
-        @confirm="deleteItems()"
+        @confirm="deleteItems"
         @cancel="deleteConfirmDialog = false"
       />
       <ResetConfirmDialog
@@ -678,7 +691,7 @@
         ref="resetConfirmDialog"
         :text="$t('message.confirm_reset')"
         :configItem="config"
-        @confirm="resetSession()"
+        @confirm="resetSession"
         @cancel="resetConfirmDialog = false"
       />
       <SaveConfirmDialog
@@ -686,7 +699,7 @@
         ref="saveConfirmDialog"
         :text="$t('message.confirm_session_saved')"
         :configItem="config"
-        @confirm="handleSaveConfirmDialog()"
+        @confirm="handleSaveConfirmDialog"
       />
       <NewSessionDialog
         v-model="newSessionDialog"
@@ -700,8 +713,8 @@
         v-model="durationConfirmDialog"
         :text="$t('message.confirm_proceed_session_time')"
         :configItem="config"
-        @end="end()"
-        @proceed="proceed()"
+        @end="end"
+        @proceed="proceed"
       />
       <AudioErrorDialog
         v-model="audioErrorDialog"
@@ -722,7 +735,10 @@
 import { VBtn, VCol, VContainer, VIcon, VRow } from "vuetify/lib/components";
 import uuidv4 from "uuid";
 
+import yattIntegrationHelper from "../integrations/YattIntegrationHelpers";
+
 import SourcePickerDialog from "./dialogs/SourcePickerDialog.vue";
+import ShareSessionDialog from "./dialogs/ShareSessionDialog.vue";
 import NoteDialog from "./dialogs/NoteDialog.vue";
 import SummaryDialog from "./dialogs/SummaryDialog.vue";
 import DeleteConfirmDialog from "./dialogs/DeleteConfirmDialog.vue";
@@ -743,8 +759,8 @@ import {
   DEFAULT_MAP_NODES,
   SESSION_STATUSES,
   STATUSES,
-  VIDEO_RESOLUTION,
-} from "../modules/constants";
+  DEFAULT_FILE_TYPES, VIDEO_RESOLUTION,
+} from "@/modules/constants";
 import { mapGetters } from "vuex";
 
 let mediaRecorder;
@@ -759,6 +775,7 @@ export default {
     VBtn,
     VIcon,
     SourcePickerDialog,
+    ShareSessionDialog,
     NoteDialog,
     SummaryDialog,
     DeleteConfirmDialog,
@@ -918,7 +935,7 @@ export default {
     summary() {
       let summary = {};
       this.items.map((item) => {
-        if (item.sessionType === "Summary") {
+        if (item?.comment?.type === "Summary") {
           summary = item;
         }
       });
@@ -928,6 +945,7 @@ export default {
   data() {
     return {
       sourcePickerDialog: false,
+      shareSessionDialog: false,
       noteDialog: false,
       summaryDialog: false,
       deleteConfirmDialog: false,
@@ -938,6 +956,7 @@ export default {
       audioErrorDialog: false,
       endSessionDialog: false,
       sources: [],
+      sessionLink: "",
       sourceId: this.srcId,
       itemLists: this.items,
       audioDevices: [],
@@ -965,6 +984,7 @@ export default {
     }
 
     this.$root.$on("close-sourcepickerdialog", this.hideSourcePickerDialog);
+    this.$root.$on("close-sharesessiondialog", this.hideShareSessionDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
     this.$root.$on("close-summarydialog", () => {
       this.summaryDialog = false;
@@ -1064,8 +1084,25 @@ export default {
         console.log(err);
       }
     },
+    async showShareSessionDialog() {
+      let savedSession = await yattIntegrationHelper.saveSession(
+        this.credentials
+      );
+      if (savedSession?.error) {
+        this.$root.$emit(
+          "set-snackbar",
+          `Unable to save session: ${savedSession.error}`
+        );
+      } else {
+        this.sessionLink = savedSession?.link;
+        this.shareSessionDialog = true;
+      }
+    },
     hideSourcePickerDialog() {
       this.sourcePickerDialog = false;
+    },
+    hideShareSessionDialog() {
+      this.shareSessionDialog = false;
     },
     showNoteDialog() {
       if (this.viewMode === "normal") {
@@ -1293,11 +1330,7 @@ export default {
               console.log(message);
             } else {
               const data = {
-                id: item.id,
-                sessionType: "Screenshot",
-                fileType: "image",
-                fileName: item.fileName,
-                filePath: item.filePath,
+                ...item,
                 timer_mark: this.timer,
               };
               await this.openAddWindow(data);
@@ -1390,13 +1423,8 @@ export default {
               this.$root.$emit("set-snackbar", message);
               console.log(message);
             } else {
-              const { id, fileName, filePath } = item;
               const data = {
-                id,
-                sessionType: "Video",
-                fileType: "video",
-                fileName,
-                filePath,
+                ...item,
                 poster: poster,
                 timer_mark: this.timer,
               };
@@ -1439,7 +1467,7 @@ export default {
           }
         }
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        stream.getVideoTracks()[0].applyConstraints({ frameRate: 30 });
+        await stream.getVideoTracks()[0].applyConstraints({frameRate: 30});
         this.handleStream(stream);
       } catch (e) {
         console.log(e);
@@ -1519,11 +1547,7 @@ export default {
               console.log(message);
             } else {
               const data = {
-                id: item.id,
-                sessionType: "Audio",
-                fileType: "audio",
-                fileName: item.fileName,
-                filePath: item.filePath,
+                ...item,
                 timer_mark: this.timer,
                 poster: "",
               };
@@ -1537,17 +1561,6 @@ export default {
       this.handleError = (error) => {
         console.log("Error:", error);
       };
-      // try {
-      //   this.audioDevices = await this.getAudioSources();
-      //   if (!this.audioDevices.length) {
-      //     this.audioErrorDialog = true;
-      //     return;
-      //   }
-      //   const stream = this.setAudio(this.audioDevices);
-      //   this.handleStream(stream);
-      // } catch (e) {
-      //   console.log(e);
-      // }
       await navigator.mediaDevices.enumerateDevices().then((devices) => {
         this.audioDevices = devices.filter(
           (d) =>
@@ -1584,9 +1597,8 @@ export default {
         console.log(message);
       } else {
         let newItem = {
-          id: item.id,
-          sessionType: "Note",
-          fileType: "text",
+          stepID: item.stepID,
+          fileType: DEFAULT_FILE_TYPES["text"].type,
           fileName: item.fileName,
           filePath: item.filePath,
           comment: data.comment,
@@ -1604,21 +1616,19 @@ export default {
     async addSummary(value) {
       // TODO - handle summary like a regular note and allow additional metadata
       const data = {
-        id: uuidv4(),
-        sessionType: "Summary",
+        stepID: uuidv4(),
+        fileType: DEFAULT_FILE_TYPES["text"].type,
         comment: value,
         timer_mark: this.timer,
         createdAt: Date.now(),
       };
       if (Object.keys(this.summary).length) {
-        const items = this.items.map((item) => {
-          let temp = Object.assign({}, item);
-          if (temp.sessionType === "Summary") {
-            temp = data;
-          }
-          return temp;
-        });
-        this.$root.$emit("save-session", items);
+        delete data.stepID;
+        const newSummary = {
+          ...this.summary,
+          ...data,
+        };
+        this.$emit("update-item", newSummary);
       } else {
         this.$emit("add-item", data);
       }
@@ -1628,12 +1638,13 @@ export default {
     addMindmap() {
       // TODO - With transition to try mindmap format, UUID generation should
       //        move to CaptureUtility
-      const id = uuidv4();
+      const stepID = uuidv4();
+      const attachmentID = uuidv4();
       const data = {
-        id,
-        sessionType: "Mindmap",
-        fileType: "mindmap",
-        fileName: `mindmap-${id.substring(0, 5)}.png`,
+        stepID,
+        attachmentID,
+        fileType: DEFAULT_FILE_TYPES["mindmap"].type,
+        fileName: `mindmap-${attachmentID.substring(0, 5)}.png`,
         filePath: "",
         content: {
           nodes: DEFAULT_MAP_NODES,
@@ -1645,6 +1656,7 @@ export default {
     },
     async deleteItems() {
       await this.$storageService.deleteItems(this.selected);
+      await this.$storageService.deleteNotes(this.selected);
       this.selected = [];
       this.$root.$emit("update-selected", this.selected);
       this.deleteConfirmDialog = false;
@@ -1660,8 +1672,10 @@ export default {
     async saveSession(callback = null) {
       this.newSessionDialog = false;
       const sessionId = await this.$storageService.getSessionId();
+      const caseId = await this.$storageService.getCaseId();
       const data = {
-        id: sessionId,
+        sessionID: sessionId,
+        caseID: caseId,
         title: this.$store.state.title,
         charter: this.$store.state.charter,
         mindmap: this.$store.state.mindmap,
@@ -1813,6 +1827,9 @@ export default {
 </script>
 
 <style scoped>
+.ddl-icon {
+  margin-right: 0.25em;
+}
 .mini-ctrl-wrapper {
   display: flex;
   flex-direction: column;

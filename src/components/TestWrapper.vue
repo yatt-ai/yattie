@@ -28,7 +28,7 @@
             "
             v-model="title"
             ref="titleTextField"
-            @input="updateTitle"
+            @change="updateTitle()"
             @click:append="handleAISuggestion('title', $event)"
           >
             <template v-slot:progress>
@@ -100,7 +100,7 @@
                   '|',
                   '#aiAssist',
                 ]"
-                @input="updateCharter"
+                @change="updateCharter()"
               >
                 <template #aiAssist="">
                   <v-btn
@@ -149,7 +149,7 @@
               outlined
               dense
               v-model="duration"
-              @input="handleDuration"
+              @change="handleDuration()"
               hide-details="true"
               :disabled="this.$store.state.status !== 'pending'"
             />
@@ -203,7 +203,7 @@
               '|',
               '#aiAssist',
             ]"
-            @input="updatePreconditions"
+            @change="updatePreconditions()"
           >
             <template #aiAssist="">
               <v-btn

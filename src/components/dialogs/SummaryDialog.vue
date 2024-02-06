@@ -106,6 +106,7 @@
                 small
                 block
                 :color="currentTheme.background"
+                :style="{ color: currentTheme.secondary }"
                 v-shortkey="cancelHotkey"
                 @shortkey="handleCancel()"
                 @click="handleCancel()"
@@ -118,7 +119,8 @@
                 class="btn px-8"
                 small
                 block
-                color="primary"
+                :color="currentTheme.primary"
+                :style="{ color: currentTheme.white }"
                 v-shortkey="confirmHotkey"
                 @shortkey="handleSave()"
                 @click="handleSave()"
@@ -158,7 +160,7 @@ export default {
   watch: {
     configItem: function (newValue) {
       this.config = newValue;
-      this.isRequired = this.config.summary;
+      this.isRequired = this.config.summaryRequired;
     },
     credentialItems: function (newValue) {
       this.credentials = newValue;
@@ -185,7 +187,7 @@ export default {
       },
       commentLoading: false,
       commentTypes: Object.keys(TEXT_TYPES),
-      isRequired: this.configItem.summary,
+      isRequired: this.configItem.summaryRequired,
       isEmpty: false,
     };
   },

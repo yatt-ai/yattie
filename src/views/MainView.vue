@@ -84,7 +84,7 @@
             :items="items"
             :selectedItems="selected"
             event-type="dblclick"
-            @submit-session="updateActiveSession"
+            @activate-edit-session="activateEditSession"
           />
         </v-tab-item>
       </v-tabs-items>
@@ -93,6 +93,7 @@
       <ControlPanel
         :items="items"
         @add-item="addItem"
+        @update-item="updateItem"
         :selectedItems="selected"
         :preSessionRequirementsMet="presessionValid"
         view-mode="normal"
@@ -140,7 +141,6 @@ export default {
       activeTab: "/main",
       items: [],
       selected: [],
-      activeSession: {},
       showTaskError: false,
       showMenu: false,
     };
@@ -152,7 +152,6 @@ export default {
     this.setInitialPreSession();
     this.setInitialPostSession();
     this.$root.$on("update-selected", this.updateSelected);
-    this.$root.$on("save-session", this.saveSession);
     this.$root.$on("new-session", () => {
       this.setInitialPreSession();
       this.setInitialPostSession();
@@ -220,18 +219,16 @@ export default {
       this.items = await this.$storageService.getItems();
     },
     addItem(newItem) {
-      this.items.push(newItem);
-      this.saveSession(this.items);
+      this.$storageService.addItem(newItem);
     },
-    saveSession(items) {
-      this.$storageService.updateItems(items);
+    updateItem(newItem) {
+      this.$storageService.updateItem(newItem);
     },
     updateSelected(value) {
       this.selected = value;
     },
-    updateActiveSession(value) {
-      this.activeSession = value;
-      this.openEditWindow(this.activeSession);
+    activateEditSession(value) {
+      this.openEditWindow(value);
     },
     openEditWindow(data) {
       // todo we want to replace electron window with the vuetify dialog instead to make it work for both electron & web

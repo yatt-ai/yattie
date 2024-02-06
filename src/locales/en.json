@@ -1,6 +1,7 @@
 {
   "caption": {
     "no_values_found": "No values found",
+    "share_session": "Share session",
     "ai_assist": "AI assist",
     "filename": "File name",
     "custom_oauth_connections": "Custom OAuth Connections",
@@ -79,6 +80,7 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "proceed": "Proceed",
+    "copy_link": "Copy link",
     "session_saved": "Session Saved",
     "note_title": "Note title",
     "take_note": "Take a Note",
@@ -203,7 +205,7 @@
     "openai_key": "OpenAI key",
     "invalid_openai_key": "Invalid OpenAI key",
     "openai_key_saved": "OpenAI key successfully saved",
-    "openai_key_validation_failed": "Failed to validate OpenAI key",
+    "openai_key_validation_failed": "Failed to validate OpenAI key","successfully_saved": "Successfully saved!",
     "no_server_oauth_creds": "No shareable OAuth credentials found.",
     "testrail_instance_url":"Instance URL"
   },
@@ -295,7 +297,7 @@
     "connect_to_testrail": "Connect to a TestRail instance",
     "connect_to_jira": "Connect to a JIRA instance",
     "use_app_only_local": "Use the app locally only",
-    "dont_pull_push_data": "Don't pull or push data to external sources",
+    "dont_pull_push_data": "Don't automatically pull or push data to external sources",
     "capture_audio": "Catpure audio with screen recordings",
     "select_default_color": "Select the default annotation color",
     "default_color_description": "This will change the default color of the image annotation tools",
@@ -304,6 +306,7 @@
     "improve_note": "Improve your note taking and evidence labeling with pre-populated templates",
     "speed_hotkey": "Speed up your workflow with custom hotkeys",
     "define_required_precondition": "Define required preconditions for this test.",
+    "default_template_text": "Define default template text.",
     "enter_title_for_project": "Enter a title for the project",
     "select_presession_task": "You can't begin your session without checking all required(*) pre-session checkboxes.",
     "error_recording_audio": "An error occurred while recording the audio. Please make sure you have at least one audio input device connected",

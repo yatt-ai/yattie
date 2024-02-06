@@ -14,6 +14,7 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     id: null,
+    remote: false,
     title: "",
     charter: {
       content: "",
@@ -40,6 +41,10 @@ const store = new Vuex.Store({
   mutations: {
     setSessionId(state, payload) {
       state.id = payload;
+      this._vm.$storageService.updateState(state);
+    },
+    setRemote(state, payload) {
+      state.remote = payload;
       this._vm.$storageService.updateState(state);
     },
     setTitle(state, payload) {
@@ -95,6 +100,7 @@ const store = new Vuex.Store({
     },
     clearState(state) {
       state.id = null;
+      state.remote = false;
       state.title = "";
       state.charter = {
         content: "",
@@ -128,6 +134,7 @@ const store = new Vuex.Store({
     },
     restoreState(state, payload) {
       state.id = payload.id;
+      state.remote = payload.remote || false;
       state.title = payload.title;
       state.charter.content = payload?.charter?.content || "";
       state.charter.text = payload?.charter?.text || "";
@@ -190,35 +197,5 @@ const store = new Vuex.Store({
   },
   strict: process.env.NODE_ENV !== "production",
 });
-
-// store.subscribe((mutation) => {
-//   if (
-//     mutation.type === "config/addPresessionTask" ||
-//     mutation.type === "config/editPresessionTaskContent" ||
-//     mutation.type === "config/editPresessionTaskRequired" ||
-//     mutation.type === "config/deletePresessionTask"
-//   ) {
-//     const presessionTasks = store.getters["config/checklistPresessionTasks"];
-//     store.commit(
-//       "setPreSessionTasks",
-//       presessionTasks.map((task) => {
-//         return { ...task, checked: false };
-//       })
-//     );
-//   } else if (
-//     mutation.type === "config/addPostsessionTask" ||
-//     mutation.type === "config/editPostsessionTaskContent" ||
-//     mutation.type === "config/editPostsessionTaskRequired" ||
-//     mutation.type === "config/deletePostsessionTask"
-//   ) {
-//     const postsessionTasks = store.getters["config/checklistPostsessionTasks"];
-//     store.commit(
-//       "setPostSessionTasks",
-//       postsessionTasks.map((task) => {
-//         return { ...task, checked: false };
-//       })
-//     );
-//   }
-// });
 
 export default store;

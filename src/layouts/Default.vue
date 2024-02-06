@@ -86,8 +86,8 @@ export default {
     }
   },
   methods: {
-    setTheme({ appearance }) {
-      const isDarkMode = appearance === "dark";
+    setTheme({ theme }) {
+      const isDarkMode = theme === "dark";
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode.toString());
     },

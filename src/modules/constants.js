@@ -1,7 +1,7 @@
 export const IPC_HANDLERS = {
   BROWSER: "browser",
   CAPTURE: "capture",
-  DATABASE: "database",
+  PERSISTENCE: "persistence",
   FILE_SYSTEM: "fileSystem",
   STORE: "store",
   MENU: "menu",
@@ -42,11 +42,14 @@ export const IPC_FUNCTIONS = {
   MOVE_WINDOW: "moveWindow",
 
   INITIALIZE_SESSION: "initializeSession",
+  GET_CURRENT_SESSION: "getCurrentSession",
   GET_SESSION_ID: "getSessionID",
+  GET_CASE_ID: "getCaseID",
   GET_STATE: "getState",
   UPDATE_STATE: "updateState",
   ADD_ITEM: "addItem",
   GET_ITEMS: "getItems",
+  UPDATE_ITEM: "updateItem",
   UPDATE_ITEMS: "updateItems",
   DELETE_ITEMS: "deleteItems",
   GET_ITEM_BY_ID: "getItemById",
@@ -104,15 +107,6 @@ export const SESSION_STATUSES = {
   END: "end",
 };
 
-export const SESSION_TYPES = [
-  "Screenshot",
-  "Video",
-  "Audio",
-  "Note",
-  "File",
-  "Mindmap",
-];
-
 export const HOTKEY_PAGES = [
   "general",
   "home",
@@ -124,6 +118,47 @@ export const HOTKEY_PAGES = [
 export const VIEW_MODE = {
   NORMAL: "normal",
   MINI: "minimized",
+};
+
+export const DEFAULT_FILE_TYPES = {
+  image: {
+    type: "image/png",
+    suffix: "png",
+  },
+  video: {
+    type: "video/mp4",
+    suffix: "mp4",
+  },
+  audio: {
+    type: "audio/mp3",
+    suffix: "mp3",
+  },
+  text: {
+    type: "text/plain",
+    suffix: "txt",
+  },
+  mindmap: {
+    type: "application/json",
+    suffix: "mindmap",
+  },
+};
+
+export const FILE_TYPES = {
+  "image/png": "image",
+  "image/jpeg": "image",
+  "image/bmp": "image",
+  "image/gif": "image",
+  "image/svg+xml": "image",
+  "image/webp": "image",
+  "video/mp4": "video",
+  "video/mpeg": "video",
+  "video/webm": "video",
+  "video/x-msvideo": "video",
+  "audio/mp3": "audio",
+  "audio/mpeg": "audio",
+  "audio/wav": "audio",
+  "audio/webm": "audio",
+  "application/mindmap": "mindmap",
 };
 
 export const TEXT_TYPES = {

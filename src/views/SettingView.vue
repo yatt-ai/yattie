@@ -123,12 +123,12 @@ export default {
       this.config = value;
       this.$storageService.updateConfig(this.config);
 
-      const isDarkMode = this.config.apperance === "dark";
+      const isDarkMode = this.config.theme === "dark";
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode.toString());
 
       if (this.$isElectron) {
-        this.$electronService.setAppearance(this.config.apperance);
+        this.$electronService.setAppearance(this.config.theme);
       }
     },
     async getCredentials() {

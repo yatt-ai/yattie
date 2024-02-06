@@ -189,6 +189,7 @@
                 small
                 block
                 :color="currentTheme.background"
+                :style="{ color: currentTheme.secondary }"
                 v-shortkey="cancelHotkey"
                 @shortkey="handleDiscard()"
                 @click="handleDiscard()"
@@ -201,7 +202,8 @@
                 class="btn"
                 small
                 block
-                color="primary"
+                color="currentTheme.primary"
+                :style="{ color: currentTheme.white }"
                 v-shortkey="confirmHotkey"
                 @shortkey="handleSave()"
                 @click="handleSave()"
@@ -314,13 +316,9 @@ export default {
       }
 
       // set templates by config
-      this.config.templates.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.type === "Note") {
-          this.comment.content = temp.precondition.content;
-          this.comment.text = temp.precondition.text;
-        }
-      });
+      const template = this.config.templates["Note"];
+      this.comment.content = template.content;
+      this.comment.text = template.text;
 
       this.emojiMenu = false;
       this.tags = [];

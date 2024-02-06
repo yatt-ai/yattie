@@ -4,6 +4,7 @@ const fs = require("fs");
 const dayjs = require("dayjs");
 const detect = require("detect-file-type");
 const uuidv4 = require("uuid");
+const crypto = require("crypto");
 
 const ffmpeg = require("fluent-ffmpeg");
 
@@ -20,9 +21,9 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 ffmpeg.setFfprobePath(ffprobePath.path);
 
 const browserUtility = require("./BrowserWindowUtility");
-const databaseUtility = require("./DatabaseUtility");
+const persistenceUtility = require("./PersistenceUtility");
 
-const { STATUSES } = require("./constants");
+const { STATUSES, DEFAULT_FILE_TYPES } = require("./constants");
 
 const configDir = (app || remote.app).getPath("userData");
 
@@ -45,16 +46,17 @@ module.exports.getMediaSource = async () => {
 };
 
 module.exports.createImage = ({ url, isPoster }) => {
+  const fileType = DEFAULT_FILE_TYPES["image"].type;
   const imageType = isPoster ? "poster" : "image";
-  const { id, fileName } = generateIDAndName(imageType);
+  const { stepID, attachmentID, fileName } = generateIDAndName(imageType);
   const filePath = path.join(
     configDir,
     "sessions",
-    databaseUtility.getSessionID(),
+    persistenceUtility.getSessionID(),
     fileName
   );
   const base64Data = url.replace(/^data:image\/png;base64,/, "");
-  fs.writeFile(filePath, base64Data, "base64", function (err) {
+  fs.writeFileSync(filePath, base64Data, "base64", function (err) {
     if (err) {
       console.log(err);
       return {
@@ -64,12 +66,21 @@ module.exports.createImage = ({ url, isPoster }) => {
     }
   });
 
+  const fileSize = fs.statSync(filePath).size;
+  const fileChecksum = crypto
+    .createHash("md5")
+    .update(base64Data, "utf8")
+    .digest("hex");
   return {
     status: STATUSES.SUCCESS,
     item: {
-      id,
+      stepID,
+      attachmentID,
       fileName,
       filePath,
+      fileSize,
+      fileChecksum,
+      fileType,
     },
   };
 };
@@ -80,39 +91,40 @@ module.exports.updateImage = ({ item, url }) => {
   }
   const { fileName } = item.fileName
     ? { fileName: item.fileName }
-    : generateIDAndName("image", item.id);
+    : generateIDAndName("image", item.attachmentID);
 
   const filePath = path.join(
     configDir,
     "sessions",
-    databaseUtility.getSessionID(),
+    persistenceUtility.getSessionID(),
     fileName
   );
   const base64Data = url.replace(/^data:image\/png;base64,/, "");
-  fs.writeFile(filePath, base64Data, "base64", function (err) {
-    if (err) {
-      console.log(err);
-      return {
-        status: STATUSES.ERROR,
-        message: err,
-      };
-    }
-  });
+  fs.writeFileSync(filePath, base64Data, "base64");
+
+  const fileSize = fs.statSync(filePath).size;
+  const fileChecksum = crypto
+    .createHash("md5")
+    .update(base64Data, "utf8")
+    .digest("hex");
   return {
     status: STATUSES.SUCCESS,
     item: {
       fileName,
       filePath,
+      fileSize,
+      fileChecksum,
     },
   };
 };
 
 module.exports.createVideo = ({ buffer }) => {
-  const { id, fileName } = generateIDAndName("video");
+  const fileType = DEFAULT_FILE_TYPES["video"].type;
+  const { stepID, attachmentID, fileName } = generateIDAndName("video");
   const filePath = path.join(
     configDir,
     "sessions",
-    databaseUtility.getSessionID(),
+    persistenceUtility.getSessionID(),
     fileName
   );
   fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
@@ -124,25 +136,38 @@ module.exports.createVideo = ({ buffer }) => {
       };
     }
   });
+
+  const fileSize = fs.statSync(filePath).size;
+  const fileContents = fs.readFileSync(filePath);
+  const fileChecksum = crypto
+    .createHash("md5")
+    .update(fileContents, "utf8")
+    .digest("hex");
   return {
     status: STATUSES.SUCCESS,
     item: {
-      id,
+      stepID,
+      attachmentID,
       fileName,
       filePath,
+      fileSize,
+      fileChecksum,
+      fileType,
     },
   };
 };
 
 module.exports.optimizeVideo = ({ filePath }) => {
+  const fileFormat = DEFAULT_FILE_TYPES["video"].suffix;
   const tempName =
     "temp-optimizing-video-" +
     dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") +
-    ".mp4";
+    "." +
+    fileFormat;
   const tempPath = path.join(
     configDir,
     "sessions",
-    databaseUtility.getSessionID(),
+    persistenceUtility.getSessionID(),
     tempName
   );
 
@@ -150,7 +175,7 @@ module.exports.optimizeVideo = ({ filePath }) => {
     ffmpeg(filePath)
       .videoCodec("libx264")
       .audioCodec("aac")
-      .format("mp4")
+      .format(fileFormat)
       .save(tempPath)
       .on("start", function (commandLine) {
         console.log("start : " + commandLine);
@@ -167,8 +192,17 @@ module.exports.optimizeVideo = ({ filePath }) => {
             console.log(err);
             return reject({ status: STATUSES.ERROR, message: err });
           }
+
+          const fileSize = fs.statSync(filePath).size;
+          const fileContents = fs.readFileSync(filePath);
+          const fileChecksum = crypto
+            .createHash("md5")
+            .update(fileContents, "utf8")
+            .digest("hex");
           return resolve({
             status: STATUSES.SUCCESS,
+            fileSize,
+            fileChecksum,
           });
         });
       })
@@ -180,14 +214,16 @@ module.exports.optimizeVideo = ({ filePath }) => {
 };
 
 module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
+  const fileFormat = "mp4";
   const tempName =
     "temp-optimizing-video-" +
     dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") +
-    ".mp4";
+    "." +
+    fileFormat;
   const tempPath = path.join(
     configDir,
     "sessions",
-    databaseUtility.getSessionID(),
+    persistenceUtility.getSessionID(),
     tempName
   );
   const duration = parseInt(end - start);
@@ -210,11 +246,11 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
           }
           const { fileName } = item.fileName
             ? { fileName: item.fileName }
-            : generateIDAndName("video", item.id);
+            : generateIDAndName("video", item.attachmentID);
           const filePath = path.join(
             configDir,
             "sessions",
-            databaseUtility.getSessionID(),
+            persistenceUtility.getSessionID(),
             fileName
           );
           fs.rename(tempPath, filePath, function (err) {
@@ -222,11 +258,20 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
               console.log(err);
               return reject({ status: STATUSES.ERROR, message: err });
             }
+
+            const fileSize = fs.statSync(filePath).size;
+            const fileContents = fs.readFileSync(filePath);
+            const fileChecksum = crypto
+              .createHash("md5")
+              .update(fileContents, "utf8")
+              .digest("hex");
             return resolve({
               status: STATUSES.SUCCESS,
               item: {
                 fileName,
                 filePath,
+                fileSize,
+                fileChecksum,
               },
             });
           });
@@ -238,26 +283,30 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
     } else {
       const { fileName } = item.fileName
         ? { fileName: item.fileName }
-        : generateIDAndName("video", item.id);
+        : generateIDAndName("video", item.attachmentID);
       const filePath = path.join(
         configDir,
         "sessions",
-        databaseUtility.getSessionID(),
+        persistenceUtility.getSessionID(),
         fileName
       );
       if (item.filePath && item.filePath !== filePath) {
-        fs.rename(item.filePath, filePath, function (err) {
-          if (err) {
-            console.log(err);
-            return reject({ status: STATUSES.ERROR, message: err });
-          }
-        });
+        fs.renameSync(item.filePath, filePath);
       }
+
+      const fileSize = fs.statSync(filePath).size;
+      const fileContents = fs.readFileSync(filePath);
+      const fileChecksum = crypto
+        .createHash("md5")
+        .update(fileContents, "utf8")
+        .digest("hex");
       return resolve({
         status: STATUSES.SUCCESS,
         item: {
           fileName,
           filePath,
+          fileSize,
+          fileChecksum,
         },
       });
     }
@@ -265,11 +314,12 @@ module.exports.updateVideo = ({ item, start, end, previousDuration }) => {
 };
 
 module.exports.createAudio = ({ buffer }) => {
-  const { id, fileName } = generateIDAndName("audio");
+  const fileType = DEFAULT_FILE_TYPES["audio"].type;
+  const { stepID, attachmentID, fileName } = generateIDAndName("audio");
   const filePath = path.join(
     configDir,
     "sessions",
-    databaseUtility.getSessionID(),
+    persistenceUtility.getSessionID(),
     fileName
   );
   fs.writeFileSync(filePath, Buffer.from(buffer), function (err) {
@@ -281,12 +331,22 @@ module.exports.createAudio = ({ buffer }) => {
       };
     }
   });
+
+  const fileSize = fs.statSync(filePath).size;
+  const fileChecksum = crypto
+    .createHash("md5")
+    .update(Buffer.from(buffer, "utf-8"))
+    .digest("hex");
   return {
     status: STATUSES.SUCCESS,
     item: {
-      id,
+      stepID,
+      attachmentID,
       fileName,
       filePath,
+      fileSize,
+      fileChecksum,
+      fileType,
     },
   };
 };
@@ -294,30 +354,31 @@ module.exports.createAudio = ({ buffer }) => {
 module.exports.updateAudio = ({ item }) => {
   const { fileName } = item.fileName
     ? { fileName: item.fileName }
-    : generateIDAndName("audio", item.id);
+    : generateIDAndName("audio", item.attachmentID);
   const filePath = path.join(
     configDir,
     "sessions",
-    databaseUtility.getSessionID(),
+    persistenceUtility.getSessionID(),
     fileName
   );
 
   if (item.filePath && item.filePath !== filePath) {
-    fs.rename(item.filePath, filePath, function (err) {
-      if (err) {
-        console.log(err);
-        return {
-          status: STATUSES.ERROR,
-          message: err,
-        };
-      }
-    });
+    fs.renameSync(item.filePath, filePath);
   }
+
+  const fileSize = fs.statSync(filePath).size;
+  const fileContents = fs.readFileSync(filePath, "utf-8");
+  const fileChecksum = crypto
+    .createHash("md5")
+    .update(fileContents)
+    .digest("hex");
   return {
     status: STATUSES.SUCCESS,
     item: {
       fileName,
       filePath,
+      fileSize,
+      fileChecksum,
     },
   };
 };
@@ -329,11 +390,11 @@ module.exports.deleteFile = ({ filePath }) => {
 };
 
 module.exports.saveNote = (comment, fileNameToSave = "") => {
-  const { id, fileName } = generateIDAndName("text");
+  const { stepID, attachmentID, fileName } = generateIDAndName("text");
   const filePath = path.join(
     configDir,
     "sessions",
-    databaseUtility.getSessionID(),
+    persistenceUtility.getSessionID(),
     fileNameToSave ? fileNameToSave : fileName
   );
 
@@ -349,7 +410,8 @@ module.exports.saveNote = (comment, fileNameToSave = "") => {
   return {
     status: STATUSES.SUCCESS,
     item: {
-      id,
+      stepID,
+      attachmentID,
       fileName: fileNameToSave ? fileNameToSave : fileName,
       filePath,
     },
@@ -369,13 +431,13 @@ module.exports.uploadEvidence = async () => {
   }
 
   // TODO - Handle multiple files uploaded
-  const id = uuidv4();
-  console.log({ id });
+  const stepID = uuidv4();
+  const attachmentID = uuidv4();
   const fileName = path.basename(filePaths[0]);
   const filePath = path.join(
     configDir,
     "sessions",
-    databaseUtility.getSessionID(),
+    persistenceUtility.getSessionID(),
     fileName
   );
 
@@ -391,28 +453,24 @@ module.exports.uploadEvidence = async () => {
         });
       }
 
-      let fileType = "";
-      if (result) {
-        if (result.mime.substring(0, 6) === "image/") {
-          fileType = "image";
-        } else if (result.mime.substring(0, 6) === "video/") {
-          fileType = "video";
-        } else if (result.mime.substring(0, 6) === "audio/") {
-          fileType = "audio";
-        } else {
-          fileType = "other";
-        }
-      } else {
-        fileType = "other";
-      }
+      let fileType = result.mime;
 
+      const fileSize = fs.statSync(filePath).size;
+      const fileContents = fs.readFileSync(filePath, "utf8");
+      const fileChecksum = crypto
+        .createHash("md5")
+        .update(fileContents)
+        .digest("hex");
       return resolve({
         status: STATUSES.SUCCESS,
         item: {
-          id,
+          stepID,
+          attachmentID,
           fileType,
           fileName,
           filePath,
+          fileSize,
+          fileChecksum,
         },
       });
     });
@@ -420,12 +478,13 @@ module.exports.uploadEvidence = async () => {
 };
 
 module.exports.dropFile = async (data) => {
-  const id = uuidv4();
+  const stepID = uuidv4();
+  const attachmentID = uuidv4();
   const fileName = data.name;
   const filePath = path.join(
     configDir,
     "sessions",
-    databaseUtility.getSessionID(),
+    persistenceUtility.getSessionID(),
     fileName
   );
 
@@ -440,65 +499,54 @@ module.exports.dropFile = async (data) => {
         });
       }
 
-      let fileType = "";
-      if (result) {
-        if (result.mime.substring(0, 6) === "image/") {
-          fileType = "image";
-        } else if (result.mime.substring(0, 6) === "video/") {
-          fileType = "video";
-        } else if (result.mime.substring(0, 6) === "audio/") {
-          fileType = "audio";
-        } else {
-          fileType = "other";
-        }
-      } else {
-        fileType = "other";
-      }
+      let fileType = result.mime;
 
+      const fileSize = fs.statSync(filePath).size;
+      const fileContents = fs.readFileSync(filePath);
+      const fileChecksum = crypto
+        .createHash("md5")
+        .update(fileContents, "utf8")
+        .digest("hex");
       return resolve({
         status: STATUSES.SUCCESS,
+        // TODO - Move item building to a util
         item: {
-          id,
+          stepID,
+          attachmentID,
           fileType,
           fileName,
           filePath,
+          fileSize,
+          fileChecksum,
         },
       });
     });
   });
 };
 
-module.exports.setAppearance = ({ appearance }) => {
+module.exports.setAppearance = ({ theme }) => {
   const browserWindow = browserUtility.getBrowserWindow();
-  browserWindow.webContents.send("SET_THEME", { appearance });
+  browserWindow.webContents.send("SET_THEME", { theme });
 };
 
 const generateIDAndName = (type, uid = undefined) => {
-  let id, idStr, fileName;
+  const stepID = uuidv4();
+  let attachmentID, idStr, fileName;
   let success = false;
   let suffix;
 
-  switch (type) {
-    case "video":
-      suffix = "mp4";
-      break;
-    case "audio":
-      suffix = "mp3";
-      break;
-    case "image":
-    case "poster":
-      suffix = "png";
-      break;
-    case "text":
-      suffix = "txt";
-      break;
-    default:
-      suffix = "file";
+  if (type === "poster") {
+    type = "image";
+  }
+  if (DEFAULT_FILE_TYPES[type]) {
+    suffix = DEFAULT_FILE_TYPES[type].suffix;
+  } else {
+    suffix = "file";
   }
 
   while (!success) {
-    id = uuidv4();
-    idStr = id.replaceAll("-", "");
+    attachmentID = uuidv4();
+    idStr = attachmentID.replaceAll("-", "");
     for (let i = 0; i < idStr.length - 5; i++) {
       fileName = `${type}-${idStr.substring(i, 5)}.${suffix}`;
       if (
@@ -506,7 +554,7 @@ const generateIDAndName = (type, uid = undefined) => {
           path.join(
             configDir,
             "sessions",
-            databaseUtility.getSessionID(),
+            persistenceUtility.getSessionID(),
             fileName
           )
         )
@@ -517,7 +565,7 @@ const generateIDAndName = (type, uid = undefined) => {
     }
   }
   if (uid) {
-    id = uid;
+    attachmentID = uid;
   }
-  return { id, fileName };
+  return { stepID, attachmentID, fileName };
 };

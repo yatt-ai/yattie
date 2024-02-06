@@ -94,7 +94,7 @@
 
             <div v-for="(item, i) in items" :key="i">
               <v-timeline-item
-                v-if="item.sessionType === 'Screenshot'"
+                v-if="getType(item.fileType) === 'image'"
                 color="primary"
                 icon="mdi-camera-plus"
                 fill-dot
@@ -129,7 +129,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Video'"
+                v-if="getType(item.fileType) === 'video'"
                 color="primary"
                 icon="mdi-video"
                 fill-dot
@@ -145,7 +145,7 @@
                   <div class="video-wrapper">
                     <img
                       style="max-width: 100%"
-                      :src="`file://${item.poster}`"
+                      :src="`file://${item.poster.filePath}`"
                     />
                     <v-icon class="video-play" x-large>mdi-play</v-icon>
                   </div>
@@ -165,7 +165,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Audio'"
+                v-if="getType(item.fileType) === 'audio'"
                 color="primary"
                 icon="mdi-microphone"
                 fill-dot
@@ -202,7 +202,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Note'"
+                v-if="getType(item.fileType) === 'text'"
                 color="primary"
                 icon="mdi-pencil"
                 fill-dot
@@ -230,7 +230,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'File'"
+                v-if="getType(item.fileType) === undefined"
                 color="primary"
                 icon="mdi-file"
                 fill-dot
@@ -244,7 +244,7 @@
                     </div>
                   </div>
                   <div
-                    v-if="item.fileType === 'image'"
+                    v-if="getType(item.fileType) === 'image'"
                     class="file-wrapper image"
                   >
                     <img
@@ -277,7 +277,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Mindmap'"
+                v-if="getType(item.fileType) === 'mindmap'"
                 color="primary"
                 icon="mdi-camera-plus"
                 fill-dot
@@ -313,7 +313,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Summary' && item.comment.text"
+                v-if="item.comment.type === 'Summary' && item.comment.text"
                 color="primary"
                 icon="mdi-pencil"
                 fill-dot
@@ -416,7 +416,12 @@ import {
   VIcon,
   VDivider,
 } from "vuetify/lib/components";
-import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
+import {
+  IPC_HANDLERS,
+  IPC_FUNCTIONS,
+  TEXT_TYPES,
+  FILE_TYPES,
+} from "../modules/constants";
 
 export default {
   name: "PrintView",
@@ -549,6 +554,9 @@ export default {
     },
   },
   methods: {
+    getType(type) {
+      return FILE_TYPES[type];
+    },
     formatTime(timeInSeconds) {
       const seconds = ("0" + (timeInSeconds % 60)).slice(-2);
       const minutes = ("0" + (parseInt(timeInSeconds / 60, 10) % 60)).slice(-2);
@@ -560,7 +568,7 @@ export default {
       if (!window.ipc) return;
 
       await window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_ITEMS })
+        .invoke(IPC_HANDLERS.PERSISTENCE, { func: IPC_FUNCTIONS.GET_ITEMS })
         .then((result) => {
           this.items = result;
         });

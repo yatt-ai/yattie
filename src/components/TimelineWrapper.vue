@@ -41,7 +41,7 @@
               @dragstart="(event) => dragItem(event, item)"
             >
               <v-timeline-item
-                v-if="item.sessionType === 'Screenshot'"
+                v-if="getType(item.fileType) === 'image'"
                 color="primary"
                 icon="mdi-camera-plus"
                 fill-dot
@@ -57,13 +57,16 @@
                       <input
                         type="checkbox"
                         class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
+                        :value="item.stepID"
+                        :checked="checkedItem(item.stepID)"
+                        @change="handleSelected($event, item.stepID)"
                       />
                     </div>
                   </div>
-                  <div class="image-wrapper" @click="handleItemClick(item.id)">
+                  <div
+                    class="image-wrapper"
+                    @click="handleItemClick(item.stepID)"
+                  >
                     <img
                       class="screen-img"
                       style="max-width: 100%"
@@ -88,7 +91,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -101,7 +104,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item.emoji.length">
+                    <template v-if="item?.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -111,7 +114,7 @@
                         style=""
                         v-for="(emoji, i) in item.emoji"
                         :key="i"
-                        @click="removeEmoji(item.id, emoji)"
+                        @click="removeEmoji(item.stepID, emoji)"
                       >
                         <span class="emoji-icon">{{ emoji.data }}</span>
                         <v-icon x-small>mdi-close</v-icon>
@@ -119,7 +122,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-` + item.id]"
+                      v-model="emojiMenu[`menu-` + item.stepID]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -138,7 +141,7 @@
                                 ...menu,
                                 ...tooltip,
                               }"
-                              @click="handleSelectedItem(item.id)"
+                              @click="handleSelectedItem(item.stepID)"
                             >
                               <img
                                 :src="
@@ -168,14 +171,14 @@
                         name="follow_up"
                         class="item-select"
                         v-model="item.followUp"
-                        @change="handleFollowUp($event, item.id)"
+                        @change="handleFollowUp($event, item.stepID)"
                       />{{ $tc("caption.required_follow_up", 1) }}
                     </label>
                   </div>
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Video'"
+                v-if="getType(item.fileType) === 'video'"
                 color="primary"
                 icon="mdi-video"
                 fill-dot
@@ -191,15 +194,15 @@
                       <input
                         type="checkbox"
                         class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
+                        :value="item.stepID"
+                        :checked="checkedItem(item.stepID)"
+                        @change="handleSelected($event, item.stepID)"
                       />
                     </div>
                   </div>
                   <div
                     class="video-wrapper"
-                    @click.prevent="handleItemClick(item.id)"
+                    @click.prevent="handleItemClick(item.stepID)"
                   >
                     <video
                       controls
@@ -225,7 +228,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -238,7 +241,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item.emoji.length">
+                    <template v-if="item?.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -248,7 +251,7 @@
                         style=""
                         v-for="(emoji, i) in item.emoji"
                         :key="i"
-                        @click="removeEmoji(item.id, emoji)"
+                        @click="removeEmoji(item.stepID, emoji)"
                       >
                         <span class="emoji-icon">{{ emoji.data }}</span>
                         <v-icon x-small>mdi-close</v-icon>
@@ -256,7 +259,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-` + item.id]"
+                      v-model="emojiMenu[`menu-` + item.stepID]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -275,7 +278,7 @@
                                 ...menu,
                                 ...tooltip,
                               }"
-                              @click="handleSelectedItem(item.id)"
+                              @click="handleSelectedItem(item.stepID)"
                             >
                               <img
                                 :src="
@@ -305,14 +308,14 @@
                         name="follow_up"
                         class="item-select"
                         v-model="item.followUp"
-                        @change="handleFollowUp($event, item.id)"
+                        @change="handleFollowUp($event, item.stepID)"
                       />{{ $tc("caption.required_follow_up", 1) }}
                     </label>
                   </div>
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Audio'"
+                v-if="getType(item.fileType) === 'audio'"
                 color="primary"
                 icon="mdi-microphone"
                 fill-dot
@@ -328,15 +331,18 @@
                       <input
                         type="checkbox"
                         class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
+                        :value="item.stepID"
+                        :checked="checkedItem(item.stepID)"
+                        @change="handleSelected($event, item.stepID)"
                       />
                     </div>
                   </div>
-                  <div class="audio-wrapper" @click="handleItemClick(item.id)">
+                  <div
+                    class="audio-wrapper"
+                    @click="handleItemClick(item.stepID)"
+                  >
                     <div class="audio-wave">
-                      <img :src="`file://${item.poster}`" />
+                      <img :src="`file://${item.poster.filePath}`" />
                     </div>
                   </div>
                   <div class="comment-wrapper mt-2 mb-2">
@@ -357,7 +363,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -370,7 +376,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item.emoji.length">
+                    <template v-if="item?.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -380,7 +386,7 @@
                         style=""
                         v-for="(emoji, i) in item.emoji"
                         :key="i"
-                        @click="removeEmoji(item.id, emoji)"
+                        @click="removeEmoji(item.stepID, emoji)"
                       >
                         <span class="emoji-icon">{{ emoji.data }}</span>
                         <v-icon x-small>mdi-close</v-icon>
@@ -388,7 +394,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-` + item.id]"
+                      v-model="emojiMenu[`menu-` + item.stepID]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -407,7 +413,7 @@
                                 ...menu,
                                 ...tooltip,
                               }"
-                              @click="handleSelectedItem(item.id)"
+                              @click="handleSelectedItem(item.stepID)"
                             >
                               <img
                                 :src="
@@ -438,14 +444,14 @@
                         name="follow_up"
                         class="item-select"
                         v-model="item.followUp"
-                        @change="handleFollowUp($event, item.id)"
+                        @change="handleFollowUp($event, item.stepID)"
                       />{{ $tc("caption.required_follow_up", 1) }}
                     </label>
                   </div>
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Note'"
+                v-if="getType(item.fileType) === 'text'"
                 color="primary"
                 icon="mdi-pencil"
                 fill-dot
@@ -460,13 +466,16 @@
                       <input
                         type="checkbox"
                         class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
+                        :value="item.stepID"
+                        :checked="checkedItem(item.stepID)"
+                        @change="handleSelected($event, item.stepID)"
                       />
                     </div>
                   </div>
-                  <div class="note-wrapper" @click="handleItemClick(item.id)">
+                  <div
+                    class="note-wrapper"
+                    @click="handleItemClick(item.stepID)"
+                  >
                     <font-awesome-icon
                       :icon="textTypes[item.comment.type].icon"
                       class="mr-1"
@@ -484,7 +493,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -497,7 +506,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item.emoji.length">
+                    <template v-if="item?.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -507,7 +516,7 @@
                         style=""
                         v-for="(emoji, i) in item.emoji"
                         :key="i"
-                        @click="removeEmoji(item.id, emoji)"
+                        @click="removeEmoji(item.stepID, emoji)"
                       >
                         <span class="emoji-icon">{{ emoji.data }}</span>
                         <v-icon x-small>mdi-close</v-icon>
@@ -515,7 +524,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-` + item.id]"
+                      v-model="emojiMenu[`menu-` + item.stepID]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -534,7 +543,7 @@
                                 ...menu,
                                 ...tooltip,
                               }"
-                              @click="handleSelectedItem(item.id)"
+                              @click="handleSelectedItem(item.stepID)"
                             >
                               <img
                                 :src="
@@ -564,14 +573,14 @@
                         name="follow_up"
                         class="item-select"
                         v-model="item.followUp"
-                        @change="handleFollowUp($event, item.id)"
+                        @change="handleFollowUp($event, item.stepID)"
                       />{{ $tc("caption.required_follow_up", 1) }}
                     </label>
                   </div>
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'File'"
+                v-if="getType(item.fileType) === undefined"
                 color="primary"
                 icon="mdi-file"
                 fill-dot
@@ -587,16 +596,16 @@
                       <input
                         type="checkbox"
                         class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
+                        :value="item.stepID"
+                        :checked="checkedItem(item.stepID)"
+                        @change="handleSelected($event, item.stepID)"
                       />
                     </div>
                   </div>
                   <div
-                    v-if="item.fileType === 'image'"
+                    v-if="getType(item.fileType) === 'image'"
                     class="file-wrapper image"
-                    @click="handleItemClick(item.id)"
+                    @click="handleItemClick(item.stepID)"
                   >
                     <img
                       class="screen-img"
@@ -607,7 +616,7 @@
                   <div
                     v-else
                     class="file-wrapper file"
-                    @click="handleItemClick(item.id)"
+                    @click="handleItemClick(item.stepID)"
                   >
                     <div class="file-name">
                       <span>{{ item.fileName }}</span>
@@ -634,7 +643,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -647,7 +656,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item.emoji.length">
+                    <template v-if="item?.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -657,7 +666,7 @@
                         style=""
                         v-for="(emoji, i) in item.emoji"
                         :key="i"
-                        @click="removeEmoji(item.id, emoji)"
+                        @click="removeEmoji(item.stepID, emoji)"
                       >
                         <span class="emoji-icon">{{ emoji.data }}</span>
                         <v-icon x-small>mdi-close</v-icon>
@@ -665,7 +674,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-` + item.id]"
+                      v-model="emojiMenu[`menu-` + item.stepID]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -684,7 +693,7 @@
                                 ...menu,
                                 ...tooltip,
                               }"
-                              @click="handleSelectedItem(item.id)"
+                              @click="handleSelectedItem(item.stepID)"
                             >
                               <img
                                 :src="
@@ -714,14 +723,14 @@
                         name="follow_up"
                         class="item-select"
                         v-model="item.followUp"
-                        @change="handleFollowUp($event, item.id)"
+                        @change="handleFollowUp($event, item.stepID)"
                       />{{ $tc("caption.required_follow_up", 1) }}
                     </label>
                   </div>
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Mindmap'"
+                v-if="getType(item.fileType) === 'mindmap'"
                 color="primary"
                 icon="mdi-camera-plus"
                 fill-dot
@@ -737,13 +746,16 @@
                       <input
                         type="checkbox"
                         class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
+                        :value="item.stepID"
+                        :checked="checkedItem(item.stepID)"
+                        @change="handleSelected($event, item.stepID)"
                       />
                     </div>
                   </div>
-                  <div class="image-wrapper" @click="handleItemClick(item.id)">
+                  <div
+                    class="image-wrapper"
+                    @click="handleItemClick(item.stepID)"
+                  >
                     <img
                       class="screen-img"
                       style="max-width: 100%"
@@ -768,7 +780,7 @@
                     </span>
                     <span v-html="item.comment.content"></span>
                   </div>
-                  <div v-if="item.tags.length" class="tags-wrapper my-2">
+                  <div v-if="item?.tags.length" class="tags-wrapper my-2">
                     <v-chip
                       v-for="(tag, i) in item.tags"
                       :key="i"
@@ -781,7 +793,7 @@
                     </v-chip>
                   </div>
                   <div class="actions-wrapper">
-                    <template v-if="item.emoji.length">
+                    <template v-if="item?.emoji.length">
                       <v-btn
                         rounded
                         color="primary"
@@ -791,7 +803,7 @@
                         style=""
                         v-for="(emoji, i) in item.emoji"
                         :key="i"
-                        @click="removeEmoji(item.id, emoji)"
+                        @click="removeEmoji(item.stepID, emoji)"
                       >
                         <span class="emoji-icon">{{ emoji.data }}</span>
                         <v-icon x-small>mdi-close</v-icon>
@@ -799,7 +811,7 @@
                     </template>
 
                     <v-menu
-                      v-model="emojiMenu[`menu-` + item.id]"
+                      v-model="emojiMenu[`menu-` + item.stepID]"
                       :close-on-content-click="false"
                       right
                       bottom
@@ -818,7 +830,7 @@
                                 ...menu,
                                 ...tooltip,
                               }"
-                              @click="handleSelectedItem(item.id)"
+                              @click="handleSelectedItem(item.stepID)"
                             >
                               <img
                                 :src="
@@ -848,14 +860,14 @@
                         name="follow_up"
                         class="item-select"
                         v-model="item.followUp"
-                        @change="handleFollowUp($event, item.id)"
+                        @change="handleFollowUp($event, item.stepID)"
                       />{{ $tc("caption.required_follow_up", 1) }}
                     </label>
                   </div>
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Summary' && item.comment.text"
+                v-if="item?.comment?.type === 'Summary' && item.comment.text"
                 color="primary"
                 icon="mdi-pencil"
                 fill-dot
@@ -870,13 +882,16 @@
                       <input
                         type="checkbox"
                         class="item-select"
-                        :value="item.id"
-                        :checked="checkedItem(item.id)"
-                        @change="handleSelected($event, item.id)"
+                        :value="item.stepID"
+                        :checked="checkedItem(item.stepID)"
+                        @change="handleSelected($event, item.stepID)"
                       />
                     </div>
                   </div>
-                  <div class="note-wrapper" @click="handleItemClick(item.id)">
+                  <div
+                    class="note-wrapper"
+                    @click="handleItemClick(item.stepID)"
+                  >
                     <font-awesome-icon
                       :icon="textTypes[item.comment.type].icon"
                       class="mr-1"
@@ -964,7 +979,7 @@ import { VEmojiPicker } from "v-emoji-picker";
 
 import dayjs from "dayjs";
 
-import { STATUSES, TEXT_TYPES } from "@/modules/constants";
+import { STATUSES, TEXT_TYPES, FILE_TYPES } from "@/modules/constants";
 import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 import EditEvidenceDialog from "@/components/dialogs/EditEvidenceDialog.vue";
 
@@ -1001,7 +1016,7 @@ export default {
       this.itemLists = newValue;
       let newMap = { ...this.emojiMenu };
       this.itemLists.map((item) => {
-        newMap[`menu-${item.id}`] = false;
+        newMap[`menu-${item.stepID}`] = false;
       });
       this.emojiMenu = newMap;
     },
@@ -1049,10 +1064,13 @@ export default {
   mounted() {
     this.emojiMenu = {};
     this.itemLists.map((item) => {
-      this.emojiMenu[`menu-${item.id}`] = false;
+      this.emojiMenu[`menu-${item.stepID}`] = false;
     });
   },
   methods: {
+    getType(type) {
+      return FILE_TYPES[type];
+    },
     formatTime(timeInSeconds) {
       const seconds = ("0" + (timeInSeconds % 60)).slice(-2);
       const minutes = ("0" + (parseInt(timeInSeconds / 60, 10) % 60)).slice(-2);
@@ -1071,11 +1089,7 @@ export default {
           this.$root.$emit("set-snackbar", message);
         } else {
           const data = {
-            sessionType: "File",
-            id: item.id,
-            fileType: item.fileType,
-            fileName: item.fileName,
-            filePath: item.filePath,
+            ...item,
             timer_mark: this.$store.state.timer,
           };
           this.evidenceData = data;
@@ -1105,16 +1119,15 @@ export default {
       if (this.clicks === 1) {
         setTimeout(
           function () {
-            console.log("trigger from here");
             switch (this.clicks) {
               case 1:
                 if (this.eventName === "click") {
-                  this.handleActiveSession(id);
+                  this.handleActivateEditSession(id);
                 }
                 break;
               default:
                 if (this.eventName === "dblclick") {
-                  this.handleActiveSession(id);
+                  this.handleActivateEditSession(id);
                 }
             }
             this.clicks = 0;
@@ -1126,16 +1139,17 @@ export default {
     handleFollowUp($event, id) {
       this.itemLists = this.itemLists.map((item) => {
         let temp = Object.assign({}, item);
-        if (temp.id === id) {
+        if (temp.stepID === id) {
           temp.followUp = $event.target.checked;
         }
         return temp;
       });
       this.saveData();
     },
-    async handleActiveSession(id) {
+    async handleActivateEditSession(id) {
       this.itemToEdit = await this.$storageService.getItemById(id);
       this.editEvidenceDialog = true;
+      this.$emit("activate-edit-session", this.itemToEdit);
     },
     async dragItem(event, item) {
       event.preventDefault();
@@ -1147,7 +1161,6 @@ export default {
       }
     },
     async dropFile(event) {
-      console.log("Drop file");
       event.preventDefault();
       event.stopPropagation();
       this.isDragging = false;
@@ -1165,11 +1178,7 @@ export default {
           this.$root.$emit("set-snackbar", message);
         } else {
           const data = {
-            sessionType: "File",
-            id: item.id,
-            fileType: item.fileType,
-            fileName: item.fileName,
-            filePath: item.filePath,
+            ...item,
             timer_mark: this.$store.state.timer,
           };
           await this.openEditorModal(data);
@@ -1197,7 +1206,7 @@ export default {
 
       this.itemLists = this.itemLists.map((item) => {
         let temp = Object.assign({}, item);
-        if (temp.id === this.selectedId) {
+        if (temp.stepID === this.selectedId) {
           if (temp.emoji.filter((item) => item.data === emoji.data).length) {
             temp.emoji = temp.emoji.filter((item) => item.data !== emoji.data);
           } else {
@@ -1211,7 +1220,7 @@ export default {
     removeEmoji(id, emoji) {
       this.itemLists = this.itemLists.map((item) => {
         let temp = Object.assign({}, item);
-        if (temp.id === id) {
+        if (temp.stepID === id) {
           temp.emoji = temp.emoji.filter((item) => item.data !== emoji.data);
         }
         return temp;
