@@ -55,17 +55,11 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   name: "ShareSessionDialog",
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
     sessionLink: {
       type: String,
       default: () => "",
@@ -73,34 +67,25 @@ export default {
   },
   data() {
     return {
-      config: this.configItem,
-      credentials: this.credentialItems,
       sessionURL: "",
     };
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
     sessionLink: function () {
       this.sessionURL = this.sessionLink;
     },
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+      config: "config/fullConfig",
+      credentials: "auth/credentials",
+    }),
     confirmHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.save",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
     },
     cancelHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.cancel",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.cancel", this.hotkeys);
     },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
