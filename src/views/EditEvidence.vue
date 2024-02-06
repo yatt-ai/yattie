@@ -297,7 +297,11 @@ import ReviewWrapper from "../components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { TEXT_TYPES, AI_ENABLED_FIELDS, FILE_TYPES } from "../modules/constants";
+import {
+  TEXT_TYPES,
+  AI_ENABLED_FIELDS,
+  FILE_TYPES,
+} from "../modules/constants";
 
 import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
 

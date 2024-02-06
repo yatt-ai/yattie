@@ -759,7 +759,8 @@ import {
   DEFAULT_MAP_NODES,
   SESSION_STATUSES,
   STATUSES,
-  DEFAULT_FILE_TYPES, VIDEO_RESOLUTION,
+  DEFAULT_FILE_TYPES,
+  VIDEO_RESOLUTION,
 } from "@/modules/constants";
 import { mapGetters } from "vuex";
 
@@ -1467,7 +1468,7 @@ export default {
           }
         }
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        await stream.getVideoTracks()[0].applyConstraints({frameRate: 30});
+        await stream.getVideoTracks()[0].applyConstraints({ frameRate: 30 });
         this.handleStream(stream);
       } catch (e) {
         console.log(e);

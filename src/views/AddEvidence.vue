@@ -321,7 +321,12 @@ import ReviewWrapper from "../components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { TEXT_TYPES, STATUSES, AI_ENABLED_FIELDS, FILE_TYPES } from "../modules/constants";
+import {
+  TEXT_TYPES,
+  STATUSES,
+  AI_ENABLED_FIELDS,
+  FILE_TYPES,
+} from "../modules/constants";
 
 import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
 import { mapGetters } from "vuex";
@@ -495,9 +500,8 @@ export default {
         // todo add web handler for this
         this.processing = true;
 
-        const { status, message, fileSize, fileChecksum } = await this.$electronService.optimizeVideo(
-          this.item.filePath
-        );
+        const { status, message, fileSize, fileChecksum } =
+          await this.$electronService.optimizeVideo(this.item.filePath);
 
         if (status === STATUSES.ERROR) {
           this.$root.$emit("set-snackbar", message);
