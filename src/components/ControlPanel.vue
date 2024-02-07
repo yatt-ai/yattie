@@ -658,6 +658,7 @@
         @submit-source="startSession"
       />
       <ShareSessionDialog
+        v-if="isShareSessionAllowed"
         v-model="shareSessionDialog"
         :session-link="sessionLink"
         :credentialItems="credentials"
@@ -863,6 +864,9 @@ export default {
       config: "config/fullConfig",
       credentials: "auth/credentials",
     }),
+    isShareSessionAllowed() {
+      return process.env.VUE_APP_STORAGE_TYPE !== "localOnly";
+    },
     pauseHotkey() {
       return this.$hotkeyHelpers.findBinding("workspace.pause", this.hotkeys);
     },
@@ -1621,6 +1625,7 @@ export default {
         fileType: DEFAULT_FILE_TYPES["text"].type,
         comment: value,
         timer_mark: this.timer,
+        tags: [],
         createdAt: Date.now(),
       };
       if (Object.keys(this.summary).length) {
