@@ -81,6 +81,8 @@ ipcMain.handle(IPC_HANDLERS.WINDOW, async (event, args) => {
       return windowUtility.closeNotesWindow();
     case IPC_FUNCTIONS.MOVE_WINDOW:
       return windowUtility.moveWindow(args.data);
+    case IPC_FUNCTIONS.RESET_SESSION:
+      return windowUtility.resetSession(args.data);
     default:
       return null;
   }
@@ -141,6 +143,7 @@ ipcMain.handle(IPC_HANDLERS.FILE_SYSTEM, async (event, args) => {
       return fileSystemUtility.exportItems(args.data);
     case IPC_FUNCTIONS.CREATE_NEW_SESSION:
       return fileSystemUtility.createNewSession(args.data);
+    case IPC_FUNCTIONS.RESET_SESSION:
     case IPC_FUNCTIONS.SAVE_SESSION:
       return fileSystemUtility.saveSession(args.data);
     case IPC_FUNCTIONS.OPEN_SESSION:

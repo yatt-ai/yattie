@@ -67,6 +67,7 @@ export const IPC_FUNCTIONS = {
   EXPORT_ITEMS: "exportItems",
   CREATE_NEW_SESSION: "createNewSession",
   SAVE_SESSION: "saveSession",
+  RESET_SESSION: "resetSession",
   OPEN_SESSION: "openSession",
   EXPORT_SESSION: "exportSession",
   OPEN_CONFIG_FILE: "openConfigFile",

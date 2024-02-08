@@ -384,3 +384,8 @@ module.exports.moveWindow = (data) => {
     currentPosition[1] + data.y
   );
 };
+
+module.exports.resetSession = async () => {
+  const browserWindow = browserUtility.getBrowserWindow();
+  browserWindow.webContents.send("RESET_SESSION", true)
+}

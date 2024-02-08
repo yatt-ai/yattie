@@ -7,8 +7,8 @@
         rounded
         solid
         v-shortkey="backHotkey"
-        @shortkey="back()"
-        @click="back()"
+        @shortkey="back"
+        @click="back"
       >
         <v-icon class="ma-0">mdi-chevron-left</v-icon>
         {{ $tc("caption.back", 1) }}
@@ -219,6 +219,7 @@ export default {
       this.items = await this.$storageService.getItems();
     },
     addItem(newItem) {
+      // console.log("add", newItem);
       this.$storageService.addItem(newItem);
     },
     updateItem(newItem) {
@@ -239,6 +240,12 @@ export default {
     back() {
       this.$store.commit("resetState");
       this.$router.push("/");
+      // if (this.$isElectron && this.$store.state.quickTest) {
+      //   this.$electronService.resetSession();
+      // } else {
+      //   this.$store.commit("resetState");
+      //   this.$router.push("/");
+      // }
     },
   },
 };

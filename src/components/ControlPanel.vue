@@ -865,7 +865,7 @@ export default {
       credentials: "auth/credentials",
     }),
     isShareSessionAllowed() {
-      return process.env.VUE_APP_STORAGE_TYPE !== "localOnly";
+      return !this.config.localOnly;
     },
     pauseHotkey() {
       return this.$hotkeyHelpers.findBinding("workspace.pause", this.hotkeys);
@@ -1238,9 +1238,6 @@ export default {
       this.status = SESSION_STATUSES.END;
       this.changeSessionStatus(SESSION_STATUSES.END);
       this.stopInterval();
-      if (this.$isElectron) {
-        this.$electronService.setWindowSize({ width: 1440, height: 900 });
-      }
       await this.$router.push({ path: "/result" });
     },
     showSummaryDialog() {
@@ -1625,7 +1622,6 @@ export default {
         fileType: DEFAULT_FILE_TYPES["text"].type,
         comment: value,
         timer_mark: this.timer,
-        tags: [],
         createdAt: Date.now(),
       };
       if (Object.keys(this.summary).length) {

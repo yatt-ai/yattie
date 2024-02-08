@@ -356,4 +356,10 @@ export default class ElectronService {
       data,
     });
   }
+
+  async resetSession() {
+    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.RESET_SESSION,
+    });
+  }
 }

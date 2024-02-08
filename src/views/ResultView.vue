@@ -1,7 +1,7 @@
 <template>
   <v-container fluid style="min-height: 100vh" class="d-flex">
-    <v-row>
-      <v-col cols="3" class="wrapper pa-0">
+    <v-row class="flex justify-space-between px-6">
+      <v-col cols="6" class="wrapper pa-0">
         <div class="header">
           <LogoWrapper :height="34" :width="120" />
         </div>
@@ -17,162 +17,7 @@
         </div>
       </v-col>
       <v-divider vertical></v-divider>
-      <v-col cols="6" class="wrapper">
-        <div
-          v-if="Object.keys(editItem).length"
-          class="d-flex flex-column"
-          style="height: 100%"
-        >
-          <div class="flex-grow-1">
-            <ReviewWrapper
-              :item="editItem"
-              :auto-save="autoSaveEvent"
-              :configItem="config"
-            />
-          </div>
-          <div class="flex-grow-0 mt-2">
-            <div
-              class="actions-wrapper mt-1 mb-2"
-              v-if="
-                getType(editItem.fileType) === 'image' ||
-                getType(editItem.fileType) === 'video' ||
-                getType(editItem.fileType) === 'audio'
-              "
-            >
-              <template v-if="editItem.emoji.length">
-                <v-btn
-                  rounded
-                  color="primary"
-                  class="pa-0 mb-1"
-                  height="26"
-                  min-width="45"
-                  style=""
-                  v-for="(emoji, i) in editItem.emoji"
-                  :key="i"
-                  @click="removeEmoji(emoji)"
-                >
-                  <span class="emoji-icon">{{ emoji.data }}</span>
-                  <v-icon x-small>mdi-close</v-icon>
-                </v-btn>
-              </template>
-
-              <v-menu
-                v-model="emojiMenu"
-                :close-on-content-click="false"
-                right
-                bottom
-                nudge-bottom="4"
-                offset-y
-              >
-                <template v-slot:activator="{ on: emojiMenu }">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on: tooltip }">
-                      <v-btn
-                        rounded
-                        class="pa-0 mb-1"
-                        height="26"
-                        min-width="35"
-                        v-on="{
-                          ...emojiMenu,
-                          ...tooltip,
-                        }"
-                      >
-                        <img
-                          :src="require('../assets/icon/add-emoticon.svg')"
-                          width="24"
-                          height="24"
-                        />
-                      </v-btn>
-                    </template>
-                    <span>{{ $tc("caption.add_reaction", 1) }}</span>
-                  </v-tooltip>
-                </template>
-                <v-card class="emoji-lookup">
-                  <VEmojiPicker
-                    labelSearch="Search"
-                    lang="en-US"
-                    @select="selectEmoji"
-                  />
-                </v-card>
-              </v-menu>
-            </div>
-            <div class="check-box mb-2">
-              <label
-                ><input
-                  type="checkbox"
-                  name="follow_up"
-                  class="item-select"
-                  v-model="editItem.followUp"
-                  @change="handleFollowUp($event)"
-                />{{ $tc("caption.required_follow_up", 1) }}
-              </label>
-            </div>
-            <v-tiptap
-              v-model="editItem.comment.content"
-              :placeholder="$t('message.insert_comment')"
-              ref="comment"
-              :toolbar="[
-                'headings',
-                '|',
-                'bold',
-                'italic',
-                'underline',
-                '|',
-                'color',
-                '|',
-                'bulletList',
-                'orderedList',
-                '|',
-                'link',
-                'emoji',
-                'blockquote',
-              ]"
-              @input="updateComment"
-            >
-            </v-tiptap>
-            <vue-tags-input
-              class="input-box mt-2"
-              v-model="tag"
-              :tags="editItem.tags"
-              :max-tags="10"
-              :maxlength="20"
-              @tags-changed="handleTags"
-              :placeholder="$t('message.insert_tag')"
-            />
-            <v-row class="mt-0 comment-wrapper">
-              <v-col class="pr-0">
-                <div
-                  class="subtitle-2 label-text"
-                  :style="{ color: currentTheme.secondary }"
-                >
-                  {{ $tc("caption.comment_type", 1) }}
-                </div>
-                <v-select
-                  :items="commentTypes"
-                  v-model="editItem.comment.type"
-                  :placeholder="$tc('caption.comment_type', 1)"
-                  solo
-                  dense
-                  @change="updateCommentType"
-                  hide-details="true"
-                ></v-select>
-              </v-col>
-              <v-col cols="auto" class="pl-0 d-flex align-end">
-                <v-btn
-                  plain
-                  color="primary"
-                  class="text-capitalize px-0"
-                  @click="handleClear"
-                >
-                  {{ $tc("caption.clear", 1) }}
-                </v-btn>
-              </v-col>
-            </v-row>
-          </div>
-        </div>
-      </v-col>
-      <v-divider vertical></v-divider>
-      <v-col cols="3" class="wrapper pa-0">
+      <v-col cols="5" class="wrapper pa-0 flex justify-center align-center">
         <div class="header">
           <SearchWrapper />
         </div>
@@ -205,10 +50,6 @@ import WorkspaceWrapper from "../components/WorkspaceWrapper.vue";
 import ControlPanel from "../components/ControlPanel.vue";
 import ExportPanel from "../components/ExportPanel.vue";
 import LogoWrapper from "../components/LogoWrapper.vue";
-import ReviewWrapper from "../components/ReviewWrapper.vue";
-
-import VueTagsInput from "@johmun/vue-tags-input";
-import { VEmojiPicker } from "v-emoji-picker";
 
 import { TEXT_TYPES, FILE_TYPES } from "@/modules/constants";
 
@@ -221,9 +62,9 @@ export default {
     ControlPanel,
     ExportPanel,
     LogoWrapper,
-    ReviewWrapper,
-    VueTagsInput,
-    VEmojiPicker,
+    // ReviewWrapper,
+    // VueTagsInput,
+    // VEmojiPicker,
   },
   props: {},
   watch: {},
@@ -386,6 +227,7 @@ export default {
 .content {
   flex-grow: 1;
   overflow: auto;
+  width: 100%;
 }
 .actions-wrapper {
   display: flex;
