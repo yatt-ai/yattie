@@ -691,7 +691,6 @@
         v-model="resetConfirmDialog"
         ref="resetConfirmDialog"
         :text="$t('message.confirm_reset')"
-        :configItem="config"
         @confirm="resetSession"
         @cancel="resetConfirmDialog = false"
       />

@@ -7,8 +7,8 @@
         rounded
         solid
         v-shortkey="backHotkey"
-        @shortkey="back"
-        @click="back"
+        @shortkey="handleResetConfirmDialog"
+        @click="handleResetConfirmDialog"
       >
         <v-icon class="ma-0">mdi-chevron-left</v-icon>
         {{ $tc("caption.back", 1) }}
@@ -100,6 +100,13 @@
       />
       <TimeCounter v-if="$store.state.status !== 'pending'" />
     </div>
+    <ResetConfirmDialog
+      v-model="resetConfirmDialog"
+      ref="resetConfirmDialog"
+      :text="$t('message.confirm_back')"
+      @confirm="back"
+      @cancel="resetConfirmDialog = false"
+    />
   </v-container>
 </template>
 
@@ -110,6 +117,7 @@ import {
   VTab,
   VTabsItems,
   VTabItem,
+  VBtn,
 } from "vuetify/lib/components";
 import TestWrapper from "../components/TestWrapper.vue";
 import WorkspaceWrapper from "../components/WorkspaceWrapper.vue";
@@ -120,11 +128,14 @@ import MenuPopover from "@/components/MenuPopover.vue";
 
 import { SESSION_STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
+import ResetConfirmDialog from "@/components/dialogs/ResetConfirmDialog.vue";
 
 export default {
   name: "MainView",
   components: {
+    ResetConfirmDialog,
     VContainer,
+    VBtn,
     VTabs,
     VTab,
     VTabsItems,
@@ -143,6 +154,7 @@ export default {
       selected: [],
       showTaskError: false,
       showMenu: false,
+      resetConfirmDialog: false,
     };
   },
   created() {
@@ -237,15 +249,16 @@ export default {
         this.$electronService.openEditWindow(data);
       }
     },
-    back() {
-      this.$store.commit("resetState");
-      this.$router.push("/");
-      // if (this.$isElectron && this.$store.state.quickTest) {
-      //   this.$electronService.resetSession();
-      // } else {
-      //   this.$store.commit("resetState");
-      //   this.$router.push("/");
-      // }
+    async back() {
+      this.$store.commit("clearState");
+      await this.$storageService.resetData();
+      await this.$router.push("/");
+    },
+    handleResetConfirmDialog() {
+      this.resetConfirmDialog = true;
+      setTimeout(() => {
+        this.$refs.resetConfirmDialog.$refs.confirmBtn.$el.focus();
+      }, 100);
     },
   },
 };

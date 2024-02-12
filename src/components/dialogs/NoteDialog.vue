@@ -316,7 +316,8 @@ export default {
       }
 
       // set templates by config
-      const template = this.config.templates["Note"];
+      const template = this.config.templates["text"];
+
       this.comment.content = template.content;
       this.comment.text = template.text;
 

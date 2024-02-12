@@ -15,13 +15,12 @@
 
 <script>
 import ResetSessionDialog from "@/components/dialogs/ResetSessionDialog.vue";
-import ResetConfirmDialog from "@/components/dialogs/ResetConfirmDialog.vue";
 
 const default_layout = "default";
 
 export default {
   name: "App",
-  components: { ResetConfirmDialog, ResetSessionDialog },
+  components: { ResetSessionDialog },
   data() {
     return {
       showRestoreSessionDialog: false,
@@ -52,7 +51,10 @@ export default {
   async mounted() {
     if (this.renderRestoreSessionDialog) {
       this.stateToRestore = await this.$storageService.getState();
-      if (Object.keys(this.stateToRestore).length && this.stateToRestore.id) {
+      if (
+        Object.keys(this.stateToRestore).length &&
+        this.stateToRestore.sessionID
+      ) {
         this.showRestoreSessionDialog = true;
       }
     }
