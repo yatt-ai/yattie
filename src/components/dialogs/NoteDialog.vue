@@ -76,7 +76,7 @@
             <template v-if="emoji.length">
               <v-btn
                 rounded
-                :color="primary"
+                color="primary"
                 class="pa-0 mb-1"
                 height="26"
                 min-width="45"

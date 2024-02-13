@@ -584,7 +584,10 @@
                   {{ $tc("caption.change_recording_target", 1) }}
                 </v-list-item-content>
               </v-list-item>
-              <v-list-item @click="showShareSessionDialog()">
+              <v-list-item
+                v-if="!$store.state.config.localOnly"
+                @click="showShareSessionDialog()"
+              >
                 <v-icon class="ddl-icon">mdi-share-variant</v-icon>
                 <v-list-item-content>
                   {{ $tc("caption.share_session", 1) }}
