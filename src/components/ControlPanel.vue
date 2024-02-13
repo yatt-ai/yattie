@@ -21,7 +21,7 @@
       <v-row class="text-center" v-if="status === 'pending'">
         <v-col cols="12" class="">
           <v-btn
-            v-if="$store.state.quickTest"
+            v-if="$store.state.session.quickTest"
             id="btn_new_quick_test"
             class="text-capitalize font-weight-regular"
             fill
@@ -828,7 +828,7 @@ export default {
     selectedItems: function (newValue) {
       this.selected = newValue;
     },
-    "$store.state.status": {
+    "$store.state.session.status": {
       deep: true,
       handler(newValue) {
         this.status = newValue;
@@ -843,13 +843,13 @@ export default {
         }
       },
     },
-    "$store.state.timer": {
+    "$store.state.session.timer": {
       deep: true,
       handler(newValue) {
         this.timer = newValue;
       },
     },
-    "$store.state.duration": {
+    "$store.state.case.duration": {
       deep: true,
       handler(newValue) {
         this.duration = newValue;
@@ -965,12 +965,12 @@ export default {
       itemLists: this.items,
       audioDevices: [],
       loaded: false,
-      status: this.$store.state.status,
+      status: this.$store.state.session.status,
       recordVideoStarted: false,
       recordAudioStarted: false,
       interval: null,
-      timer: this.$store.state.timer,
-      duration: this.$store.state.duration,
+      timer: this.$store.state.session.timer,
+      duration: this.$store.state.case.duration,
       isDuration: false,
       started: "",
       ended: "",
@@ -995,22 +995,22 @@ export default {
     });
 
     if (
-      this.$store.state.status === SESSION_STATUSES.START ||
-      this.$store.state.status === SESSION_STATUSES.PROCEED ||
-      this.$store.state.status === SESSION_STATUSES.RESUME
+      this.$store.state.session.status === SESSION_STATUSES.START ||
+      this.$store.state.session.status === SESSION_STATUSES.PROCEED ||
+      this.$store.state.session.status === SESSION_STATUSES.RESUME
     ) {
-      this.status = this.$store.state.status;
-      this.timer = this.$store.state.timer;
-      this.duration = this.$store.state.duration;
-      if (this.$store.state.status === SESSION_STATUSES.START) {
+      this.status = this.$store.state.session.status;
+      this.timer = this.$store.state.session.timer;
+      this.duration = this.$store.state.case.duration;
+      if (this.$store.state.session.status === SESSION_STATUSES.START) {
         this.startSession(this.sourceId);
       }
       this.startInterval();
     }
 
     if (
-      this.$store.state.quickTest &&
-      this.$store.state.status === SESSION_STATUSES.PENDING
+      this.$store.state.session.quickTest &&
+      this.$store.state.session.status === SESSION_STATUSES.PENDING
     ) {
       this.showSourcePickerDialog();
     }
@@ -1051,7 +1051,7 @@ export default {
         return;
       }
       this.newSessionFromButton();
-      this.$store.commit("setQuickTest", false);
+      this.$store.commit("setSessionQuickTest", false);
       this.showSourcePickerDialog();
     },
     handleResetConfirmDialog() {
@@ -1160,15 +1160,15 @@ export default {
       this.sourceId = id;
       this.sourcePickerDialog = false;
 
-      this.timer = this.$store.state.timer;
-      this.duration = this.$store.state.duration;
+      this.timer = this.$store.state.session.timer;
+      this.duration = this.$store.state.case.duration;
       if (this.duration > 0) {
         this.isDuration = true;
       }
 
       if (this.started === "") {
         this.started = this.getCurrentDateTime();
-        this.$store.commit("setStarted", this.started);
+        this.$store.commit("setSessionStarted", this.started);
       }
 
       if (this.status !== SESSION_STATUSES.START) {
@@ -1178,24 +1178,25 @@ export default {
         this.changeSessionStatus(SESSION_STATUSES.START);
       }
 
-      const sessionId = await this.$storageService.getSessionId();
-
-      if (sessionId === "") {
+      if (!this.$store.state.session.sessionID) {
         const data = {
-          id: uuidv4(),
-          title: this.$store.state.title,
-          charter: this.$store.state.charter,
-          preconditions: this.$store.state.preconditions,
-          duration: this.$store.state.duration,
-          status: this.$store.state.status,
-          timer: this.$store.state.timer,
-          started: this.$store.state.started,
-          ended: this.$store.state.ended,
-          quickTest: this.$store.state.quickTest,
+          title: this.$store.state.case.title,
+          charter: this.$store.state.case.charter,
+          preconditions: this.$store.state.case.preconditions,
+          duration: this.$store.state.case.duration,
+          status: this.$store.state.session.status,
+          timer: this.$store.state.session.timer,
+          started: this.$store.state.session.started,
+          ended: this.$store.state.session.ended,
+          quickTest: this.$store.state.session.quickTest,
           path: this.$route.path,
         };
 
         await this.$storageService.createNewSession(data);
+        const caseID = await this.$storageService.getCaseId();
+        const sessionID = await this.$storageService.getSessionId();
+        this.$store.commit("setCaseID", caseID);
+        this.$store.commit("setSessionID", sessionID);
       }
 
       if (this.viewMode === "normal") {
@@ -1217,7 +1218,7 @@ export default {
           this.showSourcePickerDialog();
         } else {
           this.status = SESSION_STATUSES.START;
-          this.timer = this.$store.state.timer;
+          this.timer = this.$store.state.session.timer;
           console.log("start interval-3");
           this.startInterval();
         }
@@ -1233,7 +1234,7 @@ export default {
     async endSessionProcess() {
       this.sourceId = "";
       this.ended = this.getCurrentDateTime();
-      this.$store.commit("setEnded", this.ended);
+      this.$store.commit("setSessionEnded", this.ended);
       this.status = SESSION_STATUSES.END;
       this.changeSessionStatus(SESSION_STATUSES.END);
       this.stopInterval();
@@ -1269,7 +1270,7 @@ export default {
     },
     resume() {
       this.pauseSession();
-      this.timer = this.$store.state.timer;
+      this.timer = this.$store.state.session.timer;
       this.updateStoreSession();
       const currentPath = this.$router.history.current.path;
       if (currentPath !== "/main/workspace") {
@@ -1672,21 +1673,19 @@ export default {
     },
     async saveSession(callback = null) {
       this.newSessionDialog = false;
-      const sessionId = await this.$storageService.getSessionId();
-      const caseId = await this.$storageService.getCaseId();
       const data = {
-        sessionID: sessionId,
-        caseID: caseId,
-        title: this.$store.state.title,
-        charter: this.$store.state.charter,
-        mindmap: this.$store.state.mindmap,
-        preconditions: this.$store.state.preconditions,
-        duration: this.$store.state.duration,
-        status: this.$store.state.status,
-        timer: this.$store.state.timer,
-        started: this.$store.state.started,
-        ended: this.$store.state.ended,
-        quickTest: this.$store.state.quickTest,
+        sessionID: this.$store.state.session.sessionID,
+        caseID: this.$store.state.case.caseID,
+        title: this.$store.state.case.title,
+        charter: this.$store.state.case.charter,
+        mindmap: this.$store.state.case.mindmap,
+        preconditions: this.$store.state.case.preconditions,
+        duration: this.$store.state.case.duration,
+        status: this.$store.state.session.status,
+        timer: this.$store.state.session.timer,
+        started: this.$store.state.session.started,
+        ended: this.$store.state.session.ended,
+        quickTest: this.$store.state.session.quickTest,
         path: this.$route.path,
       };
       const { status } = await this.$storageService.saveSession(data);
@@ -1724,7 +1723,7 @@ export default {
       this.changeSessionStatus(SESSION_STATUSES.PENDING);
       this.timer = 0;
       this.isDuration = false;
-      this.duration = this.$store.state.duration;
+      this.duration = this.$store.state.case.duration;
 
       // Clear dialogs
       this.sourcePickerDialog = false;
@@ -1738,26 +1737,26 @@ export default {
       this.audioErrorDialog = false;
       this.endSessionDialog = false;
 
-      // creating new session ID here
-      let sessionId = uuidv4();
-      this.$store.commit("setSessionId", sessionId);
-
       const data = {
-        id: sessionId,
-        title: this.$store.state.title,
-        charter: this.$store.state.charter,
-        preconditions: this.$store.state.preconditions,
-        duration: this.$store.state.duration,
-        status: this.$store.state.status,
-        timer: this.$store.state.timer,
-        started: this.$store.state.started,
-        ended: this.$store.state.ended,
-        quickTest: this.$store.state.quickTest,
+        title: this.$store.state.case.title,
+        charter: this.$store.state.case.charter,
+        preconditions: this.$store.state.case.preconditions,
+        duration: this.$store.state.case.duration,
+        status: this.$store.state.session.status,
+        timer: this.$store.state.session.timer,
+        started: this.$store.state.session.started,
+        ended: this.$store.state.session.ended,
+        quickTest: this.$store.state.session.quickTest,
         path: this.$route.path,
       };
 
       await this.$storageService.createNewSession(data);
       await this.$storageService.resetData();
+
+      const caseID = await this.$storageService.getCaseId();
+      const sessionID = await this.$storageService.getSessionId();
+      this.$store.commit("setCaseID", caseID);
+      this.$store.commit("setSessionID", sessionID);
 
       // Stop any ongoing intervals
       this.stopInterval();

@@ -629,7 +629,7 @@ export default {
   },
   computed: {
     status() {
-      return this.$store.state.status;
+      return this.$store.state.session.status;
     },
     currentTheme() {
       if (this.$vuetify.theme.dark) {

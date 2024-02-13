@@ -1,6 +1,9 @@
 <template>
   <v-container class="wrapper pa-0">
-    <div class="top" v-if="this.status === 'pending' || $store.state.quickTest">
+    <div
+      class="top"
+      v-if="this.status === 'pending' || $store.state.session.quickTest"
+    >
       <v-btn
         class="text-capitalize pa-0 back-btn"
         plain
@@ -75,7 +78,7 @@
           <TestWrapper />
           <CheckTaskWrapper
             v-if="showCheckList"
-            :tasks="$store.state.preSessionTasks"
+            :tasks="$store.state.session.preSessionTasks"
             @taskToggle="handleTaskCheck"
           />
         </v-tab-item>
@@ -98,7 +101,7 @@
         :preSessionRequirementsMet="presessionValid"
         view-mode="normal"
       />
-      <TimeCounter v-if="$store.state.status !== 'pending'" />
+      <TimeCounter v-if="$store.state.session.status !== 'pending'" />
     </div>
     <ResetConfirmDialog
       v-model="resetConfirmDialog"
@@ -194,11 +197,11 @@ export default {
       return this.$hotkeyHelpers.findBinding("workspace.back", this.hotkeys);
     },
     status() {
-      return this.$store.state.status;
+      return this.$store.state.session.status;
     },
     showCheckList() {
       return (
-        this.$store.state.status === SESSION_STATUSES.PENDING &&
+        this.$store.state.session.status === SESSION_STATUSES.PENDING &&
         this.checklistPresessionStatus
       );
     },

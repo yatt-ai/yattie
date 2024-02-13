@@ -211,7 +211,7 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   // This prevents us from saving store on initial load where name is null
   if (from.matched.length > 0 && !to.path.includes("settings")) {
-    store.commit("setPath", to.path);
+    store.commit("setSessionPath", to.path);
   }
   next();
 });

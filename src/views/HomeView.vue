@@ -221,7 +221,7 @@ export default {
     },
     async newSession() {
       this.$store.commit("clearState");
-      await this.$store.commit("setQuickTest", false);
+      await this.$store.commit("setSessionQuickTest", false);
       if (this.$router.history.current.path === "/") {
         await this.$router.push("/main");
       }
@@ -264,7 +264,7 @@ export default {
     },
     handleQuickTest() {
       this.$store.commit("clearState");
-      this.$store.commit("setQuickTest", true);
+      this.$store.commit("setSessionQuickTest", true);
       this.$router.push("/main/workspace");
     },
   },

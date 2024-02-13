@@ -13,179 +13,195 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: {
-    id: null,
-    remote: false,
-    title: "",
-    charter: {
-      content: "",
-      text: "",
+    case: {
+      caseID: "",
+      title: "",
+      charter: {
+        content: "",
+        text: "",
+      },
+      preconditions: {
+        content: "",
+        text: "",
+      },
+      duration: 0,
+      mindmap: {
+        nodes: DEFAULT_CHARTER_MAP_NODES,
+        connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
+      },
     },
-    mindmap: {
-      nodes: DEFAULT_CHARTER_MAP_NODES,
-      connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
+    session: {
+      sessionID: "",
+      status: SESSION_STATUSES.PENDING,
+      timer: 0,
+      started: "",
+      ended: "",
+      quickTest: false,
+      path: "",
+      remote: false,
+      preSessionTasks: [],
+      postSessionTasks: [],
+      // items: [],
+      // notes: {
+      //   content: "",
+      //   text: "",
+      // },
     },
-    preconditions: {
-      content: "",
-      text: "",
-    },
-    duration: 0,
-    status: SESSION_STATUSES.PENDING,
-    timer: 0,
-    started: "",
-    ended: "",
-    quickTest: false,
-    path: "",
-    preSessionTasks: [],
-    postSessionTasks: [],
   },
   mutations: {
-    setSessionId(state, payload) {
-      state.id = payload;
+    setCaseID(state, payload) {
+      state.case.caseID = payload;
       this._vm.$storageService.updateState(state);
     },
-    setRemote(state, payload) {
-      state.remote = payload;
+    setCaseTitle(state, payload) {
+      state.case.title = payload;
       this._vm.$storageService.updateState(state);
     },
-    setTitle(state, payload) {
-      state.title = payload;
+    setCaseCharter(state, payload) {
+      state.case.charter.content = payload.content;
+      state.case.charter.text = payload.text;
       this._vm.$storageService.updateState(state);
     },
-    setCharter(state, payload) {
-      state.charter.content = payload.content;
-      state.charter.text = payload.text;
+    setCasePrecondition(state, payload) {
+      state.case.preconditions.content = payload.content;
+      state.case.preconditions.text = payload.text;
       this._vm.$storageService.updateState(state);
     },
-    setMindmap(state, payload) {
-      state.mindmap.nodes = payload.nodes;
-      state.mindmap.connections = payload.connections;
+    setCaseDuration(state, payload) {
+      state.case.duration = payload;
       this._vm.$storageService.updateState(state);
     },
-    setPrecondition(state, payload) {
-      state.preconditions.content = payload.content;
-      state.preconditions.text = payload.text;
+    setCaseMindmap(state, payload) {
+      state.case.mindmap.nodes = payload.nodes;
+      state.case.mindmap.connections = payload.connections;
       this._vm.$storageService.updateState(state);
     },
-    setDuration(state, payload) {
-      state.duration = payload;
+    setSessionID(state, payload) {
+      state.session.sessionID = payload;
       this._vm.$storageService.updateState(state);
     },
-    setStarted(state, payload) {
-      state.started = payload;
+    setSessionStarted(state, payload) {
+      state.session.started = payload;
       this._vm.$storageService.updateState(state);
     },
-    setEnded(state, payload) {
-      state.ended = payload;
+    setSessionEnded(state, payload) {
+      state.session.ended = payload;
       this._vm.$storageService.updateState(state);
     },
-    setQuickTest(state, payload) {
-      state.quickTest = payload;
+    setSessionQuickTest(state, payload) {
+      state.session.quickTest = payload;
       this._vm.$storageService.updateState(state);
     },
-    setPath(state, payload) {
-      state.path = payload;
+    setSessionPath(state, payload) {
+      state.session.path = payload;
       this._vm.$storageService.updateState(state);
+    },
+    setSessionRemote(state, payload) {
+      state.session.remote = payload;
+      this._vm.$storageService.updateState(state);
+    },
+    setPreSessionTasks(state, payload) {
+      state.session.preSessionTasks = payload;
+    },
+    setPostSessionTasks(state, payload) {
+      state.session.postSessionTasks = payload;
     },
     updateSession(state, payload) {
-      if (state.status !== payload.status) {
-        state.status = payload.status;
+      if (state.session.status !== payload.status) {
+        state.session.status = payload.status;
       }
-      if (state.timer !== payload.timer) {
-        state.timer = payload.timer;
+      if (state.session.timer !== payload.timer) {
+        state.session.timer = payload.timer;
       }
-      if (state.duration !== payload.duration) {
-        state.duration = payload.duration;
+      if (state.case.duration !== payload.duration) {
+        state.case.duration = payload.duration;
       }
       this._vm.$storageService.updateState(state);
     },
     clearState(state) {
-      state.id = null;
-      state.remote = false;
-      state.title = "";
-      state.charter = {
+      state.case.caseID = null;
+      state.case.title = "";
+      state.case.charter = {
         content: "",
         text: "",
       };
-      state.preconditions = {
+      state.case.preconditions = {
         content: "",
         text: "",
       };
-      state.mindmap = {
+      state.case.duration = 0;
+      state.case.mindmap = {
         nodes: DEFAULT_CHARTER_MAP_NODES,
         connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
       };
 
-      state.duration = 0;
-      state.status = SESSION_STATUSES.PENDING;
-      state.timer = 0;
-
-      state.started = "";
-      state.ended = "";
-      state.quickTest = false;
+      state.session.sessionID = null;
+      state.session.status = SESSION_STATUSES.PENDING;
+      state.session.timer = 0;
+      state.session.started = "";
+      state.session.ended = "";
+      state.session.quickTest = false;
+      state.session.remote = false;
       this._vm.$storageService.updateState(state);
     },
     resetState(state) {
-      state.status = SESSION_STATUSES.PENDING;
-      state.timer = 0;
+      state.session.status = SESSION_STATUSES.PENDING;
+      state.session.timer = 0;
 
-      state.started = "";
-      state.ended = "";
+      state.session.started = "";
+      state.session.ended = "";
       this._vm.$storageService.updateState(state);
     },
     restoreState(state, payload) {
-      state.id = payload.id;
-      state.remote = payload.remote || false;
-      state.title = payload.title;
-      state.charter.content = payload?.charter?.content || "";
-      state.charter.text = payload?.charter?.text || "";
-      state.mindmap.nodes =
+      state.case.caseID = payload.caseID;
+      state.case.title = payload.title;
+      state.case.charter.content = payload?.charter?.content || "";
+      state.case.charter.text = payload?.charter?.text || "";
+      state.case.preconditions.content = payload?.preconditions?.content || "";
+      state.case.preconditions.text = payload?.preconditions?.text || "";
+      state.case.duration = payload.duration;
+      state.case.mindmap.nodes =
         payload?.mindmap?.nodes || DEFAULT_CHARTER_MAP_NODES;
-      state.mindmap.connections =
+      state.case.mindmap.connections =
         payload?.mindmap?.connections || DEFAULT_CHARTER_MAP_CONNECTIONS;
-      state.preconditions.content = payload?.preconditions?.content || "";
-      state.preconditions.text = payload?.preconditions?.text || "";
-      state.status = payload.status;
-      state.timer = payload.timer;
-      state.duration = payload.duration;
-      state.started = payload.started;
-      state.ended = payload.ended;
-      state.quickTest = payload.quickTest;
-      state.path = payload.path;
+
+      state.session.sessionID = payload.sessionID;
+      state.session.status = payload.status;
+      state.session.timer = payload.timer;
+      state.session.started = payload.started;
+      state.session.ended = payload.ended;
+      state.session.quickTest = payload.quickTest;
+      state.session.path = payload.path;
+      state.session.remote = payload.remote || false;
       this._vm.$storageService.updateState(state);
     },
-    setPreSessionTasks(state, payload) {
-      state.preSessionTasks = payload;
-    },
     togglePreSessionTask(state, { taskId, checked }) {
-      const taskIndex = state.preSessionTasks.findIndex(
+      const taskIndex = state.session.preSessionTasks.findIndex(
         (task) => task.id === taskId
       );
       if (taskIndex !== -1) {
-        state.preSessionTasks[taskIndex].checked = checked;
+        state.session.preSessionTasks[taskIndex].checked = checked;
       }
     },
-    setPostSessionTasks(state, payload) {
-      state.postSessionTasks = payload;
-    },
     togglePostSessionTask(state, { taskId, checked }) {
-      const taskIndex = state.postSessionTasks.findIndex(
+      const taskIndex = state.session.postSessionTasks.findIndex(
         (task) => task.id === taskId
       );
       if (taskIndex !== -1) {
-        state.postSessionTasks[taskIndex].checked = checked;
+        state.session.postSessionTasks[taskIndex].checked = checked;
       }
     },
   },
   actions: {},
   getters: {
     requiredPreSessionTasksChecked(state) {
-      const uncheckedTasks = state.preSessionTasks.filter(
+      const uncheckedTasks = state.session.preSessionTasks.filter(
         (task) => !task.checked && task.required
       );
       return uncheckedTasks.length === 0;
     },
     requiredPostSessionTasksChecked(state) {
-      const uncheckedTasks = state.postSessionTasks.filter(
+      const uncheckedTasks = state.session.postSessionTasks.filter(
         (task) => !task.checked && task.required
       );
       return uncheckedTasks.length === 0;
