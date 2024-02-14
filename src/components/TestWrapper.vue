@@ -100,7 +100,7 @@
                   '|',
                   '#aiAssist',
                 ]"
-                @change="updateCharter()"
+                @input="updateCharter()"
               >
                 <template #aiAssist="">
                   <v-btn
@@ -203,7 +203,7 @@
               '|',
               '#aiAssist',
             ]"
-            @change="updatePreconditions()"
+            @input="updatePreconditions()"
           >
             <template #aiAssist="">
               <v-btn
