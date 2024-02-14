@@ -157,7 +157,6 @@ const store = new Vuex.Store({
       this._vm.$storageService.updateState(state);
     },
     restoreState(state, payload) {
-      console.log(payload);
       state.case = {
         ...state.case,
         ...payload?.case,
