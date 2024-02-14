@@ -153,26 +153,31 @@ const store = new Vuex.Store({
       this._vm.$storageService.updateState(state);
     },
     restoreState(state, payload) {
-      state.case.caseID = payload.caseID;
-      state.case.title = payload.title;
-      state.case.charter.content = payload?.charter?.content || "";
-      state.case.charter.text = payload?.charter?.text || "";
-      state.case.preconditions.content = payload?.preconditions?.content || "";
-      state.case.preconditions.text = payload?.preconditions?.text || "";
-      state.case.duration = payload.duration;
-      state.case.mindmap.nodes =
-        payload?.mindmap?.nodes || DEFAULT_CHARTER_MAP_NODES;
-      state.case.mindmap.connections =
-        payload?.mindmap?.connections || DEFAULT_CHARTER_MAP_CONNECTIONS;
+      state.case = {
+        ...state.case,
+        ...payload?.case,
+        charter: {
+          content: payload?.case?.charter?.content || "",
+          text: payload?.case?.charter?.text || "",
+        },
+        preconditions: {
+          content: payload?.case?.preconditions?.content || "",
+          text: payload?.case?.preconditions?.text || "",
+        },
+        mindmap: {
+          nodes: payload?.case?.mindmap?.nodes || DEFAULT_CHARTER_MAP_NODES,
+          connections:
+            payload?.case?.mindmap?.connections ||
+            DEFAULT_CHARTER_MAP_CONNECTIONS,
+        },
+      };
 
-      state.session.sessionID = payload.sessionID;
-      state.session.status = payload.status;
-      state.session.timer = payload.timer;
-      state.session.started = payload.started;
-      state.session.ended = payload.ended;
-      state.session.quickTest = payload.quickTest;
-      state.session.path = payload.path;
-      state.session.remote = payload.remote || false;
+      state.session = {
+        ...state.session,
+        ...payload?.session,
+        remote: payload?.session?.remote || false,
+      };
+
       this._vm.$storageService.updateState(state);
     },
     togglePreSessionTask(state, { taskId, checked }) {

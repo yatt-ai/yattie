@@ -1183,16 +1183,20 @@ export default {
 
       if (!this.$store.state.session.sessionID) {
         const data = {
-          title: this.$store.state.case.title,
-          charter: this.$store.state.case.charter,
-          preconditions: this.$store.state.case.preconditions,
-          duration: this.$store.state.case.duration,
-          status: this.$store.state.session.status,
-          timer: this.$store.state.session.timer,
-          started: this.$store.state.session.started,
-          ended: this.$store.state.session.ended,
-          quickTest: this.$store.state.session.quickTest,
-          path: this.$route.path,
+          case: {
+            title: this.$store.state.case.title,
+            charter: this.$store.state.case.charter,
+            preconditions: this.$store.state.case.preconditions,
+            duration: this.$store.state.case.duration,
+          },
+          session: {
+            status: this.$store.state.session.status,
+            timer: this.$store.state.session.timer,
+            started: this.$store.state.session.started,
+            ended: this.$store.state.session.ended,
+            quickTest: this.$store.state.session.quickTest,
+            path: this.$route.path,
+          },
         };
 
         await this.$storageService.createNewSession(data);
@@ -1677,19 +1681,23 @@ export default {
     async saveSession(callback = null) {
       this.newSessionDialog = false;
       const data = {
-        sessionID: this.$store.state.session.sessionID,
-        caseID: this.$store.state.case.caseID,
-        title: this.$store.state.case.title,
-        charter: this.$store.state.case.charter,
-        mindmap: this.$store.state.case.mindmap,
-        preconditions: this.$store.state.case.preconditions,
-        duration: this.$store.state.case.duration,
-        status: this.$store.state.session.status,
-        timer: this.$store.state.session.timer,
-        started: this.$store.state.session.started,
-        ended: this.$store.state.session.ended,
-        quickTest: this.$store.state.session.quickTest,
-        path: this.$route.path,
+        case: {
+          caseID: this.$store.state.case.caseID,
+          title: this.$store.state.case.title,
+          charter: this.$store.state.case.charter,
+          mindmap: this.$store.state.case.mindmap,
+          preconditions: this.$store.state.case.preconditions,
+          duration: this.$store.state.case.duration,
+        },
+        session: {
+          sessionID: this.$store.state.session.sessionID,
+          status: this.$store.state.session.status,
+          timer: this.$store.state.session.timer,
+          started: this.$store.state.session.started,
+          ended: this.$store.state.session.ended,
+          quickTest: this.$store.state.session.quickTest,
+          path: this.$route.path,
+        },
       };
       const { status } = await this.$storageService.saveSession(data);
       if (status === STATUSES.SUCCESS && callback) {
@@ -1741,16 +1749,20 @@ export default {
       this.endSessionDialog = false;
 
       const data = {
-        title: this.$store.state.case.title,
-        charter: this.$store.state.case.charter,
-        preconditions: this.$store.state.case.preconditions,
-        duration: this.$store.state.case.duration,
-        status: this.$store.state.session.status,
-        timer: this.$store.state.session.timer,
-        started: this.$store.state.session.started,
-        ended: this.$store.state.session.ended,
-        quickTest: this.$store.state.session.quickTest,
-        path: this.$route.path,
+        case: {
+          title: this.$store.state.case.title,
+          charter: this.$store.state.case.charter,
+          preconditions: this.$store.state.case.preconditions,
+          duration: this.$store.state.case.duration,
+        },
+        session: {
+          status: this.$store.state.session.status,
+          timer: this.$store.state.session.timer,
+          started: this.$store.state.session.started,
+          ended: this.$store.state.session.ended,
+          quickTest: this.$store.state.session.quickTest,
+          path: this.$route.path,
+        },
       };
 
       await this.$storageService.createNewSession(data);

@@ -53,7 +53,7 @@ export default {
       this.stateToRestore = await this.$storageService.getState();
       if (
         Object.keys(this.stateToRestore).length &&
-        this.stateToRestore.sessionID
+        this.stateToRestore.session.sessionID
       ) {
         this.showRestoreSessionDialog = true;
       }
@@ -64,14 +64,17 @@ export default {
       await this.$store.commit("restoreState", this.stateToRestore);
       const currentPath = this.$router.history.current.path;
       if (
-        this.stateToRestore.path &&
-        currentPath !== this.stateToRestore.path
+        this.stateToRestore.session.path &&
+        currentPath !== this.stateToRestore.session.path
       ) {
-        if (this.stateToRestore.path.includes("result") && this.$isElectron) {
+        if (
+          this.stateToRestore.session.path.includes("result") &&
+          this.$isElectron
+        ) {
           this.$electronService.setWindowSize({ width: 1440, height: 900 });
         }
-        if (this.stateToRestore.path !== "/authentication/signinJira") {
-          await this.$router.push({ path: this.stateToRestore.path });
+        if (this.stateToRestore.session.path !== "/authentication/signinJira") {
+          await this.$router.push({ path: this.stateToRestore.session.path });
         }
       }
       this.showRestoreSessionDialog = false;

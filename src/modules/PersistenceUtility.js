@@ -398,14 +398,14 @@ module.exports.createNewSession = (state) => {
   const sessionDataPath = path.join(
     configDir,
     "sessions",
-    state.sessionID,
+    state.session.sessionID,
     "sessionData.json"
   );
 
   metaDb.set("sessionDataPath", sessionDataPath);
   dataDb = new JSONdb(sessionDataPath, jsonDbConfig);
-  dataDb.set("caseID", state.caseID);
-  dataDb.set("sessionID", state.sessionID);
+  dataDb.set("caseID", state.case.caseID);
+  dataDb.set("sessionID", state.session.sessionID);
   delete state.id;
   dataDb.set("state", state);
   dataDb.set("items", []);

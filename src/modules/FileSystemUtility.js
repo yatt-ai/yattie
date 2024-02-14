@@ -61,9 +61,9 @@ module.exports.exportItems = async (ids) => {
 };
 
 module.exports.createNewSession = async (state) => {
-  state.sessionID = uuidv4();
-  state.caseID = uuidv4();
-  const dataFolder = path.join(configDir, "sessions", state.sessionID);
+  state.session.sessionID = uuidv4();
+  state.case.caseID = uuidv4();
+  const dataFolder = path.join(configDir, "sessions", state.session.sessionID);
   if (!fs.existsSync(dataFolder)) {
     fs.mkdirSync(dataFolder, { recursive: true });
   }
@@ -76,7 +76,7 @@ module.exports.saveSession = async (data) => {
   const notes = persistenceUtility.getNotes();
   let notesFilePath = "";
   if (notes.text) {
-    const notesItem = captureUtility.saveNote(notes, notesFileName)
+    const notesItem = captureUtility.saveNote(notes, notesFileName);
     notesFilePath = notesItem.item.filePath;
   }
 
