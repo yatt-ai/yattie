@@ -42,10 +42,10 @@ const store = new Vuex.Store({
       preSessionTasks: [],
       postSessionTasks: [],
       // items: [],
-      // notes: {
-      //   content: "",
-      //   text: "",
-      // },
+      notes: {
+        content: "",
+        text: "",
+      },
     },
   },
   mutations: {
@@ -106,6 +106,10 @@ const store = new Vuex.Store({
     setPostSessionTasks(state, payload) {
       state.session.postSessionTasks = payload;
     },
+    setSessionNotes(state, payload) {
+      state.session.notes.content = payload.content;
+      state.session.notes.text = payload.text;
+    },
     updateSession(state, payload) {
       if (state.session.status !== payload.status) {
         state.session.status = payload.status;
@@ -153,6 +157,7 @@ const store = new Vuex.Store({
       this._vm.$storageService.updateState(state);
     },
     restoreState(state, payload) {
+      console.log(payload);
       state.case = {
         ...state.case,
         ...payload?.case,
@@ -176,6 +181,10 @@ const store = new Vuex.Store({
         ...state.session,
         ...payload?.session,
         remote: payload?.session?.remote || false,
+        notes: {
+          content: payload?.session?.notes?.content || "",
+          text: payload?.session?.notes?.text || "",
+        },
       };
 
       this._vm.$storageService.updateState(state);

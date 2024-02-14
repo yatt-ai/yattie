@@ -644,13 +644,19 @@ export default {
       return FILE_TYPES[type];
     },
     async fetchNotes() {
-      this.notes = await this.$storageService.getNotes();
+      const sessionNotes = await this.$storageService.getNotes();
+      if (sessionNotes) {
+        this.notes = sessionNotes;
+      }
+
+      await this.$store.commit("setSessionNotes", this.notes);
     },
     async handleNotes() {
       const regex = /(<([^>]+)>)/gi;
       this.notes.text = this.notes.content.replace(regex, "");
 
       await this.$storageService.updateNotes(this.notes);
+      await this.$store.commit("setSessionNotes", this.notes);
     },
     handleChange() {
       this.saveData();

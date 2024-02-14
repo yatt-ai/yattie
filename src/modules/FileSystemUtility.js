@@ -75,7 +75,7 @@ module.exports.saveSession = async (data) => {
     "yattie-session-" + dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + "-notes.txt";
   const notes = persistenceUtility.getNotes();
   let notesFilePath = "";
-  if (notes.text) {
+  if (notes && notes.text) {
     const notesItem = captureUtility.saveNote(notes, notesFileName);
     notesFilePath = notesItem.item.filePath;
   }
@@ -208,7 +208,7 @@ module.exports.exportSession = async (params) => {
   let notesFilePath = "";
 
   if (notes.text) {
-    const notesItem = captureUtility.saveNote(notes, notesFileName)
+    const notesItem = captureUtility.saveNote(notes, notesFileName);
     notesFilePath = notesItem.item.filePath;
     console.log(notesFilePath);
   }
