@@ -283,7 +283,7 @@
     "enter_service_url": "Enter Service URL",
     "confirm_delete": "Are you sure you want to delete?",
     "confirm_reset": "Are you sure you want to reset?",
-    "confirm_reset_session": "Do you want to reset last session?",
+    "confirm_reset_session": "Do you want to continue your last session?",
     "confirm_save_progress": "Do you want save current progress?",
     "confirm_proceed_session_time": "Do you want to proceed with testing or end the test session?",
     "insert_note": "Insert your note here",
