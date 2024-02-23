@@ -9,7 +9,7 @@
     <v-sheet rounded :style="{ backgroundColor: currentTheme.background }">
       <v-card :style="{ backgroundColor: currentTheme.background }">
         <v-card-title class="text" :style="{ color: currentTheme.secondary }">
-          Share {{ credentials.yatt[0].user.name }}'s session
+          Share {{ credentials?.yatt[0]?.user?.name }}'s session
           <!--span>Not {{ credentials.yatt[0].user.name }}? TODO</span-->
         </v-card-title>
         <v-card-text class="text" :style="{ color: currentTheme.secondary }">

@@ -23,7 +23,7 @@ const defaultMeta = {
 };
 
 const defaultConfig = {
-  localOnly: true,
+  localOnly: false,
   theme: "light",
   defaultColor: "#1976D2FF",
   commentType: "Comment",
@@ -382,14 +382,15 @@ const createRootSessionDirectory = () => {
 };
 
 const removeItemById = (id) => {
-  const data = dataDb.get("items");
-  const updatedData = data.filter((item) => item.stepID !== id);
-  dataDb.set("items", updatedData);
+  let session = dataDb.get("session");
+  const items = session.items;
+  session.items = items.filter((item) => item.stepID !== id);
+  dataDb.set("session", session);
 };
 
 const getItemById = (id) => {
-  const data = dataDb.get("items");
-  const item = data.find((item) => item.stepID === id);
+  const session = dataDb.get("session");
+  const item = session.items.find((item) => item.stepID === id);
 
   return item;
 };
@@ -404,22 +405,28 @@ module.exports.createNewSession = (state) => {
 
   metaDb.set("sessionDataPath", sessionDataPath);
   dataDb = new JSONdb(sessionDataPath, jsonDbConfig);
-  dataDb.set("caseID", state.case.caseID);
-  dataDb.set("sessionID", state.session.sessionID);
-  delete state.id;
-  dataDb.set("state", state);
-  dataDb.set("items", []);
-  dataDb.set("notes", {
+  //dataDb.set("caseID", state.case.caseID);
+  //dataDb.set("sessionID", state.session.sessionID);
+  //delete state.id;
+  let session = state.session;
+  session.items = [];
+  session.notes = {
     content: "",
     text: "",
-  });
+  };
+  dataDb.set("session", session);
+  dataDb.set("case", state.case);
   dataDb.set("version", currentVersion);
 };
 
 module.exports.getCurrentSession = () => {
   try {
     if (dataDb) {
-      return dataDb.JSON();
+      return {
+        case: dataDb.get("case"),
+        session: dataDb.get("session"),
+        version: dataDb.get("version"),
+      };
     }
     return {};
   } catch (error) {
@@ -431,7 +438,8 @@ module.exports.getCurrentSession = () => {
 module.exports.getSessionID = () => {
   try {
     if (dataDb) {
-      return dataDb.get("sessionID");
+      const session = dataDb.get("session");
+      return session.sessionID;
     }
     return "";
   } catch (error) {
@@ -443,7 +451,8 @@ module.exports.getSessionID = () => {
 module.exports.getCaseID = () => {
   try {
     if (dataDb) {
-      return dataDb.get("caseID");
+      const cas = dataDb.get("case");
+      return cas.caseID;
     }
     return "";
   } catch (error) {
@@ -483,7 +492,8 @@ module.exports.updateState = (state) => {
 module.exports.getItems = () => {
   if (dataDb) {
     try {
-      return dataDb.get("items");
+      const session = dataDb.get("session");
+      return session.items;
     } catch (error) {
       console.log(error);
       return [];
@@ -494,9 +504,11 @@ module.exports.getItems = () => {
 
 module.exports.addItem = (item) => {
   try {
-    let items = dataDb.get("items") || [];
+    let session = dataDb.get("session");
+    let items = session.items || [];
     items.push(item);
-    dataDb.set("items", items);
+    session.items = items;
+    dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");
   } catch (error) {
@@ -507,13 +519,15 @@ module.exports.addItem = (item) => {
 module.exports.updateItem = (newItem) => {
   try {
     debugger;
-    let items = dataDb.get("items").map((item) => {
+    let session = dataDb.get("session");
+    let items = session.items.map((item) => {
       if (item.stepID === newItem.stepID) {
         return newItem;
       }
       return item;
     });
-    dataDb.set("items", items);
+    session.items = items;
+    dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");
   } catch (error) {
@@ -523,7 +537,9 @@ module.exports.updateItem = (newItem) => {
 
 module.exports.updateItems = (items) => {
   try {
-    dataDb.set("items", items);
+    let session = dataDb.get("session");
+    session.items = items;
+    dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");
   } catch (error) {
@@ -628,8 +644,8 @@ module.exports.updateMetadata = (meta) => {
 
 module.exports.getNotes = () => {
   try {
-    const data = dataDb.get("notes");
-    return data;
+    const session = dataDb.get("session");
+    return session.notes;
   } catch (error) {
     return [];
   }
@@ -637,7 +653,9 @@ module.exports.getNotes = () => {
 
 module.exports.updateNotes = (notes) => {
   try {
-    dataDb.set("notes", notes);
+    let session = dataDb.get("session");
+    session.notes = notes;
+    dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");
   } catch (error) {
@@ -647,11 +665,13 @@ module.exports.updateNotes = (notes) => {
 
 module.exports.resetData = () => {
   try {
-    dataDb.set("items", []);
-    dataDb.set("notes", {
+    let session = dataDb.get("session");
+    session.items = [];
+    session.notes = {
       content: "",
       text: "",
-    });
+    };
+    dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");
   } catch (error) {
