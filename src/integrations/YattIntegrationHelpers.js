@@ -21,8 +21,8 @@ export default {
 
     // Pull case and session data
     const url = `${process.env.VUE_APP_YATT_API_URL}/yattie/executions`;
-    const session = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
-      func: IPC_FUNCTIONS.GET_CURRENT_SESSION,
+    const state = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
+      func: IPC_FUNCTIONS.GET_STATE,
     });
 
     const credential = credentials?.yatt[0];
@@ -35,7 +35,7 @@ export default {
       link: "",
     };
     await axios
-      .patch(url, session, options)
+      .patch(url, state, options)
       .then((postedSession) => {
         returnResponse = postedSession.data;
       })
@@ -46,7 +46,7 @@ export default {
     // Take signed attachment URLs and upload them
     returnResponse.steps.map(async (step) => {
       if (step.uploadURL) {
-        const match = session.session.items.find(
+        const match = state.session.items.find(
           (item) => item.stepID === step.external_id
         );
         if (match?.filePath) {

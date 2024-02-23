@@ -419,22 +419,6 @@ module.exports.createNewSession = (state) => {
   dataDb.set("version", currentVersion);
 };
 
-module.exports.getCurrentSession = () => {
-  try {
-    if (dataDb) {
-      return {
-        case: dataDb.get("case"),
-        session: dataDb.get("session"),
-        version: dataDb.get("version"),
-      };
-    }
-    return {};
-  } catch (error) {
-    console.log(error);
-    return {};
-  }
-};
-
 module.exports.getSessionID = () => {
   try {
     if (dataDb) {
@@ -464,7 +448,11 @@ module.exports.getCaseID = () => {
 module.exports.getState = () => {
   try {
     if (dataDb) {
-      return dataDb.get("state");
+      return {
+        case: dataDb.get("case"),
+        session: dataDb.get("session"),
+        version: dataDb.get("version"),
+      };
     }
     return {};
   } catch (error) {
@@ -475,17 +463,18 @@ module.exports.getState = () => {
 
 module.exports.updateState = (state) => {
   if (dataDb) {
-    let currentState;
+    let session, cas;
     try {
-      currentState = dataDb.get("state");
+      cas = dataDb.get("case");
+      session = dataDb.get("session");
     } catch (error) {
       console.log(error);
-      currentState = {};
+      cas = cas || {};
+      session = session || {};
     }
-    dataDb.set("state", {
-      ...currentState,
-      ...state,
-    });
+
+    dataDb.set("case", { ...cas, ...state.case });
+    dataDb.set("session", { ...session, ...state.session });
   }
 };
 

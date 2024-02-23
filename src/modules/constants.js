@@ -42,7 +42,6 @@ export const IPC_FUNCTIONS = {
   MOVE_WINDOW: "moveWindow",
 
   INITIALIZE_SESSION: "initializeSession",
-  GET_CURRENT_SESSION: "getCurrentSession",
   GET_SESSION_ID: "getSessionID",
   GET_CASE_ID: "getCaseID",
   GET_STATE: "getState",
