@@ -49,7 +49,7 @@ export default {
     }
   },
   async mounted() {
-    if (this.renderRestoreSessionDialog) {
+    if (this.renderRestoreSessionDialog && this.$isElectron) {
       this.stateToRestore = await this.$storageService.getState();
       if (
         Object.keys(this.stateToRestore).length &&

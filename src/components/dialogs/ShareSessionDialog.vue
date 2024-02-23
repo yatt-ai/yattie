@@ -96,6 +96,22 @@ export default {
     },
   },
   methods: {
+    handleCopy() {
+      if (navigator.clipboard && this.sessionURL) {
+        navigator.clipboard
+          .writeText(this.sessionURL)
+          .then(() => {
+            console.log("Link copied to clipboard successfully!");
+          })
+          .catch((err) => {
+            // Handle possible errors during copy attempt
+            console.error("Failed to copy the link: ", err);
+          });
+      } else {
+        // Fallback for older browsers or environments where the Clipboard API is not available
+        console.error("Clipboard API is not available.");
+      }
+    },
     handleClose() {
       this.activeSource = "";
       this.$root.$emit("close-sharesessiondialog");
