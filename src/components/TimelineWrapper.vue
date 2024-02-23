@@ -1232,7 +1232,7 @@ export default {
       this.saveData();
     },
     async saveData() {
-      await this.$storageService.updateItems(this.itemLists);
+      await this.$store.commit("setSessionItems", this.itemLists);
     },
   },
 };

@@ -571,8 +571,7 @@ export default {
         createdAt: Date.now(),
       };
       this.items.push(newItem);
-
-      await this.$storageService.updateItems(this.items);
+      await this.$store.commit("setSessionItems", this.items);
       if (this.$isElectron) {
         await this.$electronService.closeAddWindow();
       }

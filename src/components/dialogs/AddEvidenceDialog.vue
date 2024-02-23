@@ -593,7 +593,7 @@ export default {
       };
       this.items.push(newItem);
 
-      await this.$storageService.updateItems(this.items);
+      await this.$store.commit("setSessionItems", this.items);
       this.$emit("close");
     },
     handleClear() {

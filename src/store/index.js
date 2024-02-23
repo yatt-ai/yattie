@@ -41,7 +41,7 @@ const store = new Vuex.Store({
       remote: false,
       preSessionTasks: [],
       postSessionTasks: [],
-      // items: [],
+      items: [],
       notes: {
         content: "",
         text: "",
@@ -106,6 +106,32 @@ const store = new Vuex.Store({
     setPostSessionTasks(state, payload) {
       state.session.postSessionTasks = payload;
     },
+    setSessionItems(state, payload) {
+      state.session.items = payload;
+      this._vm.$storageService.updateItems(payload);
+    },
+    setSessionItemsFromExternalWindow(state, payload) {
+      state.session.items = payload;
+    },
+    addSessionItem(state, payload) {
+      state.session.items.push(payload);
+      this._vm.$storageService.addItem(payload);
+    },
+    updateSessionItem(state, payload) {
+      const currentItemIndex = state.session.items.findIndex(
+        (item) => item.stepID === payload.stepID
+      );
+      if (currentItemIndex !== -1) {
+        state.session.items[currentItemIndex] = payload;
+      }
+      this._vm.$storageService.updateItem(payload);
+    },
+    deleteSessionItems(state, ids) {
+      state.session.items = ids.reduce((acc, currentId) => {
+        return acc.filter((item) => item.stepID !== currentId);
+      }, state.session.items);
+      this._vm.$storageService.deleteItems(ids);
+    },
     setSessionNotes(state, payload) {
       state.session.notes.content = payload.content;
       state.session.notes.text = payload.text;
@@ -146,6 +172,11 @@ const store = new Vuex.Store({
       state.session.ended = "";
       state.session.quickTest = false;
       state.session.remote = false;
+      state.session.items = [];
+      state.session.notes = {
+        content: "",
+        text: "",
+      };
       this._vm.$storageService.updateState(state);
     },
     resetState(state) {

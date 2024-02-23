@@ -186,7 +186,7 @@ export default {
       this.saveData();
     },
     saveData() {
-      this.$storageService.updateItem(this.editItem);
+      this.$store.commit("updateSessionItem", this.editItem);
     },
     handleClear() {
       this.editItem.comment.text = "";

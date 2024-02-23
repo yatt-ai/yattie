@@ -232,13 +232,14 @@ export default {
     async fetchItems() {
       console.log("fetchItems from Main View");
       this.items = await this.$storageService.getItems();
+      this.$store.commit("setSessionItemsFromExternalWindow", this.items);
     },
     addItem(newItem) {
       // console.log("add", newItem);
-      this.$storageService.addItem(newItem);
+      this.$store.commit("addSessionItem", newItem);
     },
     updateItem(newItem) {
-      this.$storageService.updateItem(newItem);
+      this.$store.commit("updateSessionItem", newItem);
     },
     updateSelected(value) {
       this.selected = value;

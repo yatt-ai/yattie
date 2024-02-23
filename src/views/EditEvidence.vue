@@ -506,7 +506,7 @@ export default {
         this.item.attachmentID = data.attachmentID;
       }
 
-      await this.$storageService.updateItem(this.item);
+      this.$store.commit("updateSessionItem", this.item);
       if (this.$isElectron) {
         await this.$electronService.closeEditWindow();
       }

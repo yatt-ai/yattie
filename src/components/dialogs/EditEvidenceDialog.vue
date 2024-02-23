@@ -506,13 +506,13 @@ export default {
 
       this.items = this.items.map((item) => {
         let temp = Object.assign({}, item);
-        if (temp.id === this.item.id) {
+        if (temp.stepID === this.item.stepID) {
           temp = this.item;
         }
         return temp;
       });
 
-      await this.$storageService.updateItems(this.items);
+      await this.$store.commit("setSessionItems", this.items);
       this.$emit("close");
     },
     async handleAISuggestion(field, event) {

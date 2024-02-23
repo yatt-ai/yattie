@@ -1664,8 +1664,7 @@ export default {
       this.openAddWindow(data);
     },
     async deleteItems() {
-      await this.$storageService.deleteItems(this.selected);
-      await this.$storageService.deleteNotes(this.selected);
+      this.$store.commit("deleteSessionItems", this.selected);
       this.selected = [];
       this.$root.$emit("update-selected", this.selected);
       this.deleteConfirmDialog = false;
