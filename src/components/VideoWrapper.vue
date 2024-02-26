@@ -141,12 +141,17 @@ export default {
       const endVal = this.timeInSeconds(this.end);
       this.handleProcessing(true);
 
+      console.log(this.editSessionItem);
+
       const { status, message, item } = await this.$electronService.updateVideo(
         this.editSessionItem,
         startVal,
         endVal,
         parseInt(this.duration)
       );
+
+      console.log(item);
+      console.log(status);
 
       if (status === STATUSES.ERROR) {
         this.$root.$emit("set-snackbar", message);

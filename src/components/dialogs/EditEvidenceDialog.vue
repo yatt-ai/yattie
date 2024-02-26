@@ -611,6 +611,9 @@ export default {
   overflow-y: auto;
   padding: 0;
 }
+.test {
+  background-color: red;
+}
 .content {
   flex-grow: 1;
   overflow: auto;

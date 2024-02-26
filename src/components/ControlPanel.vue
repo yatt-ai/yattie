@@ -730,6 +730,15 @@
         :post-session-data="postSessionData"
         @proceed="closeEndSessionDialog"
       />
+      <AddEvidenceDialog
+        v-if="evidenceData"
+        v-model="addEvidenceDialog"
+        :item-data="evidenceData"
+        @close="
+          addEvidenceDialog = false;
+          evidenceData = null;
+        "
+      />
     </div>
   </v-container>
 </template>
@@ -754,6 +763,7 @@ import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
 //import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
+import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 
 import JiraAddIssue from "./jira/JiraAddIssue";
 
@@ -773,6 +783,7 @@ let dest;
 export default {
   name: "ControlPanel",
   components: {
+    AddEvidenceDialog,
     VContainer,
     VRow,
     VCol,
@@ -981,6 +992,8 @@ export default {
       callback: null,
       evidenceExportDestinationMenu: false,
       issueCreateDestinationMenu: false,
+      evidenceData: null,
+      addEvidenceDialog: false,
     };
   },
   mounted() {
@@ -1342,7 +1355,9 @@ export default {
                 ...item,
                 timer_mark: this.timer,
               };
-              await this.openAddWindow(data);
+              this.evidenceData = data;
+              this.addEvidenceDialog = true;
+              // await this.openAddWindow(data);
             }
           }
         };
@@ -1437,7 +1452,9 @@ export default {
                 poster: poster,
                 timer_mark: this.timer,
               };
-              await this.openAddWindow(data);
+              // await this.openAddWindow(data);
+              this.evidenceData = data;
+              this.addEvidenceDialog = true;
             }
           }
         };
@@ -1560,7 +1577,9 @@ export default {
                 timer_mark: this.timer,
                 poster: "",
               };
-              await this.openAddWindow(data);
+              // await this.openAddWindow(data);
+              this.evidenceData = data;
+              this.addEvidenceDialog = true;
             }
             recordedChunks = [];
           }
@@ -1661,7 +1680,9 @@ export default {
         },
         timer_mark: this.timer,
       };
-      this.openAddWindow(data);
+      // this.openAddWindow(data);
+      this.evidenceData = data;
+      this.addEvidenceDialog = true;
     },
     async deleteItems() {
       this.$store.commit("deleteSessionItems", this.selected);

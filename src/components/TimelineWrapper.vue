@@ -956,7 +956,10 @@
       v-if="evidenceData"
       v-model="addEvidenceDialog"
       :item-data="evidenceData"
-      @close="addEvidenceDialog = false"
+      @close="
+        addEvidenceDialog = false;
+        evidenceData = null;
+      "
     />
     <EditEvidenceDialog
       v-if="itemToEdit"
