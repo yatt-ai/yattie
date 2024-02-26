@@ -10,7 +10,10 @@
       <v-card :style="{ backgroundColor: currentTheme.background }">
         <v-card-title class="text" :style="{ color: currentTheme.secondary }">
           Share {{ credentials?.yatt[0]?.user?.name }}'s session
-          <!--span>Not {{ credentials.yatt[0].user.name }}? TODO</span-->
+          <!--span>
+            Not a {{ credentials.yatt[0].user.name }}?
+            <a @click="openYattProfileDialog">Sign in</a>
+          </span-->
         </v-card-title>
         <v-card-text class="text" :style="{ color: currentTheme.secondary }">
           <v-text-field
@@ -96,25 +99,13 @@ export default {
     },
   },
   methods: {
-    handleCopy() {
-      if (navigator.clipboard && this.sessionURL) {
-        navigator.clipboard
-          .writeText(this.sessionURL)
-          .then(() => {
-            console.log("Link copied to clipboard successfully!");
-          })
-          .catch((err) => {
-            // Handle possible errors during copy attempt
-            console.error("Failed to copy the link: ", err);
-          });
-      } else {
-        // Fallback for older browsers or environments where the Clipboard API is not available
-        console.error("Clipboard API is not available.");
-      }
-    },
     handleClose() {
       this.activeSource = "";
       this.$root.$emit("close-sharesessiondialog");
+    },
+    openYattProfileDialog() {
+      this.$root.$emit("open-yattprofiledialog");
+      // TODO - pull updated info on close and update the message?
     },
   },
 };

@@ -110,6 +110,11 @@
       @confirm="back"
       @cancel="resetConfirmDialog = false"
     />
+    <YattProfileDialog
+      v-model="yattProfileDialog"
+      ref="yattProfileDialog"
+      @close="resetConfirmDialog = false"
+    />
   </v-container>
 </template>
 
@@ -132,11 +137,13 @@ import MenuPopover from "@/components/MenuPopover.vue";
 import { SESSION_STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
 import ResetConfirmDialog from "@/components/dialogs/ResetConfirmDialog.vue";
+import YattProfileDialog from "@/components/dialogs/YattProfileDialog.vue";
 
 export default {
   name: "MainView",
   components: {
     ResetConfirmDialog,
+    YattProfileDialog,
     VContainer,
     VBtn,
     VTabs,
@@ -158,6 +165,7 @@ export default {
       showTaskError: false,
       showMenu: false,
       resetConfirmDialog: false,
+      yattProfileDialog: false,
     };
   },
   created() {
@@ -167,6 +175,10 @@ export default {
     this.setInitialPreSession();
     this.setInitialPostSession();
     this.$root.$on("update-selected", this.updateSelected);
+    this.$root.$on(
+      "open-yattprofiledialog",
+      () => (this.yattProfileDialog = true)
+    );
     this.$root.$on("new-session", () => {
       this.setInitialPreSession();
       this.setInitialPostSession();
@@ -248,7 +260,7 @@ export default {
       this.openEditWindow(value);
     },
     openEditWindow(data) {
-      // todo we want to replace electron window with the vuetify dialog instead to make it work for both electron & web
+      // TODO we want to replace electron window with the vuetify dialog instead to make it work for both electron & web
       if (this.$isElectron) {
         this.$electronService.openEditWindow(data);
       }

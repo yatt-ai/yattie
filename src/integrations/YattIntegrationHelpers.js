@@ -12,11 +12,33 @@ export default {
       Accept: "application/json",
     };
   },
+  async newToken(credentials) {
+    const url = `${process.env.VUE_APP_YATT_API_URL}/app/profile/token`;
+    const newCredentialsResponse = await axios.get(url);
+    this.saveCredentials(credentials, newCredentialsResponse.data);
+  },
+  async updateProfile(credentials, data) {
+    // update profile vs sign up?
+    const url = `${process.env.VUE_APP_YATT_API_URL}/app/profile`;
+    const credential = credentials?.yatt[0];
+    const options = {
+      headers: this.getHeaders(credential),
+    };
+
+    // Post to YATT
+    let returnResponse = {};
+    await axios
+      .patch(url, data, options)
+      .then((postedSession) => {
+        returnResponse = postedSession.data;
+      })
+      .catch((error) => {
+        returnResponse.error = error.response.data.errors;
+      });
+  },
   async saveSession(credentials) {
     if (!credentials?.yatt || credentials?.yatt.length < 1) {
-      const url = `${process.env.VUE_APP_YATT_API_URL}/app/signup/token`;
-      const newCredentialsResponse = await axios.get(url);
-      this.saveCredentials(credentials, newCredentialsResponse.data);
+      await this.newToken(credentials);
     }
 
     // Pull case and session data
