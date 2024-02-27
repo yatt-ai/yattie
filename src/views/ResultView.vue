@@ -94,7 +94,7 @@ export default {
     this.$root.$on("submit-search", this.handleSearch);
     this.$root.$on("update-selected", this.updateSelected);
     this.$root.$on("save-data", this.saveData);
-    this.$root.$on("update-session", this.activateEditSession);
+    this.$root.$on("update-edit-item", this.activateEditSession);
 
     if (this.$isElectron) {
       this.$electronService.onDataChange(this.fetchItems);

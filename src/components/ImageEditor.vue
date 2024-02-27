@@ -33,8 +33,6 @@ export default {
   },
   watch: {
     item: function (newValue) {
-      console.log("changed");
-      console.log(newValue);
       this.editSessionItem = newValue;
       this.imageEditorInst.destroy();
       this.imageEditorInst = null;
@@ -53,14 +51,11 @@ export default {
     };
   },
   mounted() {
-    console.log(this.editSessionItem);
-    console.log("m");
     this.handleEditor();
   },
   methods: {
     handleEditor() {
       try {
-        console.log(this.imageEditorInst);
         const imgPath = `file://${this.editSessionItem.filePath}`;
         this.imageEditorInst = new ImageEditor(
           document.querySelector(".image-editor"),
@@ -85,7 +80,6 @@ export default {
             },
           }
         );
-        console.log(this.imageEditorInst);
 
         const drawColorPicker =
           this.imageEditorInst.ui.draw._els.drawColorPicker;
