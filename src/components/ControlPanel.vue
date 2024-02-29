@@ -994,6 +994,7 @@ export default {
       issueCreateDestinationMenu: false,
       evidenceData: null,
       addEvidenceDialog: false,
+      mediaStream: null,
     };
   },
   mounted() {
@@ -1089,19 +1090,38 @@ export default {
       // todo implement web version for this functionality
     },
     async showSourcePickerDialog() {
-      try {
-        let data = await this.fetchSources();
-        this.loaded = true;
-        this.sources = data;
-        if (this.viewMode === "normal") {
-          this.sourcePickerDialog = true;
-        } else {
-          if (this.$isElectron) {
-            await this.$electronService.openSourcePickerWindow(this.sources);
+      if (this.$isElectron) {
+        try {
+          let data = await this.fetchSources();
+          this.loaded = true;
+          this.sources = data;
+
+          if (this.viewMode === "normal") {
+            this.sourcePickerDialog = true;
+          } else {
+            if (this.$isElectron) {
+              await this.$electronService.openSourcePickerWindow(this.sources);
+            }
           }
+        } catch (err) {
+          console.log(err);
         }
-      } catch (err) {
-        console.log(err);
+      } else {
+        this.mediaStream = await navigator.mediaDevices.getDisplayMedia({
+          video: {
+            displaySurface: "window",
+            cursor: "always",
+          },
+          audio: true,
+        });
+        const videoTrack = this.mediaStream.getVideoTracks()[0];
+
+        videoTrack.addEventListener("ended", () => {
+          console.log("The user has stopped sharing their screen.");
+          this.mediaStream = null;
+        });
+
+        this.startSession();
       }
     },
     async showShareSessionDialog() {
@@ -1172,8 +1192,10 @@ export default {
         duration: this.duration,
       });
     },
-    async startSession(id) {
-      this.sourceId = id;
+    async startSession(id = null) {
+      if (this.$isElectron) {
+        this.sourceId = id;
+      }
       this.sourcePickerDialog = false;
 
       this.timer = this.$store.state.session.timer;
@@ -1190,7 +1212,9 @@ export default {
       if (this.status !== SESSION_STATUSES.START) {
         console.log("start interval-2");
         this.status = SESSION_STATUSES.START;
-        this.startInterval();
+        if (this.$isElectron) {
+          this.startInterval();
+        }
         this.changeSessionStatus(SESSION_STATUSES.START);
       }
 
@@ -1213,10 +1237,12 @@ export default {
         };
 
         await this.$storageService.createNewSession(data);
-        const caseID = await this.$storageService.getCaseId();
-        const sessionID = await this.$storageService.getSessionId();
-        this.$store.commit("setCaseID", caseID);
-        this.$store.commit("setSessionID", sessionID);
+        if (this.$isElectron) {
+          const caseID = await this.$storageService.getCaseId();
+          const sessionID = await this.$storageService.getSessionId();
+          this.$store.commit("setCaseID", caseID);
+          this.$store.commit("setSessionID", sessionID);
+        }
       }
 
       if (this.viewMode === "normal") {
@@ -1316,14 +1342,18 @@ export default {
       this.$store.commit("setStatus", this.status);
     },
     handleScreenshot() {
-      this.fetchSources().then((data) => {
-        const list = data.filter((v) => v.id === this.sourceId);
-        if (list.length === 0) {
-          this.showSourcePickerDialog();
-        } else {
-          this.screenshotProcess();
-        }
-      });
+      if (this.$isElectron) {
+        this.fetchSources().then((data) => {
+          const list = data.filter((v) => v.id === this.sourceId);
+          if (list.length === 0) {
+            this.showSourcePickerDialog();
+          } else {
+            this.screenshotProcess();
+          }
+        });
+      } else {
+        this.screenshotProcess();
+      }
     },
     async screenshotProcess() {
       this.handleStream = (stream) => {
@@ -1359,6 +1389,35 @@ export default {
               this.addEvidenceDialog = true;
               // await this.openAddWindow(data);
             }
+          } else {
+            const stepID = uuidv4();
+            const attachmentID = uuidv4();
+            const idStr = attachmentID.replaceAll("-", "");
+            const type = "image";
+            const suffix = DEFAULT_FILE_TYPES[type].suffix;
+            const fileName = `${type}-${idStr.substring(0, 5)}.${suffix}`;
+
+            const base64Response = atob(imgURI.split(",")[1]);
+            const binaryData = new Uint8Array(base64Response.length);
+            for (let i = 0; i < base64Response.length; i++) {
+              binaryData[i] = base64Response.charCodeAt(i);
+            }
+            let blob = new Blob([binaryData], { type: "image/png" });
+
+            const blobUrl = URL.createObjectURL(blob);
+            const fileSize = blob.size;
+
+            const data = {
+              stepID,
+              attachmentID,
+              fileName,
+              filePath: blobUrl,
+              fileSize,
+              fileType: "image/png",
+              timer_mark: this.timer,
+            };
+            this.evidenceData = data;
+            this.addEvidenceDialog = true;
           }
         };
       };
@@ -1366,19 +1425,34 @@ export default {
         console.log(error);
       };
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: false,
-          video: {
-            mandatory: {
-              chromeMediaSource: "desktop",
-              chromeMediaSourceId: this.sourceId,
-              minWidth: 1280,
-              maxWidth: 10000,
-              minHeight: 720,
-              maxHeight: 4000,
+        let stream;
+        if (this.$isElectron) {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+              mandatory: {
+                chromeMediaSource: "desktop",
+                chromeMediaSourceId: this.sourceId,
+                minWidth: 1280,
+                maxWidth: 10000,
+                minHeight: 720,
+                maxHeight: 4000,
+              },
             },
-          },
-        });
+          });
+        } else {
+          if (!this.mediaStream) {
+            this.mediaStream = await navigator.mediaDevices.getDisplayMedia({
+              video: {
+                displaySurface: "window",
+                cursor: "always",
+              },
+              audio: true,
+            });
+          }
+          stream = this.mediaStream;
+        }
+
         this.handleStream(stream);
       } catch (e) {
         this.handleError(e);

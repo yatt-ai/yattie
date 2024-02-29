@@ -443,8 +443,10 @@ export default {
   mounted() {
     if (this.$isElectron) {
       // this.$electronService.onActiveSession(this.activeSession);
-      this.activeSession();
+      // this.activeSession();
     }
+
+    this.activeSession();
 
     // Focus on comment
     this.$refs.comment.editor.commands.focus();
