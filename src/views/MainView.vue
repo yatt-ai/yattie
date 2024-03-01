@@ -113,7 +113,12 @@
     <YattProfileDialog
       v-model="yattProfileDialog"
       ref="yattProfileDialog"
-      @close="resetConfirmDialog = false"
+      @close="yattProfileDialog = false"
+    />
+    <YattLoginDialog
+      v-model="yattLoginDialog"
+      ref="yattLoginDialog"
+      @close="yattLoginDialog = false"
     />
   </v-container>
 </template>
@@ -138,12 +143,14 @@ import { SESSION_STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
 import ResetConfirmDialog from "@/components/dialogs/ResetConfirmDialog.vue";
 import YattProfileDialog from "@/components/dialogs/YattProfileDialog.vue";
+import YattLoginDialog from "@/components/dialogs/YattLoginDialog.vue";
 
 export default {
   name: "MainView",
   components: {
     ResetConfirmDialog,
     YattProfileDialog,
+    YattLoginDialog,
     VContainer,
     VBtn,
     VTabs,
@@ -166,6 +173,7 @@ export default {
       showMenu: false,
       resetConfirmDialog: false,
       yattProfileDialog: false,
+      yattLoginDialog: false,
     };
   },
   created() {
@@ -179,6 +187,7 @@ export default {
       "open-yattprofiledialog",
       () => (this.yattProfileDialog = true)
     );
+    this.$root.$on("open-yattlogindialog", () => (this.yattLoginDialog = true));
     this.$root.$on("new-session", () => {
       this.setInitialPreSession();
       this.setInitialPostSession();

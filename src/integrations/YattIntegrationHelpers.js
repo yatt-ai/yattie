@@ -17,6 +17,30 @@ export default {
     const newCredentialsResponse = await axios.get(url);
     this.saveCredentials(credentials, newCredentialsResponse.data);
   },
+  async authenticateProfile(credentials, data) {
+    // update profile vs sign up?
+    const url = `${process.env.VUE_APP_YATT_API_URL}/app/profile/auth`;
+    const credential = credentials?.yatt[0];
+    const options = {
+      headers: this.getHeaders(credential),
+    };
+
+    // Post to YATT
+    let returnResponse = {};
+    await axios
+      .post(url, data, options)
+      .then((postedSession) => {
+        returnResponse = postedSession.data;
+        credential.user = returnResponse.user;
+        // CTODO - Save credentials won't work to replace if user uid changed.
+        this.saveCredentials(credentials, credential);
+        return returnResponse;
+      })
+      .catch((error) => {
+        returnResponse.error = error.response.data.errors;
+        return returnResponse;
+      });
+  },
   async updateProfile(credentials, data) {
     // update profile vs sign up?
     const url = `${process.env.VUE_APP_YATT_API_URL}/app/profile`;
@@ -31,9 +55,13 @@ export default {
       .patch(url, data, options)
       .then((postedSession) => {
         returnResponse = postedSession.data;
+        credential.user = returnResponse.user;
+        this.saveCredentials(credentials, credential);
+        return returnResponse;
       })
       .catch((error) => {
         returnResponse.error = error.response.data.errors;
+        return returnResponse;
       });
   },
   async saveSession(credentials) {
@@ -106,7 +134,10 @@ export default {
     if (credentials.yatt && credentials.yatt.length > 0) {
       let matched = false;
       for (const [index, credential] of credentials.yatt.entries()) {
-        if (credential.user.id === formattedData.user.id) {
+        if (
+          credential.user.id === formattedData.user.id ||
+          credential.accessToken === formattedData.accessToken
+        ) {
           credentials.yatt[index] = formattedData;
           matched = true;
         }

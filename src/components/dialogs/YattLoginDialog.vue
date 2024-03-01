@@ -9,36 +9,7 @@
     <v-sheet rounded :style="{ backgroundColor: currentTheme.background }">
       <v-card :style="{ backgroundColor: currentTheme.background }">
         <v-card-text class="text" :style="{ color: currentTheme.secondary }">
-          <v-form
-            role="profileForm"
-            @submit.prevent="handleConfirm()"
-            id="form"
-          >
-            <!--<v-text-field
-              :label="$t('username')"
-              name="username"
-              :rules="usernameValidation"
-              v-model="user.handle"
-              @input="usernameInUse"
-              :error-messages="error"
-              id="username"
-            ></v-text-field>-->
-            <v-text-field
-              :label="$t('firstName')"
-              name="First name"
-              :rules="nameValidation"
-              v-model="user.first_name"
-              id="firstname"
-              required
-            ></v-text-field>
-            <v-text-field
-              :label="$t('lastName')"
-              name="Last name"
-              :rules="nameValidation"
-              v-model="user.last_name"
-              id="lastname"
-              required
-            ></v-text-field>
+          <v-form role="loginForm" @submit.prevent="handleConfirm()" id="form">
             <v-text-field
               :label="$t('email')"
               name="email"
@@ -48,7 +19,6 @@
               required
             />
             <v-text-field
-              v-if="!existing"
               :label="$t('password')"
               name="password"
               type="password"
@@ -65,7 +35,7 @@
               @shortkey="handleConfirm()"
               @click="handleConfirm()"
             >
-              {{ $t("signUp") }}
+              {{ $t("signIn") }}
             </v-btn>
             <v-btn
               small
@@ -79,8 +49,8 @@
               {{ $tc("caption.cancel", 1) }}
             </v-btn>
 
-            <a @click="switchToLogin()">
-              {{ $t("logintoyouraccount") }}
+            <a @click="switchToProfile()">
+              {{ $t("newProfile") }}
             </a>
           </v-form>
         </v-card-text>
@@ -95,30 +65,15 @@ import { mapGetters } from "vuex";
 import yattIntegrationHelper from "../../integrations/YattIntegrationHelpers";
 
 export default {
-  name: "YattProfileDialog",
+  name: "YattLoginDialog",
   props: {},
   data() {
     return {
       user: {
-        handle: "",
-        first_name: "",
-        last_name: "",
         email: "",
         password: "",
       },
-      existing: false,
     };
-  },
-  async beforeMount() {
-    if (!this.credentials.yatt || this.credentials?.yatt.length < 1) {
-      await yattIntegrationHelper.newToken();
-    }
-    Object.keys(this.credentials.yatt[0].user).map((key) => {
-      this.user[key] = this.credentials.yatt[0].user[key];
-    });
-    if (this.user.email) {
-      this.existing = true;
-    }
   },
   computed: {
     ...mapGetters({
@@ -132,24 +87,6 @@ export default {
         (v) => /.+@.+\..+/.test(v) || this.$t("validEmail"),
       ];
     },
-    nameValidation() {
-      return [
-        (v) => !!v || this.$t("inputRequired"),
-        (v) => (v && v.length >= 2) || this.$t("min2Chars"),
-      ];
-    },
-    passwordValidation() {
-      return [
-        (v) => !!v || this.$t("passwordRequired"),
-        (v) => (v && v.length >= 6) || this.$t("min6Chars"),
-      ];
-    },
-    //usernameValidation() {
-    //  return [
-    //    v => !!v || this.$t('requiredField'),
-    //    v => /^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/.test(v) || this.$t('invalidUsername'),
-    //  ];
-    //},
     confirmHotkey() {
       return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
     },
@@ -165,12 +102,12 @@ export default {
     },
   },
   methods: {
-    switchToLogin() {
-      this.$root.$emit("open-yattlogindialog");
+    switchToProfile() {
+      this.$root.$emit("open-yattprofiledialog");
       this.handleClose();
     },
     async handleConfirm() {
-      const response = await yattIntegrationHelper.updateProfile(
+      const response = await yattIntegrationHelper.authenticateProfile(
         this.credentials,
         this.user
       );
