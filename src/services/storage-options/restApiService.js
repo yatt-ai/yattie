@@ -22,13 +22,40 @@ export default class RestApiService extends StorageInterface {
         Accept: "application/json",
       },
     };
-    const response = await axios.patch(
-      `http://localhost:5000/v1/yattie/executions`,
-      data,
-      options
-    );
-    console.log(response);
-    return response.data.state;
+    let returnResponse = {
+      link: "",
+    };
+    await axios
+      .patch(`http://localhost:5000/v1/yattie/executions`, data, options)
+      .then((postedSession) => {
+        returnResponse = postedSession.data;
+      })
+      .catch((error) => {
+        returnResponse.error = error.response.data.errors;
+      });
+
+    returnResponse.steps.map(async (step) => {
+      if (step.uploadURL) {
+        const match = state.session.items.find(
+          (item) => item.stepID === step.external_id
+        );
+        if (match?.filePath) {
+          const fetchResponse = await fetch(match.filePath);
+          const fileBlob = await fetchResponse.blob();
+          const file = new File([fileBlob], step.uid, { type: match.fileType });
+          await axios
+            .put(step.uploadURL, file, {
+              headers: {
+                "Content-Type": match.fileType,
+                "X-Upload-Content-Length": match.fileSize,
+              },
+            })
+            .catch((error) => {
+              returnResponse.error.push(...error.response.data.errors);
+            });
+        }
+      }
+    });
   }
 
   async getConfig() {

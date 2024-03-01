@@ -776,6 +776,7 @@ import {
   VIDEO_RESOLUTION,
 } from "@/modules/constants";
 import { mapGetters } from "vuex";
+import { createImageForWeb, createVideoForWeb } from "@/helpers/WebHelpers";
 
 let mediaRecorder;
 let audioContext;
@@ -841,6 +842,16 @@ export default {
     },
     selectedItems: function (newValue) {
       this.selected = newValue;
+    },
+    mediaStream: function (newValue) {
+      if (newValue) {
+        const videoTrack = this.mediaStream.getVideoTracks()[0];
+
+        videoTrack.addEventListener("ended", () => {
+          console.log("The user has stopped sharing their screen.");
+          this.mediaStream = null;
+        });
+      }
     },
     "$store.state.session.status": {
       deep: true,
@@ -1114,12 +1125,6 @@ export default {
           },
           audio: true,
         });
-        const videoTrack = this.mediaStream.getVideoTracks()[0];
-
-        videoTrack.addEventListener("ended", () => {
-          console.log("The user has stopped sharing their screen.");
-          this.mediaStream = null;
-        });
 
         this.startSession();
       }
@@ -1341,7 +1346,16 @@ export default {
       this.changeSessionStatus(this.status);
       this.$store.commit("setStatus", this.status);
     },
-    handleScreenshot() {
+    async setMediaStream() {
+      this.mediaStream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          displaySurface: "window",
+          cursor: "always",
+        },
+        audio: true,
+      });
+    },
+    async handleScreenshot() {
       if (this.$isElectron) {
         this.fetchSources().then((data) => {
           const list = data.filter((v) => v.id === this.sourceId);
@@ -1352,6 +1366,9 @@ export default {
           }
         });
       } else {
+        if (!this.mediaStream) {
+          await this.setMediaStream();
+        }
         this.screenshotProcess();
       }
     },
@@ -1375,8 +1392,6 @@ export default {
             const { status, message, item } =
               await this.$electronService.createImage(imgURI);
 
-            console.log({ item });
-
             if (status === STATUSES.ERROR) {
               this.$root.$emit("set-snackbar", message);
               console.log(message);
@@ -1387,33 +1402,11 @@ export default {
               };
               this.evidenceData = data;
               this.addEvidenceDialog = true;
-              // await this.openAddWindow(data);
             }
           } else {
-            const stepID = uuidv4();
-            const attachmentID = uuidv4();
-            const idStr = attachmentID.replaceAll("-", "");
-            const type = "image";
-            const suffix = DEFAULT_FILE_TYPES[type].suffix;
-            const fileName = `${type}-${idStr.substring(0, 5)}.${suffix}`;
-
-            const base64Response = atob(imgURI.split(",")[1]);
-            const binaryData = new Uint8Array(base64Response.length);
-            for (let i = 0; i < base64Response.length; i++) {
-              binaryData[i] = base64Response.charCodeAt(i);
-            }
-            let blob = new Blob([binaryData], { type: "image/png" });
-
-            const blobUrl = URL.createObjectURL(blob);
-            const fileSize = blob.size;
-
+            const { item } = createImageForWeb(imgURI);
             const data = {
-              stepID,
-              attachmentID,
-              fileName,
-              filePath: blobUrl,
-              fileSize,
-              fileType: "image/png",
+              ...item,
               timer_mark: this.timer,
             };
             this.evidenceData = data;
@@ -1441,15 +1434,6 @@ export default {
             },
           });
         } else {
-          if (!this.mediaStream) {
-            this.mediaStream = await navigator.mediaDevices.getDisplayMedia({
-              video: {
-                displaySurface: "window",
-                cursor: "always",
-              },
-              audio: true,
-            });
-          }
           stream = this.mediaStream;
         }
 
@@ -1458,15 +1442,22 @@ export default {
         this.handleError(e);
       }
     },
-    startRecordVideo() {
-      this.fetchSources().then((data) => {
-        const list = data.filter((v) => v.id === this.sourceId);
-        if (list.length === 0) {
-          this.showSourcePickerDialog();
-        } else {
-          this.videoRecordProcess();
+    async startRecordVideo() {
+      if (this.$isElectron) {
+        this.fetchSources().then((data) => {
+          const list = data.filter((v) => v.id === this.sourceId);
+          if (list.length === 0) {
+            this.showSourcePickerDialog();
+          } else {
+            this.videoRecordProcess();
+          }
+        });
+      } else {
+        if (!this.mediaStream) {
+          await this.setMediaStream();
         }
-      });
+        this.videoRecordProcess();
+      }
     },
     async videoRecordProcess() {
       this.handleStream = (stream) => {
@@ -1501,6 +1492,9 @@ export default {
                 console.log("Unable to generate poster for video: " + message);
               }
               poster = item.filePath;
+            } else {
+              const { item } = createImageForWeb(imgURI);
+              poster = item.filePath;
             }
           };
         };
@@ -1526,12 +1520,23 @@ export default {
                 poster: poster,
                 timer_mark: this.timer,
               };
-              // await this.openAddWindow(data);
               this.evidenceData = data;
               this.addEvidenceDialog = true;
             }
+          } else {
+            const { item } = createVideoForWeb(blob);
+            const data = {
+              ...item,
+              poster: poster,
+              timer_mark: this.timer,
+            };
+            this.evidenceData = data;
+            this.addEvidenceDialog = true;
           }
         };
+        mediaRecorder.addEventListener("error", (event) => {
+          console.error("MediaRecorder error:", event.error);
+        });
         frames = [];
         mediaRecorder.start(1000);
       };
@@ -1547,26 +1552,33 @@ export default {
             resolution = temp;
           }
         });
-        const constraints = {
-          audio: false,
-          video: {
-            mandatory: {
-              chromeMediaSource: "desktop",
-              chromeMediaSourceId: this.sourceId,
-              minWidth: resolution.width,
-              maxWidth: resolution.width,
-              minHeight: resolution.height,
-              maxHeight: resolution.height,
+
+        let stream;
+        if (this.$isElectron) {
+          const constraints = {
+            audio: false,
+            video: {
+              mandatory: {
+                chromeMediaSource: "desktop",
+                chromeMediaSourceId: this.sourceId,
+                minWidth: resolution.width,
+                maxWidth: resolution.width,
+                minHeight: resolution.height,
+                maxHeight: resolution.height,
+              },
             },
-          },
-        };
-        if (this.config.audioCapture) {
-          this.audioDevices = await this.getAudioSources();
-          if (this.audioDevices.length > 0) {
-            await this.setAudio(this.audioDevices);
+          };
+          if (this.config.audioCapture) {
+            this.audioDevices = await this.getAudioSources();
+            if (this.audioDevices.length > 0) {
+              await this.setAudio(this.audioDevices);
+            }
           }
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+        } else {
+          stream = this.mediaStream;
         }
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
         await stream.getVideoTracks()[0].applyConstraints({ frameRate: 30 });
         this.handleStream(stream);
       } catch (e) {
