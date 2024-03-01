@@ -344,7 +344,7 @@
                     @click="handleItemClick(item.stepID)"
                   >
                     <div class="audio-wave">
-                      <img :src="`file://${item.poster.filePath}`" />
+                      <img :src="`file://${item.poster}`" />
                     </div>
                   </div>
                   <div class="comment-wrapper mt-2 mb-2">
@@ -956,7 +956,10 @@
       v-if="evidenceData"
       v-model="addEvidenceDialog"
       :item-data="evidenceData"
-      @close="addEvidenceDialog = false"
+      @close="
+        addEvidenceDialog = false;
+        evidenceData = null;
+      "
     />
     <EditEvidenceDialog
       v-if="itemToEdit"

@@ -240,7 +240,7 @@ export default {
           poster: posterResult.item.filePath,
           ...audioResult.item,
         };
-        this.$root.$emit("update-session", this.sessionItem);
+        this.$root.$emit("update-edit-item", this.sessionItem);
         this.$root.$emit("save-data", this.sessionItem);
       }
     },

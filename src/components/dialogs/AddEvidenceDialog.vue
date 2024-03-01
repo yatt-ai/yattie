@@ -331,7 +331,12 @@ import ReviewWrapper from "@/components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { TEXT_TYPES, STATUSES, AI_ENABLED_FIELDS } from "@/modules/constants";
+import {
+  TEXT_TYPES,
+  STATUSES,
+  AI_ENABLED_FIELDS,
+  FILE_TYPES,
+} from "@/modules/constants";
 
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
 import { mapGetters } from "vuex";
@@ -438,13 +443,15 @@ export default {
   mounted() {
     if (this.$isElectron) {
       // this.$electronService.onActiveSession(this.activeSession);
-      this.activeSession();
+      // this.activeSession();
     }
+
+    this.activeSession();
 
     // Focus on comment
     this.$refs.comment.editor.commands.focus();
 
-    this.$root.$on("update-session", this.updateSession);
+    this.$root.$on("update-edit-item", this.updateEditItem);
     this.$root.$on("update-processing", this.updateProcessing);
     this.$root.$on("save-data", this.saveData);
   },
@@ -487,11 +494,11 @@ export default {
         this.comment.type = this.config.commentType;
       }
       // set templates by config
-      this.config.templates.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.type === this.item.sessionType) {
-          this.comment.content = temp.precondition.content;
-          this.comment.text = temp.precondition.text;
+      Object.keys(this.config.templates).map((key) => {
+        let temp = Object.assign({}, this.config.templates[key]);
+        if (key === FILE_TYPES[this.item.fileType]) {
+          this.comment.content = temp.content;
+          this.comment.text = temp.text;
         }
       });
     },
@@ -536,7 +543,7 @@ export default {
       const regex = /(<([^>]+)>)/gi;
       this.comment.text = this.comment.content.replace(regex, "");
     },
-    updateSession(value) {
+    updateEditItem(value) {
       this.item = value;
     },
     updateProcessing(value) {

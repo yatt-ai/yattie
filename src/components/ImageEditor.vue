@@ -56,7 +56,10 @@ export default {
   methods: {
     handleEditor() {
       try {
-        const imgPath = `file://${this.editSessionItem.filePath}`;
+        let imgPath = this.editSessionItem.filePath;
+        if (this.$isElectron) {
+          imgPath = `file://${this.editSessionItem.filePath}`;
+        }
         this.imageEditorInst = new ImageEditor(
           document.querySelector(".image-editor"),
           {
@@ -164,6 +167,9 @@ export default {
             this.$root.$emit("save-data", this.editSessionItem);
           }
         }
+      } else {
+        this.$root.$emit("update-edit-item", this.editSessionItem);
+        this.$root.$emit("save-data", this.editSessionItem);
       }
     },
   },

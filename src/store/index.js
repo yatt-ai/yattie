@@ -108,7 +108,11 @@ const store = new Vuex.Store({
     },
     setSessionItems(state, payload) {
       state.session.items = payload;
-      this._vm.$storageService.updateItems(payload);
+      if (this.$isElectron) {
+        this._vm.$storageService.updateItems(payload);
+      } else {
+        this._vm.$storageService.updateState(state);
+      }
     },
     setSessionItemsFromExternalWindow(state, payload) {
       state.session.items = payload;

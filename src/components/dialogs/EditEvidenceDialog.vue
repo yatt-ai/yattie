@@ -404,7 +404,7 @@ export default {
     // if (this.$isElectron) {
     //   this.activeSession();
     // }
-    this.$root.$on("update-session", this.updateSession);
+    this.$root.$on("update-edit-item", this.updateEditItem);
     this.$root.$on("update-processing", this.updateProcessing);
     this.$root.$on("save-data", this.saveData);
   },
@@ -441,7 +441,7 @@ export default {
     async fetchItems() {
       this.items = await this.$storageService.getItems();
     },
-    updateSession(value) {
+    updateEditItem(value) {
       this.item = value;
     },
     updateProcessing(value) {

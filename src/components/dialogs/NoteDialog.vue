@@ -315,11 +315,13 @@ export default {
         this.comment.type = this.config.commentType;
       }
 
-      // set templates by config
-      const template = this.config.templates["text"];
+      if (this.$isElectron) {
+        // set templates by config
+        const template = this.config.templates["text"];
 
-      this.comment.content = template.content;
-      this.comment.text = template.text;
+        this.comment.content = template.content;
+        this.comment.text = template.text;
+      }
 
       this.emojiMenu = false;
       this.tags = [];

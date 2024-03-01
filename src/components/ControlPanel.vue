@@ -730,6 +730,15 @@
         :post-session-data="postSessionData"
         @proceed="closeEndSessionDialog"
       />
+      <AddEvidenceDialog
+        v-if="evidenceData"
+        v-model="addEvidenceDialog"
+        :item-data="evidenceData"
+        @close="
+          addEvidenceDialog = false;
+          evidenceData = null;
+        "
+      />
     </div>
   </v-container>
 </template>
@@ -754,6 +763,7 @@ import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
 //import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
+import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 
 import JiraAddIssue from "./jira/JiraAddIssue";
 
@@ -766,6 +776,7 @@ import {
   VIDEO_RESOLUTION,
 } from "@/modules/constants";
 import { mapGetters } from "vuex";
+import { createImageForWeb, createVideoForWeb } from "@/helpers/WebHelpers";
 
 let mediaRecorder;
 let audioContext;
@@ -773,6 +784,7 @@ let dest;
 export default {
   name: "ControlPanel",
   components: {
+    AddEvidenceDialog,
     VContainer,
     VRow,
     VCol,
@@ -830,6 +842,16 @@ export default {
     },
     selectedItems: function (newValue) {
       this.selected = newValue;
+    },
+    mediaStream: function (newValue) {
+      if (newValue) {
+        const videoTrack = this.mediaStream.getVideoTracks()[0];
+
+        videoTrack.addEventListener("ended", () => {
+          console.log("The user has stopped sharing their screen.");
+          this.mediaStream = null;
+        });
+      }
     },
     "$store.state.session.status": {
       deep: true,
@@ -981,6 +1003,9 @@ export default {
       callback: null,
       evidenceExportDestinationMenu: false,
       issueCreateDestinationMenu: false,
+      evidenceData: null,
+      addEvidenceDialog: false,
+      mediaStream: null,
     };
   },
   mounted() {
@@ -1076,19 +1101,32 @@ export default {
       // todo implement web version for this functionality
     },
     async showSourcePickerDialog() {
-      try {
-        let data = await this.fetchSources();
-        this.loaded = true;
-        this.sources = data;
-        if (this.viewMode === "normal") {
-          this.sourcePickerDialog = true;
-        } else {
-          if (this.$isElectron) {
-            await this.$electronService.openSourcePickerWindow(this.sources);
+      if (this.$isElectron) {
+        try {
+          let data = await this.fetchSources();
+          this.loaded = true;
+          this.sources = data;
+
+          if (this.viewMode === "normal") {
+            this.sourcePickerDialog = true;
+          } else {
+            if (this.$isElectron) {
+              await this.$electronService.openSourcePickerWindow(this.sources);
+            }
           }
+        } catch (err) {
+          console.log(err);
         }
-      } catch (err) {
-        console.log(err);
+      } else {
+        this.mediaStream = await navigator.mediaDevices.getDisplayMedia({
+          video: {
+            displaySurface: "window",
+            cursor: "always",
+          },
+          audio: true,
+        });
+
+        this.startSession();
       }
     },
     async showShareSessionDialog() {
@@ -1159,8 +1197,10 @@ export default {
         duration: this.duration,
       });
     },
-    async startSession(id) {
-      this.sourceId = id;
+    async startSession(id = null) {
+      if (this.$isElectron) {
+        this.sourceId = id;
+      }
       this.sourcePickerDialog = false;
 
       this.timer = this.$store.state.session.timer;
@@ -1177,7 +1217,9 @@ export default {
       if (this.status !== SESSION_STATUSES.START) {
         console.log("start interval-2");
         this.status = SESSION_STATUSES.START;
-        this.startInterval();
+        if (this.$isElectron) {
+          this.startInterval();
+        }
         this.changeSessionStatus(SESSION_STATUSES.START);
       }
 
@@ -1200,10 +1242,12 @@ export default {
         };
 
         await this.$storageService.createNewSession(data);
-        const caseID = await this.$storageService.getCaseId();
-        const sessionID = await this.$storageService.getSessionId();
-        this.$store.commit("setCaseID", caseID);
-        this.$store.commit("setSessionID", sessionID);
+        if (this.$isElectron) {
+          const caseID = await this.$storageService.getCaseId();
+          const sessionID = await this.$storageService.getSessionId();
+          this.$store.commit("setCaseID", caseID);
+          this.$store.commit("setSessionID", sessionID);
+        }
       }
 
       if (this.viewMode === "normal") {
@@ -1302,15 +1346,31 @@ export default {
       this.changeSessionStatus(this.status);
       this.$store.commit("setStatus", this.status);
     },
-    handleScreenshot() {
-      this.fetchSources().then((data) => {
-        const list = data.filter((v) => v.id === this.sourceId);
-        if (list.length === 0) {
-          this.showSourcePickerDialog();
-        } else {
-          this.screenshotProcess();
-        }
+    async setMediaStream() {
+      this.mediaStream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          displaySurface: "window",
+          cursor: "always",
+        },
+        audio: true,
       });
+    },
+    async handleScreenshot() {
+      if (this.$isElectron) {
+        this.fetchSources().then((data) => {
+          const list = data.filter((v) => v.id === this.sourceId);
+          if (list.length === 0) {
+            this.showSourcePickerDialog();
+          } else {
+            this.screenshotProcess();
+          }
+        });
+      } else {
+        if (!this.mediaStream) {
+          await this.setMediaStream();
+        }
+        this.screenshotProcess();
+      }
     },
     async screenshotProcess() {
       this.handleStream = (stream) => {
@@ -1332,8 +1392,6 @@ export default {
             const { status, message, item } =
               await this.$electronService.createImage(imgURI);
 
-            console.log({ item });
-
             if (status === STATUSES.ERROR) {
               this.$root.$emit("set-snackbar", message);
               console.log(message);
@@ -1342,8 +1400,17 @@ export default {
                 ...item,
                 timer_mark: this.timer,
               };
-              await this.openAddWindow(data);
+              this.evidenceData = data;
+              this.addEvidenceDialog = true;
             }
+          } else {
+            const { item } = createImageForWeb(imgURI);
+            const data = {
+              ...item,
+              timer_mark: this.timer,
+            };
+            this.evidenceData = data;
+            this.addEvidenceDialog = true;
           }
         };
       };
@@ -1351,33 +1418,46 @@ export default {
         console.log(error);
       };
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: false,
-          video: {
-            mandatory: {
-              chromeMediaSource: "desktop",
-              chromeMediaSourceId: this.sourceId,
-              minWidth: 1280,
-              maxWidth: 10000,
-              minHeight: 720,
-              maxHeight: 4000,
+        let stream;
+        if (this.$isElectron) {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+              mandatory: {
+                chromeMediaSource: "desktop",
+                chromeMediaSourceId: this.sourceId,
+                minWidth: 1280,
+                maxWidth: 10000,
+                minHeight: 720,
+                maxHeight: 4000,
+              },
             },
-          },
-        });
+          });
+        } else {
+          stream = this.mediaStream;
+        }
+
         this.handleStream(stream);
       } catch (e) {
         this.handleError(e);
       }
     },
-    startRecordVideo() {
-      this.fetchSources().then((data) => {
-        const list = data.filter((v) => v.id === this.sourceId);
-        if (list.length === 0) {
-          this.showSourcePickerDialog();
-        } else {
-          this.videoRecordProcess();
+    async startRecordVideo() {
+      if (this.$isElectron) {
+        this.fetchSources().then((data) => {
+          const list = data.filter((v) => v.id === this.sourceId);
+          if (list.length === 0) {
+            this.showSourcePickerDialog();
+          } else {
+            this.videoRecordProcess();
+          }
+        });
+      } else {
+        if (!this.mediaStream) {
+          await this.setMediaStream();
         }
-      });
+        this.videoRecordProcess();
+      }
     },
     async videoRecordProcess() {
       this.handleStream = (stream) => {
@@ -1412,6 +1492,9 @@ export default {
                 console.log("Unable to generate poster for video: " + message);
               }
               poster = item.filePath;
+            } else {
+              const { item } = createImageForWeb(imgURI);
+              poster = item.filePath;
             }
           };
         };
@@ -1437,10 +1520,23 @@ export default {
                 poster: poster,
                 timer_mark: this.timer,
               };
-              await this.openAddWindow(data);
+              this.evidenceData = data;
+              this.addEvidenceDialog = true;
             }
+          } else {
+            const { item } = createVideoForWeb(blob);
+            const data = {
+              ...item,
+              poster: poster,
+              timer_mark: this.timer,
+            };
+            this.evidenceData = data;
+            this.addEvidenceDialog = true;
           }
         };
+        mediaRecorder.addEventListener("error", (event) => {
+          console.error("MediaRecorder error:", event.error);
+        });
         frames = [];
         mediaRecorder.start(1000);
       };
@@ -1456,26 +1552,33 @@ export default {
             resolution = temp;
           }
         });
-        const constraints = {
-          audio: false,
-          video: {
-            mandatory: {
-              chromeMediaSource: "desktop",
-              chromeMediaSourceId: this.sourceId,
-              minWidth: resolution.width,
-              maxWidth: resolution.width,
-              minHeight: resolution.height,
-              maxHeight: resolution.height,
+
+        let stream;
+        if (this.$isElectron) {
+          const constraints = {
+            audio: false,
+            video: {
+              mandatory: {
+                chromeMediaSource: "desktop",
+                chromeMediaSourceId: this.sourceId,
+                minWidth: resolution.width,
+                maxWidth: resolution.width,
+                minHeight: resolution.height,
+                maxHeight: resolution.height,
+              },
             },
-          },
-        };
-        if (this.config.audioCapture) {
-          this.audioDevices = await this.getAudioSources();
-          if (this.audioDevices.length > 0) {
-            await this.setAudio(this.audioDevices);
+          };
+          if (this.config.audioCapture) {
+            this.audioDevices = await this.getAudioSources();
+            if (this.audioDevices.length > 0) {
+              await this.setAudio(this.audioDevices);
+            }
           }
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+        } else {
+          stream = this.mediaStream;
         }
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
         await stream.getVideoTracks()[0].applyConstraints({ frameRate: 30 });
         this.handleStream(stream);
       } catch (e) {
@@ -1560,7 +1663,9 @@ export default {
                 timer_mark: this.timer,
                 poster: "",
               };
-              await this.openAddWindow(data);
+              // await this.openAddWindow(data);
+              this.evidenceData = data;
+              this.addEvidenceDialog = true;
             }
             recordedChunks = [];
           }
@@ -1661,7 +1766,9 @@ export default {
         },
         timer_mark: this.timer,
       };
-      this.openAddWindow(data);
+      // this.openAddWindow(data);
+      this.evidenceData = data;
+      this.addEvidenceDialog = true;
     },
     async deleteItems() {
       this.$store.commit("deleteSessionItems", this.selected);

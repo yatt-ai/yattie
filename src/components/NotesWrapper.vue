@@ -276,7 +276,7 @@
                   @click="handleItemClick(item.stepID)"
                 >
                   <div class="audio-wave">
-                    <img :src="item.poster.filePath" />
+                    <img :src="item.poster" />
                   </div>
                   <div class="audio-play">
                     <v-icon medium>mdi-play-circle</v-icon>
@@ -451,7 +451,7 @@
                   @click="handleItemClick(item.stepID)"
                 >
                   <div class="audio-wave">
-                    <img :src="item.poster.filePath" />
+                    <img :src="item.poster" />
                   </div>
                   <div class="audio-play">
                     <v-icon medium>mdi-play-circle</v-icon>

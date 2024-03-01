@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="preview-wrapper" v-if="isProcessing">
-      <img :src="`file://${editSessionItem.poster.filePath}`" />
+      <img :src="`file://${editSessionItem.poster}`" />
       <div class="progress-bar">
         <v-progress-linear
           indeterminate
