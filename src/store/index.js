@@ -108,7 +108,8 @@ const store = new Vuex.Store({
     },
     setSessionItems(state, payload) {
       state.session.items = payload;
-      if (this.$isElectron) {
+
+      if (Vue.prototype.$isElectron) {
         this._vm.$storageService.updateItems(payload);
       } else {
         this._vm.$storageService.updateState(state);
