@@ -111,7 +111,7 @@ export default {
   },
   async beforeMount() {
     if (!this.credentials.yatt || this.credentials?.yatt.length < 1) {
-      await yattIntegrationHelper.newToken();
+      await yattIntegrationHelper.newToken(this.credentials);
     }
     Object.keys(this.credentials.yatt[0].user).map((key) => {
       this.user[key] = this.credentials.yatt[0].user[key];

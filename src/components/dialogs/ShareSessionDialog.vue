@@ -9,9 +9,9 @@
     <v-sheet rounded :style="{ backgroundColor: currentTheme.background }">
       <v-card :style="{ backgroundColor: currentTheme.background }">
         <v-card-title class="text" :style="{ color: currentTheme.secondary }">
-          Share {{ credentials?.yatt[0]?.user?.name }}'s session
+          Share {{ getName }}'s session
           <span style="font-size: 0.5em">
-            Not a {{ credentials.yatt[0].user.name }}?
+            Not a {{ getName }}?
             <a @click="openYattProfileDialog">Update your info</a>
           </span>
         </v-card-title>
@@ -84,6 +84,12 @@ export default {
       config: "config/fullConfig",
       credentials: "auth/credentials",
     }),
+    getName() {
+      if (this.credentials?.yatt && this.credentials.yatt.length > 0) {
+        return this.credentials?.yatt[0]?.user?.name;
+      }
+      return "";
+    },
     confirmHotkey() {
       return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
     },

@@ -87,6 +87,12 @@ export default {
         (v) => /.+@.+\..+/.test(v) || this.$t("validEmail"),
       ];
     },
+    passwordValidation() {
+      return [
+        (v) => !!v || this.$t("passwordRequired"),
+        (v) => (v && v.length >= 6) || this.$t("min6Chars"),
+      ];
+    },
     confirmHotkey() {
       return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
     },

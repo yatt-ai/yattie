@@ -15,7 +15,7 @@ export default {
   async newToken(credentials) {
     const url = `${process.env.VUE_APP_YATT_API_URL}/app/profile/token`;
     const newCredentialsResponse = await axios.get(url);
-    this.saveCredentials(credentials, newCredentialsResponse.data);
+    await this.saveCredentials(credentials, newCredentialsResponse.data);
   },
   async authenticateProfile(credentials, data) {
     // update profile vs sign up?
@@ -29,11 +29,11 @@ export default {
     let returnResponse = {};
     await axios
       .post(url, data, options)
-      .then((postedSession) => {
+      .then(async (postedSession) => {
         returnResponse = postedSession.data;
         credential.user = returnResponse.user;
         // CTODO - Save credentials won't work to replace if user uid changed.
-        this.saveCredentials(credentials, credential);
+        await this.saveCredentials(credentials, credential);
         return returnResponse;
       })
       .catch((error) => {
@@ -53,10 +53,10 @@ export default {
     let returnResponse = {};
     await axios
       .patch(url, data, options)
-      .then((postedSession) => {
+      .then(async (postedSession) => {
         returnResponse = postedSession.data;
         credential.user = returnResponse.user;
-        this.saveCredentials(credentials, credential);
+        await this.saveCredentials(credentials, credential);
         return returnResponse;
       })
       .catch((error) => {
@@ -124,7 +124,7 @@ export default {
     // Return result (with generated "link" field)
     return returnResponse;
   },
-  saveCredentials(credentials, data) {
+  async saveCredentials(credentials, data) {
     let formattedData = this.formatData(data);
 
     if (!credentials) {
@@ -149,7 +149,7 @@ export default {
       credentials.yatt = [formattedData];
     }
 
-    window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
+    await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
       func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
       data: credentials,
     });
