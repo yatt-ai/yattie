@@ -776,7 +776,12 @@ import {
   VIDEO_RESOLUTION,
 } from "@/modules/constants";
 import { mapGetters } from "vuex";
-import { createImageForWeb, createVideoForWeb } from "@/helpers/WebHelpers";
+import {
+  createAudioForWeb,
+  createImageForWeb,
+  createVideoForWeb,
+  saveNoteForWeb,
+} from "@/helpers/WebHelpers";
 
 let mediaRecorder;
 let audioContext;
@@ -807,10 +812,6 @@ export default {
     JiraAddIssue,
   },
   props: {
-    items: {
-      type: Array,
-      default: () => [],
-    },
     selectedItems: {
       type: Array,
       default: () => [],
@@ -837,9 +838,6 @@ export default {
     }
   },
   watch: {
-    items: function (newValue) {
-      this.itemLists = newValue;
-    },
     selectedItems: function (newValue) {
       this.selected = newValue;
     },
@@ -883,6 +881,7 @@ export default {
   },
   computed: {
     ...mapGetters({
+      items: "sessionItems",
       hotkeys: "config/hotkeys",
       postSessionData: "config/postSessionData",
       config: "config/fullConfig",
@@ -987,7 +986,6 @@ export default {
       sources: [],
       sessionLink: "",
       sourceId: this.srcId,
-      itemLists: this.items,
       audioDevices: [],
       loaded: false,
       status: this.$store.state.session.status,
@@ -1534,9 +1532,9 @@ export default {
             this.addEvidenceDialog = true;
           }
         };
-        mediaRecorder.addEventListener("error", (event) => {
-          console.error("MediaRecorder error:", event.error);
-        });
+        // mediaRecorder.addEventListener("error", (event) => {
+        //   console.error("MediaRecorder error:", event.error);
+        // });
         frames = [];
         mediaRecorder.start(1000);
       };
@@ -1663,11 +1661,19 @@ export default {
                 timer_mark: this.timer,
                 poster: "",
               };
-              // await this.openAddWindow(data);
               this.evidenceData = data;
               this.addEvidenceDialog = true;
             }
             recordedChunks = [];
+          } else {
+            const { item } = createAudioForWeb(blob);
+            const data = {
+              ...item,
+              timer_mark: this.timer,
+              poster: "",
+            };
+            this.evidenceData = data;
+            this.addEvidenceDialog = true;
           }
         };
         mediaRecorder.start(1000);
@@ -1703,13 +1709,32 @@ export default {
       }
     },
     async addNote(data) {
-      const { status, message, item } = await this.$storageService.saveNote(
-        data.comment
-      );
-      if (status === STATUSES.ERROR) {
-        this.$root.$emit("set-snackbar", message);
-        console.log(message);
+      if (this.$isElectron) {
+        const { status, message, item } = await this.$storageService.saveNote(
+          data.comment
+        );
+        if (status === STATUSES.ERROR) {
+          this.$root.$emit("set-snackbar", message);
+          console.log(message);
+        } else {
+          let newItem = {
+            stepID: item.stepID,
+            fileType: DEFAULT_FILE_TYPES["text"].type,
+            fileName: item.fileName,
+            filePath: item.filePath,
+            comment: data.comment,
+            tags: data.tags,
+            emoji: data.emoji,
+            followUp: data.followUp,
+            timer_mark: this.timer,
+            createdAt: Date.now(),
+          };
+
+          this.$emit("add-item", newItem);
+          this.noteDialog = false;
+        }
       } else {
+        const { item } = saveNoteForWeb(data.comment);
         let newItem = {
           stepID: item.stepID,
           fileType: DEFAULT_FILE_TYPES["text"].type,
