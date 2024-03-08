@@ -32,7 +32,6 @@ export default {
       .then(async (postedSession) => {
         returnResponse = postedSession.data;
         credential.user = returnResponse.user;
-        // CTODO - Save credentials won't work to replace if user uid changed.
         await this.saveCredentials(credentials, credential);
         return returnResponse;
       })
