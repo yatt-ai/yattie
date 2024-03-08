@@ -243,6 +243,9 @@ const store = new Vuex.Store({
   },
   actions: {},
   getters: {
+    sessionItems(state) {
+      return state.session.items;
+    },
     requiredPreSessionTasksChecked(state) {
       const uncheckedTasks = state.session.preSessionTasks.filter(
         (task) => !task.checked && task.required

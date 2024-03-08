@@ -72,7 +72,11 @@
                     <img
                       class="screen-img"
                       style="max-width: 100%"
-                      :src="`file://${item.filePath}`"
+                      :src="
+                        $isElectron
+                          ? `file://${item.filePath}`
+                          : `${item.filePath}`
+                      "
                     />
                   </div>
                   <div class="comment-wrapper mt-2 mb-2 test">
@@ -209,7 +213,11 @@
                     <video
                       controls
                       style="width: 100%"
-                      :src="`file://${item.filePath}`"
+                      :src="
+                        $isElectron
+                          ? `file://${item.filePath}`
+                          : `${item.filePath}`
+                      "
                     ></video>
                   </div>
                   <div class="comment-wrapper mt-2 mb-2">
@@ -344,7 +352,13 @@
                     @click="handleItemClick(item.stepID)"
                   >
                     <div class="audio-wave">
-                      <img :src="`file://${item.poster}`" />
+                      <img
+                        :src="
+                          $isElectron
+                            ? `file://${item.poster}`
+                            : `${item.poster}`
+                        "
+                      />
                     </div>
                   </div>
                   <div class="comment-wrapper mt-2 mb-2">
@@ -615,7 +629,11 @@
                     <img
                       class="screen-img"
                       style="max-width: 100%"
-                      :src="`file://${item.filePath}`"
+                      :src="
+                        this.$isElectron
+                          ? `file://${item.filePath}`
+                          : `${item.filePath}`
+                      "
                     />
                   </div>
                   <div
@@ -764,7 +782,11 @@
                     <img
                       class="screen-img"
                       style="max-width: 100%"
-                      :src="`file://${item.filePath}`"
+                      :src="
+                        $isElectron
+                          ? `file://${item.filePath}`
+                          : `${item.filePath}`
+                      "
                     />
                   </div>
                   <div class="comment-wrapper mt-2 mb-2">
@@ -1037,7 +1059,7 @@ export default {
   },
   data() {
     return {
-      itemLists: this.items,
+      itemLists: [],
       selected: [],
       activeSession: {},
       itemToEdit: null,

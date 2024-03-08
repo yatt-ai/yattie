@@ -32,7 +32,6 @@
         <div class="footer">
           <ControlPanel
             :selectedItems="selected"
-            :items="items"
             :config-item="config"
             :credential-items="credentials"
             view-mode="normal"
@@ -52,6 +51,7 @@ import ExportPanel from "../components/ExportPanel.vue";
 import LogoWrapper from "../components/LogoWrapper.vue";
 
 import { TEXT_TYPES, FILE_TYPES } from "@/modules/constants";
+import { mapGetters } from "vuex";
 
 export default {
   name: "ResultView",
@@ -67,7 +67,6 @@ export default {
   watch: {},
   data() {
     return {
-      items: [],
       config: {},
       credentials: {},
       editItem: {},
@@ -108,6 +107,9 @@ export default {
     }
   },
   computed: {
+    ...mapGetters({
+      items: "sessionItems",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -133,7 +135,8 @@ export default {
       return FILE_TYPES[type];
     },
     async fetchItems() {
-      this.items = await this.$storageService.getItems();
+      const sessionItems = await this.$storageService.getItems();
+      this.$store.commit("setSessionItemsFromExternalWindow", sessionItems);
     },
     async getConfig() {
       const config = await this.$storageService.getConfig();

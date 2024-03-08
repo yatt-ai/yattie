@@ -50,6 +50,7 @@ import FileWrapper from "./FileWrapper.vue";
 import MindmapEditor from "./MindmapEditor.vue";
 
 import { STATUSES, FILE_TYPES } from "../modules/constants";
+import { updateImageForWeb } from "@/helpers/WebHelpers";
 
 export default {
   name: "ReviewWrapper",
@@ -130,10 +131,20 @@ export default {
             ...this.editSessionItem,
             ...item,
           };
-          this.$root.$emit("update-edit-item", this.editSessionItem);
-          this.$root.$emit("save-data");
         }
+      } else {
+        const { item } = updateImageForWeb({
+          item: this.editSessionItem,
+          url: value.imgURI,
+        });
+        this.editSessionItem = {
+          ...this.editSessionItem,
+          ...item,
+        };
       }
+
+      this.$root.$emit("update-edit-item", this.editSessionItem);
+      this.$root.$emit("save-data");
     },
   },
 };

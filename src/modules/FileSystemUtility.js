@@ -97,8 +97,8 @@ module.exports.saveSession = async (data) => {
 
   return new Promise(function (resolve) {
     const items = persistenceUtility.getItems();
-    data.notes = notes;
-    data.sessions = items;
+    data.session.notes = notes;
+    data.session.items = items;
     const metaPath = path.join(configDir, "metadata.txt");
     const jsonStr = JSON.stringify(data);
     const encodedStr = Buffer.from(jsonStr).toString("hex");
@@ -184,8 +184,8 @@ module.exports.openSession = async () => {
 
     // TODO - Should we restore state here or in Main and Default?
 
-    persistenceUtility.updateItems(state.sessions);
-    delete state.sessions;
+    persistenceUtility.updateItems(state.session.items);
+    // delete state.sessions;
 
     return Promise.resolve({
       status: STATUSES.SUCCESS,

@@ -361,7 +361,6 @@ export default {
     return {
       createJiraTicket: false,
       issueCreateDestinationMenu: false,
-      items: [],
       item: null,
       comment: {
         type: "",
@@ -397,6 +396,7 @@ export default {
   },
   computed: {
     ...mapGetters({
+      items: "sessionItems",
       hotkeys: "config/hotkeys",
       config: "config/fullConfig",
       credentials: "auth/credentials",
@@ -453,7 +453,12 @@ export default {
 
     this.$root.$on("update-edit-item", this.updateEditItem);
     this.$root.$on("update-processing", this.updateProcessing);
-    this.$root.$on("save-data", this.saveData);
+    this.$root.$on("save-data", () => {
+      this.saveData();
+    });
+  },
+  beforeDestroy() {
+    this.$root.$off("save-data");
   },
   watch: {
     itemData: function (val) {
@@ -513,7 +518,10 @@ export default {
       input.focus();
     },
     async fetchItems() {
-      this.items = await this.$storageService.getItems();
+      if (this.$isElectron) {
+        const sessionItems = await this.$storageService.getItems();
+        this.$store.commit("setSessionItemsFromExternalWindow", sessionItems);
+      }
     },
     async getConfig() {
       const config = await this.$storageService.getConfig();
@@ -598,9 +606,10 @@ export default {
         timer_mark: this.item.timer_mark,
         createdAt: Date.now(),
       };
-      this.items.push(newItem);
+      const updatedItems = [...this.items];
+      updatedItems.push(newItem);
 
-      await this.$store.commit("setSessionItems", [...this.items]);
+      await this.$store.commit("setSessionItems", [...updatedItems]);
       this.$emit("close");
     },
     handleClear() {

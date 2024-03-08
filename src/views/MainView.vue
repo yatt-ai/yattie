@@ -94,7 +94,6 @@
     </div>
     <div class="footer">
       <ControlPanel
-        :items="items"
         @add-item="addItem"
         @update-item="updateItem"
         :selectedItems="selected"
@@ -167,7 +166,6 @@ export default {
   data() {
     return {
       activeTab: "/main",
-      items: [],
       selected: [],
       showTaskError: false,
       showMenu: false,
@@ -200,6 +198,7 @@ export default {
   },
   computed: {
     ...mapGetters({
+      items: "sessionItems",
       hotkeys: "config/hotkeys",
       checklistPresessionStatus: "config/checklistPresessionStatus",
       checklistPresessionTasks: "config/checklistPresessionTasks",
@@ -252,8 +251,8 @@ export default {
     },
     async fetchItems() {
       console.log("fetchItems from Main View");
-      this.items = await this.$storageService.getItems();
-      this.$store.commit("setSessionItemsFromExternalWindow", this.items);
+      const sessionItems = await this.$storageService.getItems();
+      this.$store.commit("setSessionItemsFromExternalWindow", sessionItems);
     },
     addItem(newItem) {
       // console.log("add", newItem);
