@@ -1384,6 +1384,7 @@ export default {
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           video.remove();
           const imgURI = canvas.toDataURL("image/png");
+          stream.getTracks().forEach((track) => track.stop());
 
           if (this.$isElectron) {
             // todo add web implementation
@@ -1462,8 +1463,12 @@ export default {
         if (this.config.audioCapture && this.audioDevices.length > 0) {
           stream.addTrack(dest.stream.getAudioTracks()[0]);
         }
+        const mimeType = MediaRecorder.isTypeSupported("video/webm; codecs=vp9")
+          ? "video/webm; codecs=vp9"
+          : "video/webm";
+        // const mimeType = "video/webm;codecs=h264";
         mediaRecorder = new MediaRecorder(stream, {
-          mimeType: "video/webm;codecs=h264",
+          mimeType: mimeType,
         });
         let poster;
         let frames = [];
@@ -1503,7 +1508,7 @@ export default {
         };
         mediaRecorder.onstop = async () => {
           this.recordVideoStarted = false;
-          const blob = new Blob(frames, { type: "video/webm;codecs=h264" });
+          const blob = new Blob(frames, { type: mimeType });
           const buffer = await blob.arrayBuffer();
 
           if (this.$isElectron) {

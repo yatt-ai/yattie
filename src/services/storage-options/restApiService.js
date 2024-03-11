@@ -34,28 +34,32 @@ export default class RestApiService extends StorageInterface {
         returnResponse.error = error.response.data.errors;
       });
 
-    returnResponse.steps.map(async (step) => {
-      if (step.uploadURL) {
-        const match = state.session.items.find(
-          (item) => item.stepID === step.external_id
-        );
-        if (match?.filePath) {
-          const fetchResponse = await fetch(match.filePath);
-          const fileBlob = await fetchResponse.blob();
-          const file = new File([fileBlob], step.uid, { type: match.fileType });
-          await axios
-            .put(step.uploadURL, file, {
-              headers: {
-                "Content-Type": match.fileType,
-                "X-Upload-Content-Length": match.fileSize,
-              },
-            })
-            .catch((error) => {
-              returnResponse.error.push(...error.response.data.errors);
+    if (returnResponse?.steps) {
+      returnResponse.steps.map(async (step) => {
+        if (step.uploadURL) {
+          const match = state.session.items.find(
+            (item) => item.stepID === step.external_id
+          );
+          if (match?.filePath) {
+            const fetchResponse = await fetch(match.filePath);
+            const fileBlob = await fetchResponse.blob();
+            const file = new File([fileBlob], step.uid, {
+              type: match.fileType,
             });
+            await axios
+              .put(step.uploadURL, file, {
+                headers: {
+                  "Content-Type": match.fileType,
+                  "X-Upload-Content-Length": match.fileSize,
+                },
+              })
+              .catch((error) => {
+                returnResponse.error.push(...error.response.data.errors);
+              });
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   async getConfig() {
@@ -194,7 +198,7 @@ export default class RestApiService extends StorageInterface {
 
   async getCredentials() {
     const { data } = await axios.get(
-      "http://localhost:5000/v1/app/signup/token"
+      "http://localhost:5000/v1/app/profile/token"
     );
     console.log(data);
     return {
