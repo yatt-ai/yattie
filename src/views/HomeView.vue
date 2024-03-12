@@ -1,7 +1,11 @@
 <template>
   <v-container class="wrapper">
     <div class="header">
-      <div class="avatar" v-if="isAuthenticated">
+      <div
+        class="avatar"
+        v-if="isAuthenticated"
+        :style="{ width: isElectron ? 'auto' : '100%' }"
+      >
         <MenuPopover />
       </div>
     </div>
