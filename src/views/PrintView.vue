@@ -399,6 +399,38 @@
               </span>
               {{ screenWidth }} x {{ screenHeight }}
             </p>
+            <p class="item-value screen-size">
+              <span class="font-weight-bold">Current Date/Time:</span>
+              {{ this.currentDateTime }}
+            </p>
+            <p class="item-value screen-size">
+              <span class="font-weight-bold">Computer Name:</span>
+              {{ this.computerName }}
+            </p>
+            <p class="item-value screen-size">
+              <span class="font-weight-bold">Operating System:</span>
+              {{ this.operatingSystem }}
+            </p>
+            <p class="item-value screen-size">
+              <span class="font-weight-bold">System Manufacturer:</span>
+              {{ this.systemManufacturer }}
+            </p>
+            <p class="item-value screen-size">
+              <span class="font-weight-bold">System Model:</span>
+              {{ this.systemModel }}
+            </p>
+            <p class="item-value screen-size">
+              <span class="font-weight-bold">BIOS:</span>
+              {{ this.biosVersion }}
+            </p>
+            <p class="item-value screen-size">
+              <span class="font-weight-bold">Processor:</span>
+              {{ this.processor }}
+            </p>
+            <p class="item-value screen-size">
+              <span class="font-weight-bold">Memory:</span>
+              {{ this.memory }}
+            </p>
           </div>
         </v-col>
       </v-row>
@@ -447,6 +479,15 @@ export default {
       window: "",
       screenWidth: "",
       screenHeight: "",
+      currentDateTime: "",
+      computerName: "",
+      operatingSystem: "",
+      systemManufacturer: "",
+      systemModel: "",
+      biosVersion: "",
+      processor: "",
+      memory: "",
+      // pageFileInfo: "",
     };
   },
   created() {
@@ -567,6 +608,21 @@ export default {
     async initialize() {
       if (!window.ipc) return;
 
+      await window.ipc
+        .invoke(IPC_HANDLERS.SYSTEMINFO, {
+          func: IPC_FUNCTIONS.GET_SYSTEM_INFO,
+        })
+        .then((result) => {
+          this.currentDateTime = result.currentDateTime;
+          this.computerName = result.computerName;
+          this.operatingSystem = result.operatingSystem;
+          this.systemManufacturer = result.systemManufacturer;
+          this.systemModel = result.systemModel;
+          this.biosVersion = result.biosVersion;
+          this.processor = result.processor;
+          this.memory = result.memory;
+          // this.pageFileInfo = result.pageFileInfo;
+        });
       await window.ipc
         .invoke(IPC_HANDLERS.PERSISTENCE, { func: IPC_FUNCTIONS.GET_ITEMS })
         .then((result) => {
