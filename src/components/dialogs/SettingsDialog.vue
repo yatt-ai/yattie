@@ -9,6 +9,18 @@
   >
     <v-sheet outlined rounded>
       <SettingView />
+      <div class="footer mr-4 mb-4 d-flex justify-end">
+        <v-btn
+          class="text-capitalize"
+          fill
+          small
+          color="white"
+          :style="{ color: currentTheme.black }"
+          @click="handleClose()"
+        >
+          {{ $tc("caption.close", 1) }}
+        </v-btn>
+      </div>
     </v-sheet>
   </v-dialog>
 </template>
@@ -25,8 +37,20 @@ export default {
   data() {
     return {};
   },
-  computed: {},
-  methods: {},
+  computed: {
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
+  },
+  methods: {
+    handleClose() {
+      this.$emit("close");
+    },
+  },
 };
 </script>
 

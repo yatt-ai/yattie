@@ -100,7 +100,7 @@
     <SettingsDialog
       v-model="settingsDialog"
       ref="settingsDialog"
-      @cancel="settingsDialog = false"
+      @close="settingsDialog = false"
     />
   </div>
 </template>

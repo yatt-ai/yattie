@@ -160,8 +160,8 @@ export default {
       this.metadata = await this.$storageService.getMetaData();
     },
     async getConfig() {
-      const config = await this.$storageService.getConfig();
-      this.$store.commit("config/setFullConfig", config);
+      this.config = await this.$storageService.getConfig();
+      this.$store.commit("config/setFullConfig", this.config);
     },
     updateConfig(value) {
       this.config = value;

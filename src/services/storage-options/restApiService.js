@@ -71,8 +71,11 @@ export default class RestApiService extends StorageInterface {
   }
 
   async updateConfig(config) {
-    console.log(config);
-    // saving credentials endpoint here
+    const response = await axios.put(
+      `http://localhost:5000/v1/app/org/624fbd8a-df84-11ee-9664-0242ac140002/config/5e0f71ff-987d-4240-85eb-df6adf568c31`,
+      { config }
+    );
+    return response.data.config;
   }
 
   async getCredentials() {
