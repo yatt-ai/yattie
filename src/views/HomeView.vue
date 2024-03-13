@@ -4,7 +4,7 @@
       <div
         class="avatar"
         v-if="isAuthenticated"
-        :style="{ width: isElectron ? 'auto' : '100%' }"
+        :style="{ width: $isElectron ? 'auto' : '100%' }"
       >
         <MenuPopover />
       </div>
