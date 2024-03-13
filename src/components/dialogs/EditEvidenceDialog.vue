@@ -388,7 +388,7 @@ export default {
     fileSuffix() {
       let splitName = [];
       if (this.item?.fileName) {
-        splitName = this.item?.fileName.split(".");
+        splitName = this.item?.fileName?.split(".");
       }
       return splitName.length > 1 ? "." + splitName[splitName.length - 1] : "";
     },
@@ -423,7 +423,7 @@ export default {
       // set templates
       this.item = { ...this.itemData };
 
-      const splitName = this.item?.fileName.split(".") || [""];
+      const splitName = this.item?.fileName?.split(".") || [""];
       this.name = splitName.slice(0, -1).join(".");
 
       this.processing = false;

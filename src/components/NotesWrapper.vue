@@ -29,6 +29,7 @@
           v-model="itemLists"
           draggable=".draggable-item"
           class="draggable-wrapper"
+          :animation="200"
           @change="handleChange"
         >
           <transition-group class="draggable-group mb-2">
