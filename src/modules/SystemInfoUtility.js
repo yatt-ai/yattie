@@ -1,6 +1,5 @@
 const os = require('os');
 const si = require('systeminformation');
-const { PowerShell } = require("node-powershell");
 
 async function getCurrentDateTime() {
   return new Date().toLocaleString('en-US', { timeZone: 'UTC' });
@@ -17,7 +16,6 @@ async function getOperatingSystem() {
 
 async function getSystemInfo() {
   const systemInfo = await si.system();
-  console.log("2", systemInfo)
   return {
     manufacturer: systemInfo.manufacturer,
     model: systemInfo.model
@@ -58,6 +56,7 @@ module.exports.getSystemInfo = async () => {
     const biosVersion = await getBIOSVersion();
     const processor = await getProcessor();
     const memory = await getMemory();
+    console.log("q231", memory);
 
     return {
       currentDateTime,
