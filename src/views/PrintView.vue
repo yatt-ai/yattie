@@ -636,7 +636,6 @@ export default {
           this.biosVersion = result.biosVersion;
           this.processor = result.processor;
           this.memory = result.memory;
-          // this.pageFileInfo = result.pageFileInfo;
         });
       await window.ipc
         .invoke(IPC_HANDLERS.PERSISTENCE, { func: IPC_FUNCTIONS.GET_ITEMS })

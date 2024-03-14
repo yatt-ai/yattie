@@ -47,23 +47,6 @@ async function getPageFileInfo() {
   return `${(used / 1024).toFixed(0)}MB used, ${(available / 1024).toFixed(0)}MB available`;
 }
 
-async function getDirectXVersion() {
-  return new Promise((resolve, reject) => {
-      exec('powershell (Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\DirectX).Version', (error, stdout, stderr) => {
-          if (error) {
-              reject(error);
-              return;
-          }
-          if (stderr) {
-              reject(stderr);
-              return;
-          }
-          resolve(stdout.trim());
-      });
-  });
-}
-
-
 module.exports.getSystemInfo = async () => {
   try {
     const currentDateTime = await getCurrentDateTime();
