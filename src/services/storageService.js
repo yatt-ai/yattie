@@ -95,4 +95,8 @@ export default class StorageService {
   async saveNote(note) {
     return this.storage.saveNote(note);
   }
+
+  async saveTags(note) {
+    return this.storage.saveTags(note);
+  }
 }

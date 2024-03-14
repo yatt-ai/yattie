@@ -146,4 +146,11 @@ export default class LocalJsonDbService extends StorageInterface {
       data: note,
     });
   }
+
+  async saveTags(note) {
+    return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+      func: IPC_FUNCTIONS.SAVE_TAGS,
+      data: note,
+    });
+  }
 }

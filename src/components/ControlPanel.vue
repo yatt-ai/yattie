@@ -1718,6 +1718,7 @@ export default {
         const { status, message, item } = await this.$storageService.saveNote(
           data.comment
         );
+        await this.$storageService.saveTags(data.tags);
         if (status === STATUSES.ERROR) {
           this.$root.$emit("set-snackbar", message);
           console.log(message);

@@ -173,6 +173,7 @@
               class="input-box"
               v-model="tagText"
               :tags="tags"
+              :autocomplete-items="filteredTags"
               label="Tags"
               :max-tags="10"
               :maxlength="20"
@@ -336,6 +337,8 @@ import {
   STATUSES,
   AI_ENABLED_FIELDS,
   FILE_TYPES,
+  IPC_FUNCTIONS,
+  IPC_HANDLERS,
 } from "@/modules/constants";
 
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
@@ -376,6 +379,7 @@ export default {
       name: "",
       tagText: "",
       tags: [],
+      autocompleteItems: [],
       emojiMenu: false,
       emojis: [],
       followUp: false,
@@ -393,6 +397,7 @@ export default {
     this.fetchItems();
     this.getConfig();
     this.getCredentials();
+    this.fetchAutocompleteItems();
   },
   computed: {
     ...mapGetters({
@@ -401,6 +406,15 @@ export default {
       config: "config/fullConfig",
       credentials: "auth/credentials",
     }),
+    filteredTags() {
+      return this.autocompleteItems
+        .filter((item) => {
+          return item.toLowerCase().includes(this.tagText.toLowerCase());
+        })
+        .map((item) => {
+          return { text: item };
+        });
+    },
     nameHotkey() {
       return this.$hotkeyHelpers.findBinding("evidence.name", this.hotkeys);
     },
@@ -476,6 +490,12 @@ export default {
     },
   },
   methods: {
+    async fetchAutocompleteItems() {
+      const data = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.GET_TAGS,
+      });
+      this.autocompleteItems = data;
+    },
     async activeSession() {
       // set theme mode
       const isDarkMode = this.config.apperance === "dark";

@@ -224,6 +224,7 @@
             class="input-box"
             v-model="tag"
             :tags="item.tags"
+            :autocomplete-items="filteredTags"
             :max-tags="10"
             :maxlength="20"
             @tags-changed="handleTags"
@@ -301,6 +302,8 @@ import {
   TEXT_TYPES,
   AI_ENABLED_FIELDS,
   FILE_TYPES,
+  IPC_FUNCTIONS,
+  IPC_HANDLERS,
 } from "../modules/constants";
 
 import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
@@ -326,6 +329,7 @@ export default {
       commentLoading: false,
       name: "",
       tag: "",
+      autocompleteItems: [],
       emojiMenu: false,
       commentTypes: Object.keys(TEXT_TYPES).filter(
         (item) => item !== "Summary"
@@ -338,8 +342,18 @@ export default {
     this.fetchItems();
     this.getConfig();
     this.getCredentials();
+    this.fetchAutocompleteItems();
   },
   computed: {
+    filteredTags() {
+      return this.autocompleteItems
+        .filter((item) => {
+          return item.toLowerCase().includes(this.tag.toLowerCase());
+        })
+        .map((item) => {
+          return { text: item };
+        });
+    },
     nameHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "evidence.name",
@@ -409,6 +423,12 @@ export default {
     this.$root.$on("save-data", this.saveData);
   },
   methods: {
+    async fetchAutocompleteItems() {
+      const data = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.GET_TAGS,
+      });
+      this.autocompleteItems = data;
+    },
     getType(type) {
       return FILE_TYPES[type];
     },

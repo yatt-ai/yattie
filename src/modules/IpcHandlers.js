@@ -19,6 +19,10 @@ ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
   switch (args.func) {
     case IPC_FUNCTIONS.GET_MEDIA_SOURCE:
       return captureUtility.getMediaSource();
+    case IPC_FUNCTIONS.GET_TAGS:
+      return captureUtility.getTags();
+    case IPC_FUNCTIONS.SAVE_TAGS:
+      return captureUtility.saveTags(args.data);
     case IPC_FUNCTIONS.SAVE_NOTE:
       return captureUtility.saveNote(args.data);
     case IPC_FUNCTIONS.CREATE_IMAGE:

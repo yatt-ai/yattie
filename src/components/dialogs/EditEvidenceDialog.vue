@@ -235,6 +235,7 @@
               class="input-box"
               v-model="tag"
               :tags="item.tags"
+              :autocomplete-items="filteredTags"
               :max-tags="10"
               :maxlength="20"
               @tags-changed="handleTags"
@@ -309,7 +310,12 @@ import ReviewWrapper from "@/components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { TEXT_TYPES, AI_ENABLED_FIELDS } from "@/modules/constants";
+import {
+  TEXT_TYPES,
+  AI_ENABLED_FIELDS,
+  IPC_HANDLERS,
+  IPC_FUNCTIONS,
+} from "@/modules/constants";
 
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
 import { mapGetters } from "vuex";
@@ -339,6 +345,7 @@ export default {
       commentLoading: false,
       name: "",
       tag: "",
+      autocompleteItems: [],
       emojiMenu: false,
       commentTypes: Object.keys(TEXT_TYPES).filter(
         (item) => item !== "Summary"
@@ -348,6 +355,7 @@ export default {
     };
   },
   created() {
+    this.fetchAutocompleteItems();
     this.fetchItems();
     this.getConfig();
     this.getCredentials();
@@ -361,6 +369,15 @@ export default {
       config: "config/fullConfig",
       credentials: "auth/credentials",
     }),
+    filteredTags() {
+      return this.autocompleteItems
+        .filter((item) => {
+          return item.toLowerCase().includes(this.tag.toLowerCase());
+        })
+        .map((item) => {
+          return { text: item };
+        });
+    },
     nameHotkey() {
       return this.$hotkeyHelpers.findBinding("evidence.name", this.hotkeys);
     },
@@ -414,6 +431,12 @@ export default {
     },
   },
   methods: {
+    async fetchAutocompleteItems() {
+      const data = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.GET_TAGS,
+      });
+      this.autocompleteItems = data;
+    },
     activeSession() {
       // set theme mode
       const isDarkMode = this.config.apperance === "dark";

@@ -39,6 +39,7 @@
               class="input-box"
               v-model="tag"
               :tags="tags"
+              :autocomplete-items="filteredTags"
               :max-tags="10"
               :maxlength="20"
               @tags-changed="handleTags"
@@ -124,6 +125,7 @@ export default {
       },
       tag: "",
       tags: [],
+      autocompleteItems: [],
       commentTypes: Object.keys(TEXT_TYPES).filter(
         (item) => item !== "Summary"
       ),
@@ -132,6 +134,7 @@ export default {
   created() {
     if (!window.ipc) return;
 
+    this.fetchAutocompleteItems();
     window.ipc.on(IPC_BIND_KEYS.MODAL_DATA, (data) => {
       this.config = data;
 
@@ -147,6 +150,15 @@ export default {
     });
   },
   computed: {
+    filteredTags() {
+      return this.autocompleteItems
+        .filter((item) => {
+          return item.toLowerCase().includes(this.tag.toLowerCase());
+        })
+        .map((item) => {
+          return { text: item };
+        });
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -156,6 +168,12 @@ export default {
     },
   },
   methods: {
+    async fetchAutocompleteItems() {
+      const data = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.GET_TAGS,
+      });
+      this.autocompleteItems = data;
+    },
     handleNote() {
       const regex = /(<([^>]+)>)/gi;
       this.comment.text = this.comment.content.replace(regex, "");

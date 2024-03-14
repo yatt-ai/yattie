@@ -388,6 +388,44 @@ module.exports.deleteFile = ({ filePath }) => {
     fs.unlinkSync(filePath);
   }
 };
+module.exports.getTags = () => {
+  const filePath = path.join(
+    configDir,
+    "tags.json"
+  );
+  let existingTags = [];
+  try {
+    existingTags = JSON.parse(fs.readFileSync(filePath))
+  } catch (error) {
+    existingTags = [];
+  }
+  return existingTags;
+}
+module.exports.saveTags = (tags) => {
+  const filePath = path.join(
+    configDir,
+    "tags.json"
+  );
+  let existingTags = [];
+  try {
+    existingTags = JSON.parse(fs.readFileSync(filePath))
+  } catch (error) {
+    existingTags = [];
+  }
+  const tagTexts = tags.map(tag => tag.text);
+  const updatedTags = [...new Set([...existingTags, ...tagTexts])];
+
+  fs.writeFile(filePath, JSON.stringify(updatedTags), function (err) {
+    if (err) {
+      console.log(err);
+      return {
+        status: STATUSES.ERROR,
+        message: err,
+      };
+    }
+  });
+  return { tags_status: STATUSES.SUCCESS }
+}
 
 module.exports.saveNote = (comment, fileNameToSave = "") => {
   const { stepID, attachmentID, fileName } = generateIDAndName("text");

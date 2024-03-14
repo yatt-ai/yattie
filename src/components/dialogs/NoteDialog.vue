@@ -147,6 +147,7 @@
                 class="input-box"
                 v-model="tag_text"
                 :tags="tags"
+                :autocomplete-items="filteredTags"
                 :max-tags="10"
                 :maxlength="20"
                 @tags-changed="handleTags"
@@ -220,10 +221,15 @@
 
 <script>
 import VueTagsInput from "@johmun/vue-tags-input";
-import { TEXT_TYPES, AI_ENABLED_FIELDS } from "../../modules/constants";
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
 
 import { VEmojiPicker } from "v-emoji-picker";
+import {
+  IPC_HANDLERS,
+  IPC_FUNCTIONS,
+  TEXT_TYPES,
+  AI_ENABLED_FIELDS,
+} from "../../modules/constants";
 
 export default {
   name: "NoteDialog",
@@ -280,11 +286,24 @@ export default {
       tag_text: "",
       emojiMenu: false,
       tags: [],
+      autocompleteItems: [],
       emoji: [],
       followUp: false,
     };
   },
+  created() {
+    this.fetchAutocompleteItems();
+  },
   computed: {
+    filteredTags() {
+      return this.autocompleteItems
+        .filter((item) => {
+          return item.toLowerCase().includes(this.tag_text.toLowerCase());
+        })
+        .map((item) => {
+          return { text: item };
+        });
+    },
     confirmHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "general.save",
@@ -309,6 +328,12 @@ export default {
     },
   },
   methods: {
+    async fetchAutocompleteItems() {
+      const data = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
+        func: IPC_FUNCTIONS.GET_TAGS,
+      });
+      this.autocompleteItems = data;
+    },
     resetData() {
       // set comment type by config
       if (this.config.commentType && this.config.commentType !== "") {
