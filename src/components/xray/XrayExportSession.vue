@@ -35,9 +35,9 @@
           </div>
           <v-divider></v-divider>
           <div class="pa-2">
-            <v-row v-if="selectProject">
+            <v-row v-if="selectTestExecution">
               <v-col cols="12">
-                <div class="loading-wrapper" v-if="projectLoading">
+                <div class="loading-wrapper" v-if="testExecutionLoading">
                   <v-progress-circular
                     :size="70"
                     :width="7"
@@ -48,35 +48,42 @@
                 <div class="issue-wrapper" v-else>
                   <div class="issue-list">
                     <span class="issue-header"
-                      >{{ searchProjectsList.length }}
-                      {{ $tc("caption.projects", 1) }}</span
+                      >{{ searchTestExecutionsList.length }}
+                      {{ $tc("caption.test_executions", 1) }}</span
                     >
                     <div
-                      v-for="item in searchProjectsList"
-                      :key="item.id"
+                      v-for="item in searchTestExecutionsList"
+                      :key="item.issueId"
                       :class="
-                        selectedItem && item.id === selectedItem.id
+                        selectedItem && item.issueId === selectedItem.issueId
                           ? 'issue-item active'
                           : 'issue-item'
                       "
-                      @click="handleSelectProject(item)"
+                      @click="handleSelectTestExecution(item)"
                     >
                       <v-icon class="issue-icon">mdi-flag</v-icon>
                       <div class="issue-desc">
                         <span
                           class="issue-summary subtitle-1"
-                          v-text="item.name"
+                          v-text="item.issueId"
                         ></span>
-                        <span class="issue-key caption" v-text="item.id"></span>
+                        <span
+                          class="issue-key caption"
+                          v-text="
+                            item.jira.assignee
+                              ? item.jira.assignee.displayName
+                              : item.jira.reporter.displayName
+                          "
+                        ></span>
                       </div>
                     </div>
                   </div>
                 </div>
               </v-col>
             </v-row>
-            <v-row v-if="selectRun">
+            <v-row v-if="selectTestRun">
               <v-col cols="12">
-                <div class="loading-wrapper" v-if="runLoading">
+                <div class="loading-wrapper" v-if="testRunLoading">
                   <v-progress-circular
                     :size="70"
                     :width="7"
@@ -87,11 +94,11 @@
                 <div class="issue-wrapper" v-else>
                   <div class="issue-list">
                     <span class="issue-header"
-                      >{{ searchRunsList.length }}
-                      {{ $tc("caption.runs", 1) }}</span
+                      >{{ searchTestRunsList.length }}
+                      {{ $tc("caption.test_runs", 1) }}</span
                     >
                     <div
-                      v-for="item in searchRunsList"
+                      v-for="item in searchTestRunsList"
                       :key="item.id"
                       :class="
                         selectedItem && item.id === selectedItem.id
@@ -284,12 +291,12 @@ export default {
   },
   data() {
     return {
-      selectProject: true,
-      selectRun: false,
+      selectTestExecution: true,
+      selectTestRun: true,
       selectTest: false,
       addResult: false,
-      projectLoading: true,
-      runLoading: true,
+      testExecutionLoading: true,
+      testRunLoading: true,
       testLoading: true,
       resultLoading: true,
       dialog: false,
@@ -299,7 +306,7 @@ export default {
       search: "",
       projects: [],
       testExecutions: [],
-      runs: [],
+      testRuns: [],
       tests: [],
       statuses: [],
       selectedItem: null,
@@ -320,8 +327,8 @@ export default {
     },
     disableDiscard() {
       return (
-        (this.selectProject && this.projectLoading) ||
-        (this.selectRun && this.runLoading) ||
+        (this.selectTestExecution && this.testExecutionLoading) ||
+        (this.selectTestRun && this.testRunLoading) ||
         (this.selectTest && this.testLoading) ||
         (this.addResult && this.resultLoading)
       );
@@ -344,8 +351,27 @@ export default {
       }
       return temp;
     },
-    searchRunsList() {
-      let temp = this.runs;
+    searchTestExecutionsList() {
+      let temp = this.testExecutions;
+      if (this.search !== "" && this.search) {
+        temp = temp.filter((item) => {
+          return (
+            item.issueId.includes(this.search) ||
+            (item.jira.assignee &&
+              item.jira.assignee.displayName
+                .toUpperCase()
+                .includes(this.search.toUpperCase())) ||
+            (item.jira.reporter &&
+              item.jira.reporter.displayName
+                .toUpperCase()
+                .includes(this.search.toUpperCase()))
+          );
+        });
+      }
+      return temp;
+    },
+    searchTestRunsList() {
+      let temp = this.testRuns;
       if (this.search !== "" && this.search) {
         temp = temp.filter((item) => {
           return (
@@ -395,20 +421,21 @@ export default {
   },
   methods: {
     resetResults(type) {
-      this.selectProject = type === "project";
-      this.selectRun = type === "run";
+      this.selectTestExecution = type === "testExecution";
+      this.selectTestRun = type === "testRun";
       this.selectTest = type === "test";
       this.addResult = type === "result";
-      this.projectLoading = true;
-      this.runLoading = true;
+      this.testExecutionLoading = true;
+      this.testRunLoading = true;
       this.testLoading = true;
       this.resultLoading = true;
     },
     async showDialog() {
       this.dialog = true;
-      this.resetResults("project");
+      this.resetResults("testExecution");
       let first = true;
       console.log("Clicked showDialog");
+
       for (const [i, credential] of Object.entries(this.credentials)) {
         if (credential[0].type === "xray") {
           try {
@@ -430,9 +457,9 @@ export default {
               );
             }
 
-            this.projectLoading = false;
+            this.testExecutionLoading = false;
           } catch (error) {
-            this.projectLoading = false;
+            this.testExecutionLoading = false;
             this.snackBar.enabled = true;
             this.snackBar.message = error.message
               ? error.message
@@ -441,36 +468,29 @@ export default {
         }
       }
     },
-    async handleSelectProject(item) {
-      this.resetResults("run");
-      const credential = this.credentials[item.credential_index];
-      const url = `https://${credential.url}/index.php?/api/v2/get_runs/${item.id}`;
-      const authHeader = `Basic ${credential.accessToken}`;
-      const headers = {
-        headers: {
-          Authorization: authHeader,
-          Accept: "application/json",
-        },
-      };
+    async handleSelectTestExecution(item) {
+      this.resetResults("testRun");
+      console.log("Clicked showTestRuns");
 
-      await axios
-        .get(url, headers)
-        .then((response) => {
-          if (response.status === 200) {
-            this.runs = response.data.runs.map((run) => ({
-              ...run,
-              credential_index: item.credential_index,
-            }));
-          }
-          this.runLoading = false;
-        })
-        .catch((error) => {
-          this.runLoading = false;
-          this.snackBar.enabled = true;
-          this.snackBar.message = error.message
-            ? error.message
-            : this.$tc("message.api_error", 1);
-        });
+      try {
+        const data = await xrayIntegrationHelper.fetchTestRuns(
+          this.credentials.xray[0].accessToken,
+          item.issueId
+        );
+
+        this.testRuns = data.map((testRun) => ({
+          ...testRun,
+          credential_index: item.credential_index,
+        }));
+
+        this.testRunLoading = false;
+      } catch (error) {
+        this.testRunLoading = false;
+        this.snackBar.enabled = true;
+        this.snackBar.message = error.message
+          ? error.message
+          : this.$tc("message.api_error", 1);
+      }
       //this.selectedItem = item;
     },
     async handleSelectRun(item) {
@@ -579,7 +599,7 @@ export default {
               }
             })
             .catch((error) => {
-              this.projectLoading = false;
+              this.testExecutionLoading = false;
               this.snackBar.enabled = true;
               this.snackBar.message = error.message
                 ? error.message
@@ -588,7 +608,7 @@ export default {
         };
 
         const formData = new FormData();
-        this.projectLoading = true;
+        this.testExecutionLoading = true;
 
         this.selectedAttachments.map(async (item, i) => {
           const response = await fetch(`file:${item.filePath}`);

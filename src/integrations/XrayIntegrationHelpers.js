@@ -1,6 +1,8 @@
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 import axios from "axios";
 
+const XRAY_URL = "https://xray.cloud.getxray.app/api/v2/graphql";
+
 export default {
   saveCredentials(credentials, data) {
     let formattedData = this.formatData(data);
@@ -68,7 +70,7 @@ export default {
       },
     };
 
-    await axios
+    return axios
       .post(url, graphqlQuery, graphqlHeaders)
       .then((response) => {
         if (response.status === 200) {
@@ -79,6 +81,62 @@ export default {
       })
       .catch((error) => {
         console.error("Error fetching test executions: ", error);
+        throw new Error(error.message);
+      });
+  },
+
+  async fetchTestRuns(accessToken, issueId) {
+    const graphqlQuery = {
+      query: `{
+        getTestRuns(testExecIssueIds: ["${issueId}"], limit: 10 ) {
+          total
+          limit
+          start
+          results {
+            id
+            status {
+              name
+              color
+              description
+            }
+            gherkin
+            examples {
+              id
+              status {
+                name
+                color
+                description
+              }
+            }
+            test {
+              issueId
+            }
+            testExecution {
+              issueId
+            }
+          }
+        }
+      }`,
+    };
+    const authHeader = `Bearer ${accessToken}`;
+    const graphqlHeaders = {
+      headers: {
+        Authorization: authHeader,
+        "Content-Type": "application/json",
+      },
+    };
+
+    return axios
+      .post(XRAY_URL, graphqlQuery, graphqlHeaders)
+      .then((response) => {
+        if (response.status === 200) {
+          console.log("Fetched Test Runs");
+
+          return response.data.data.getTestRuns.results;
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching test runs: ", error);
         throw new Error(error.message);
       });
   },
