@@ -248,7 +248,8 @@
 
 <script>
 import axios from "axios";
-import dayjs from "dayjs";
+import xrayIntegrationHelper from "@/integrations/XrayIntegrationHelpers";
+
 export default {
   name: "XrayExportSession",
   components: {},
@@ -297,6 +298,7 @@ export default {
       selectedIds: this.selected ? this.selected : [],
       search: "",
       projects: [],
+      testExecutions: [],
       runs: [],
       tests: [],
       statuses: [],
@@ -387,8 +389,9 @@ export default {
       return selectedAttachments;
     },
   },
-  mounted() {
+  async mounted() {
     console.log("XRAYExportSession mounted");
+    this.credentials = await this.$storageService.getCredentials();
   },
   methods: {
     resetResults(type) {
@@ -405,52 +408,37 @@ export default {
       this.dialog = true;
       this.resetResults("project");
       let first = true;
+      console.log("Clicked showDialog");
       for (const [i, credential] of Object.entries(this.credentials)) {
-        let url, authHeader;
-        // TODO - build headers in an IntegrationsHelper function
-        url = `https://${credential.url}/index.php?/api/v2/get_projects`;
-        authHeader = `Basic ${credential.accessToken}`;
-        const headers = {
-          headers: {
-            Authorization: authHeader,
-            Accept: "application/json",
-          },
-        };
+        if (credential[0].type === "xray") {
+          try {
+            const data = await xrayIntegrationHelper.fetchTestExecutions(
+              credential[0]
+            );
 
-        await axios
-          .get(url, headers)
-          .then((response) => {
-            if (response.status === 200) {
-              if (first) {
-                this.projects = response.data.projects.map((project) => ({
-                  ...project,
+            if (first) {
+              this.testExecutions = data.map((testExecution) => ({
+                ...testExecution,
+                credential_index: i,
+              }));
+            } else {
+              this.testExecutions.push(
+                ...data.map((testExecution) => ({
+                  ...testExecution,
                   credential_index: i,
-                }));
-              } else {
-                this.projects.push(
-                  response.data.projects.map((project) => ({
-                    ...project,
-                    credential_index: i,
-                  }))
-                );
-              }
+                }))
+              );
             }
+
             this.projectLoading = false;
-          })
-          .catch((error) => {
+          } catch (error) {
             this.projectLoading = false;
             this.snackBar.enabled = true;
             this.snackBar.message = error.message
               ? error.message
               : this.$tc("message.api_error", 1);
-            if (
-              credential.type === "oauth" &&
-              dayjs(credential.lastRefreshed) < dayjs().subtract(4, "minute") &&
-              [401, 403].includes(error.status)
-            ) {
-              this.$root.$emit("update-auth", []);
-            }
-          });
+          }
+        }
       }
     },
     async handleSelectProject(item) {
