@@ -503,7 +503,6 @@ export default {
       biosVersion: "",
       processor: "",
       memory: "",
-      // pageFileInfo: "",
     };
   },
   created() {

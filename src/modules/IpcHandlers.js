@@ -6,7 +6,7 @@ const fileSystemUtility = require("./FileSystemUtility");
 const menuUtility = require("./MenuUtility");
 const windowUtility = require("./WindowUtility");
 const serverUtility = require("./ServerUtility");
-const systemInfoUtility = require("./systemInfoUtility");
+const systemInfoUtility = require("./SystemInfoUtility");
 
 ipcMain.handle(IPC_HANDLERS.BROWSER, async (event, args) => {
   switch (args.func) {

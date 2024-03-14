@@ -75,14 +75,7 @@ module.exports.getSystemInfo = async () => {
     const biosVersion = await getBIOSVersion();
     const processor = await getProcessor();
     const memory = await getMemory();
-    // const pageFileInfo = await getPageFileInfo();    
-    // const directXVersion = await getDirectXVersion();
 
-    console.log("1", currentDateTime);
-    console.log("1", computerName);
-    console.log("1", operatingSystem);
-    console.log("1", systemManufacturer);
-    console.log("1", systemModel);
     return {
       currentDateTime,
       computerName,
@@ -92,8 +85,7 @@ module.exports.getSystemInfo = async () => {
       biosVersion,
       processor,
       memory,
-      // pageFileInfo,
-      // directXVersion,
+
     };
   } catch (error) {
     console.error('Error fetching system information:', error);
