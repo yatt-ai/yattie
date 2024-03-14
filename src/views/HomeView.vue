@@ -114,6 +114,30 @@
           <template v-slot:activator="{ on, attrs }">
             <button class="social-btn">
               <img
+                :src="require('../assets/icon/xray-logo.png')"
+                width="25"
+                v-bind="attrs"
+                v-on="on"
+              />
+              <div
+                class="overlay"
+                v-if="!loggedInServices.xray"
+                v-on="on"
+              ></div>
+            </button>
+          </template>
+          <span>
+            {{
+              loggedInServices.xray
+                ? $tc("caption.logged_in_xray", 1)
+                : $tc("caption.not_logged_in_xray", 1)
+            }}
+          </span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <button class="social-btn">
+              <img
                 :src="require('../assets/icon/qtest.svg')"
                 width="50"
                 v-bind="attrs"

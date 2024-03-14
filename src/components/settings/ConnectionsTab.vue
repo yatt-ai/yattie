@@ -15,6 +15,14 @@
         <p></p>
         <a
           class="jira-link"
+          @click="signinXray"
+          :style="{ color: currentTheme.secondary }"
+        >
+          {{ $t("message.connect_to_xray") }}
+        </a>
+        <p></p>
+        <a
+          class="jira-link"
           @click="signinJira"
           :style="{ color: currentTheme.secondary }"
         >
@@ -178,6 +186,9 @@ export default {
     },
     signinTestRail() {
       this.$router.push({ path: "/authentication/signinTestRail" });
+    },
+    signinXray() {
+      this.$router.push({ path: "/authentication/signinXray" });
     },
   },
 };

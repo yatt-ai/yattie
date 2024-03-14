@@ -34,15 +34,7 @@
               width="32"
               height="32"
             >
-              <img
-                :src="
-                  credential.user.avatar
-                    ? credential.user.avatar
-                    : 'https://www.gravatar.com/avatar/' + credential.user.name
-                "
-                alt="avatar"
-                width="32"
-              />
+              <img :src="profileAvatar" alt="avatar" width="32" />
             </v-list-item-avatar>
 
             <v-list-item-content>
@@ -101,14 +93,14 @@ export default {
     profileAvatar() {
       for (const cList of Object.values(this.credentials)) {
         if (cList.length > 0) {
-          if (cList[0].user.avatar !== null) {
+          if (cList[0].user.avatar) {
             return cList[0].user.avatar;
-          } else {
+          } else if (cList[0].user.name) {
             return "https://www.gravatar.com/avatar/" + cList[0].user.name;
           }
         }
       }
-      return "https://www.gravatar.com/avatar/" + uuidv4();
+      return "https://www.gravatar.com/avatar/" + uuidv4() + "?d=robohash";
     },
   },
   methods: {
@@ -135,6 +127,14 @@ export default {
           await this.$electronService.openExternalLink(testRailUrl);
         } else {
           window.open(testRailUrl, "_blank");
+        }
+        this.showMenu = false;
+      } else if (credentialType === "xray") {
+        const xrayUrl = `https://${credential.url}`; // Todo: correct this
+        if (this.$isElectron) {
+          await this.$electronService.openExternalLink(xrayUrl); // Todo: fix this
+        } else {
+          window.open(xrayUrl, "_blank"); // Todo: fix this
         }
         this.showMenu = false;
       }
