@@ -399,36 +399,52 @@
               </span>
               {{ screenWidth }} x {{ screenHeight }}
             </p>
-            <p class="item-value screen-size">
-              <span class="font-weight-bold">Current Date/Time:</span>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.current_date_time", 1) }}:
+              </span>
               {{ this.currentDateTime }}
             </p>
-            <p class="item-value screen-size">
-              <span class="font-weight-bold">Computer Name:</span>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.computer_name", 1) }}:
+              </span>
               {{ this.computerName }}
             </p>
-            <p class="item-value screen-size">
-              <span class="font-weight-bold">Operating System:</span>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.os_system", 1) }}:
+              </span>
               {{ this.operatingSystem }}
             </p>
-            <p class="item-value screen-size">
-              <span class="font-weight-bold">System Manufacturer:</span>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.system_manufacturer", 1) }}:
+              </span>
               {{ this.systemManufacturer }}
             </p>
-            <p class="item-value screen-size">
-              <span class="font-weight-bold">System Model:</span>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.system_model", 1) }}:
+              </span>
               {{ this.systemModel }}
             </p>
-            <p class="item-value screen-size">
-              <span class="font-weight-bold">BIOS:</span>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.bios", 1) }}:
+              </span>
               {{ this.biosVersion }}
             </p>
-            <p class="item-value screen-size">
-              <span class="font-weight-bold">Processor:</span>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.processor", 1) }}:
+              </span>
               {{ this.processor }}
             </p>
-            <p class="item-value screen-size">
-              <span class="font-weight-bold">Memory:</span>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.memory", 1) }}:
+              </span>
               {{ this.memory }}
             </p>
           </div>
