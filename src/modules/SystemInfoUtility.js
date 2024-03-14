@@ -22,7 +22,6 @@ async function getSystemInfo() {
   };
 }
 
-
 async function getBIOSVersion() {
   const biosInfo = await si.bios();
   return biosInfo.version;
@@ -36,13 +35,6 @@ async function getProcessor() {
 async function getMemory() {
   const memInfo = await si.mem();
   return `${(memInfo.total / 1024 / 1024).toFixed(0)}MB RAM`;
-}
-
-async function getPageFileInfo() {
-  const pageFileInfo = await si.memLayout();
-  const used = pageFileInfo.reduce((acc, curr) => acc + curr.used, 0);
-  const available = pageFileInfo.reduce((acc, curr) => acc + curr.size - curr.used, 0);
-  return `${(used / 1024).toFixed(0)}MB used, ${(available / 1024).toFixed(0)}MB available`;
 }
 
 module.exports.getSystemInfo = async () => {
