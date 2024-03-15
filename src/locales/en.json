@@ -80,6 +80,7 @@
     "signup_practitest": "Sign up with PractiTest",
     "skip_sign_up": "Skip sign up",
     "or": "Or",
+    "open": "Open",
     "start_test_as": "Start test as",
     "your_email": "Your email",
     "ok": "@.upper:ok",
@@ -202,6 +203,7 @@
     "not_logged_in_testrail": "Not Logged in to TestRail",
     "not_logged_in_qtest": "Not Logged in to qTest",
     "not_logged_in_practitest": "Not Logged in to PractiTest",
+    "log_out": "Log Out",
     "required_checkbox": "This checkbox is required to continue",
     "create_new_issue": "Create a New Issue",
     "create_new_jira_issue": "Create a New Jira Issue",
@@ -216,7 +218,7 @@
     "openai_key_validation_failed": "Failed to validate OpenAI key",
     "successfully_saved": "Successfully saved!",
     "no_server_oauth_creds": "No shareable OAuth credentials found.",
-    "testrail_instance_url":"Instance URL"
+    "testrail_instance_url": "Instance URL"
   },
   "hotkeys": {
     "general": "General",
@@ -325,8 +327,8 @@
     "confirm_session_saved": "Session successfully saved on your computer.",
     "confirm_jira_issue": "You have not selected any evidence to attach to this issue. If you would like to attach evidence, please go back and select it before creating an issue.",
     "user_name": "User name",
-    "is_required":" is required.",
-    "api_key":"Api key",
+    "is_required": " is required.",
+    "api_key": "Api key",
     "instance_url": "Instance URL"
   }
 }
