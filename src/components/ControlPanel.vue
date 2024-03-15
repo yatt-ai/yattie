@@ -21,7 +21,7 @@
       <v-row class="text-center" v-if="status === 'pending'">
         <v-col cols="12" class="">
           <v-btn
-            v-if="$store.state.quickTest"
+            v-if="$store.state.session.quickTest"
             id="btn_new_quick_test"
             class="text-capitalize font-weight-regular"
             fill
@@ -59,7 +59,7 @@
             block
             :color="currentTheme.primary"
             :style="{ color: currentTheme.white }"
-            @click="handleDeleteConfirmDialog()"
+            @click="handleDeleteConfirmDialog"
           >
             <v-icon left>mdi-delete</v-icon> {{ $tc("caption.delete", 1) }}
           </v-btn>
@@ -92,7 +92,7 @@
             </template>
             <v-card tile>
               <v-list dense>
-                <v-list-item @click="exportItems()">
+                <v-list-item @click="exportItems">
                   <v-list-item-icon class="mr-4">
                     <v-icon>mdi-download</v-icon>
                   </v-list-item-icon>
@@ -147,7 +147,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="resume()"
+                @click="resume"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-play-circle
@@ -168,7 +168,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="handleNewSessionDialog()"
+                @click="handleNewSessionDialog"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-content-save
@@ -188,7 +188,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="handleResetConfirmDialog()"
+                @click="handleResetConfirmDialog"
               >
                 <v-icon v-if="$vuetify.theme.dark === false">
                   mdi-restart
@@ -543,7 +543,7 @@
                 small
                 color="default"
                 v-on="on"
-                @click="minimize()"
+                @click="minimize"
               >
                 <img
                   v-if="$vuetify.theme.dark === false"
@@ -588,9 +588,19 @@
                   status === 'pause' || recordVideoStarted || recordAudioStarted
                 "
               >
-                <v-list-item-title>
+                <v-icon class="ddl-icon">mdi-fit-to-screen</v-icon>
+                <v-list-item-content>
                   {{ $tc("caption.change_recording_target", 1) }}
-                </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item
+                v-if="!$store.state.config.localOnly"
+                @click="showShareSessionDialog()"
+              >
+                <v-icon class="ddl-icon">mdi-share-variant</v-icon>
+                <v-list-item-content>
+                  {{ $tc("caption.share_session", 1) }}
+                </v-list-item-content>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -659,6 +669,13 @@
         :loaded="loaded"
         @submit-source="startSession"
       />
+      <ShareSessionDialog
+        v-if="isShareSessionAllowed"
+        v-model="shareSessionDialog"
+        :session-link="sessionLink"
+        :credentialItems="credentials"
+        :configItem="config"
+      />
       <NoteDialog
         v-model="noteDialog"
         ref="noteDialog"
@@ -679,15 +696,14 @@
         ref="deleteConfirmDialog"
         :text="$t('message.confirm_delete')"
         :configItem="config"
-        @confirm="deleteItems()"
+        @confirm="deleteItems"
         @cancel="deleteConfirmDialog = false"
       />
       <ResetConfirmDialog
         v-model="resetConfirmDialog"
         ref="resetConfirmDialog"
         :text="$t('message.confirm_reset')"
-        :configItem="config"
-        @confirm="resetSession()"
+        @confirm="resetSession"
         @cancel="resetConfirmDialog = false"
       />
       <SaveConfirmDialog
@@ -695,7 +711,7 @@
         ref="saveConfirmDialog"
         :text="$t('message.confirm_session_saved')"
         :configItem="config"
-        @confirm="handleSaveConfirmDialog()"
+        @confirm="handleSaveConfirmDialog"
       />
       <NewSessionDialog
         v-model="newSessionDialog"
@@ -709,8 +725,8 @@
         v-model="durationConfirmDialog"
         :text="$t('message.confirm_proceed_session_time')"
         :configItem="config"
-        @end="end()"
-        @proceed="proceed()"
+        @end="end"
+        @proceed="proceed"
       />
       <AudioErrorDialog
         v-model="audioErrorDialog"
@@ -723,6 +739,15 @@
         :post-session-data="postSessionData"
         @proceed="closeEndSessionDialog"
       />
+      <AddEvidenceDialog
+        v-if="evidenceData"
+        v-model="addEvidenceDialog"
+        :item-data="evidenceData"
+        @close="
+          addEvidenceDialog = false;
+          evidenceData = null;
+        "
+      />
     </div>
   </v-container>
 </template>
@@ -731,7 +756,10 @@
 import { VBtn, VCol, VContainer, VIcon, VRow } from "vuetify/lib/components";
 import uuidv4 from "uuid";
 
+import yattIntegrationHelper from "../integrations/YattIntegrationHelpers";
+
 import SourcePickerDialog from "./dialogs/SourcePickerDialog.vue";
+import ShareSessionDialog from "./dialogs/ShareSessionDialog.vue";
 import NoteDialog from "./dialogs/NoteDialog.vue";
 import SummaryDialog from "./dialogs/SummaryDialog.vue";
 import DeleteConfirmDialog from "./dialogs/DeleteConfirmDialog.vue";
@@ -745,6 +773,7 @@ import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
 import XrayExportSession from "./xray/XrayExportSession"; // Todo: fix this
+import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 
 import JiraAddIssue from "./jira/JiraAddIssue";
 
@@ -753,9 +782,16 @@ import {
   DEFAULT_MAP_NODES,
   SESSION_STATUSES,
   STATUSES,
+  DEFAULT_FILE_TYPES,
   VIDEO_RESOLUTION,
-} from "../modules/constants";
+} from "@/modules/constants";
 import { mapGetters } from "vuex";
+import {
+  createAudioForWeb,
+  createImageForWeb,
+  createVideoForWeb,
+  saveNoteForWeb,
+} from "@/helpers/WebHelpers";
 
 let mediaRecorder;
 let audioContext;
@@ -763,12 +799,14 @@ let dest;
 export default {
   name: "ControlPanel",
   components: {
+    AddEvidenceDialog,
     VContainer,
     VRow,
     VCol,
     VBtn,
     VIcon,
     SourcePickerDialog,
+    ShareSessionDialog,
     NoteDialog,
     SummaryDialog,
     DeleteConfirmDialog,
@@ -785,10 +823,6 @@ export default {
     JiraAddIssue,
   },
   props: {
-    items: {
-      type: Array,
-      default: () => [],
-    },
     selectedItems: {
       type: Array,
       default: () => [],
@@ -815,13 +849,20 @@ export default {
     }
   },
   watch: {
-    items: function (newValue) {
-      this.itemLists = newValue;
-    },
     selectedItems: function (newValue) {
       this.selected = newValue;
     },
-    "$store.state.status": {
+    mediaStream: function (newValue) {
+      if (newValue) {
+        const videoTrack = this.mediaStream.getVideoTracks()[0];
+
+        videoTrack.addEventListener("ended", () => {
+          console.log("The user has stopped sharing their screen.");
+          this.mediaStream = null;
+        });
+      }
+    },
+    "$store.state.session.status": {
       deep: true,
       handler(newValue) {
         this.status = newValue;
@@ -836,13 +877,13 @@ export default {
         }
       },
     },
-    "$store.state.timer": {
+    "$store.state.session.timer": {
       deep: true,
       handler(newValue) {
         this.timer = newValue;
       },
     },
-    "$store.state.duration": {
+    "$store.state.case.duration": {
       deep: true,
       handler(newValue) {
         this.duration = newValue;
@@ -851,11 +892,15 @@ export default {
   },
   computed: {
     ...mapGetters({
+      items: "sessionItems",
       hotkeys: "config/hotkeys",
       postSessionData: "config/postSessionData",
       config: "config/fullConfig",
       credentials: "auth/credentials",
     }),
+    isShareSessionAllowed() {
+      return !this.config.localOnly;
+    },
     pauseHotkey() {
       return this.$hotkeyHelpers.findBinding("workspace.pause", this.hotkeys);
     },
@@ -929,7 +974,7 @@ export default {
     summary() {
       let summary = {};
       this.items.map((item) => {
-        if (item.sessionType === "Summary") {
+        if (item?.comment?.type === "Summary") {
           summary = item;
         }
       });
@@ -939,6 +984,7 @@ export default {
   data() {
     return {
       sourcePickerDialog: false,
+      shareSessionDialog: false,
       noteDialog: false,
       summaryDialog: false,
       deleteConfirmDialog: false,
@@ -949,16 +995,16 @@ export default {
       audioErrorDialog: false,
       endSessionDialog: false,
       sources: [],
+      sessionLink: "",
       sourceId: this.srcId,
-      itemLists: this.items,
       audioDevices: [],
       loaded: false,
-      status: this.$store.state.status,
+      status: this.$store.state.session.status,
       recordVideoStarted: false,
       recordAudioStarted: false,
       interval: null,
-      timer: this.$store.state.timer,
-      duration: this.$store.state.duration,
+      timer: this.$store.state.session.timer,
+      duration: this.$store.state.case.duration,
       isDuration: false,
       started: "",
       ended: "",
@@ -966,6 +1012,9 @@ export default {
       callback: null,
       evidenceExportDestinationMenu: false,
       issueCreateDestinationMenu: false,
+      evidenceData: null,
+      addEvidenceDialog: false,
+      mediaStream: null,
     };
   },
   mounted() {
@@ -976,28 +1025,29 @@ export default {
     }
 
     this.$root.$on("close-sourcepickerdialog", this.hideSourcePickerDialog);
+    this.$root.$on("close-sharesessiondialog", this.hideShareSessionDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
     this.$root.$on("close-summarydialog", () => {
       this.summaryDialog = false;
     });
 
     if (
-      this.$store.state.status === SESSION_STATUSES.START ||
-      this.$store.state.status === SESSION_STATUSES.PROCEED ||
-      this.$store.state.status === SESSION_STATUSES.RESUME
+      this.$store.state.session.status === SESSION_STATUSES.START ||
+      this.$store.state.session.status === SESSION_STATUSES.PROCEED ||
+      this.$store.state.session.status === SESSION_STATUSES.RESUME
     ) {
-      this.status = this.$store.state.status;
-      this.timer = this.$store.state.timer;
-      this.duration = this.$store.state.duration;
-      if (this.$store.state.status === SESSION_STATUSES.START) {
+      this.status = this.$store.state.session.status;
+      this.timer = this.$store.state.session.timer;
+      this.duration = this.$store.state.case.duration;
+      if (this.$store.state.session.status === SESSION_STATUSES.START) {
         this.startSession(this.sourceId);
       }
       this.startInterval();
     }
 
     if (
-      this.$store.state.quickTest &&
-      this.$store.state.status === SESSION_STATUSES.PENDING
+      this.$store.state.session.quickTest &&
+      this.$store.state.session.status === SESSION_STATUSES.PENDING
     ) {
       this.showSourcePickerDialog();
     }
@@ -1038,7 +1088,7 @@ export default {
         return;
       }
       this.newSessionFromButton();
-      this.$store.commit("setQuickTest", false);
+      this.$store.commit("setSessionQuickTest", false);
       this.showSourcePickerDialog();
     },
     handleResetConfirmDialog() {
@@ -1060,23 +1110,53 @@ export default {
       // todo implement web version for this functionality
     },
     async showSourcePickerDialog() {
-      try {
-        let data = await this.fetchSources();
-        this.loaded = true;
-        this.sources = data;
-        if (this.viewMode === "normal") {
-          this.sourcePickerDialog = true;
-        } else {
-          if (this.$isElectron) {
-            await this.$electronService.openSourcePickerWindow(this.sources);
+      if (this.$isElectron) {
+        try {
+          let data = await this.fetchSources();
+          this.loaded = true;
+          this.sources = data;
+
+          if (this.viewMode === "normal") {
+            this.sourcePickerDialog = true;
+          } else {
+            if (this.$isElectron) {
+              await this.$electronService.openSourcePickerWindow(this.sources);
+            }
           }
+        } catch (err) {
+          console.log(err);
         }
-      } catch (err) {
-        console.log(err);
+      } else {
+        this.mediaStream = await navigator.mediaDevices.getDisplayMedia({
+          video: {
+            displaySurface: "window",
+            cursor: "always",
+          },
+          audio: true,
+        });
+
+        this.startSession();
+      }
+    },
+    async showShareSessionDialog() {
+      let savedSession = await yattIntegrationHelper.saveSession(
+        this.credentials
+      );
+      if (savedSession?.error) {
+        this.$root.$emit(
+          "set-snackbar",
+          `Unable to save session: ${savedSession.error}`
+        );
+      } else {
+        this.sessionLink = savedSession?.link;
+        this.shareSessionDialog = true;
       }
     },
     hideSourcePickerDialog() {
       this.sourcePickerDialog = false;
+    },
+    hideShareSessionDialog() {
+      this.shareSessionDialog = false;
     },
     showNoteDialog() {
       if (this.viewMode === "normal") {
@@ -1126,46 +1206,57 @@ export default {
         duration: this.duration,
       });
     },
-    async startSession(id) {
-      this.sourceId = id;
+    async startSession(id = null) {
+      if (this.$isElectron) {
+        this.sourceId = id;
+      }
       this.sourcePickerDialog = false;
 
-      this.timer = this.$store.state.timer;
-      this.duration = this.$store.state.duration;
+      this.timer = this.$store.state.session.timer;
+      this.duration = this.$store.state.case.duration;
       if (this.duration > 0) {
         this.isDuration = true;
       }
 
       if (this.started === "") {
         this.started = this.getCurrentDateTime();
-        this.$store.commit("setStarted", this.started);
+        this.$store.commit("setSessionStarted", this.started);
       }
 
       if (this.status !== SESSION_STATUSES.START) {
         console.log("start interval-2");
         this.status = SESSION_STATUSES.START;
-        this.startInterval();
+        if (this.$isElectron) {
+          this.startInterval();
+        }
         this.changeSessionStatus(SESSION_STATUSES.START);
       }
 
-      const sessionId = await this.$storageService.getSessionId();
-
-      if (sessionId === "") {
+      if (!this.$store.state.session.sessionID) {
         const data = {
-          id: uuidv4(),
-          title: this.$store.state.title,
-          charter: this.$store.state.charter,
-          preconditions: this.$store.state.preconditions,
-          duration: this.$store.state.duration,
-          status: this.$store.state.status,
-          timer: this.$store.state.timer,
-          started: this.$store.state.started,
-          ended: this.$store.state.ended,
-          quickTest: this.$store.state.quickTest,
-          path: this.$route.path,
+          case: {
+            title: this.$store.state.case.title,
+            charter: this.$store.state.case.charter,
+            preconditions: this.$store.state.case.preconditions,
+            duration: this.$store.state.case.duration,
+          },
+          session: {
+            status: this.$store.state.session.status,
+            timer: this.$store.state.session.timer,
+            started: this.$store.state.session.started,
+            ended: this.$store.state.session.ended,
+            quickTest: this.$store.state.session.quickTest,
+            path: this.$route.path,
+          },
         };
 
         await this.$storageService.createNewSession(data);
+        if (this.$isElectron) {
+          const caseID = await this.$storageService.getCaseId();
+          const sessionID = await this.$storageService.getSessionId();
+          this.$store.commit("setCaseID", caseID);
+          this.$store.commit("setSessionID", sessionID);
+        }
       }
 
       if (this.viewMode === "normal") {
@@ -1187,7 +1278,7 @@ export default {
           this.showSourcePickerDialog();
         } else {
           this.status = SESSION_STATUSES.START;
-          this.timer = this.$store.state.timer;
+          this.timer = this.$store.state.session.timer;
           console.log("start interval-3");
           this.startInterval();
         }
@@ -1203,13 +1294,10 @@ export default {
     async endSessionProcess() {
       this.sourceId = "";
       this.ended = this.getCurrentDateTime();
-      this.$store.commit("setEnded", this.ended);
+      this.$store.commit("setSessionEnded", this.ended);
       this.status = SESSION_STATUSES.END;
       this.changeSessionStatus(SESSION_STATUSES.END);
       this.stopInterval();
-      if (this.$isElectron) {
-        this.$electronService.setWindowSize({ width: 1440, height: 900 });
-      }
       await this.$router.push({ path: "/result" });
     },
     showSummaryDialog() {
@@ -1242,7 +1330,7 @@ export default {
     },
     resume() {
       this.pauseSession();
-      this.timer = this.$store.state.timer;
+      this.timer = this.$store.state.session.timer;
       this.updateStoreSession();
       const currentPath = this.$router.history.current.path;
       if (currentPath !== "/main/workspace") {
@@ -1267,15 +1355,31 @@ export default {
       this.changeSessionStatus(this.status);
       this.$store.commit("setStatus", this.status);
     },
-    handleScreenshot() {
-      this.fetchSources().then((data) => {
-        const list = data.filter((v) => v.id === this.sourceId);
-        if (list.length === 0) {
-          this.showSourcePickerDialog();
-        } else {
-          this.screenshotProcess();
-        }
+    async setMediaStream() {
+      this.mediaStream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          displaySurface: "window",
+          cursor: "always",
+        },
+        audio: true,
       });
+    },
+    async handleScreenshot() {
+      if (this.$isElectron) {
+        this.fetchSources().then((data) => {
+          const list = data.filter((v) => v.id === this.sourceId);
+          if (list.length === 0) {
+            this.showSourcePickerDialog();
+          } else {
+            this.screenshotProcess();
+          }
+        });
+      } else {
+        if (!this.mediaStream) {
+          await this.setMediaStream();
+        }
+        this.screenshotProcess();
+      }
     },
     async screenshotProcess() {
       this.handleStream = (stream) => {
@@ -1291,28 +1395,32 @@ export default {
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           video.remove();
           const imgURI = canvas.toDataURL("image/png");
+          stream.getTracks().forEach((track) => track.stop());
 
           if (this.$isElectron) {
             // todo add web implementation
             const { status, message, item } =
               await this.$electronService.createImage(imgURI);
 
-            console.log({ item });
-
             if (status === STATUSES.ERROR) {
               this.$root.$emit("set-snackbar", message);
               console.log(message);
             } else {
               const data = {
-                id: item.id,
-                sessionType: "Screenshot",
-                fileType: "image",
-                fileName: item.fileName,
-                filePath: item.filePath,
+                ...item,
                 timer_mark: this.timer,
               };
-              await this.openAddWindow(data);
+              this.evidenceData = data;
+              this.addEvidenceDialog = true;
             }
+          } else {
+            const { item } = createImageForWeb(imgURI);
+            const data = {
+              ...item,
+              timer_mark: this.timer,
+            };
+            this.evidenceData = data;
+            this.addEvidenceDialog = true;
           }
         };
       };
@@ -1320,41 +1428,58 @@ export default {
         console.log(error);
       };
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: false,
-          video: {
-            mandatory: {
-              chromeMediaSource: "desktop",
-              chromeMediaSourceId: this.sourceId,
-              minWidth: 1280,
-              maxWidth: 10000,
-              minHeight: 720,
-              maxHeight: 4000,
+        let stream;
+        if (this.$isElectron) {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+              mandatory: {
+                chromeMediaSource: "desktop",
+                chromeMediaSourceId: this.sourceId,
+                minWidth: 1280,
+                maxWidth: 10000,
+                minHeight: 720,
+                maxHeight: 4000,
+              },
             },
-          },
-        });
+          });
+        } else {
+          stream = this.mediaStream;
+        }
+
         this.handleStream(stream);
       } catch (e) {
         this.handleError(e);
       }
     },
-    startRecordVideo() {
-      this.fetchSources().then((data) => {
-        const list = data.filter((v) => v.id === this.sourceId);
-        if (list.length === 0) {
-          this.showSourcePickerDialog();
-        } else {
-          this.videoRecordProcess();
+    async startRecordVideo() {
+      if (this.$isElectron) {
+        this.fetchSources().then((data) => {
+          const list = data.filter((v) => v.id === this.sourceId);
+          if (list.length === 0) {
+            this.showSourcePickerDialog();
+          } else {
+            this.videoRecordProcess();
+          }
+        });
+      } else {
+        if (!this.mediaStream) {
+          await this.setMediaStream();
         }
-      });
+        this.videoRecordProcess();
+      }
     },
     async videoRecordProcess() {
       this.handleStream = (stream) => {
         if (this.config.audioCapture && this.audioDevices.length > 0) {
           stream.addTrack(dest.stream.getAudioTracks()[0]);
         }
+        const mimeType = MediaRecorder.isTypeSupported("video/webm; codecs=vp9")
+          ? "video/webm; codecs=vp9"
+          : "video/webm";
+        // const mimeType = "video/webm;codecs=h264";
         mediaRecorder = new MediaRecorder(stream, {
-          mimeType: "video/webm;codecs=h264",
+          mimeType: mimeType,
         });
         let poster;
         let frames = [];
@@ -1381,6 +1506,9 @@ export default {
                 console.log("Unable to generate poster for video: " + message);
               }
               poster = item.filePath;
+            } else {
+              const { item } = createImageForWeb(imgURI);
+              poster = item.filePath;
             }
           };
         };
@@ -1391,7 +1519,7 @@ export default {
         };
         mediaRecorder.onstop = async () => {
           this.recordVideoStarted = false;
-          const blob = new Blob(frames, { type: "video/webm;codecs=h264" });
+          const blob = new Blob(frames, { type: mimeType });
           const buffer = await blob.arrayBuffer();
 
           if (this.$isElectron) {
@@ -1401,20 +1529,28 @@ export default {
               this.$root.$emit("set-snackbar", message);
               console.log(message);
             } else {
-              const { id, fileName, filePath } = item;
               const data = {
-                id,
-                sessionType: "Video",
-                fileType: "video",
-                fileName,
-                filePath,
+                ...item,
                 poster: poster,
                 timer_mark: this.timer,
               };
-              await this.openAddWindow(data);
+              this.evidenceData = data;
+              this.addEvidenceDialog = true;
             }
+          } else {
+            const { item } = createVideoForWeb(blob);
+            const data = {
+              ...item,
+              poster: poster,
+              timer_mark: this.timer,
+            };
+            this.evidenceData = data;
+            this.addEvidenceDialog = true;
           }
         };
+        // mediaRecorder.addEventListener("error", (event) => {
+        //   console.error("MediaRecorder error:", event.error);
+        // });
         frames = [];
         mediaRecorder.start(1000);
       };
@@ -1430,27 +1566,34 @@ export default {
             resolution = temp;
           }
         });
-        const constraints = {
-          audio: false,
-          video: {
-            mandatory: {
-              chromeMediaSource: "desktop",
-              chromeMediaSourceId: this.sourceId,
-              minWidth: resolution.width,
-              maxWidth: resolution.width,
-              minHeight: resolution.height,
-              maxHeight: resolution.height,
+
+        let stream;
+        if (this.$isElectron) {
+          const constraints = {
+            audio: false,
+            video: {
+              mandatory: {
+                chromeMediaSource: "desktop",
+                chromeMediaSourceId: this.sourceId,
+                minWidth: resolution.width,
+                maxWidth: resolution.width,
+                minHeight: resolution.height,
+                maxHeight: resolution.height,
+              },
             },
-          },
-        };
-        if (this.config.audioCapture) {
-          this.audioDevices = await this.getAudioSources();
-          if (this.audioDevices.length > 0) {
-            await this.setAudio(this.audioDevices);
+          };
+          if (this.config.audioCapture) {
+            this.audioDevices = await this.getAudioSources();
+            if (this.audioDevices.length > 0) {
+              await this.setAudio(this.audioDevices);
+            }
           }
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+        } else {
+          stream = this.mediaStream;
         }
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        stream.getVideoTracks()[0].applyConstraints({ frameRate: 30 });
+
+        await stream.getVideoTracks()[0].applyConstraints({ frameRate: 30 });
         this.handleStream(stream);
       } catch (e) {
         console.log(e);
@@ -1530,17 +1673,23 @@ export default {
               console.log(message);
             } else {
               const data = {
-                id: item.id,
-                sessionType: "Audio",
-                fileType: "audio",
-                fileName: item.fileName,
-                filePath: item.filePath,
+                ...item,
                 timer_mark: this.timer,
                 poster: "",
               };
-              await this.openAddWindow(data);
+              this.evidenceData = data;
+              this.addEvidenceDialog = true;
             }
             recordedChunks = [];
+          } else {
+            const { item } = createAudioForWeb(blob);
+            const data = {
+              ...item,
+              timer_mark: this.timer,
+              poster: "",
+            };
+            this.evidenceData = data;
+            this.addEvidenceDialog = true;
           }
         };
         mediaRecorder.start(1000);
@@ -1548,17 +1697,6 @@ export default {
       this.handleError = (error) => {
         console.log("Error:", error);
       };
-      // try {
-      //   this.audioDevices = await this.getAudioSources();
-      //   if (!this.audioDevices.length) {
-      //     this.audioErrorDialog = true;
-      //     return;
-      //   }
-      //   const stream = this.setAudio(this.audioDevices);
-      //   this.handleStream(stream);
-      // } catch (e) {
-      //   console.log(e);
-      // }
       await navigator.mediaDevices.enumerateDevices().then((devices) => {
         this.audioDevices = devices.filter(
           (d) =>
@@ -1587,17 +1725,35 @@ export default {
       }
     },
     async addNote(data) {
-      const { status, message, item } = await this.$storageService.saveNote(
-        data.comment
-      );
-      if (status === STATUSES.ERROR) {
-        this.$root.$emit("set-snackbar", message);
-        console.log(message);
+      if (this.$isElectron) {
+        const { status, message, item } = await this.$storageService.saveNote(
+          data.comment
+        );
+        if (status === STATUSES.ERROR) {
+          this.$root.$emit("set-snackbar", message);
+          console.log(message);
+        } else {
+          let newItem = {
+            stepID: item.stepID,
+            fileType: DEFAULT_FILE_TYPES["text"].type,
+            fileName: item.fileName,
+            filePath: item.filePath,
+            comment: data.comment,
+            tags: data.tags,
+            emoji: data.emoji,
+            followUp: data.followUp,
+            timer_mark: this.timer,
+            createdAt: Date.now(),
+          };
+
+          this.$emit("add-item", newItem);
+          this.noteDialog = false;
+        }
       } else {
+        const { item } = saveNoteForWeb(data.comment);
         let newItem = {
-          id: item.id,
-          sessionType: "Note",
-          fileType: "text",
+          stepID: item.stepID,
+          fileType: DEFAULT_FILE_TYPES["text"].type,
           fileName: item.fileName,
           filePath: item.filePath,
           comment: data.comment,
@@ -1615,21 +1771,19 @@ export default {
     async addSummary(value) {
       // TODO - handle summary like a regular note and allow additional metadata
       const data = {
-        id: uuidv4(),
-        sessionType: "Summary",
+        stepID: uuidv4(),
+        fileType: DEFAULT_FILE_TYPES["text"].type,
         comment: value,
         timer_mark: this.timer,
         createdAt: Date.now(),
       };
       if (Object.keys(this.summary).length) {
-        const items = this.items.map((item) => {
-          let temp = Object.assign({}, item);
-          if (temp.sessionType === "Summary") {
-            temp = data;
-          }
-          return temp;
-        });
-        this.$root.$emit("save-session", items);
+        delete data.stepID;
+        const newSummary = {
+          ...this.summary,
+          ...data,
+        };
+        this.$emit("update-item", newSummary);
       } else {
         this.$emit("add-item", data);
       }
@@ -1639,12 +1793,13 @@ export default {
     addMindmap() {
       // TODO - With transition to try mindmap format, UUID generation should
       //        move to CaptureUtility
-      const id = uuidv4();
+      const stepID = uuidv4();
+      const attachmentID = uuidv4();
       const data = {
-        id,
-        sessionType: "Mindmap",
-        fileType: "mindmap",
-        fileName: `mindmap-${id.substring(0, 5)}.png`,
+        stepID,
+        attachmentID,
+        fileType: DEFAULT_FILE_TYPES["mindmap"].type,
+        fileName: `mindmap-${attachmentID.substring(0, 5)}.png`,
         filePath: "",
         content: {
           nodes: DEFAULT_MAP_NODES,
@@ -1652,10 +1807,12 @@ export default {
         },
         timer_mark: this.timer,
       };
-      this.openAddWindow(data);
+      // this.openAddWindow(data);
+      this.evidenceData = data;
+      this.addEvidenceDialog = true;
     },
     async deleteItems() {
-      await this.$storageService.deleteItems(this.selected);
+      this.$store.commit("deleteSessionItems", this.selected);
       this.selected = [];
       this.$root.$emit("update-selected", this.selected);
       this.deleteConfirmDialog = false;
@@ -1670,20 +1827,24 @@ export default {
     },
     async saveSession(callback = null) {
       this.newSessionDialog = false;
-      const sessionId = await this.$storageService.getSessionId();
       const data = {
-        id: sessionId,
-        title: this.$store.state.title,
-        charter: this.$store.state.charter,
-        mindmap: this.$store.state.mindmap,
-        preconditions: this.$store.state.preconditions,
-        duration: this.$store.state.duration,
-        status: this.$store.state.status,
-        timer: this.$store.state.timer,
-        started: this.$store.state.started,
-        ended: this.$store.state.ended,
-        quickTest: this.$store.state.quickTest,
-        path: this.$route.path,
+        case: {
+          caseID: this.$store.state.case.caseID,
+          title: this.$store.state.case.title,
+          charter: this.$store.state.case.charter,
+          mindmap: this.$store.state.case.mindmap,
+          preconditions: this.$store.state.case.preconditions,
+          duration: this.$store.state.case.duration,
+        },
+        session: {
+          sessionID: this.$store.state.session.sessionID,
+          status: this.$store.state.session.status,
+          timer: this.$store.state.session.timer,
+          started: this.$store.state.session.started,
+          ended: this.$store.state.session.ended,
+          quickTest: this.$store.state.session.quickTest,
+          path: this.$route.path,
+        },
       };
       const { status } = await this.$storageService.saveSession(data);
       if (status === STATUSES.SUCCESS && callback) {
@@ -1720,7 +1881,7 @@ export default {
       this.changeSessionStatus(SESSION_STATUSES.PENDING);
       this.timer = 0;
       this.isDuration = false;
-      this.duration = this.$store.state.duration;
+      this.duration = this.$store.state.case.duration;
 
       // Clear dialogs
       this.sourcePickerDialog = false;
@@ -1734,26 +1895,30 @@ export default {
       this.audioErrorDialog = false;
       this.endSessionDialog = false;
 
-      // creating new session ID here
-      let sessionId = uuidv4();
-      this.$store.commit("setSessionId", sessionId);
-
       const data = {
-        id: sessionId,
-        title: this.$store.state.title,
-        charter: this.$store.state.charter,
-        preconditions: this.$store.state.preconditions,
-        duration: this.$store.state.duration,
-        status: this.$store.state.status,
-        timer: this.$store.state.timer,
-        started: this.$store.state.started,
-        ended: this.$store.state.ended,
-        quickTest: this.$store.state.quickTest,
-        path: this.$route.path,
+        case: {
+          title: this.$store.state.case.title,
+          charter: this.$store.state.case.charter,
+          preconditions: this.$store.state.case.preconditions,
+          duration: this.$store.state.case.duration,
+        },
+        session: {
+          status: this.$store.state.session.status,
+          timer: this.$store.state.session.timer,
+          started: this.$store.state.session.started,
+          ended: this.$store.state.session.ended,
+          quickTest: this.$store.state.session.quickTest,
+          path: this.$route.path,
+        },
       };
 
       await this.$storageService.createNewSession(data);
       await this.$storageService.resetData();
+
+      const caseID = await this.$storageService.getCaseId();
+      const sessionID = await this.$storageService.getSessionId();
+      this.$store.commit("setCaseID", caseID);
+      this.$store.commit("setSessionID", sessionID);
 
       // Stop any ongoing intervals
       this.stopInterval();
@@ -1824,6 +1989,9 @@ export default {
 </script>
 
 <style scoped>
+.ddl-icon {
+  margin-right: 0.25em;
+}
 .mini-ctrl-wrapper {
   display: flex;
   flex-direction: column;

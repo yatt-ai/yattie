@@ -224,6 +224,7 @@ export default class ElectronService {
   }
 
   async dragItem(item) {
+    console.log(item);
     return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
       func: IPC_FUNCTIONS.DRAG_ITEM,
       data: item,
@@ -231,6 +232,7 @@ export default class ElectronService {
   }
 
   async dropFile(event) {
+    console.log("drop", f.name);
     const f = event.dataTransfer.files[0];
     return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
       func: IPC_FUNCTIONS.DROP_FILE,
@@ -354,6 +356,12 @@ export default class ElectronService {
     return await window.ipc.invoke(IPC_HANDLERS.SERVER, {
       func: IPC_FUNCTIONS.START_SERVER,
       data,
+    });
+  }
+
+  async resetSession() {
+    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.RESET_SESSION,
     });
   }
 }

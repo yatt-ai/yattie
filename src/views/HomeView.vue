@@ -1,7 +1,11 @@
 <template>
   <v-container class="wrapper">
     <div class="header">
-      <div class="avatar" v-if="isAuthenticated">
+      <div
+        class="avatar"
+        v-if="isAuthenticated"
+        :style="{ width: $isElectron ? 'auto' : '100%' }"
+      >
         <MenuPopover />
       </div>
     </div>
@@ -245,7 +249,7 @@ export default {
     },
     async newSession() {
       this.$store.commit("clearState");
-      await this.$store.commit("setQuickTest", false);
+      await this.$store.commit("setSessionQuickTest", false);
       if (this.$router.history.current.path === "/") {
         await this.$router.push("/main");
       }
@@ -261,8 +265,8 @@ export default {
           this.$store.commit("restoreState", state);
 
           const currentPath = this.$router.history.current.path;
-          if (currentPath !== state.path) {
-            await this.$router.push({ path: state.path });
+          if (currentPath !== state.session.path) {
+            await this.$router.push({ path: state.session.path });
           }
         }
       } else {
@@ -288,7 +292,7 @@ export default {
     },
     handleQuickTest() {
       this.$store.commit("clearState");
-      this.$store.commit("setQuickTest", true);
+      this.$store.commit("setSessionQuickTest", true);
       this.$router.push("/main/workspace");
     },
   },

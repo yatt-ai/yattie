@@ -73,8 +73,8 @@ export default {
           this.$store.commit("restoreState", state);
 
           const currentPath = this.$router.history.current.path;
-          if (currentPath !== state.path) {
-            await this.$router.push({ path: state.path });
+          if (currentPath !== state.session.path) {
+            await this.$router.push({ path: state.session.path });
           }
         }
       });
@@ -86,8 +86,8 @@ export default {
     }
   },
   methods: {
-    setTheme({ appearance }) {
-      const isDarkMode = appearance === "dark";
+    setTheme({ theme }) {
+      const isDarkMode = theme === "dark";
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode.toString());
     },

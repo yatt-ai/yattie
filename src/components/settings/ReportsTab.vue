@@ -19,7 +19,7 @@
           </div>
           <div class="flex-grow-0">
             <v-switch
-              v-model="config.summary"
+              v-model="config.summaryRequired"
               inset
               hide-details
               dense
@@ -71,7 +71,6 @@ export default {
 </script>
 <style scoped>
 .content-wrapper {
-  height: 100vh;
   width: 100%;
   overflow-y: auto;
 }

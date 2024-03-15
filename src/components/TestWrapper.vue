@@ -28,7 +28,7 @@
             "
             v-model="title"
             ref="titleTextField"
-            @input="updateTitle"
+            @change="updateTitle()"
             @click:append="handleAISuggestion('title', $event)"
           >
             <template v-slot:progress>
@@ -100,7 +100,7 @@
                   '|',
                   '#aiAssist',
                 ]"
-                @input="updateCharter"
+                @input="updateCharter()"
               >
                 <template #aiAssist="">
                   <v-btn
@@ -149,9 +149,9 @@
               outlined
               dense
               v-model="duration"
-              @input="handleDuration"
+              @change="handleDuration()"
               hide-details="true"
-              :disabled="this.$store.state.status !== 'pending'"
+              :disabled="this.$store.state.session.status !== 'pending'"
             />
             <span class="timer-box-wrapper-label">
               {{ $tc("caption.minute", 1) }}
@@ -203,7 +203,7 @@
               '|',
               '#aiAssist',
             ]"
-            @input="updatePreconditions"
+            @input="updatePreconditions()"
           >
             <template #aiAssist="">
               <v-btn
@@ -251,12 +251,12 @@ export default {
   },
   data() {
     return {
-      title: this.$store.state.title,
+      title: this.$store.state.case.title,
       previousTitle: "",
       titleLoading: false,
       charter: {
-        content: this.$store.state.charter.content,
-        text: this.$store.state.charter.text,
+        content: this.$store.state.case.charter.content,
+        text: this.$store.state.case.charter.text,
       },
       previousCharter: {
         content: "",
@@ -268,8 +268,8 @@ export default {
         connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
       },
       preconditions: {
-        content: this.$store.state.preconditions.content,
-        text: this.$store.state.preconditions.text,
+        content: this.$store.state.case.preconditions.content,
+        text: this.$store.state.case.preconditions.text,
       },
       previousPreconditions: {
         content: "",
@@ -325,27 +325,27 @@ export default {
     },
   },
   watch: {
-    "$store.state.title": {
+    "$store.state.case.title": {
       deep: true,
       handler(newValue) {
         this.title = newValue;
       },
     },
-    "$store.state.charter": {
+    "$store.state.case.charter": {
       deep: true,
       handler(newValue) {
         this.charter.content = newValue.content;
         this.charter.text = newValue.text;
       },
     },
-    "$store.state.preconditions": {
+    "$store.state.case.preconditions": {
       deep: true,
       handler(newValue) {
         this.preconditions.content = newValue.content;
         this.preconditions.text = newValue.text;
       },
     },
-    "$store.state.mindmap": {
+    "$store.state.case.mindmap": {
       deep: true,
       handler(newValue) {
         this.mindmap.nodes = newValue.nodes;
@@ -357,21 +357,21 @@ export default {
     this.$root.$on("reset-duration", () => {
       this.duration = "";
     });
-    this.duration = this.formatDuration(this.$store.state.duration);
+    this.duration = this.formatDuration(this.$store.state.case.duration);
   },
   methods: {
     updateTitle() {
-      this.$store.commit("setTitle", this.title);
+      this.$store.commit("setCaseTitle", this.title);
     },
     updateCharter() {
       const regex = /(<([^>]+)>)/gi;
       this.charter.text = this.charter.content.replace(regex, "");
-      this.$store.commit("setCharter", this.charter);
+      this.$store.commit("setCaseCharter", this.charter);
     },
     updatePreconditions() {
       const regex = /(<([^>]+)>)/gi;
       this.preconditions.text = this.preconditions.content.replace(regex, "");
-      this.$store.commit("setPrecondition", this.preconditions);
+      this.$store.commit("setCasePrecondition", this.preconditions);
     },
     async handleAISuggestion(field, event) {
       if (
@@ -477,7 +477,7 @@ export default {
         return;
       }
       const temp = minutes * 60 + seconds;
-      this.$store.commit("setDuration", temp);
+      this.$store.commit("setCaseDuration", temp);
     },
     handleMindmap(value) {
       const newNodes = value.nodes.map((obj) => {
@@ -498,7 +498,7 @@ export default {
         nodes: newNodes,
         connections: newConnections,
       };
-      this.$store.commit("setMindmap", data);
+      this.$store.commit("setCaseMindmap", data);
     },
   },
 };
