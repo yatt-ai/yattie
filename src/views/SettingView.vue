@@ -64,6 +64,7 @@ import ConfigCheckListTab from "@/components/settings/ConfigCheckListTab.vue";
 import ReportsTab from "@/components/settings/ReportsTab.vue";
 import AddonsTab from "@/components/settings/AddonsTab.vue";
 import HotkeysTab from "@/components/settings/HotkeysTab.vue";
+import TagsTab from "@/components/settings/TagsTab.vue";
 export default {
   name: "SettingView",
   components: {
@@ -74,6 +75,7 @@ export default {
     ReportsTab,
     AddonsTab,
     HotkeysTab,
+    TagsTab,
   },
   computed: {
     currentTheme() {
@@ -129,6 +131,12 @@ export default {
           name: this.$tc("caption.hotkeys", 1),
           route: `/settings/hotkeys`,
           component: HotkeysTab,
+        },
+        {
+          id: 8,
+          name: this.$tc("caption.tags_tab", 1),
+          route: `/settings/tabs`,
+          component: TagsTab,
         },
         // { id: 8, name: this.$tc("caption.support", 1), route: `/settings/support` },
       ],
