@@ -175,9 +175,8 @@ export default {
           ? (credentials.testrail = this.credentials.testrail)
           : (credentials.jira = this.credentials.jira);
       }
-      const emptyCredentials = credentials;
-      this.$store.commit("auth/setCredentials", emptyCredentials);
-      this.$storageService.updateCredentials(emptyCredentials);
+      this.$store.commit("auth/setCredentials", credentials);
+      this.$storageService.updateCredentials(credentials);
     },
     openSettingsDialog() {
       this.settingsDialog = true;

@@ -7,7 +7,7 @@
         </p>
 
         <v-col cols="12">
-          <div class="avatar" v-if="isAuthenticated && credentials.testrail">
+          <div class="avatar" v-if="credentials.testrail">
             <ConnectionPanel connectionType="testrail" />
           </div>
           <div v-else>
@@ -30,7 +30,7 @@
 
           <p></p>
 
-          <div class="avatar" v-if="isAuthenticated && credentials.jira">
+          <div class="avatar" v-if="credentials.jira">
             <ConnectionPanel connectionType="jira" />
           </div>
           <div v-else>
@@ -190,8 +190,6 @@ export default {
   computed: {
     ...mapGetters({
       credentials: "auth/credentials",
-      isAuthenticated: "auth/isAuthenticated",
-      loggedInServices: "auth/loggedInServices",
     }),
     swatchStyle() {
       const { color, menu } = this;
