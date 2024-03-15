@@ -5,21 +5,52 @@
         <p class="body-1" :style="{ color: currentTheme.default }">
           {{ $tc("caption.external_connection", 1) }}
         </p>
-        <a
-          class="jira-link"
-          @click="signinTestRail"
-          :style="{ color: currentTheme.secondary }"
-        >
-          {{ $t("message.connect_to_testrail") }}
-        </a>
-        <p></p>
-        <a
-          class="jira-link"
-          @click="signinJira"
-          :style="{ color: currentTheme.secondary }"
-        >
-          {{ $t("message.connect_to_jira") }}
-        </a>
+
+        <v-col cols="12">
+          <div class="avatar" v-if="isAuthenticated && credentials.testrail">
+            <ConnectionPanel connectionType="testrail" />
+          </div>
+          <div v-else>
+            <v-btn
+              class="m-4 outline-btn jira justify-start"
+              block
+              outlined
+              color="white"
+              @click="signinTestRail"
+            >
+              <img :src="require('../../assets/icon/testrail.png')" />
+              <div
+                class="btn-text ml-4"
+                :style="{ color: currentTheme.secondary }"
+              >
+                {{ $t("message.connect_to_testrail") }}
+              </div>
+            </v-btn>
+          </div>
+
+          <p></p>
+
+          <div class="avatar" v-if="isAuthenticated && credentials.jira">
+            <ConnectionPanel connectionType="jira" />
+          </div>
+          <div v-else>
+            <v-btn
+              class="m-4 outline-btn jira justify-start"
+              block
+              outlined
+              color="white"
+              @click="signinJira"
+            >
+              <img :src="require('../../assets/icon/jira.png')" />
+              <div
+                class="btn-text ml-4"
+                :style="{ color: currentTheme.secondary }"
+              >
+                {{ $t("message.connect_to_jira") }}
+              </div>
+            </v-btn>
+          </div>
+        </v-col>
       </v-col>
       <!--<v-col cols="12" class="border-bottom pa-4 app-role-section">
         <div class="d-flex align-start">
@@ -129,9 +160,13 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   name: "ConnectionsTab",
-  components: {},
+  components: {
+    ConnectionPanel: () => import("../ConnectionPanel.vue"),
+  },
   props: {
     configItem: {
       type: Object,
@@ -153,6 +188,11 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      credentials: "auth/credentials",
+      isAuthenticated: "auth/isAuthenticated",
+      loggedInServices: "auth/loggedInServices",
+    }),
     swatchStyle() {
       const { color, menu } = this;
       return {
