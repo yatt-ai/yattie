@@ -365,7 +365,9 @@ export default {
       sessionItems: "sessionItems",
     }),
     filteredTags() {
-      const configTagTexts = this.configTags.map((tag) => tag.text);
+      const configTagTexts = this.configTags
+        .filter((tag) => tag.text !== "")
+        .map((tag) => tag.text);
       let sessionTagTexts = [];
       if (this.sessionItems.length > 0) {
         this.sessionItems.forEach((item) => {
