@@ -295,7 +295,6 @@ export default {
       const configTagTexts = this.configTags
         .filter((tag) => tag.text !== "")
         .map((tag) => tag.text);
-      console.log("1", configTagTexts);
       let sessionTagTexts = [];
       if (this.sessionItems.length > 0) {
         this.sessionItems.forEach((item) => {
