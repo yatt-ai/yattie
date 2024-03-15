@@ -222,14 +222,10 @@
 <script>
 import VueTagsInput from "@johmun/vue-tags-input";
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
+import { mapGetters } from "vuex";
 
 import { VEmojiPicker } from "v-emoji-picker";
-import {
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
-  TEXT_TYPES,
-  AI_ENABLED_FIELDS,
-} from "../../modules/constants";
+import { TEXT_TYPES, AI_ENABLED_FIELDS } from "../../modules/constants";
 
 export default {
   name: "NoteDialog",
@@ -286,17 +282,28 @@ export default {
       tag_text: "",
       emojiMenu: false,
       tags: [],
-      autocompleteItems: [],
       emoji: [],
       followUp: false,
     };
   },
-  created() {
-    this.fetchAutocompleteItems();
-  },
   computed: {
+    ...mapGetters({
+      configTags: "config/tags",
+      sessionItems: "sessionItems",
+    }),
     filteredTags() {
-      return this.autocompleteItems
+      const configTagTexts = this.configTags.map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      const allTags = [...new Set([...configTagTexts, ...sessionTagTexts])];
+      return allTags
         .filter((item) => {
           return item.toLowerCase().includes(this.tag_text.toLowerCase());
         })
@@ -328,12 +335,6 @@ export default {
     },
   },
   methods: {
-    async fetchAutocompleteItems() {
-      const data = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-        func: IPC_FUNCTIONS.GET_TAGS,
-      });
-      this.autocompleteItems = data;
-    },
     resetData() {
       // set comment type by config
       if (this.config.commentType && this.config.commentType !== "") {

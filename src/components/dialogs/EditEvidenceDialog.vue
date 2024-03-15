@@ -310,12 +310,7 @@ import ReviewWrapper from "@/components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import {
-  TEXT_TYPES,
-  AI_ENABLED_FIELDS,
-  IPC_HANDLERS,
-  IPC_FUNCTIONS,
-} from "@/modules/constants";
+import { TEXT_TYPES, AI_ENABLED_FIELDS } from "@/modules/constants";
 
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
 import { mapGetters } from "vuex";
@@ -345,7 +340,6 @@ export default {
       commentLoading: false,
       name: "",
       tag: "",
-      autocompleteItems: [],
       emojiMenu: false,
       commentTypes: Object.keys(TEXT_TYPES).filter(
         (item) => item !== "Summary"
@@ -355,7 +349,6 @@ export default {
     };
   },
   created() {
-    this.fetchAutocompleteItems();
     this.fetchItems();
     this.getConfig();
     this.getCredentials();
@@ -368,9 +361,22 @@ export default {
       hotkeys: "config/hotkeys",
       config: "config/fullConfig",
       credentials: "auth/credentials",
+      configTags: "config/tags",
+      sessionItems: "sessionItems",
     }),
     filteredTags() {
-      return this.autocompleteItems
+      const configTagTexts = this.configTags.map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      const allTags = [...new Set([...configTagTexts, ...sessionTagTexts])];
+      return allTags
         .filter((item) => {
           return item.toLowerCase().includes(this.tag.toLowerCase());
         })
@@ -431,12 +437,6 @@ export default {
     },
   },
   methods: {
-    async fetchAutocompleteItems() {
-      const data = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-        func: IPC_FUNCTIONS.GET_TAGS,
-      });
-      this.autocompleteItems = data;
-    },
     activeSession() {
       // set theme mode
       const isDarkMode = this.config.apperance === "dark";

@@ -103,6 +103,7 @@
 </template>
 <script>
 import VueTagsInput from "@johmun/vue-tags-input";
+import { mapGetters } from "vuex";
 
 import {
   TEXT_TYPES,
@@ -125,7 +126,6 @@ export default {
       },
       tag: "",
       tags: [],
-      autocompleteItems: [],
       commentTypes: Object.keys(TEXT_TYPES).filter(
         (item) => item !== "Summary"
       ),
@@ -134,7 +134,6 @@ export default {
   created() {
     if (!window.ipc) return;
 
-    this.fetchAutocompleteItems();
     window.ipc.on(IPC_BIND_KEYS.MODAL_DATA, (data) => {
       this.config = data;
 
@@ -150,8 +149,23 @@ export default {
     });
   },
   computed: {
+    ...mapGetters({
+      configTags: "config/tags",
+      sessionItems: "sessionItems",
+    }),
     filteredTags() {
-      return this.autocompleteItems
+      const configTagTexts = this.configTags.map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      const allTags = [...new Set([...configTagTexts, ...sessionTagTexts])];
+      return allTags
         .filter((item) => {
           return item.toLowerCase().includes(this.tag.toLowerCase());
         })
@@ -168,12 +182,6 @@ export default {
     },
   },
   methods: {
-    async fetchAutocompleteItems() {
-      const data = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-        func: IPC_FUNCTIONS.GET_TAGS,
-      });
-      this.autocompleteItems = data;
-    },
     handleNote() {
       const regex = /(<([^>]+)>)/gi;
       this.comment.text = this.comment.content.replace(regex, "");

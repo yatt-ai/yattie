@@ -327,8 +327,6 @@ import {
   STATUSES,
   AI_ENABLED_FIELDS,
   FILE_TYPES,
-  IPC_FUNCTIONS,
-  IPC_HANDLERS,
 } from "../modules/constants";
 
 import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
@@ -364,7 +362,6 @@ export default {
       name: "",
       tagText: "",
       tags: [],
-      autocompleteItems: [],
       emojiMenu: false,
       emojis: [],
       followUp: false,
@@ -382,16 +379,28 @@ export default {
     this.fetchItems();
     this.getConfig();
     this.getCredentials();
-    this.fetchAutocompleteItems();
   },
   computed: {
     ...mapGetters({
       hotkeys: "config/hotkeys",
       config: "config/fullConfig",
       credentials: "auth/credentials",
+      configTags: "config/tags",
+      sessionItems: "sessionItems",
     }),
     filteredTags() {
-      return this.autocompleteItems
+      const configTagTexts = this.configTags.map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      const allTags = [...new Set([...configTagTexts, ...sessionTagTexts])];
+      return allTags
         .filter((item) => {
           return item.toLowerCase().includes(this.tagText.toLowerCase());
         })
@@ -461,12 +470,6 @@ export default {
     },
   },
   methods: {
-    async fetchAutocompleteItems() {
-      const data = await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-        func: IPC_FUNCTIONS.GET_TAGS,
-      });
-      this.autocompleteItems = data;
-    },
     async activeSession(data) {
       // set theme mode
       const isDarkMode = this.config.theme === "dark";
