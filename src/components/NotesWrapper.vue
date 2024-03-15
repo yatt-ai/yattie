@@ -29,6 +29,7 @@
           v-model="itemLists"
           draggable=".draggable-item"
           class="draggable-wrapper"
+          :animation="200"
           @change="handleChange"
         >
           <transition-group class="draggable-group mb-2">
@@ -37,17 +38,20 @@
               :key="i"
               class="draggable-item notes-evidence"
             >
-              <template v-if="item.sessionType === 'Screenshot'">
+              <template v-if="getType(item.fileType) === 'image'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
                     class="item-select"
-                    :value="item.id"
-                    :checked="checkedItem(item.id)"
-                    @change="handleSelected($event, item.id)"
+                    :value="item.stepID"
+                    :checked="checkedItem(item.stepID)"
+                    @change="handleSelected($event, item.stepID)"
                   />
                 </div>
-                <div class="image-wrapper" @dblclick="handleActiveItem(item)">
+                <div
+                  class="image-wrapper"
+                  @click="handleItemClick(item.stepID)"
+                >
                   <img
                     class="screen-img"
                     style="max-width: 100%"
@@ -86,7 +90,7 @@
                       style=""
                       v-for="(emoji, i) in item.emoji"
                       :key="i"
-                      @click="removeEmoji(item.id, emoji)"
+                      @click="removeEmoji(item.stepID, emoji)"
                     >
                       <span class="emoji-icon">{{ emoji.data }}</span>
                       <v-icon x-small>mdi-close</v-icon>
@@ -94,7 +98,7 @@
                   </template>
 
                   <v-menu
-                    v-model="emojiMenu[`menu-${item.id}`]"
+                    v-model="emojiMenu[`menu-${item.stepID}`]"
                     :close-on-content-click="false"
                     right
                     bottom
@@ -113,7 +117,7 @@
                               ...menu,
                               ...tooltip,
                             }"
-                            @click="handleSelectedItem(item.id)"
+                            @click="handleSelectedItem(item.stepID)"
                           >
                             <img
                               :src="require('../assets/icon/add-emoticon.svg')"
@@ -141,22 +145,25 @@
                       name="follow_up"
                       class="item-select"
                       v-model="item.followUp"
-                      @change="handleFollowUp($event, item.id)"
+                      @change="handleFollowUp($event, item.stepID)"
                     />{{ $tc("caption.required_follow_up", 1) }}
                   </label>
                 </div>
               </template>
-              <template v-if="item.sessionType === 'Video'">
+              <template v-if="getType(item.fileType) === 'video'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
                     class="item-select"
-                    :value="item.id"
-                    :checked="checkedItem(item.id)"
-                    @change="handleSelected($event, item.id)"
+                    :value="item.stepID"
+                    :checked="checkedItem(item.stepID)"
+                    @change="handleSelected($event, item.stepID)"
                   />
                 </div>
-                <div class="video-wrapper" @dblclick="handleActiveItem(item)">
+                <div
+                  class="video-wrapper"
+                  @click="handleItemClick(item.stepID)"
+                >
                   <video
                     controls
                     style="width: 100%"
@@ -195,7 +202,7 @@
                       style=""
                       v-for="(emoji, i) in item.emoji"
                       :key="i"
-                      @click="removeEmoji(item.id, emoji)"
+                      @click="removeEmoji(item.stepID, emoji)"
                     >
                       <span class="emoji-icon">{{ emoji.data }}</span>
                       <v-icon x-small>mdi-close</v-icon>
@@ -203,7 +210,7 @@
                   </template>
 
                   <v-menu
-                    v-model="emojiMenu[`menu-${item.id}`]"
+                    v-model="emojiMenu[`menu-${item.stepID}`]"
                     :close-on-content-click="false"
                     right
                     bottom
@@ -222,7 +229,7 @@
                               ...menu,
                               ...tooltip,
                             }"
-                            @click="handleSelectedItem(item.id)"
+                            @click="handleSelectedItem(item.stepID)"
                           >
                             <img
                               :src="require('../assets/icon/add-emoticon.svg')"
@@ -250,22 +257,25 @@
                       name="follow_up"
                       class="item-select"
                       v-model="item.followUp"
-                      @change="handleFollowUp($event, item.id)"
+                      @change="handleFollowUp($event, item.stepID)"
                     />{{ $tc("caption.required_follow_up", 1) }}
                   </label>
                 </div>
               </template>
-              <template v-if="item.sessionType === 'Audio'">
+              <template v-if="getType(item.fileType) === 'audio'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
                     class="item-select"
-                    :value="item.id"
-                    :checked="checkedItem(item.id)"
-                    @change="handleSelected($event, item.id)"
+                    :value="item.stepID"
+                    :checked="checkedItem(item.stepID)"
+                    @change="handleSelected($event, item.stepID)"
                   />
                 </div>
-                <div class="audio-wrapper" @dblclick="handleActiveItem(item)">
+                <div
+                  class="audio-wrapper"
+                  @click="handleItemClick(item.stepID)"
+                >
                   <div class="audio-wave">
                     <img :src="item.poster" />
                   </div>
@@ -305,7 +315,7 @@
                       style=""
                       v-for="(emoji, i) in item.emoji"
                       :key="i"
-                      @click="removeEmoji(item.id, emoji)"
+                      @click="removeEmoji(item.stepID, emoji)"
                     >
                       <span class="emoji-icon">{{ emoji.data }}</span>
                       <v-icon x-small>mdi-close</v-icon>
@@ -313,7 +323,7 @@
                   </template>
 
                   <v-menu
-                    v-model="emojiMenu[`menu-${item.id}`]"
+                    v-model="emojiMenu[`menu-${item.stepID}`]"
                     :close-on-content-click="false"
                     right
                     bottom
@@ -332,7 +342,7 @@
                               ...menu,
                               ...tooltip,
                             }"
-                            @click="handleSelectedItem(item.id)"
+                            @click="handleSelectedItem(item.stepID)"
                           >
                             <img
                               :src="require('../assets/icon/add-emoticon.svg')"
@@ -360,22 +370,22 @@
                       name="follow_up"
                       class="item-select"
                       v-model="item.followUp"
-                      @change="handleFollowUp($event, item.id)"
+                      @change="handleFollowUp($event, item.stepID)"
                     />{{ $tc("caption.required_follow_up", 1) }}
                   </label>
                 </div>
               </template>
-              <template v-if="item.sessionType === 'Note'">
+              <template v-if="getType(item.fileType) === 'text'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
                     class="item-select"
-                    :value="item.id"
-                    :checked="checkedItem(item.id)"
-                    @change="handleSelected($event, item.id)"
+                    :value="item.stepID"
+                    :checked="checkedItem(item.stepID)"
+                    @change="handleSelected($event, item.stepID)"
                   />
                 </div>
-                <div class="note-wrapper" @dblclick="handleActiveItem(item)">
+                <div class="note-wrapper" @click="handleItemClick(item.stepID)">
                   <span class="comment-type"
                     >{{ item.comment.type + ": " + item.comment.text }}
                   </span>
@@ -399,25 +409,25 @@
                       name="follow_up"
                       class="item-select"
                       v-model="item.followUp"
-                      @change="handleFollowUp($event, item.id)"
+                      @change="handleFollowUp($event, item.stepID)"
                     />{{ $tc("caption.required_follow_up", 1) }}
                   </label>
                 </div>
               </template>
-              <template v-if="item.sessionType === 'File'">
+              <template v-if="getType(item.fileType) === undefined">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
                     class="item-select"
-                    :value="item.id"
-                    :checked="checkedItem(item.id)"
-                    @change="handleSelected($event, item.id)"
+                    :value="item.stepID"
+                    :checked="checkedItem(item.stepID)"
+                    @change="handleSelected($event, item.stepID)"
                   />
                 </div>
                 <div
-                  v-if="item.fileType === 'image'"
+                  v-if="getType(item.fileType) === 'image'"
                   class="image-wrapper"
-                  @dblclick="handleActiveItem(item)"
+                  @click="handleItemClick(item.stepID)"
                 >
                   <img
                     class="screen-img"
@@ -426,9 +436,9 @@
                   />
                 </div>
                 <div
-                  v-else-if="item.fileType === 'video'"
+                  v-else-if="getType(item.fileType) === 'video'"
                   class="video-wrapper"
-                  @dblclick="handleActiveItem(item)"
+                  @click="handleItemClick(item.stepID)"
                 >
                   <video
                     controls
@@ -437,9 +447,9 @@
                   ></video>
                 </div>
                 <div
-                  v-else-if="item.fileType === 'audio'"
+                  v-else-if="getType(item.fileType) === 'audio'"
                   class="audio-wrapper"
-                  @dblclick="handleActiveItem(item)"
+                  @click="handleItemClick(item.stepID)"
                 >
                   <div class="audio-wave">
                     <img :src="item.poster" />
@@ -451,7 +461,7 @@
                 <div
                   v-else
                   class="file-wrapper"
-                  @dblclick="handleActiveItem(item)"
+                  @click="handleItemClick(item.stepID)"
                 >
                   <div class="file-name">
                     <span>{{ item.fileName }}</span>
@@ -488,22 +498,25 @@
                       name="follow_up"
                       class="item-select"
                       v-model="item.followUp"
-                      @change="handleFollowUp($event, item.id)"
+                      @change="handleFollowUp($event, item.stepID)"
                     />{{ $tc("caption.required_follow_up", 1) }}
                   </label>
                 </div>
               </template>
-              <template v-if="item.sessionType === 'Mindmap'">
+              <template v-if="getType(item.fileType) === 'mindmap'">
                 <div class="d-flex justify-end align-center">
                   <input
                     type="checkbox"
                     class="item-select"
-                    :value="item.id"
-                    :checked="checkedItem(item.id)"
-                    @change="handleSelected($event, item.id)"
+                    :value="item.stepID"
+                    :checked="checkedItem(item.stepID)"
+                    @change="handleSelected($event, item.stepID)"
                   />
                 </div>
-                <div class="image-wrapper" @dblclick="handleActiveItem(item)">
+                <div
+                  class="image-wrapper"
+                  @click="handleItemClick(item.stepID)"
+                >
                   <img
                     class="screen-img"
                     style="max-width: 100%"
@@ -538,7 +551,7 @@
                       name="follow_up"
                       class="item-select"
                       v-model="item.followUp"
-                      @change="handleFollowUp($event, item.id)"
+                      @change="handleFollowUp($event, item.stepID)"
                     />{{ $tc("caption.required_follow_up", 1) }}
                   </label>
                 </div>
@@ -555,6 +568,8 @@
 import draggable from "vuedraggable";
 import { VEmojiPicker } from "v-emoji-picker";
 
+import { FILE_TYPES } from "../modules/constants";
+
 export default {
   name: "NotesWrapper",
   components: {
@@ -570,19 +585,26 @@ export default {
       type: Array,
       default: () => [],
     },
+    eventType: {
+      type: String,
+      default: () => "",
+    },
   },
   watch: {
     items: function (newValue) {
       this.itemLists = newValue
         .slice()
         .reverse()
-        .filter((item) => item.sessionType !== "Summary");
+        .filter((item) => item?.comment?.type !== "Summary");
       this.itemLists.map((item) => {
-        this.emojiMenu[`menu-${item.id}`] = false;
+        this.emojiMenu[`menu-${item.stepID}`] = false;
       });
     },
     selectedItems: function (newValue) {
       this.selected = newValue;
+    },
+    eventType: function (newValue) {
+      this.eventName = newValue;
     },
   },
   data() {
@@ -591,29 +613,51 @@ export default {
       itemLists: this.items
         .slice()
         .reverse()
-        .filter((item) => item.sessionType !== "Summary"),
+        .filter((item) => item.comment.type !== "Summary"),
+      eventName: this.eventType,
+      clicks: 0,
       selected: [],
-      activeItem: null,
       emojiMenu: {},
       selectedId: null,
     };
   },
   mounted() {
     this.itemLists.map((item) => {
-      this.emojiMenu[`menu-${item.id}`] = false;
+      this.emojiMenu[`menu-${item.stepID}`] = false;
     });
     this.fetchNotes();
     this.$refs.notes.editor.commands.focus();
   },
+  computed: {
+    status() {
+      return this.$store.state.session.status;
+    },
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
+  },
   methods: {
+    getType(type) {
+      return FILE_TYPES[type];
+    },
     async fetchNotes() {
-      this.notes = await this.$storageService.getNotes();
+      const sessionNotes = await this.$storageService.getNotes();
+      if (sessionNotes) {
+        this.notes = sessionNotes;
+      }
+
+      await this.$store.commit("setSessionNotes", this.notes);
     },
     async handleNotes() {
       const regex = /(<([^>]+)>)/gi;
       this.notes.text = this.notes.content.replace(regex, "");
 
       await this.$storageService.updateNotes(this.notes);
+      await this.$store.commit("setSessionNotes", this.notes);
     },
     handleChange() {
       this.saveData();
@@ -629,9 +673,31 @@ export default {
       }
       this.$root.$emit("update-selected", this.selected);
     },
-    handleActiveItem(item) {
-      this.activeItem = item;
-      this.$emit("submit-session", this.activeItem);
+    handleItemClick(id) {
+      this.clicks++;
+      if (this.clicks === 1) {
+        setTimeout(
+          function () {
+            switch (this.clicks) {
+              case 1:
+                if (this.eventName === "click") {
+                  this.handleActivateEditSession(id);
+                }
+                break;
+              default:
+                if (this.eventName === "dblclick") {
+                  this.handleActivateEditSession(id);
+                }
+            }
+            this.clicks = 0;
+          }.bind(this),
+          200
+        );
+      }
+    },
+    async handleActivateEditSession(id) {
+      const data = await this.$storageService.getItemById(id);
+      this.$emit("activate-edit-session", data);
     },
     handleSelectedItem(id) {
       this.selectedId = id;
@@ -640,7 +706,7 @@ export default {
       this.emojiMenu[`menu-${this.selectedId}`] = false;
       this.itemLists = this.itemLists.map((item) => {
         let temp = Object.assign({}, item);
-        if (temp.id === this.selectedId) {
+        if (temp.stepID === this.selectedId) {
           if (temp.emoji.filter((item) => item.data === emoji.data).length) {
             temp.emoji = temp.emoji.filter((item) => item.data !== emoji.data);
           } else {
@@ -654,7 +720,7 @@ export default {
     removeEmoji(id, emoji) {
       this.itemLists = this.itemLists.map((item) => {
         let temp = Object.assign({}, item);
-        if (temp.id === id) {
+        if (temp.stepID === id) {
           temp.emoji = temp.emoji.filter((item) => item.data !== emoji.data);
         }
         return temp;
@@ -664,7 +730,7 @@ export default {
     handleFollowUp($event, id) {
       this.itemLists = this.itemLists.map((item) => {
         let temp = Object.assign({}, item);
-        if (temp.id === id) {
+        if (temp.stepID === id) {
           temp.followUp = $event.target.checked;
         }
         return temp;
@@ -672,7 +738,10 @@ export default {
       this.saveData();
     },
     async saveData() {
-      await this.$storageService.updateItems(this.itemLists.slice().reverse());
+      await this.$store.commit(
+        "setSessionItems",
+        this.itemLists.slice().reverse()
+      );
     },
   },
 };

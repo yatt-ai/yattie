@@ -1,11 +1,12 @@
 import { ipcMain } from "electron";
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "./constants";
 const captureUtility = require("./CaptureUtility");
-const databaseUtility = require("./DatabaseUtility");
+const persistenceUtility = require("./PersistenceUtility");
 const fileSystemUtility = require("./FileSystemUtility");
 const menuUtility = require("./MenuUtility");
 const windowUtility = require("./WindowUtility");
 const serverUtility = require("./ServerUtility");
+const systemInfoUtility = require("./SystemInfoUtility");
 
 ipcMain.handle(IPC_HANDLERS.BROWSER, async (event, args) => {
   switch (args.func) {
@@ -81,49 +82,55 @@ ipcMain.handle(IPC_HANDLERS.WINDOW, async (event, args) => {
       return windowUtility.closeNotesWindow();
     case IPC_FUNCTIONS.MOVE_WINDOW:
       return windowUtility.moveWindow(args.data);
+    case IPC_FUNCTIONS.RESET_SESSION:
+      return windowUtility.resetSession(args.data);
     default:
       return null;
   }
 });
 
-ipcMain.handle(IPC_HANDLERS.DATABASE, async (event, args) => {
+ipcMain.handle(IPC_HANDLERS.PERSISTENCE, async (event, args) => {
   switch (args.func) {
     case IPC_FUNCTIONS.INITIALIZE_SESSION:
-      return databaseUtility.initializeSession();
+      return persistenceUtility.initializeSession();
     case IPC_FUNCTIONS.GET_SESSION_ID:
-      return databaseUtility.getSessionID();
+      return persistenceUtility.getSessionID();
+    case IPC_FUNCTIONS.GET_CASE_ID:
+      return persistenceUtility.getCaseID();
     case IPC_FUNCTIONS.GET_STATE:
-      return databaseUtility.getState();
+      return persistenceUtility.getState();
     case IPC_FUNCTIONS.UPDATE_STATE:
-      return databaseUtility.updateState(args.data);
+      return persistenceUtility.updateState(args.data);
     case IPC_FUNCTIONS.ADD_ITEM:
-      return databaseUtility.addItem(args.data);
+      return persistenceUtility.addItem(args.data);
     case IPC_FUNCTIONS.GET_ITEMS:
-      return databaseUtility.getItems();
+      return persistenceUtility.getItems();
+    case IPC_FUNCTIONS.UPDATE_ITEM:
+      return persistenceUtility.updateItem(args.data);
     case IPC_FUNCTIONS.UPDATE_ITEMS:
-      return databaseUtility.updateItems(args.data);
+      return persistenceUtility.updateItems(args.data);
     case IPC_FUNCTIONS.DELETE_ITEMS:
-      return databaseUtility.deleteItems(args.data);
+      return persistenceUtility.deleteItems(args.data);
     case IPC_FUNCTIONS.GET_ITEM_BY_ID:
-      return databaseUtility.getItemById(args.data);
+      return persistenceUtility.getItemById(args.data);
     case IPC_FUNCTIONS.GET_CONFIG:
-      return databaseUtility.getConfig(args.data);
+      return persistenceUtility.getConfig(args.data);
     case IPC_FUNCTIONS.UPDATE_CONFIG:
-      return databaseUtility.updateConfig(args.data);
+      return persistenceUtility.updateConfig(args.data);
     case IPC_FUNCTIONS.GET_CREDENTIALS:
-      return databaseUtility.getCredentials(args.data);
+      return persistenceUtility.getCredentials(args.data);
     case IPC_FUNCTIONS.UPDATE_CREDENTIALS:
-      return databaseUtility.updateCredentials(args.data);
+      return persistenceUtility.updateCredentials(args.data);
     case IPC_FUNCTIONS.GET_METADATA:
-      return databaseUtility.getMetadata(args.data);
+      return persistenceUtility.getMetadata(args.data);
     case IPC_FUNCTIONS.UPDATE_METADATA:
-      return databaseUtility.updateMetadata(args.data);
+      return persistenceUtility.updateMetadata(args.data);
     case IPC_FUNCTIONS.UPDATE_NOTES:
-      return databaseUtility.updateNotes(args.data);
+      return persistenceUtility.updateNotes(args.data);
     case IPC_FUNCTIONS.GET_NOTES:
-      return databaseUtility.getNotes(args.data);
+      return persistenceUtility.getNotes(args.data);
     case IPC_FUNCTIONS.RESET_DATA:
-      return databaseUtility.resetData(args.data);
+      return persistenceUtility.resetData(args.data);
     default:
       return null;
   }
@@ -135,6 +142,7 @@ ipcMain.handle(IPC_HANDLERS.FILE_SYSTEM, async (event, args) => {
       return fileSystemUtility.exportItems(args.data);
     case IPC_FUNCTIONS.CREATE_NEW_SESSION:
       return fileSystemUtility.createNewSession(args.data);
+    case IPC_FUNCTIONS.RESET_SESSION:
     case IPC_FUNCTIONS.SAVE_SESSION:
       return fileSystemUtility.saveSession(args.data);
     case IPC_FUNCTIONS.OPEN_SESSION:
@@ -169,3 +177,10 @@ ipcMain.handle(IPC_HANDLERS.SERVER, async (event, args) => {
       return serverUtility.stopServer(args.data);
   }
 });
+
+ipcMain.handle(IPC_HANDLERS.SYSTEMINFO, async (event, args) => {
+  switch (args.func) {
+    case IPC_FUNCTIONS.GET_SYSTEM_INFO:
+      return await systemInfoUtility.getSystemInfo();
+  }
+})

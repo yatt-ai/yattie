@@ -3,48 +3,48 @@
     v-bind="$attrs"
     v-on="$listeners"
     persistent
-    width="100%"
+    width="50%"
     max-width="600px"
   >
     <v-sheet rounded :style="{ backgroundColor: currentTheme.background }">
-      <div class="wrapper">
-        <div class="header">
-          <span :style="{ color: currentTheme.secondary }">
-            {{ $tc("message.select_window_to_record_session", 1) }}
-          </span>
-        </div>
-        <div class="content">
-          <v-radio-group v-model="activeSource">
-            <v-row class="session-list">
-              <v-col
-                class="session-item"
-                cols="6"
-                xs="6"
-                sm="4"
-                md="4"
-                v-for="item in sources"
-                :key="item.id"
-              >
-                <div class="session-img">
-                  <img :src="item.thumbnail" :alt="item.name" />
-                </div>
-                <div class="session-name">
-                  <p :style="{ color: currentTheme.secondary }">
-                    {{ item.name }}
-                  </p>
-                </div>
-                <div class="session-radio">
-                  <v-radio dense :value="item.id" :ripple="false"></v-radio>
-                </div>
-              </v-col>
-            </v-row>
-          </v-radio-group>
-        </div>
-        <div class="footer">
+      <v-card :style="{ backgroundColor: currentTheme.background }">
+        <v-card-title
+          v-if="credentials?.yatt"
+          class="text"
+          :style="{ color: currentTheme.secondary }"
+        >
+          Share {{ credentials?.yatt[0]?.user?.name }}'s session
+          <!--span>Not {{ credentials.yatt[0].user.name }}? TODO</span-->
+        </v-card-title>
+        <v-card-text class="text" :style="{ color: currentTheme.secondary }">
+          <v-text-field
+            v-model="sessionURL"
+            disabled
+            label="Copy Link"
+            type="text"
+            variant="outlined"
+          >
+            <template v-slot:prepend-inner>
+              <v-icon icon="mdi-link" />
+            </template>
+          </v-text-field>
+        </v-card-text>
+        <v-card-actions>
           <v-btn
-            class="text-capitalize"
+            small
+            :color="currentTheme.primary"
+            class="text-capitalize btn"
+            :style="{ color: currentTheme.white }"
+            v-shortkey="confirmHotkey"
+            @shortkey="handleCopy()"
+            @click="handleCopy()"
+          >
+            {{ $tc("caption.copy_link", 1) }}
+          </v-btn>
+          <v-btn
             small
             :color="currentTheme.background"
+            class="text-capitalize btn"
             :style="{ color: currentTheme.secondary }"
             v-shortkey="cancelHotkey"
             @shortkey="handleClose()"
@@ -52,20 +52,8 @@
           >
             {{ $tc("caption.cancel", 1) }}
           </v-btn>
-          <v-btn
-            class="text-capitalize"
-            small
-            :color="currentTheme.primary"
-            :style="{ color: currentTheme.white }"
-            :disabled="!activeSource"
-            v-shortkey="confirmHotkey"
-            @shortkey="handleSelect()"
-            @click="handleSelect()"
-          >
-            {{ $tc("caption.select", 1) }}
-          </v-btn>
-        </div>
-      </div>
+        </v-card-actions>
+      </v-card>
     </v-sheet>
   </v-dialog>
 </template>
@@ -74,30 +62,28 @@
 import { mapGetters } from "vuex";
 
 export default {
-  name: "SourcePickerDialog",
+  name: "ShareSessionDialog",
   props: {
-    sources: {
-      type: Array,
-      default: () => [],
-    },
-    sourceId: {
+    sessionLink: {
       type: String,
       default: () => "",
     },
   },
   data() {
     return {
-      activeSource: "",
+      sessionURL: "",
     };
   },
   watch: {
-    sourceId: function () {
-      this.activeSource = this.sourceId;
+    sessionLink: function () {
+      this.sessionURL = this.sessionLink;
     },
   },
   computed: {
     ...mapGetters({
       hotkeys: "config/hotkeys",
+      config: "config/fullConfig",
+      credentials: "auth/credentials",
     }),
     confirmHotkey() {
       return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
@@ -114,15 +100,25 @@ export default {
     },
   },
   methods: {
+    handleCopy() {
+      if (navigator.clipboard && this.sessionURL) {
+        navigator.clipboard
+          .writeText(this.sessionURL)
+          .then(() => {
+            console.log("Link copied to clipboard successfully!");
+          })
+          .catch((err) => {
+            // Handle possible errors during copy attempt
+            console.error("Failed to copy the link: ", err);
+          });
+      } else {
+        // Fallback for older browsers or environments where the Clipboard API is not available
+        console.error("Clipboard API is not available.");
+      }
+    },
     handleClose() {
       this.activeSource = "";
-      this.$root.$emit("close-sourcepickerdialog");
-    },
-    handleSelect() {
-      this.$emit("submit-source", this.activeSource);
-    },
-    setActiveSource(value) {
-      this.activeSource = value;
+      this.$root.$emit("close-sharesessiondialog");
     },
   },
 };

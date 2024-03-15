@@ -388,7 +388,7 @@ export default {
     fileSuffix() {
       let splitName = [];
       if (this.item?.fileName) {
-        splitName = this.item?.fileName.split(".");
+        splitName = this.item?.fileName?.split(".");
       }
       return splitName.length > 1 ? "." + splitName[splitName.length - 1] : "";
     },
@@ -404,7 +404,7 @@ export default {
     // if (this.$isElectron) {
     //   this.activeSession();
     // }
-    this.$root.$on("update-session", this.updateSession);
+    this.$root.$on("update-edit-item", this.updateEditItem);
     this.$root.$on("update-processing", this.updateProcessing);
     this.$root.$on("save-data", this.saveData);
   },
@@ -423,7 +423,7 @@ export default {
       // set templates
       this.item = { ...this.itemData };
 
-      const splitName = this.item?.fileName.split(".") || [""];
+      const splitName = this.item?.fileName?.split(".") || [""];
       this.name = splitName.slice(0, -1).join(".");
 
       this.processing = false;
@@ -441,7 +441,7 @@ export default {
     async fetchItems() {
       this.items = await this.$storageService.getItems();
     },
-    updateSession(value) {
+    updateEditItem(value) {
       this.item = value;
     },
     updateProcessing(value) {
@@ -506,13 +506,13 @@ export default {
 
       this.items = this.items.map((item) => {
         let temp = Object.assign({}, item);
-        if (temp.id === this.item.id) {
+        if (temp.stepID === this.item.stepID) {
           temp = this.item;
         }
         return temp;
       });
 
-      await this.$storageService.updateItems(this.items);
+      await this.$store.commit("setSessionItems", this.items);
       this.$emit("close");
     },
     async handleAISuggestion(field, event) {

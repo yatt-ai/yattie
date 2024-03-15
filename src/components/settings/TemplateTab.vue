@@ -12,7 +12,7 @@
             {{ $tc("caption.apply_to", 1) }}
           </p>
           <v-select
-            :items="sessionTypes"
+            :items="evidenceTypes"
             v-model="type"
             :placeholder="$tc('caption.session_type', 1)"
             solo
@@ -23,10 +23,10 @@
         </div>
         <div class="mb-3 precond">
           <v-tiptap
-            label="Preconditions"
-            v-model="template.precondition.content"
-            :placeholder="$t('message.define_required_precondition')"
-            ref="precondition"
+            label="Text"
+            v-model="template.content"
+            :placeholder="$t('message.default_template_text')"
+            ref="text"
             :toolbar="[
               'headings',
               '|',
@@ -43,7 +43,7 @@
               'emoji',
               'blockquote',
             ]"
-            @input="updatePrecondition"
+            @input="updateText"
           >
           </v-tiptap>
         </div>
@@ -106,7 +106,6 @@
 </template>
 
 <script>
-import { SESSION_TYPES } from "@/modules/constants";
 import { mapGetters } from "vuex";
 export default {
   name: "TemplateTab",
@@ -130,50 +129,42 @@ export default {
       configToChange: null,
       template: null,
       type: null,
-      sessionTypes: SESSION_TYPES,
+      evidenceTypes: null,
     };
   },
   mounted() {
     this.templatesToChange = structuredClone(this.config.templates);
     this.configToChange = structuredClone(this.config);
-    this.template = this.configToChange.templates[0];
-    this.type = this.configToChange.templates[0].type;
+    this.template = Object.values(this.configToChange.templates)[0];
+    this.type = Object.keys(this.configToChange.templates)[0];
+    this.evidenceTypes = Object.keys(this.configToChange.templates);
   },
   methods: {
-    updatePrecondition() {
+    updateText() {
       const regex = /(<([^>]+)>)/gi;
-      this.template.precondition.text =
-        this.template.precondition.content.replace(regex, "");
+      this.template.text = this.template.content.replace(regex, "");
     },
     handleTemplate() {
-      this.templatesToChange.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.type === this.type) {
-          this.template = temp;
-        }
-      });
+      this.template = Object.assign({}, this.templatesToChange[this.type]);
     },
     handleCancel() {
-      this.type = this.templates[0].type;
-      this.template = this.templates[0];
+      this.template = Object.values(this.templatesToChange)[0];
+      this.type = Object.keys(this.templatesToChange)[0];
     },
     saveTemplate() {
-      this.templatesToChange = this.templatesToChange.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.type === this.template.type) {
-          temp = this.template;
-        }
-        return temp;
-      });
+      this.templatesToChange[this.type] = this.template;
       this.configToChange.templates = this.templatesToChange;
       this.$emit("submit-config", this.configToChange);
+      this.$root.$emit(
+        "set-snackbar",
+        this.$tc("caption.successfully_saved", 1)
+      );
     },
   },
 };
 </script>
 <style scoped>
 .content-wrapper {
-  height: 100vh;
   width: 100%;
   overflow-y: auto;
 }

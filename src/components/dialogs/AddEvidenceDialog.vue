@@ -331,7 +331,12 @@ import ReviewWrapper from "@/components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { TEXT_TYPES, STATUSES, AI_ENABLED_FIELDS } from "@/modules/constants";
+import {
+  TEXT_TYPES,
+  STATUSES,
+  AI_ENABLED_FIELDS,
+  FILE_TYPES,
+} from "@/modules/constants";
 
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
 import { mapGetters } from "vuex";
@@ -356,7 +361,6 @@ export default {
     return {
       createJiraTicket: false,
       issueCreateDestinationMenu: false,
-      items: [],
       item: null,
       comment: {
         type: "",
@@ -392,6 +396,7 @@ export default {
   },
   computed: {
     ...mapGetters({
+      items: "sessionItems",
       hotkeys: "config/hotkeys",
       config: "config/fullConfig",
       credentials: "auth/credentials",
@@ -438,15 +443,22 @@ export default {
   mounted() {
     if (this.$isElectron) {
       // this.$electronService.onActiveSession(this.activeSession);
-      this.activeSession();
+      // this.activeSession();
     }
+
+    this.activeSession();
 
     // Focus on comment
     this.$refs.comment.editor.commands.focus();
 
-    this.$root.$on("update-session", this.updateSession);
+    this.$root.$on("update-edit-item", this.updateEditItem);
     this.$root.$on("update-processing", this.updateProcessing);
-    this.$root.$on("save-data", this.saveData);
+    this.$root.$on("save-data", () => {
+      this.saveData();
+    });
+  },
+  beforeDestroy() {
+    this.$root.$off("save-data");
   },
   watch: {
     itemData: function (val) {
@@ -487,11 +499,11 @@ export default {
         this.comment.type = this.config.commentType;
       }
       // set templates by config
-      this.config.templates.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.type === this.item.sessionType) {
-          this.comment.content = temp.precondition.content;
-          this.comment.text = temp.precondition.text;
+      Object.keys(this.config.templates).map((key) => {
+        let temp = Object.assign({}, this.config.templates[key]);
+        if (key === FILE_TYPES[this.item.fileType]) {
+          this.comment.content = temp.content;
+          this.comment.text = temp.text;
         }
       });
     },
@@ -506,7 +518,10 @@ export default {
       input.focus();
     },
     async fetchItems() {
-      this.items = await this.$storageService.getItems();
+      if (this.$isElectron) {
+        const sessionItems = await this.$storageService.getItems();
+        this.$store.commit("setSessionItemsFromExternalWindow", sessionItems);
+      }
     },
     async getConfig() {
       const config = await this.$storageService.getConfig();
@@ -536,7 +551,7 @@ export default {
       const regex = /(<([^>]+)>)/gi;
       this.comment.text = this.comment.content.replace(regex, "");
     },
-    updateSession(value) {
+    updateEditItem(value) {
       this.item = value;
     },
     updateProcessing(value) {
@@ -591,9 +606,10 @@ export default {
         timer_mark: this.item.timer_mark,
         createdAt: Date.now(),
       };
-      this.items.push(newItem);
+      const updatedItems = [...this.items];
+      updatedItems.push(newItem);
 
-      await this.$storageService.updateItems(this.items);
+      await this.$store.commit("setSessionItems", [...updatedItems]);
       this.$emit("close");
     },
     handleClear() {

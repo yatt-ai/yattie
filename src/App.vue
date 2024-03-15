@@ -15,13 +15,12 @@
 
 <script>
 import ResetSessionDialog from "@/components/dialogs/ResetSessionDialog.vue";
-import ResetConfirmDialog from "@/components/dialogs/ResetConfirmDialog.vue";
 
 const default_layout = "default";
 
 export default {
   name: "App",
-  components: { ResetConfirmDialog, ResetSessionDialog },
+  components: { ResetSessionDialog },
   data() {
     return {
       showRestoreSessionDialog: false,
@@ -44,15 +43,15 @@ export default {
 
     const credentials = await this.$storageService.getCredentials();
     this.$store.commit("auth/setCredentials", credentials);
-    if (this.$isElectron) {
-      // todo remove this check when $integrationHelpers will support REST API
-      await this.updateAuth();
-    }
+    await this.updateAuth();
   },
   async mounted() {
-    if (this.renderRestoreSessionDialog) {
+    if (this.renderRestoreSessionDialog && this.$isElectron) {
       this.stateToRestore = await this.$storageService.getState();
-      if (Object.keys(this.stateToRestore).length && this.stateToRestore.id) {
+      if (
+        Object.keys(this.stateToRestore).length &&
+        this.stateToRestore.session.sessionID
+      ) {
         this.showRestoreSessionDialog = true;
       }
     }
@@ -62,14 +61,17 @@ export default {
       await this.$store.commit("restoreState", this.stateToRestore);
       const currentPath = this.$router.history.current.path;
       if (
-        this.stateToRestore.path &&
-        currentPath !== this.stateToRestore.path
+        this.stateToRestore.session.path &&
+        currentPath !== this.stateToRestore.session.path
       ) {
-        if (this.stateToRestore.path.includes("result") && this.$isElectron) {
+        if (
+          this.stateToRestore.session.path.includes("result") &&
+          this.$isElectron
+        ) {
           this.$electronService.setWindowSize({ width: 1440, height: 900 });
         }
-        if (this.stateToRestore.path !== "/authentication/signinJira") {
-          await this.$router.push({ path: this.stateToRestore.path });
+        if (this.stateToRestore.session.path !== "/authentication/signinJira") {
+          await this.$router.push({ path: this.stateToRestore.session.path });
         }
       }
       this.showRestoreSessionDialog = false;

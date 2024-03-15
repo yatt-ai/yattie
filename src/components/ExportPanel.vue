@@ -137,16 +137,14 @@ export default {
   },
   methods: {
     async exportSession() {
-      const sessionId = await this.$storageService.getSessionId();
       const data = {
-        id: sessionId,
-        title: this.$store.state.title,
-        charter: this.$store.state.charter,
-        preconditions: this.$store.state.preconditions,
-        duration: this.$store.state.duration,
-        timer: this.$store.state.timer,
-        started: this.$store.state.started,
-        ended: this.$store.state.ended,
+        title: this.$store.state.case.title,
+        charter: this.$store.state.case.charter,
+        preconditions: this.$store.state.case.preconditions,
+        duration: this.$store.state.case.duration,
+        timer: this.$store.state.session.timer,
+        started: this.$store.state.session.started,
+        ended: this.$store.state.session.ended,
       };
 
       if (this.$isElectron) {

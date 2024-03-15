@@ -86,7 +86,7 @@ export default {
       if (!window.ipc) return;
 
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CONFIG })
+        .invoke(IPC_HANDLERS.PERSISTENCE, { func: IPC_FUNCTIONS.GET_CONFIG })
         .then((result) => {
           this.config = result;
         });
@@ -95,16 +95,18 @@ export default {
       if (!window.ipc) return;
 
       window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_CREDENTIALS })
+        .invoke(IPC_HANDLERS.PERSISTENCE, {
+          func: IPC_FUNCTIONS.GET_CREDENTIALS,
+        })
         .then((result) => {
           this.credentials = result;
         });
     },
     maximize() {
       const data = {
-        status: this.$store.state.status,
-        timer: this.$store.state.timer,
-        duration: this.$store.state.duration,
+        status: this.$store.state.session.status,
+        timer: this.$store.state.session.timer,
+        duration: this.$store.state.case.duration,
         sourceId: this.sourceId,
       };
       window.ipc.invoke(IPC_HANDLERS.WINDOW, {
@@ -125,7 +127,7 @@ export default {
     addItem(data) {
       if (!window.ipc) return;
 
-      window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
         func: IPC_FUNCTIONS.ADD_ITEM,
         data: data,
       });

@@ -44,6 +44,14 @@ export default class StorageService {
     return await this.storage.getItemById(id);
   }
 
+  async addItem(item) {
+    return this.storage.addItem(item);
+  }
+
+  async updateItem(item) {
+    return this.storage.updateItem(item);
+  }
+
   async updateItems(items) {
     return this.storage.updateItems(items);
   }
@@ -60,12 +68,20 @@ export default class StorageService {
     return this.storage.updateNotes(notes);
   }
 
+  async deleteNotes(notes) {
+    return this.storage.deleteNotes(notes);
+  }
+
   async createNewSession(data) {
     return this.storage.createNewSession(data);
   }
 
   async getSessionId() {
     return this.storage.getSessionId();
+  }
+
+  async getCaseId() {
+    return this.storage.getCaseId();
   }
 
   async saveSession(data) {

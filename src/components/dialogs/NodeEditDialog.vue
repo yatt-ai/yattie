@@ -22,7 +22,8 @@
         <v-card-actions>
           <v-btn
             small
-            color="currentTheme.primary"
+            :color="currentTheme.primary"
+            :style="{ color: currentTheme.white }"
             class="text-capitalize"
             v-shortkey="confirmHotkey"
             @shortkey="handleSave()"
@@ -32,7 +33,8 @@
           </v-btn>
           <v-btn
             small
-            color="currentTheme.background"
+            :color="currentTheme.background"
+            :style="{ color: currentTheme.secondary }"
             class="text-capitalize"
             v-shortkey="cancelHotkey"
             @shortkey="handleCancel()"
