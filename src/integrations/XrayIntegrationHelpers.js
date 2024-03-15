@@ -171,8 +171,6 @@ export default {
       .then((response) => {
         if (response.status === 200) {
           if (response.data.errors) {
-            console.log(response);
-            // Handle one error at a time
             console.error(
               "Error attaching evidence to test run: ",
               response.data.errors[0]
@@ -181,8 +179,6 @@ export default {
           }
 
           console.log("Attached evidence to test run");
-
-          console.log(response);
 
           return response.data.data.addEvidenceToTestRun.addedEvidence;
         }
