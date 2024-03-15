@@ -47,7 +47,7 @@ export default {
     };
   },
 
-  async fetchTestExecutions(credential) {
+  async fetchTestExecutions(accessToken) {
     const graphqlQuery = {
       query: `{
         getTestExecutions(limit: 10) {
@@ -61,8 +61,7 @@ export default {
         }
       }`,
     };
-    const url = `https://xray.cloud.getxray.app/api/v2/graphql`;
-    const authHeader = `Bearer ${credential.accessToken}`;
+    const authHeader = `Bearer ${accessToken}`;
     const graphqlHeaders = {
       headers: {
         Authorization: authHeader,
@@ -71,7 +70,7 @@ export default {
     };
 
     return axios
-      .post(url, graphqlQuery, graphqlHeaders)
+      .post(XRAY_URL, graphqlQuery, graphqlHeaders)
       .then((response) => {
         if (response.status === 200) {
           console.log("Fetched Test Executions");
@@ -137,6 +136,59 @@ export default {
       })
       .catch((error) => {
         console.error("Error fetching test runs: ", error);
+        throw new Error(error.message);
+      });
+  },
+
+  async addEvidenceToTestRun(testRunId, file, accessToken) {
+    const graphqlQuery = {
+      query: `mutation {
+        addEvidenceToTestRun(
+          id: "${testRunId}",
+          evidence: [
+            {
+              filename: "${file.filename}"
+              mimeType: "${file.mimeType}"
+              data: "${file.data}"
+            }
+          ]
+        ) {
+          addedEvidence
+          warnings
+        }
+      }`,
+    };
+    const authHeader = `Bearer ${accessToken}`;
+    const graphqlHeaders = {
+      headers: {
+        Authorization: authHeader,
+        "Content-Type": "application/json",
+      },
+    };
+
+    return axios
+      .post(XRAY_URL, graphqlQuery, graphqlHeaders)
+      .then((response) => {
+        if (response.status === 200) {
+          if (response.data.errors) {
+            console.log(response);
+            // Handle one error at a time
+            console.error(
+              "Error attaching evidence to test run: ",
+              response.data.errors[0]
+            );
+            throw new Error(response.data.errors[0].message);
+          }
+
+          console.log("Attached evidence to test run");
+
+          console.log(response);
+
+          return response.data.data.addEvidenceToTestRun.addedEvidence;
+        }
+      })
+      .catch((error) => {
+        console.error("Error attaching evidence to test run: ", error);
         throw new Error(error.message);
       });
   },

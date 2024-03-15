@@ -107,13 +107,18 @@
                       "
                       @click="handleSelectRun(item)"
                     >
-                      <v-icon class="issue-icon">mdi-flag</v-icon>
+                      <v-icon class="issue-icon">{{
+                        getIconByTestRunStatus(item.status.name)
+                      }}</v-icon>
                       <div class="issue-desc">
                         <span
                           class="issue-summary subtitle-1"
-                          v-text="item.name"
+                          v-text="item.id"
                         ></span>
-                        <span class="issue-key caption" v-text="item.id"></span>
+                        <span
+                          class="issue-key caption"
+                          v-text="item.status.description"
+                        ></span>
                       </div>
                     </div>
                   </div>
@@ -420,6 +425,26 @@ export default {
     this.credentials = await this.$storageService.getCredentials();
   },
   methods: {
+    getIconByTestRunStatus(description) {
+      let icon;
+      switch (description) {
+        case "EXECUTING":
+          icon = "mdi-play";
+          break;
+        case "PASSED":
+          icon = "mid-check";
+          break;
+        case "FAILED":
+          icon = "mdi-alert-circle";
+          break;
+        case "TO DO":
+        default:
+          icon = "mid-check";
+          break;
+      }
+
+      return icon;
+    },
     resetResults(type) {
       this.selectTestExecution = type === "testExecution";
       this.selectTestRun = type === "testRun";
@@ -440,7 +465,7 @@ export default {
         if (credential[0].type === "xray") {
           try {
             const data = await xrayIntegrationHelper.fetchTestExecutions(
-              credential[0]
+              credential[0].accessToken
             );
 
             if (first) {
@@ -493,37 +518,50 @@ export default {
       }
       //this.selectedItem = item;
     },
+    async file2Base64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result?.toString() || "");
+        reader.onerror = (error) => reject(error);
+      });
+    },
     async handleSelectRun(item) {
       this.resetResults("test");
-      const credential = this.credentials[item.credential_index];
-      const url = `https://${credential.url}/index.php?/api/v2/get_tests/${item.id}`;
-      const authHeader = `Basic ${credential.accessToken}`;
-      const headers = {
-        headers: {
-          Authorization: authHeader,
-          Accept: "application/json",
-        },
-      };
+      this.selectedItem = item;
+      const selection = item;
 
-      await axios
-        .get(url, headers)
-        .then((response) => {
-          if (response.status === 200) {
-            this.tests = response.data.tests.map((test) => ({
-              ...test,
-              credential_index: item.credential_index,
-            }));
-          }
-          this.testLoading = false;
-        })
-        .catch((error) => {
+      console.log({ selection: item });
+
+      this.selectedAttachments.map(async (item, i) => {
+        const response = await fetch(`file:${item.filePath}`);
+        const file = new File([await response.blob()], item.fileName);
+
+        let exportFile = {
+          filename: item.fileName,
+          mimeType: item.fileType,
+          data: await this.file2Base64(file),
+          i,
+        };
+
+        try {
+          await xrayIntegrationHelper.addEvidenceToTestRun(
+            selection.id,
+            exportFile,
+            this.credentials.xray[0].accessToken
+          );
+        } catch (error) {
           this.testLoading = false;
           this.snackBar.enabled = true;
           this.snackBar.message = error.message
             ? error.message
             : this.$tc("message.api_error", 1);
-        });
-      this.selectedItem = item;
+        }
+      });
+
+      this.testLoading = false;
+      this.dialog = false;
+      this.selectedItem = null;
     },
     async handleAddResult(item) {
       this.resetResults("result");
