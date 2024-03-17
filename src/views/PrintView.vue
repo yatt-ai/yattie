@@ -1,6 +1,6 @@
 <template>
   <v-container class="wrapper">
-    <div class="header">
+    <div class="header" v-if="logo">
       <img :src="require('../assets/logo.png')" />
     </div>
     <div class="content">
@@ -486,6 +486,7 @@ export default {
     return {
       items: [],
       textTypes: TEXT_TYPES,
+      logo: false,
       title: "",
       charter: "",
       preconditions: "",
@@ -512,13 +513,13 @@ export default {
     this.detectEnvironment();
 
     if (!window.ipc) return;
-
     window.ipc.on("ACTIVE_PDF", (data) => {
       this.title = data.title;
       this.charter = data.charter;
       this.preconditions = data.preconditions;
       this.timer = data.timer;
       this.duration = data.duration;
+      this.logo = data.logo;
     });
   },
   computed: {

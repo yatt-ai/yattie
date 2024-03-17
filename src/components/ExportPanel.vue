@@ -9,6 +9,13 @@
           v-model="evidenceExportDestinationMenu"
         >
           <template v-slot:activator="{ on: evidenceExportDestinationMenu }">
+            <v-checkbox
+              v-model="logo"
+              :label="$tc('caption.add_org_logo_in_pdf')"
+              dense
+              :ripple="false"
+            >
+            </v-checkbox>
             <v-tooltip top>
               <template v-slot:activator="{ on: onTooltip }">
                 <v-btn
@@ -109,6 +116,7 @@ export default {
   },
   data() {
     return {
+      logo: false,
       exportSessionDialog: false,
       itemLists: this.items,
       config: this.configItem,
@@ -131,6 +139,7 @@ export default {
         timer: this.$store.state.session.timer,
         started: this.$store.state.session.started,
         ended: this.$store.state.session.ended,
+        logo: this.logo,
       };
 
       if (this.$isElectron) {

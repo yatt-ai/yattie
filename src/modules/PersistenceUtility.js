@@ -527,6 +527,10 @@ module.exports.updateItem = (newItem) => {
 module.exports.updateItems = (items) => {
   try {
     let session = dataDb.get("session");
+    if (!session) {
+      dataDb.set("session", {});
+      session = {};
+    }
     session.items = items;
     dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();

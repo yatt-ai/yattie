@@ -102,6 +102,7 @@
     "post_session": "Post session",
     "enable_checklist": "Enable checklist",
     "add_another_task": "Add another task",
+    "add_org_logo_in_pdf": "Add an organization Logo in PDF",
     "required": "Required",
     "required_follow_up": "Follow up required",
     "external_connection": "@.upper:external connections",
