@@ -334,6 +334,7 @@ export default {
       ),
       processing: false,
       triggerSaveEvent: false,
+      allTags: [],
     };
   },
   created() {
@@ -343,24 +344,11 @@ export default {
   },
   computed: {
     ...mapGetters({
-      configTags: "config/tags",
+      defaultTags: "config/defaultTags",
       sessionItems: "sessionItems",
     }),
     filteredTags() {
-      const configTagTexts = this.configTags
-        .filter((tag) => tag.text !== "")
-        .map((tag) => tag.text);
-      let sessionTagTexts = [];
-      if (this.sessionItems.length > 0) {
-        this.sessionItems.forEach((item) => {
-          if (item.tags && item.tags.length > 0) {
-            const tagTexts = item.tags.map((tag) => tag.text);
-            sessionTagTexts = sessionTagTexts.concat(tagTexts);
-          }
-        });
-      }
-      const allTags = [...new Set([...configTagTexts, ...sessionTagTexts])];
-      return allTags
+      return this.allTags
         .filter((item) => {
           return item.toLowerCase().includes(this.tag.toLowerCase());
         })
@@ -432,11 +420,27 @@ export default {
     if (this.$isElectron) {
       this.$electronService.onActiveSession(this.activeSession);
     }
+    this.getAllTags();
     this.$root.$on("update-edit-item", this.updateEditItem);
     this.$root.$on("update-processing", this.updateProcessing);
     this.$root.$on("save-data", this.saveData);
   },
   methods: {
+    getAllTags() {
+      const defaultTagTexts = this.defaultTags
+        .filter((tag) => tag.text !== "")
+        .map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      this.allTags = [...new Set([...defaultTagTexts, ...sessionTagTexts])];
+    },
     getType(type) {
       return FILE_TYPES[type];
     },

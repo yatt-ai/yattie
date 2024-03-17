@@ -388,6 +388,7 @@ export default {
       triggerJiraSaveTicket: false,
       jiraTicketSaved: false,
       autoSaveEvent: false,
+      allTags: [],
     };
   },
   created() {
@@ -401,24 +402,11 @@ export default {
       hotkeys: "config/hotkeys",
       config: "config/fullConfig",
       credentials: "auth/credentials",
-      configTags: "config/tags",
+      defaultTags: "config/defaultTags",
       sessionItems: "sessionItems",
     }),
     filteredTags() {
-      const configTagTexts = this.configTags
-        .filter((tag) => tag.text !== "")
-        .map((tag) => tag.text);
-      let sessionTagTexts = [];
-      if (this.sessionItems.length > 0) {
-        this.sessionItems.forEach((item) => {
-          if (item.tags && item.tags.length > 0) {
-            const tagTexts = item.tags.map((tag) => tag.text);
-            sessionTagTexts = sessionTagTexts.concat(tagTexts);
-          }
-        });
-      }
-      const allTags = [...new Set([...configTagTexts, ...sessionTagTexts])];
-      return allTags
+      return this.allTags
         .filter((item) => {
           return item.toLowerCase().includes(this.tagText.toLowerCase());
         })
@@ -466,6 +454,7 @@ export default {
     },
   },
   mounted() {
+    this.getAllTags();
     if (this.$isElectron) {
       // this.$electronService.onActiveSession(this.activeSession);
       // this.activeSession();
@@ -501,6 +490,21 @@ export default {
     },
   },
   methods: {
+    getAllTags() {
+      const defaultTagTexts = this.defaultTags
+        .filter((tag) => tag.text !== "")
+        .map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      this.allTags = [...new Set([...defaultTagTexts, ...sessionTagTexts])];
+    },
     async activeSession() {
       // set theme mode
       const isDarkMode = this.config.apperance === "dark";

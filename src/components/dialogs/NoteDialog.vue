@@ -234,6 +234,10 @@ export default {
     VEmojiPicker,
   },
   props: {
+    isVisible: {
+      type: Boolean,
+      require: true,
+    },
     configItem: {
       type: Object,
       default: () => {},
@@ -244,6 +248,11 @@ export default {
     },
   },
   watch: {
+    isVisible(newVal) {
+      if (newVal) {
+        this.getAllTags();
+      }
+    },
     configItem: function (newValue) {
       this.config = newValue;
       this.resetData();
@@ -282,30 +291,18 @@ export default {
       tag_text: "",
       emojiMenu: false,
       tags: [],
+      allTags: [],
       emoji: [],
       followUp: false,
     };
   },
   computed: {
     ...mapGetters({
-      configTags: "config/tags",
+      defaultTags: "config/defaultTags",
       sessionItems: "sessionItems",
     }),
     filteredTags() {
-      const configTagTexts = this.configTags
-        .filter((tag) => tag.text !== "")
-        .map((tag) => tag.text);
-      let sessionTagTexts = [];
-      if (this.sessionItems.length > 0) {
-        this.sessionItems.forEach((item) => {
-          if (item.tags && item.tags.length > 0) {
-            const tagTexts = item.tags.map((tag) => tag.text);
-            sessionTagTexts = sessionTagTexts.concat(tagTexts);
-          }
-        });
-      }
-      const allTags = [...new Set([...configTagTexts, ...sessionTagTexts])];
-      return allTags
+      return this.allTags
         .filter((item) => {
           return item.toLowerCase().includes(this.tag_text.toLowerCase());
         })
@@ -337,6 +334,21 @@ export default {
     },
   },
   methods: {
+    getAllTags() {
+      const defaultTagTexts = this.defaultTags
+        .filter((tag) => tag.text !== "")
+        .map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      this.allTags = [...new Set([...defaultTagTexts, ...sessionTagTexts])];
+    },
     resetData() {
       // set comment type by config
       if (this.config.commentType && this.config.commentType !== "") {

@@ -16,7 +16,7 @@ export const config = {
     debugMode: false,
     summary: false,
     templates: [],
-    tags: [{ id: "1", text: "Canada" }],
+    defaultTags: [],
     checklist: {
       presession: {
         status: false,
@@ -47,19 +47,8 @@ export const config = {
         Vue.set(state, key, payload[key]);
       });
     },
-    addTag(state, payload) {
-      state.tags.push(payload);
-      this._vm.$storageService.updateConfig(state);
-    },
-    deleteTag(state, id) {
-      state.tags = state.tags.filter((tag) => tag.id !== id);
-      this._vm.$storageService.updateConfig(state);
-    },
-    editTagText(state, payload) {
-      const tag = state.tags.find((tag) => tag.id === payload.id);
-      if (tag) {
-        tag.text = payload.text;
-      }
+    saveDefaultTags(state, payload) {
+      state.defaultTags = payload;
       this._vm.$storageService.updateConfig(state);
     },
     setPresessionStatus(state, payload) {
@@ -71,7 +60,6 @@ export const config = {
       this._vm.$storageService.updateConfig(state);
     },
     addPresessionTask(state, payload) {
-      console.log("666", state.tags);
       state.checklist.presession.tasks.push(payload);
       this._vm.$storageService.updateConfig(state);
     },
@@ -131,7 +119,7 @@ export const config = {
     fullConfig: (state) => {
       return state;
     },
-    tags: (state) => state.tags,
+    defaultTags: (state) => state.defaultTags,
     hotkeys: (state) => state.hotkeys,
     checklistPresessionStatus: (state) => state.checklist.presession.status,
     checklistPresessionTasks: (state) => state.checklist.presession.tasks,

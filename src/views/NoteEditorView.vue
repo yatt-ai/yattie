@@ -129,6 +129,7 @@ export default {
       commentTypes: Object.keys(TEXT_TYPES).filter(
         (item) => item !== "Summary"
       ),
+      allTags: [],
     };
   },
   created() {
@@ -150,24 +151,11 @@ export default {
   },
   computed: {
     ...mapGetters({
-      configTags: "config/tags",
+      defaultTags: "config/defaultTags",
       sessionItems: "sessionItems",
     }),
     filteredTags() {
-      const configTagTexts = this.configTags
-        .filter((tag) => tag.text !== "")
-        .map((tag) => tag.text);
-      let sessionTagTexts = [];
-      if (this.sessionItems.length > 0) {
-        this.sessionItems.forEach((item) => {
-          if (item.tags && item.tags.length > 0) {
-            const tagTexts = item.tags.map((tag) => tag.text);
-            sessionTagTexts = sessionTagTexts.concat(tagTexts);
-          }
-        });
-      }
-      const allTags = [...new Set([...configTagTexts, ...sessionTagTexts])];
-      return allTags
+      return this.allTags
         .filter((item) => {
           return item.toLowerCase().includes(this.tag.toLowerCase());
         })
@@ -183,7 +171,25 @@ export default {
       }
     },
   },
+  mounted() {
+    this.getAllTags();
+  },
   methods: {
+    getAllTags() {
+      const defaultTagTexts = this.defaultTags
+        .filter((tag) => tag.text !== "")
+        .map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      this.allTags = [...new Set([...defaultTagTexts, ...sessionTagTexts])];
+    },
     handleNote() {
       const regex = /(<([^>]+)>)/gi;
       this.comment.text = this.comment.content.replace(regex, "");

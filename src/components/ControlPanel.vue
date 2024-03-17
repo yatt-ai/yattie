@@ -670,6 +670,7 @@
       <NoteDialog
         v-model="noteDialog"
         ref="noteDialog"
+        :isVisible="noteDialog"
         :configItem="config"
         :credentialItems="credentials"
         @submit-note="addNote"
@@ -733,6 +734,7 @@
       <AddEvidenceDialog
         v-if="evidenceData"
         v-model="addEvidenceDialog"
+        :evidenceData="evidenceData"
         :item-data="evidenceData"
         @close="
           addEvidenceDialog = false;

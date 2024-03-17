@@ -1,59 +1,40 @@
 <template>
   <v-container class="wrapper">
-    <div class="title">{{ $tc("caption.custom_tags", 1) }}</div>
+    <div class="title">{{ $tc("caption.default_tags", 1) }}</div>
     <p class="mt-2 mb-4">
-      {{ $t("message.add_custom_tags") }}
+      {{ $t("message.add_default_tags") }}
     </p>
     <div class="content">
-      <div class="tag-list">
-        <div class="one" v-for="tag in tags" :key="tag.id">
-          <div class="input-box">
-            <input
-              type="text"
-              placeholder="Add tag"
-              @input="
-                (evt) =>
-                  $store.commit('config/editTagText', {
-                    id: tag.id,
-                    text: evt.target.value,
-                  })
-              "
-              :value="tag.text"
-            />
-          </div>
-          <div class="func-box">
-            <v-icon @click="$store.commit('config/deleteTag', tag.id)">
-              mdi-delete
-            </v-icon>
-          </div>
-        </div>
-      </div>
-      <div class="footer">
-        <button
-          class="link"
-          @click="addTag"
-          :style="{ color: currentTheme.secondary }"
-        >
-          {{ $tc("caption.add_another_tag", 1) }}
-        </button>
-      </div>
+      <vue-tags-input
+        class="input-box"
+        v-model="tag_text"
+        :tags="tags"
+        :max-tags="10"
+        :maxlength="20"
+        @tags-changed="handleTags"
+        :placeholder="$t('message.insert_tag')"
+      />
     </div>
   </v-container>
 </template>
 <script>
 import { mapGetters } from "vuex";
+import VueTagsInput from "@johmun/vue-tags-input";
 
 export default {
   name: "TabsTab",
-  components: {},
+  components: { VueTagsInput },
   props: {},
   data() {
-    return {};
+    return {
+      tag_text: "",
+      tags: [],
+    };
   },
   computed: {
     ...mapGetters({
       config: "config/fullConfig",
-      tags: "config/tags",
+      defaultTags: "config/defaultTags",
     }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
@@ -63,12 +44,13 @@ export default {
       }
     },
   },
+  created() {
+    this.tags = this.defaultTags;
+  },
   methods: {
-    addTag: function () {
-      this.$store.commit("config/addTag", {
-        id: new Date().getTime(),
-        text: "",
-      });
+    handleTags(newTags) {
+      this.tags = newTags;
+      this.$store.commit("config/saveDefaultTags", this.tags);
     },
   },
 };
