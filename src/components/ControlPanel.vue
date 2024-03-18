@@ -734,7 +734,6 @@
       <AddEvidenceDialog
         v-if="evidenceData"
         v-model="addEvidenceDialog"
-        :evidenceData="evidenceData"
         :item-data="evidenceData"
         @close="
           addEvidenceDialog = false;
