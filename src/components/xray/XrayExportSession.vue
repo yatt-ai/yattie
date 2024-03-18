@@ -121,95 +121,6 @@
                 </div>
               </v-col>
             </v-row>
-            <v-row v-if="selectTest">
-              <v-col cols="12">
-                <div class="loading-wrapper" v-if="testLoading">
-                  <v-progress-circular
-                    :size="70"
-                    :width="7"
-                    color="primary"
-                    indeterminate
-                  ></v-progress-circular>
-                </div>
-                <div class="issue-wrapper" v-else>
-                  <div class="issue-list">
-                    <span class="issue-header"
-                      >{{ searchTestsList.length }}
-                      {{ $tc("caption.tests", 1) }}</span
-                    >
-                    <div
-                      v-for="item in searchTestsList"
-                      :key="item.id"
-                      :class="
-                        selectedItem && item.id === selectedItem.id
-                          ? 'issue-item active'
-                          : 'issue-item'
-                      "
-                      @click="handleAddResult(item)"
-                    >
-                      <v-icon class="issue-icon">mdi-flag</v-icon>
-                      <div class="issue-desc">
-                        <span
-                          class="issue-summary subtitle-1"
-                          v-text="item.title"
-                        ></span>
-                        <span class="issue-key caption" v-text="item.id"></span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </v-col>
-            </v-row>
-            <v-row v-if="addResult">
-              <v-col cols="12">
-                <div class="loading-wrapper" v-if="resultLoading">
-                  <v-progress-circular
-                    :size="70"
-                    :width="7"
-                    color="primary"
-                    indeterminate
-                  ></v-progress-circular>
-                </div>
-                <div class="issue-wrapper" v-else>
-                  <div class="issue-list">
-                    <span class="issue-header">
-                      {{ $tc("caption.add_result", 1) }}
-                    </span>
-                    <div class="result-wrapper">
-                      <v-select
-                        :label="this.$i18n.t('caption.result_status')"
-                        v-model="selectedStatus"
-                        :items="statuses"
-                        item-text="label"
-                        return-object
-                      >
-                      </v-select>
-                      <div v-for="(item, i) in selectedAttachments" :key="i">
-                        <div
-                          class="image-wrapper"
-                          @click="handleItemClick(item.id)"
-                        >
-                          <img
-                            class="screen-img"
-                            style="max-width: 100%"
-                            :src="`file://${item.filePath}`"
-                          />
-                        </div>
-                        <div class="comment-wrapper mt-2">
-                          <span class="comment-type"
-                            >{{
-                              item.comment.text
-                                ? item.comment.type + ": " + item.comment.text
-                                : ""
-                            }}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </v-col>
-            </v-row>
           </div>
           <v-divider></v-divider>
           <v-card-actions>
@@ -257,6 +168,7 @@
 <script>
 import axios from "axios";
 import xrayIntegrationHelper from "@/integrations/XrayIntegrationHelpers";
+import { mapGetters } from "vuex";
 
 export default {
   name: "XrayExportSession",
@@ -280,9 +192,6 @@ export default {
     },
   },
   watch: {
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
     items: function (newValue) {
       this.itemLists = newValue;
     },
@@ -294,24 +203,15 @@ export default {
     return {
       selectTestExecution: true,
       selectTestRun: true,
-      selectTest: false,
-      addResult: false,
       testExecutionLoading: true,
       testRunLoading: true,
-      testLoading: true,
-      resultLoading: true,
       dialog: false,
-      credentials: this.credentialItems,
       itemLists: this.items,
       selectedIds: this.selected ? this.selected : [],
       search: "",
-      projects: [],
       testExecutions: [],
       testRuns: [],
-      tests: [],
-      statuses: [],
       selectedItem: null,
-      selectedStatus: null,
       snackBar: {
         enabled: false,
         message: "",
@@ -326,31 +226,18 @@ export default {
         return this.$vuetify.theme.themes.light;
       }
     },
+    ...mapGetters({
+      credentials: "auth/credentials",
+    }),
     disableDiscard() {
       return (
         (this.selectTestExecution && this.testExecutionLoading) ||
         (this.selectTestRun && this.testRunLoading) ||
-        (this.selectTest && this.testLoading) ||
-        (this.addResult && this.resultLoading)
+        (this.selectTest && this.testLoading)
       );
     },
     disableExport() {
       return this.disableDiscard || !this.selectedItem || !this.selectedStatus;
-    },
-    searchProjectsList() {
-      let temp = this.projects;
-      if (this.search !== "" && this.search) {
-        temp = temp.filter((item) => {
-          return (
-            item.key.toUpperCase().includes(this.search.toUpperCase()) ||
-            item.fields.summary
-              .toUpperCase()
-              .includes(this.search.toUpperCase()) ||
-            item.id.includes(this.search)
-          );
-        });
-      }
-      return temp;
     },
     searchTestExecutionsList() {
       let temp = this.testExecutions;
@@ -386,21 +273,6 @@ export default {
       }
       return temp;
     },
-    searchTestsList() {
-      let temp = this.tests;
-      if (this.search !== "" && this.search) {
-        temp = temp.filter((item) => {
-          return (
-            item.key.toUpperCase().includes(this.search.toUpperCase()) ||
-            item.fields.summary
-              .toUpperCase()
-              .includes(this.search.toUpperCase()) ||
-            item.id.includes(this.search)
-          );
-        });
-      }
-      return temp;
-    },
     selectedAttachments() {
       let selectedAttachments = [];
       if (this.selectedIds.length > 0) {
@@ -416,10 +288,7 @@ export default {
       return selectedAttachments;
     },
   },
-  async mounted() {
-    console.log("XRAYExportSession mounted");
-    this.credentials = await this.$storageService.getCredentials();
-  },
+  async mounted() {},
   methods: {
     getIconByTestRunStatus(description) {
       let icon;
@@ -444,12 +313,8 @@ export default {
     resetResults(type) {
       this.selectTestExecution = type === "testExecution";
       this.selectTestRun = type === "testRun";
-      this.selectTest = type === "test";
-      this.addResult = type === "result";
       this.testExecutionLoading = true;
       this.testRunLoading = true;
-      this.testLoading = true;
-      this.resultLoading = true;
     },
     async showDialog() {
       this.dialog = true;
@@ -512,7 +377,6 @@ export default {
           ? error.message
           : this.$tc("message.api_error", 1);
       }
-      //this.selectedItem = item;
     },
     async file2Base64(file) {
       return new Promise((resolve, reject) => {
@@ -564,34 +428,6 @@ export default {
       this.testLoading = false;
       this.dialog = false;
       this.selectedItem = null;
-    },
-    async handleAddResult(item) {
-      this.resetResults("result");
-      const credential = this.credentials[item.credential_index];
-      const url = `https://${credential.url}/index.php?/api/v2/get_statuses`;
-      const authHeader = `Basic ${credential.accessToken}`;
-      const headers = {
-        headers: {
-          Authorization: authHeader,
-          Accept: "application/json",
-        },
-      };
-
-      await axios
-        .get(url, headers)
-        .then((response) => {
-          if (response.status === 200) {
-            this.statuses = response.data;
-          }
-          this.resultLoading = false;
-        })
-        .catch((error) => {
-          this.resultLoading = false;
-          this.snackBar.enabled = true;
-          this.snackBar.message = error.message
-            ? error.message
-            : this.$tc("message.api_error", 1);
-        });
     },
     async handleExport() {
       const credential = this.credentials[this.selectedItem.credential_index];
