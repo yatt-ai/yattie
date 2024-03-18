@@ -1,7 +1,7 @@
 <template>
   <v-list-item @click="showDialog()">
     <v-list-item-icon class="mr-4">
-      <v-avatar size="24">
+      <v-avatar width="12" size="24">
         <img
           :src="require('../../assets/icon/xray-logo.png')"
           width="12"
