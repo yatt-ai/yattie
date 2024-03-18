@@ -234,7 +234,6 @@ export default {
       this.$store.commit("setSessionItemsFromExternalWindow", sessionItems);
     },
     addItem(newItem) {
-      // console.log("add", newItem);
       this.$store.commit("addSessionItem", newItem);
     },
     updateItem(newItem) {

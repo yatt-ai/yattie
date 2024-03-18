@@ -51,11 +51,9 @@ const store = new Vuex.Store({
   },
   mutations: {
     setSessionIDFromBackend(state, payload) {
-      console.log("setSessionIDFromBackend", payload);
       state.session.sessionID = payload;
     },
     setCaseIDFromBackend(state, payload) {
-      console.log("setCaseIDFromBackend", payload);
       state.case.caseID = payload;
     },
     setCaseID(state, payload) {
@@ -129,7 +127,11 @@ const store = new Vuex.Store({
     },
     addSessionItem(state, payload) {
       state.session.items.push(payload);
-      this._vm.$storageService.addItem(payload);
+      if (Vue.prototype.$isElectron) {
+        this._vm.$storageService.addItem(payload);
+      } else {
+        this._vm.$storageService.updateState(state);
+      }
     },
     updateSessionItem(state, payload) {
       const currentItemIndex = state.session.items.findIndex(
