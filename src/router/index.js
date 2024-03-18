@@ -27,6 +27,7 @@ import ConfigCheckListTab from "@/components/settings/ConfigCheckListTab.vue";
 import ReportsTab from "@/components/settings/ReportsTab.vue";
 import AddonsTab from "@/components/settings/AddonsTab.vue";
 import HotkeysTab from "@/components/settings/HotkeysTab.vue";
+import TagsTab from "@/components/settings/TagsTab.vue";
 
 import NoteEditorView from "../views/NoteEditorView.vue";
 import SummaryEditorView from "../views/SummaryEditorView.vue";
@@ -145,6 +146,12 @@ const routes = [
         path: "hotkeys",
         name: "hotkeys",
         component: HotkeysTab,
+        props: true,
+      },
+      {
+        path: "tabs",
+        name: "tabs",
+        component: TagsTab,
         props: true,
       },
     ],

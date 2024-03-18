@@ -38,7 +38,9 @@
     "session_time": "Session time",
     "session_elapsed_time": "Elapsed time",
     "notes": "Notes",
-    "tags": "Tags",
+    "tags_tab": "Tags",
+    "default_tags": "Default Tags",
+    "add_another_tag": "Add another tag",
     "reactions": "Reactions",
     "environment": "Environment",
     "os": "@.upper:os",
@@ -60,6 +62,7 @@
     "reports": "Reports",
     "addons": "Addons",
     "hotkeys": "Hotkeys",
+    "tags": "Tags",
     "support": "Support",
     "signup_test_app": "Sign up to test apps",
     "back": "Back",
@@ -277,6 +280,7 @@
     "check_update": "Check for updates"
   },
   "message": {
+    "add_default_tags": "Add your default tags that will be used in any session",
     "browser_action_attempts": "Waiting for browser action. Attempts:",
     "invalid_html": "Invalid HTML returned",
     "ai_assist_not_empty": "AI assist field cannot be empty",

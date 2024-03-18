@@ -48,7 +48,6 @@ module.exports.getSystemInfo = async () => {
     const biosVersion = await getBIOSVersion();
     const processor = await getProcessor();
     const memory = await getMemory();
-    console.log("q231", memory);
 
     return {
       currentDateTime,

@@ -670,6 +670,7 @@
       <NoteDialog
         v-model="noteDialog"
         ref="noteDialog"
+        :isVisible="noteDialog"
         :configItem="config"
         :credentialItems="credentials"
         @submit-note="addNote"
@@ -1747,7 +1748,6 @@ export default {
             timer_mark: this.timer,
             createdAt: Date.now(),
           };
-
           this.$emit("add-item", newItem);
           this.noteDialog = false;
         }
