@@ -22,19 +22,6 @@
               width="50"
             />
           </v-col>
-          <v-col cols="12" class="d-flex justify-center mb-5 pa-0 mt-2">
-            <div class="subtitle-2">
-              <a
-                @click="
-                  openExternalLink(
-                    'https://docs.getxray.app/display/XRAYCLOUD/Global+Settings%3A+API+Keys'
-                  )
-                "
-              >
-                {{ $tc("message.xray_api_keys_docs") }}
-              </a>
-            </div>
-          </v-col>
           <v-col cols="12" class="pa-0">
             <div class="subtitle-2 label-text">
               {{ $tc("caption.client_id", 1) }}
@@ -67,6 +54,19 @@
                 :rules="rules.apiKey"
                 @click:append="showClientSecret = !showClientSecret"
               />
+            </div>
+          </v-col>
+          <v-col cols="12" class="d-flex justify-center mb-5 pa-0 mt-2">
+            <div class="subtitle-2">
+              <a
+                @click="
+                  openExternalLink(
+                    'https://docs.getxray.app/display/XRAYCLOUD/Global+Settings%3A+API+Keys'
+                  )
+                "
+              >
+                {{ $tc("message.xray_api_keys_docs") }}
+              </a>
             </div>
           </v-col>
           <v-col cols="12" class="pa-0">
@@ -199,6 +199,7 @@ export default {
           const xrayData = {
             ...data.xray,
             loggedInAt: date,
+            lastRefreshed: date,
             auth_token: user.data,
           };
 

@@ -4,7 +4,7 @@
       <v-avatar size="24">
         <img
           :src="require('../../assets/icon/xray-logo.png')"
-          width="24"
+          width="12"
           alt="avatar"
         />
       </v-avatar>
@@ -169,6 +169,7 @@
 import axios from "axios";
 import xrayIntegrationHelper from "@/integrations/XrayIntegrationHelpers";
 import { mapGetters } from "vuex";
+import dayjs from "dayjs";
 
 export default {
   name: "XrayExportSession",
@@ -350,6 +351,14 @@ export default {
             this.snackBar.message = error.message
               ? error.message
               : this.$tc("message.api_error", 1);
+
+            if (
+              credential.type === "xray" &&
+              dayjs(credential.lastRefreshed) < dayjs().subtract(4, "minute") &&
+              [401, 403].includes(error.status)
+            ) {
+              this.$root.$emit("update-auth", []);
+            }
           }
         }
       }

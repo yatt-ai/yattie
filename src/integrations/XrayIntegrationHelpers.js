@@ -40,6 +40,7 @@ export default {
       type: "xray",
       url: "www.getxray.app",
       loggedInAt: data.loggedInAt,
+      lastRefreshed: data.lastRefreshed,
       clientId: data.client_id,
       clientSecret: data.client_secret,
       user: {},
