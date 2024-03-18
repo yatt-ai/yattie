@@ -1052,11 +1052,15 @@ export default {
     }
   },
   beforeDestroy() {
+    this.updateStoreSession(true);
     this.$root.$off("close-sourcepickerdialog", this.hideSourcePickerDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
     // clear timer
     clearInterval(this.interval);
     this.timer = 0;
+  },
+  destroyed() {
+    this.updateStoreSession(true);
   },
   methods: {
     showResetConfirmDialog() {
@@ -1134,7 +1138,7 @@ export default {
           audio: true,
         });
 
-        this.startSession();
+        await this.startSession();
       }
     },
     async showShareSessionDialog() {
@@ -1198,11 +1202,12 @@ export default {
       this.interval = null;
       this.updateStoreSession();
     },
-    updateStoreSession() {
+    updateStoreSession(isForce = false) {
       this.$store.commit("updateSession", {
         status: this.status,
         timer: this.timer,
         duration: this.duration,
+        isForce,
       });
     },
     async startSession(id = null) {
@@ -1225,9 +1230,7 @@ export default {
       if (this.status !== SESSION_STATUSES.START) {
         console.log("start interval-2");
         this.status = SESSION_STATUSES.START;
-        if (this.$isElectron) {
-          this.startInterval();
-        }
+        this.startInterval();
         this.changeSessionStatus(SESSION_STATUSES.START);
       }
 
@@ -1270,18 +1273,28 @@ export default {
       this.changeSessionStatus(SESSION_STATUSES.PAUSE);
       this.stopInterval();
     },
-    resumeSession() {
-      this.fetchSources().then((data) => {
-        const list = data.filter((v) => v.id === this.sourceId);
-        if (list.length === 0) {
-          this.showSourcePickerDialog();
-        } else {
-          this.status = SESSION_STATUSES.START;
-          this.timer = this.$store.state.session.timer;
-          console.log("start interval-3");
-          this.startInterval();
+    async resumeSession() {
+      if (this.$isElectron) {
+        this.fetchSources().then((data) => {
+          const list = data.filter((v) => v.id === this.sourceId);
+          if (list.length === 0) {
+            this.showSourcePickerDialog();
+          } else {
+            this.status = SESSION_STATUSES.START;
+            this.timer = this.$store.state.session.timer;
+            console.log("start interval-3");
+            this.startInterval();
+          }
+        });
+      } else {
+        if (!this.mediaStream) {
+          await this.setMediaStream();
         }
-      });
+        this.status = SESSION_STATUSES.START;
+        this.timer = this.$store.state.session.timer;
+        console.log("start interval-3");
+        this.startInterval();
+      }
     },
     endSession() {
       if (this.postSessionData.status) {
