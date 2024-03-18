@@ -249,26 +249,8 @@ export default {
         // todo Add web version handler
       }
     },
-    setInitialPreSession() {
-      this.$store.commit(
-        "setPreSessionTasks",
-        this.checklistPresessionTasks.map((task) => {
-          return { ...task, checked: false };
-        })
-      );
-    },
-    setInitialPostSession() {
-      console.log(456);
-      // this.$store.commit(
-      //   "setPostSessionTasks",
-      //   this.checklistPostsessionTasks.map((task) => {
-      //     return { ...task, checked: false };
-      //   })
-      // );
-    },
     handleQuickTest() {
-      this.$store.commit("clearState");
-      this.$store.commit("setSessionQuickTest", true);
+      this.$store.commit("startQuickTest");
       this.$router.push("/main/workspace");
     },
   },
