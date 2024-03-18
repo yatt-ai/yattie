@@ -300,6 +300,7 @@
     "jira_server_sign_in_description": "In order to sign in to your JIRA Server instance securely, you will need a JIRA administrator to create an \"Incoming Link\" with \"WRITE\" permissions by following the directions here:",
     "jira_server_sign_in_note": "Note: You must be logged into your JIRA Server instance in your browser before trying to authenticate.",
     "jira_incoming_link": "JIRA Incoming Link Documentation",
+    "xray_api_keys_docs": "How do I create an API Client id and Client Secret?",
     "signup_policy": "By signing up, you agree to our",
     "enter_service_url": "Enter Service URL",
     "confirm_delete": "Are you sure you want to delete?",
@@ -336,10 +337,10 @@
     "confirm_session_saved": "Session successfully saved on your computer.",
     "confirm_jira_issue": "You have not selected any evidence to attach to this issue. If you would like to attach evidence, please go back and select it before creating an issue.",
     "user_name": "User name",
-    "is_required":" is required.",
-    "api_key":"Api key",
+    "is_required": " is required.",
+    "api_key": "Api key",
     "instance_url": "Instance URL",
     "client_id": "Client ID",
-    "client_secret": "Client Secret",
+    "client_secret": "Client Secret"
   }
 }

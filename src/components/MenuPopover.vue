@@ -41,28 +41,28 @@
               v-for="(credential, cIndex) in credentialList"
               :key="cIndex"
             >
-            <v-list-item-avatar
-              min-width="32"
-              min-height="32"
-              width="32"
-              height="32"
-            >
-              <img :src="profileAvatar" alt="avatar" width="32" />
-            </v-list-item-avatar>
+              <v-list-item-avatar
+                min-width="32"
+                min-height="32"
+                width="32"
+                height="32"
+              >
+                <img :src="profileAvatar" alt="avatar" width="32" />
+              </v-list-item-avatar>
 
-            <v-list-item-content>
-              <v-list-item-title>
-                {{
-                  credential.user.name ??
-                  credential.type.charAt(0).toUpperCase() +
-                    credential.type.substr(1).toLowerCase() +
-                    ` User`
-                }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ credential.user.email }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{
+                    credential.user.name ??
+                    credential.type.charAt(0).toUpperCase() +
+                      credential.type.substr(1).toLowerCase() +
+                      ` User`
+                  }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ credential.user.email }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
               <v-list-item-action>
                 <v-btn
                   icon

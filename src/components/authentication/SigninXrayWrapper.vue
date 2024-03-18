@@ -22,6 +22,19 @@
               width="50"
             />
           </v-col>
+          <v-col cols="12" class="d-flex justify-center mb-5 pa-0 mt-2">
+            <div class="subtitle-2">
+              <a
+                @click="
+                  openExternalLink(
+                    'https://docs.getxray.app/display/XRAYCLOUD/Global+Settings%3A+API+Keys'
+                  )
+                "
+              >
+                {{ $tc("message.xray_api_keys_docs") }}
+              </a>
+            </div>
+          </v-col>
           <v-col cols="12" class="pa-0">
             <div class="subtitle-2 label-text">
               {{ $tc("caption.client_id", 1) }}
@@ -91,37 +104,23 @@
 import axios from "axios";
 import dayjs from "dayjs";
 import xrayIntegrationHelper from "../../integrations/XrayIntegrationHelpers";
+import { mapGetters } from "vuex";
+
 export default {
   name: "SigninXrayWrapper",
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
     prevRoute: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
     prevRoute: function (newValue) {
       this.previousRoute = newValue;
     },
   },
   data() {
     return {
-      config: this.configItem,
-      credentials: this.credentialItems,
       previousRoute: this.prevRoute,
       client_id: "",
       showClientId: false,
@@ -157,6 +156,9 @@ export default {
         return this.$vuetify.theme.themes.light;
       }
     },
+    ...mapGetters({
+      credentials: "auth/credentials",
+    }),
   },
   methods: {
     back() {
@@ -200,10 +202,7 @@ export default {
             auth_token: user.data,
           };
 
-          this.credentials = xrayIntegrationHelper.saveCredentials(
-            this.credentials,
-            xrayData
-          );
+          xrayIntegrationHelper.saveCredentials(this.credentials, xrayData);
 
           setTimeout(() => {
             this.loading = false;
@@ -217,6 +216,11 @@ export default {
             ? error.message
             : this.$i18n.t("message.api_error");
         });
+    },
+    openExternalLink(url) {
+      if (this.$isElectron) {
+        this.$electronService.openExternalLink(url);
+      }
     },
   },
 };

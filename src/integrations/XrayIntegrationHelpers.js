@@ -26,7 +26,7 @@ export default {
       credentials.xray = [formattedData];
     }
 
-    window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+    window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
       func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
       data: credentials,
     });
@@ -40,10 +40,9 @@ export default {
       type: "xray",
       url: "www.getxray.app",
       loggedInAt: data.loggedInAt,
-      user: {
-        client_id: data.client_id,
-        client_secret: data.client_secret,
-      },
+      clientId: data.client_id,
+      clientSecret: data.client_secret,
+      user: {},
     };
   },
 
