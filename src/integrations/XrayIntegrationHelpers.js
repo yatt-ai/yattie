@@ -50,13 +50,13 @@ export default {
     const graphqlQuery = {
       query: `{
         getTestExecutions(limit: 10) {
-            total
-            start
-            limit
-            results {
-                issueId
-                jira(fields: ["assignee", "reporter"])
-            }
+          total
+          start
+          limit
+          results {
+            issueId
+            jira(fields: ["key", "summary", "assignee", "reporter"])
+          }
         }
       }`,
     };
@@ -108,6 +108,7 @@ export default {
             }
             test {
               issueId
+              jira(fields: ["key", "summary"])
             }
             testExecution {
               issueId

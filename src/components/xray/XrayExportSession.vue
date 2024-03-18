@@ -65,15 +65,11 @@
                       <div class="issue-desc">
                         <span
                           class="issue-summary subtitle-1"
-                          v-text="item.issueId"
+                          v-text="item.jira.summary"
                         ></span>
                         <span
                           class="issue-key caption"
-                          v-text="
-                            item.jira.assignee
-                              ? item.jira.assignee.displayName
-                              : item.jira.reporter.displayName
-                          "
+                          v-text="item.jira.key"
                         ></span>
                       </div>
                     </div>
@@ -113,11 +109,11 @@
                       <div class="issue-desc">
                         <span
                           class="issue-summary subtitle-1"
-                          v-text="item.id"
+                          v-text="item.test.jira.summary"
                         ></span>
                         <span
                           class="issue-key caption"
-                          v-text="item.status.description"
+                          v-text="item.test.jira.key"
                         ></span>
                       </div>
                     </div>
@@ -537,31 +533,31 @@ export default {
       this.selectedItem = item;
       const selection = item;
 
-      console.log({ selection: item });
+      this.items.map(async (item, i) => {
+        if (item.fileName) {
+          const response = await fetch(`file:${item.filePath}`);
+          const file = new File([await response.blob()], item.fileName);
 
-      this.selectedAttachments.map(async (item, i) => {
-        const response = await fetch(`file:${item.filePath}`);
-        const file = new File([await response.blob()], item.fileName);
+          let exportFile = {
+            filename: item.fileName,
+            mimeType: item.fileType,
+            data: await this.file2Base64(file),
+            i,
+          };
 
-        let exportFile = {
-          filename: item.fileName,
-          mimeType: item.fileType,
-          data: await this.file2Base64(file),
-          i,
-        };
-
-        try {
-          await xrayIntegrationHelper.addEvidenceToTestRun(
-            selection.id,
-            exportFile,
-            this.credentials.xray[0].accessToken
-          );
-        } catch (error) {
-          this.testLoading = false;
-          this.snackBar.enabled = true;
-          this.snackBar.message = error.message
-            ? error.message
-            : this.$tc("message.api_error", 1);
+          try {
+            await xrayIntegrationHelper.addEvidenceToTestRun(
+              selection.id,
+              exportFile,
+              this.credentials.xray[0].accessToken
+            );
+          } catch (error) {
+            this.testLoading = false;
+            this.snackBar.enabled = true;
+            this.snackBar.message = error.message
+              ? error.message
+              : this.$tc("message.api_error", 1);
+          }
         }
       });
 
