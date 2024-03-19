@@ -47,27 +47,22 @@
                 width="32"
                 height="32"
               >
-                <img
-                  :src="
-                    credential.user.avatar
-                      ? credential.user.avatar
-                      : 'https://www.gravatar.com/avatar/' +
-                        credential.user.name
-                  "
-                  alt="avatar"
-                  width="32"
-                />
+                <img :src="profileAvatar" alt="avatar" width="32" />
               </v-list-item-avatar>
 
               <v-list-item-content>
                 <v-list-item-title>
-                  {{ credential.user.name }}
+                  {{
+                    credential.user.name ??
+                    credential.type.charAt(0).toUpperCase() +
+                      credential.type.substr(1).toLowerCase() +
+                      ` User`
+                  }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
                   {{ credential.user.email }}
                 </v-list-item-subtitle>
               </v-list-item-content>
-
               <v-list-item-action>
                 <v-btn
                   icon
@@ -130,12 +125,12 @@ export default {
         if (cList.length > 0) {
           if (cList[0].user.avatar) {
             return cList[0].user.avatar;
-          } else {
+          } else if (cList[0].user.name) {
             return "https://www.gravatar.com/avatar/" + cList[0].user.name;
           }
         }
       }
-      return "https://www.gravatar.com/avatar/" + uuidv4();
+      return "https://www.gravatar.com/avatar/" + uuidv4() + "?d=robohash";
     },
   },
   methods: {
@@ -156,12 +151,12 @@ export default {
           window.open(jiraUrl, "_blank");
         }
         this.showMenu = false;
-      } else if (credentialType === "testrail") {
-        const testRailUrl = `https://${credential.url}`;
+      } else if (credentialType === "testrail" || credentialType === "xray") {
+        const url = `https://${credential.url}`;
         if (this.$isElectron) {
-          await this.$electronService.openExternalLink(testRailUrl);
+          await this.$electronService.openExternalLink(url);
         } else {
-          window.open(testRailUrl, "_blank");
+          window.open(url, "_blank");
         }
         this.showMenu = false;
       }

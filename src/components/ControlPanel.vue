@@ -121,6 +121,14 @@
                     :selected="selected"
                   />
                 </div>
+                <div v-if="credentials.xray && credentials.xray.length > 0">
+                  <xray-export-session
+                    :title="$tc(`caption.export_to_xray`, 1)"
+                    :credential-items="credentials.xray"
+                    :items="items"
+                    :selected="selected"
+                  />
+                </div>
               </v-list>
             </v-card>
           </v-menu>
@@ -764,6 +772,7 @@ import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
 //import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
+import XrayExportSession from "./xray/XrayExportSession";
 import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 
 import JiraAddIssue from "./jira/JiraAddIssue";
@@ -810,6 +819,7 @@ export default {
     // MinimizeControlWrapper,
     JiraExportSession,
     TestRailExportSession,
+    XrayExportSession,
     JiraAddIssue,
   },
   props: {
