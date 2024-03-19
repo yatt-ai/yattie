@@ -1050,13 +1050,16 @@ export default {
     },
   },
   watch: {
-    items: function (newValue) {
-      this.itemLists = newValue;
-      let newMap = { ...this.emojiMenu };
-      this.itemLists.map((item) => {
-        newMap[`menu-${item.stepID}`] = false;
-      });
-      this.emojiMenu = newMap;
+    items: {
+      handler(newValue) {
+        this.itemLists = newValue;
+        let newMap = { ...this.emojiMenu };
+        this.itemLists.map((item) => {
+          newMap[`menu-${item.stepID}`] = false;
+        });
+        this.emojiMenu = newMap;
+      },
+      immediate: true,
     },
     selectedItems: function (newValue) {
       this.selected = newValue;

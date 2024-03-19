@@ -295,8 +295,8 @@
                 color="default"
                 v-on="on"
                 v-shortkey="stopHotkey"
-                @shortkey="endSession()"
-                @click="endSession()"
+                @shortkey="endSession"
+                @click="endSession"
               >
                 <img
                   v-if="$vuetify.theme.dark === false"
