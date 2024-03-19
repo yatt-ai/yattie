@@ -1,15 +1,23 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import VuexPersist from "vuex-persist";
 
 import {
   SESSION_STATUSES,
   DEFAULT_CHARTER_MAP_NODES,
   DEFAULT_CHARTER_MAP_CONNECTIONS,
-} from "../modules/constants";
+} from "@/modules/constants";
 import { auth } from "@/store/modules/auth";
 import { config } from "@/store/modules/config";
 
 Vue.use(Vuex);
+
+const isElectronApp = navigator.userAgent.includes("Electron");
+
+const vuexLocalStorage = new VuexPersist({
+  key: "yattie-state",
+  storage: window.localStorage,
+});
 
 const store = new Vuex.Store({
   state: {
@@ -151,6 +159,9 @@ const store = new Vuex.Store({
     setSessionNotes(state, payload) {
       state.session.notes.content = payload.content;
       state.session.notes.text = payload.text;
+      if (!this.$isElectron) {
+        this._vm.$storageService.updateState(state);
+      }
     },
     updateSession(state, payload) {
       let isStatusChanged = false;
@@ -319,6 +330,7 @@ const store = new Vuex.Store({
     auth,
     config,
   },
+  plugins: isElectronApp ? [] : [vuexLocalStorage.plugin],
   strict: process.env.NODE_ENV !== "production",
 });
 

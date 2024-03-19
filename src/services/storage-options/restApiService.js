@@ -54,6 +54,10 @@ export default class RestApiService extends StorageInterface {
                   "X-Upload-Content-Length": match.fileSize,
                 },
               })
+              .then((resp) => {
+                console.log("File upload response");
+                console.log(resp);
+              })
               .catch((error) => {
                 returnResponse.error.push(...error.response.data.errors);
               });
