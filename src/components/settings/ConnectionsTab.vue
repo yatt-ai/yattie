@@ -56,6 +56,29 @@
 
           <p></p>
 
+          <div class="avatar" v-if="credentials.zephyr">
+            <ConnectionPanel connectionType="zephyr" />
+          </div>
+          <div v-else>
+            <v-btn
+              class="m-4 outline-btn jira justify-start"
+              block
+              outlined
+              color="white"
+              @click="signinZephyr"
+            >
+              <img :src="require('../../assets/icon/zephyr.png')" width="16" />
+              <div
+                class="btn-text ml-4"
+                :style="{ color: currentTheme.secondary }"
+              >
+                {{ $t("message.connect_to_zephyr") }}
+              </div>
+            </v-btn>
+          </div>
+
+          <p></p>
+
           <div class="avatar" v-if="credentials.jira">
             <ConnectionPanel connectionType="jira" />
           </div>
@@ -245,6 +268,9 @@ export default {
     },
     signinXray() {
       this.$router.push({ path: "/authentication/signinXray" });
+    },
+    signinZephyr() {
+      this.$router.push({ path: "/authentication/signinZephyr" });
     },
   },
 };

@@ -71,7 +71,7 @@
             <button class="social-btn">
               <img
                 :src="require('../assets/icon/jira.svg')"
-                width="50"
+                width="45"
                 v-bind="attrs"
                 v-on="on"
               />
@@ -95,7 +95,7 @@
             <button class="social-btn">
               <img
                 :src="require('../assets/icon/testrail.svg')"
-                width="60"
+                width="55"
                 v-bind="attrs"
                 v-on="on"
               />
@@ -119,7 +119,7 @@
             <button class="social-btn">
               <img
                 :src="require('../assets/icon/xray-logo.png')"
-                width="25"
+                width="20"
                 v-bind="attrs"
                 v-on="on"
               />
@@ -142,8 +142,32 @@
           <template v-slot:activator="{ on, attrs }">
             <button class="social-btn">
               <img
+                :src="require('../assets/icon/zephyr.png')"
+                width="35"
+                v-bind="attrs"
+                v-on="on"
+              />
+              <div
+                class="overlay"
+                v-if="!loggedInServices.zephyr"
+                v-on="on"
+              ></div>
+            </button>
+          </template>
+          <span>
+            {{
+              loggedInServices.zephyr
+                ? $tc("caption.logged_in_zephyr", 1)
+                : $tc("caption.not_logged_in_zephyr", 1)
+            }}
+          </span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <button class="social-btn">
+              <img
                 :src="require('../assets/icon/qtest.svg')"
-                width="50"
+                width="45"
                 v-bind="attrs"
                 v-on="on"
               />
@@ -167,7 +191,7 @@
             <button class="social-btn">
               <img
                 :src="require('../assets/icon/practitest.svg')"
-                width="60"
+                width="55"
                 v-bind="attrs"
                 v-on="on"
               />

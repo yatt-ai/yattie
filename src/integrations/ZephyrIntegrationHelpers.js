@@ -40,7 +40,7 @@ export default {
     return {
       accessToken: data.auth_token,
       type: "zephyr",
-      url: "https://smartbear.com/test-management/zephyr-squad/",
+      url: "smartbear.com/test-management/zephyr-squad/",
       loggedInAt: data.loggedInAt,
       lastRefreshed: data.lastRefreshed,
       user: {},
