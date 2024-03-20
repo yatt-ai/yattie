@@ -1,7 +1,7 @@
 <template>
   <v-container class="content-wrapper">
-    <v-row>
-      <v-col cols="12" class="pa-4" :style="{ color: currentTheme.default }">
+    <div>
+      <div class="pa-4" :style="{ color: currentTheme.default }">
         <p class="body-1">
           {{ $tc("caption.session_summary", 1) }}
         </p>
@@ -28,12 +28,64 @@
             ></v-switch>
           </div>
         </div>
-      </v-col>
-    </v-row>
+        <div class="d-flex align-start mt-4">
+          <div class="flex-grow-1">
+            <p
+              class="subtitle-1 mb-2"
+              :style="{ color: currentTheme.secondary }"
+            >
+              {{ $tc("caption.add_org_logo_in_pdf", 1) }}
+            </p>
+            <p class="caption mb-0">
+              {{ $t("message.add_organization_logo") }}.
+            </p>
+          </div>
+          <div class="flex-grow-0">
+            <v-switch
+              v-model="config.reportLogo"
+              inset
+              hide-details
+              dense
+              class="mt-0 pt-0"
+              @change="handleConfig"
+            ></v-switch>
+          </div>
+        </div>
+      </div>
+      <v-card
+        class="mx-2 my-2 d-flex flex-column align-center selected"
+        max-width="200"
+        max-height="300"
+        theme="dark"
+        title="Card title"
+        :disabled="!config.reportLogo"
+        link
+        hover
+        @click.stop="openImage"
+      >
+        <v-img
+          :aspect-ratio="1"
+          :src="require('../../assets/icon/plus.png')"
+          class="bg-white"
+          width="80px"
+          cover
+        ></v-img>
+        <v-divider class="" width="200px"></v-divider>
+        <v-img
+          class="bg-white"
+          :src="require('../../assets/new_logo.png')"
+          width="100%"
+          height="100%"
+          cover
+        >
+        </v-img>
+      </v-card>
+    </div>
   </v-container>
 </template>
-
 <script>
+import { STATUSES } from "../../modules/constants";
+
 export default {
   name: "ReportsTab",
   components: {},
@@ -66,6 +118,23 @@ export default {
     handleConfig() {
       this.$emit("submit-config", this.config);
     },
+
+    async openImage() {
+      if (this.$isElectron) {
+        const { status, message } = await this.$electronService.openImage();
+
+        if (status === STATUSES.ERROR) {
+          this.$root.$emit("set-snackbar", message);
+        } else {
+          // const currentPath = this.$router.history.current.path;
+          // if (currentPath !== state.session.path) {
+          //   await this.$router.push({ path: state.session.path });
+          // }
+        }
+      } else {
+        // todo Add web version handler
+      }
+    },
   },
 };
 </script>
@@ -94,5 +163,14 @@ export default {
   font-size: 13px !important;
   line-height: 16px !important;
   color: #6b7280;
+}
+.logo-wrapper {
+  display: flex;
+  column-gap: 5px;
+  flex-wrap: wrap;
+}
+.selected {
+  border: solid;
+  border-color: lightpink;
 }
 </style>

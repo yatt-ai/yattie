@@ -206,7 +206,6 @@ module.exports.exportSession = async (params) => {
   const notesFileName = "yattie-session-" + timestamp + "-notes.txt";
   const notes = persistenceUtility.getNotes();
   let notesFilePath = "";
-
   if (notes.text) {
     const notesItem = captureUtility.saveNote(notes, notesFileName);
     notesFilePath = notesItem.item.filePath;
@@ -398,4 +397,54 @@ module.exports.dragItem = (event, data) => {
 module.exports.openExternalLink = async (url = "") => {
   if (url === "") return;
   return shell.openExternal(url);
+};
+
+const saveBase64AsImage = async (base64Image) => {
+  const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
+  const buffer = Buffer.from(base64Data, "base64");
+  const fileName = `new_logo.png`; // Adjust the file type as needed
+  const filePath = `./src/assets/${fileName}`;
+  fs.writeFile(filePath, buffer, "base64", (err) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+  });
+};
+
+module.exports.openImage = async () => {
+  return new Promise((resolve) => {
+    const options = {
+      filters: [{ name: "Images", extensions: ["jpg", "jpeg", "png", "gif"] }],
+      properties: ["openFile"],
+    };
+    dialog.showOpenDialog(options).then((result) => {
+      if (!result.canceled && result.filePaths.length > 0) {
+        const imagePath = result.filePaths[0];
+        fs.readFile(imagePath, (err, data) => {
+          if (err) {
+            resolve({
+              status: STATUSES.ERROR,
+              message: "Error",
+              data: null,
+            });
+          }
+          const base64Image = Buffer.from(data).toString("base64");
+          saveBase64AsImage(base64Image);
+          resolve({
+            status: STATUSES.SUCCESS,
+            message: "Image loaded successfully",
+            data: base64Image,
+            path: imagePath,
+          });
+        });
+      } else {
+        resolve({
+          status: STATUSES.ERROR,
+          message: "No Image selected",
+          data: null,
+        });
+      }
+    });
+  });
 };

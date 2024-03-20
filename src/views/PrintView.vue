@@ -1,7 +1,7 @@
 <template>
   <v-container class="wrapper">
-    <div class="header" v-if="logo">
-      <img :src="require('../assets/logo.png')" />
+    <div class="header" v-if="reportLogo">
+      <img :src="require('../assets/new_logo.png')" />
     </div>
     <div class="content">
       <v-row>
@@ -486,7 +486,7 @@ export default {
     return {
       items: [],
       textTypes: TEXT_TYPES,
-      logo: false,
+      reportLogo: false,
       title: "",
       charter: "",
       preconditions: "",
@@ -511,15 +511,14 @@ export default {
   },
   mounted() {
     this.detectEnvironment();
-
-    if (!window.ipc) return;
+    // if (!window.ipc) return;
     window.ipc.on("ACTIVE_PDF", (data) => {
       this.title = data.title;
       this.charter = data.charter;
       this.preconditions = data.preconditions;
       this.timer = data.timer;
       this.duration = data.duration;
-      this.logo = data.logo;
+      this.reportLogo = data.reportLogo;
     });
   },
   computed: {
@@ -643,6 +642,15 @@ export default {
         .then((result) => {
           this.items = result;
         });
+
+      window.ipc.on("ACTIVE_PDF", (data) => {
+        this.title = data.title;
+        this.charter = data.charter;
+        this.preconditions = data.preconditions;
+        this.timer = data.timer;
+        this.duration = data.duration;
+        this.reportLogo = data.reportLogo;
+      });
     },
     detectEnvironment() {
       const userAgent = navigator.userAgent;
@@ -656,7 +664,7 @@ export default {
       } else if (iosPlatforms.indexOf(platform) !== -1) {
         this.os = "iOS";
       } else if (windowsPlatforms.indexOf(platform) !== -1) {
-        this.os = "Windows";
+        this.os = "Windows@@@@";
       } else if (/Android/.test(userAgent)) {
         this.os = "Android";
       } else if (/Linux/.test(platform)) {

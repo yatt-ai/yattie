@@ -140,6 +140,8 @@ ipcMain.handle(IPC_HANDLERS.FILE_SYSTEM, async (event, args) => {
   switch (args.func) {
     case IPC_FUNCTIONS.EXPORT_ITEMS:
       return fileSystemUtility.exportItems(args.data);
+    case IPC_FUNCTIONS.OPEN_IMAGE:
+      return fileSystemUtility.openImage();
     case IPC_FUNCTIONS.CREATE_NEW_SESSION:
       return fileSystemUtility.createNewSession(args.data);
     case IPC_FUNCTIONS.RESET_SESSION:
@@ -183,4 +185,4 @@ ipcMain.handle(IPC_HANDLERS.SYSTEMINFO, async (event, args) => {
     case IPC_FUNCTIONS.GET_SYSTEM_INFO:
       return await systemInfoUtility.getSystemInfo();
   }
-})
+});
