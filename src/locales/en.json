@@ -71,6 +71,7 @@
     "signin_jira": "Sign in with JIRA",
     "signin_testrail": "Sign in with TestRail",
     "signin_xray": "Sign in with XRAY",
+    "signin_zephyr": "Sign in with Zephyr",
     "signin_qtest": "Sign in with qTest",
     "signin_practitest": "Sign in with PractiTest",
     "sign_up": "Sign up|Sign Up",
@@ -194,6 +195,7 @@
     "dark_mode": "Dark mode",
     "quick_test": "@.capitalize:quick test",
     "client_id": "Client ID",
+    "zephyr_api_access_token": "Zephyr Squad API Access Token",
     "client_secret": "Client Secret",
     "user_name": "User name",
     "password": "Password",
@@ -294,6 +296,7 @@
     "ai_assist_not_empty": "AI assist field cannot be empty",
     "successfully_added_attachment": "Successfully added attachment to issue",
     "api_error": "API error",
+    "zephyr_api_access_token_error": "Invalid Access Token",
     "please_try_again": "Please try again",
     "successfully_created_issue": "Successfully created issue",
     "please_fill_required": "Please fill out all required fields",
@@ -304,6 +307,7 @@
     "jira_server_sign_in_description": "In order to sign in to your JIRA Server instance securely, you will need a JIRA administrator to create an \"Incoming Link\" with \"WRITE\" permissions by following the directions here:",
     "jira_server_sign_in_note": "Note: You must be logged into your JIRA Server instance in your browser before trying to authenticate.",
     "jira_incoming_link": "JIRA Incoming Link Documentation",
+    "zephyr_api_keys_docs": "How Do I Generate API Access Token?",
     "xray_api_keys_docs": "How do I create an API Client id and Client Secret?",
     "signup_policy": "By signing up, you agree to our",
     "enter_service_url": "Enter Service URL",
@@ -345,6 +349,7 @@
     "api_key": "Api key",
     "instance_url": "Instance URL",
     "client_id": "Client ID",
+    "zephyr_api_access_token": "Zephyr Squad API Access Token",
     "client_secret": "Client Secret"
   }
 }
