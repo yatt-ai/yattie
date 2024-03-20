@@ -86,6 +86,19 @@ export default class ElectronService {
     });
   }
 
+  async startKeyboardCapture() {
+    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.START_KEYBOARD_CAPTURE,
+    });
+  }
+
+  stopKeyboardCapture() {
+    console.log("333");
+    return window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.STOP_KEYBOARD_CAPTURE,
+    });
+  }
+
   async openAddWindow(data) {
     await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
       func: IPC_FUNCTIONS.OPEN_ADD_WINDOW,
@@ -135,6 +148,7 @@ export default class ElectronService {
   }
 
   async openSourcePickerWindow(sources) {
+    console.log("0123");
     return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
       func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
       data: {

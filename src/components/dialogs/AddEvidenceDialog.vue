@@ -455,6 +455,7 @@ export default {
   },
   mounted() {
     this.getAllTags();
+    console.log("78787evidencedialog");
     if (this.$isElectron) {
       // this.$electronService.onActiveSession(this.activeSession);
       // this.activeSession();
@@ -506,18 +507,20 @@ export default {
       this.allTags = [...new Set([...defaultTagTexts, ...sessionTagTexts])];
     },
     async activeSession() {
+      console.log("89898activeSession");
       // set theme mode
       const isDarkMode = this.config.apperance === "dark";
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode);
 
       this.item = { ...this.itemData };
-
+      console.log("465373", this.item);
       const splitName = this.item?.fileName.split(".") || [""];
       this.name = splitName.slice(0, -1).join(".");
 
       // optimize video
       if (this.item.fileType === "video") {
+        console.log("1111111 optimize started");
         await this.optimizeVideo();
       } else {
         this.processing = false;
