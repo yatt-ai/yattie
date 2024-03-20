@@ -1111,13 +1111,9 @@ export default {
           this.sources = data;
 
           if (this.viewMode === "normal") {
-            console.log("1");
             this.sourcePickerDialog = true;
           } else {
-            console.log("3");
             if (this.$isElectron) {
-              console.log("88");
-
               await this.$electronService.openSourcePickerWindow(this.sources);
             }
           }
@@ -1477,45 +1473,6 @@ export default {
       }
     },
     async videoRecordProcess() {
-      const handleKeyPress = (event) => {
-        let eventText = "";
-        if (event.ctrlKey) {
-          eventText += "Ctrl + ";
-        }
-        if (event.altKey) {
-          eventText += "Alt + ";
-        }
-        if (event.shiftKey) {
-          eventText += "Shift + ";
-        }
-        eventText += event.key.toUpperCase();
-        // Show the text overlay
-        showTextOverlay(eventText);
-      };
-
-      const handleMouseClick = () => {
-        // Show the text overlay for mouse click
-        showTextOverlay("Mouse Click");
-      };
-
-      const showTextOverlay = (text) => {
-        const textOverlay = document.createElement("div");
-        textOverlay.textContent = text;
-        textOverlay.style.position = "fixed";
-        textOverlay.style.top = "50%";
-        textOverlay.style.left = "50%";
-        textOverlay.style.transform = "translate(-50%, -50%)";
-        textOverlay.style.background = "rgba(0, 0, 0, 0.5)";
-        textOverlay.style.color = "white";
-        textOverlay.style.padding = "10px";
-        textOverlay.style.borderRadius = "5px";
-        textOverlay.style.zIndex = "9999";
-        document.body.appendChild(textOverlay);
-        setTimeout(() => {
-          textOverlay.remove();
-        }, 1000); // Remove after 1 second
-      };
-
       this.handleStream = (stream) => {
         if (this.config.audioCapture && this.audioDevices.length > 0) {
           stream.addTrack(dest.stream.getAudioTracks()[0]);
@@ -1530,9 +1487,6 @@ export default {
         let poster;
         let frames = [];
         mediaRecorder.onstart = () => {
-          document.addEventListener("click", handleMouseClick);
-          document.addEventListener("keydown", handleKeyPress);
-          // this.$electronService.startKeyboardCapture();
           this.recordVideoStarted = true;
           const video = document.createElement("video");
           video.srcObject = stream;
@@ -1567,9 +1521,6 @@ export default {
           }
         };
         mediaRecorder.onstop = async () => {
-          // this.$electronService.stopKeyboardCapture();
-          document.removeEventListener("click", handleMouseClick);
-          document.removeEventListener("keydown", handleKeyPress);
           this.recordVideoStarted = false;
           const blob = new Blob(frames, { type: mimeType });
           const buffer = await blob.arrayBuffer();

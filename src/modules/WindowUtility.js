@@ -1,5 +1,4 @@
-const { app, BrowserWindow, screen, ipcMain } = require("electron");
-const iohook = require("iohook2");
+const { app, BrowserWindow, screen } = require("electron");
 
 let isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -9,59 +8,9 @@ const browserUtility = require("./BrowserWindowUtility");
 const path = require("path");
 
 const { VIEW_MODE, IPC_BIND_KEYS } = require("./constants");
-let overlayWindow;
-function createOverlayWindow() {
-  overlayWindow = new BrowserWindow({
-    width: 400,
-    height: 200,
-    transparent: true,
-    frame: false,
-    alwaysOnTop: true,
-    webPreferences: {
-      nodeIntegration: true
-    }
-  });
-
-  overlayWindow.setIgnoreMouseEvents(true);
-
-  overlayWindow.loadURL("app://./overlay.html");
-  // "app://./index.html"
-
-  overlayWindow.on('closed', () => {
-    overlayWindow = null;
-  });
-}
 
 module.exports.setDevMode = async ({ enabled }) => {
   isDevelopment = enabled;
-};
-
-module.exports.startKeyboardCapture = () => {
-  ipcMain.on('overlayShown', () => {
-    // After 1 second, send a message to hide the overlay
-    setTimeout(() => {
-      overlayWindow.webContents.send('hideOverlay');
-    }, 1000);
-  });
-  createOverlayWindow();
-  iohook.on("keydown", event => {
-    console.log("Key pressed:", event);
-    overlayWindow.webContents.send("showOverlay", event.key);
-    // Handle the event as needed
-  });
-
-  // Start listening for mouse events
-  iohook.on("mousedown", event => {
-    console.log("Mouse clicked:", event);
-    overlayWindow.webContents.send("showOverlay", "Mouse Click");
-    // Handle the event as needed
-  });
-  iohook.start();
-};
-
-module.exports.stopKeyboardCapture = () => {
-  console.log("123 Stop!");
-  iohook.stop();
 };
 
 module.exports.getMainWindow = () => {
@@ -326,12 +275,12 @@ module.exports.setWindowSize = ({ width, height }) => {
 };
 
 module.exports.openModalWindow = (data) => {
-  console.log("999");
   const parentWindow = browserUtility.getParentWindow();
   const url =
     process.env.NODE_ENV === "development"
       ? `http://localhost:8080/#/${data.path}`
       : `file://${__dirname}/index.html#${data.path}`;
+
   if (!modalWin) {
     modalWin = new BrowserWindow({
       width: data.size.width,
