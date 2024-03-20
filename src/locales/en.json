@@ -187,6 +187,7 @@
     "issues": "ISSUE(S)",
     "projects": "PROJECT(S)",
     "test_executions": "TEST EXECUTION(S)",
+    "test_cycles": "TEST CYCLE(S)",
     "runs": "RUN(S)",
     "test_runs": "TEST RUN(S)",
     "tests": "TEST(S)",

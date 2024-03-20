@@ -48,7 +48,7 @@ export default {
   },
 
   async fetchProjects(authToken) {
-    const url = ZEPHYR_URL + "/projects";
+    const url = `${ZEPHYR_URL}/projects`;
     const authHeader = `Bearer ${authToken}`;
     let header = {
       headers: {
@@ -60,10 +60,58 @@ export default {
     return await axios
       .get(url, header)
       .then((response) => {
-        return response.data.values;
+        if (response.status === 200) {
+          console.log("Fetched Projects");
+
+          return response.data.values;
+        }
       })
       .catch((error) => {
         console.error("Error fetching projects: ", error);
+        throw new Error(error.message);
+      });
+  },
+
+  async fetchTestCycles(authToken, projectKey) {
+    const url = `${ZEPHYR_URL}/testcycles?projectKey=${projectKey}`;
+    const authHeader = `Bearer ${authToken}`;
+    let header = {
+      headers: {
+        Authorization: authHeader,
+        "Content-Type": "application/json",
+      },
+    };
+
+    return await axios
+      .get(url, header)
+      .then((response) => {
+        console.log(response);
+        return response.data.values;
+      })
+      .catch((error) => {
+        console.error("Error fetching test cycles: ", error);
+        throw new Error(error.message);
+      });
+  },
+
+  async fetchTestExecutions(authToken, projectKey, testCycle) {
+    const url = `${ZEPHYR_URL}/testcycles?projectKey=${projectKey}&testCycle=${testCycle}`;
+    const authHeader = `Bearer ${authToken}`;
+    let header = {
+      headers: {
+        Authorization: authHeader,
+        "Content-Type": "application/json",
+      },
+    };
+
+    return await axios
+      .get(url, header)
+      .then((response) => {
+        console.log(response);
+        return response.data.values;
+      })
+      .catch((error) => {
+        console.error("Error fetching executions: ", error);
         throw new Error(error.message);
       });
   },

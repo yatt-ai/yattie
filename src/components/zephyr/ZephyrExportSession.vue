@@ -77,9 +77,9 @@
                 </div>
               </v-col>
             </v-row>
-            <v-row v-if="selectTestExecution">
+            <v-row v-if="selectProject">
               <v-col cols="12">
-                <div class="loading-wrapper" v-if="testExecutionLoading">
+                <div class="loading-wrapper" v-if="testCycleLoading">
                   <v-progress-circular
                     :size="70"
                     :width="7"
@@ -90,18 +90,18 @@
                 <div class="issue-wrapper" v-else>
                   <div class="issue-list">
                     <span class="issue-header"
-                      >{{ searchTestExecutionsList.length }}
-                      {{ $tc("caption.test_executions", 1) }}</span
+                      >{{ searchTestCyclesList.length }}
+                      {{ $tc("caption.test_cycles", 1) }}</span
                     >
                     <div
-                      v-for="item in searchTestExecutionsList"
+                      v-for="item in searchTestCyclesList"
                       :key="item.issueId"
                       :class="
                         selectedItem && item.issueId === selectedItem.issueId
                           ? 'issue-item active'
                           : 'issue-item'
                       "
-                      @click="handleSelectTestExecution(item)"
+                      @click="handleSelectProject(item)"
                     >
                       <v-icon class="issue-icon">mdi-flag</v-icon>
                       <div class="issue-desc">
@@ -246,8 +246,11 @@ export default {
   data() {
     return {
       selectProject: true,
+      selectTestCycle: true,
       projectLoading: true,
+      testCycleLoading: true,
       projects: [],
+      testCycles: [],
       selectTestExecution: true,
       selectTestRun: true,
       testExecutionLoading: true,
@@ -288,6 +291,25 @@ export default {
     },
     searchProjectsList() {
       let temp = this.projects;
+      if (this.search !== "" && this.search) {
+        temp = temp.filter((item) => {
+          return (
+            item.issueId.includes(this.search) ||
+            (item.jira.assignee &&
+              item.jira.assignee.displayName
+                .toUpperCase()
+                .includes(this.search.toUpperCase())) ||
+            (item.jira.reporter &&
+              item.jira.reporter.displayName
+                .toUpperCase()
+                .includes(this.search.toUpperCase()))
+          );
+        });
+      }
+      return temp;
+    },
+    searchTestCyclesList() {
+      let temp = this.testCycles;
       if (this.search !== "" && this.search) {
         temp = temp.filter((item) => {
           return (
@@ -378,10 +400,12 @@ export default {
     },
     resetResults(type) {
       this.selectProject = type === "project";
+      this.selectTestCycle = type = "testCycle";
       this.selectTestExecution = type === "testExecution";
       this.selectTestRun = type === "testRun";
       this.testExecutionLoading = true;
       this.testRunLoading = true;
+      this.projectLoading = true;
       this.projectLoading = true;
     },
     async showDialog() {
@@ -418,6 +442,30 @@ export default {
             }
           }
         }
+      }
+    },
+    async handleSelectProject(item) {
+      this.resetResults("testCycle");
+      console.log("Clicked showTestCycles");
+
+      try {
+        const data = await zephyrIntegrationHelpers.fetchTestCycles(
+          this.credentials.xray[0].accessToken,
+          item.key
+        );
+
+        this.testCycles = data.map((testRun) => ({
+          ...testRun,
+          credential_index: item.credential_index,
+        }));
+
+        this.testRunLoading = false;
+      } catch (error) {
+        this.testRunLoading = false;
+        this.snackBar.enabled = true;
+        this.snackBar.message = error.message
+          ? error.message
+          : this.$tc("message.api_error", 1);
       }
     },
     async handleSelectTestExecution(item) {
