@@ -664,7 +664,7 @@ export default {
       } else if (iosPlatforms.indexOf(platform) !== -1) {
         this.os = "iOS";
       } else if (windowsPlatforms.indexOf(platform) !== -1) {
-        this.os = "Windows@@@@";
+        this.os = "Windows";
       } else if (/Android/.test(userAgent)) {
         this.os = "Android";
       } else if (/Linux/.test(platform)) {
