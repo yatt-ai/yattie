@@ -1,7 +1,7 @@
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
-// import axios from "axios";
+import axios from "axios";
 
-// const ZEPHYR_URL = "https://prod-api.zephyr4jiracloud.com/v2";
+const ZEPHYR_URL = "https://prod-api.zephyr4jiracloud.com/v2";
 
 export default {
   saveCredentials(credentials, data) {
@@ -45,5 +45,26 @@ export default {
       lastRefreshed: data.lastRefreshed,
       user: {},
     };
+  },
+
+  async fetchProjects(authToken) {
+    const url = ZEPHYR_URL + "/projects";
+    const authHeader = `Bearer ${authToken}`;
+    let header = {
+      headers: {
+        Authorization: authHeader,
+        "Content-Type": "application/json",
+      },
+    };
+
+    return await axios
+      .get(url, header)
+      .then((response) => {
+        return response.data.values;
+      })
+      .catch((error) => {
+        console.error("Error fetching projects: ", error);
+        throw new Error(error.message);
+      });
   },
 };

@@ -129,6 +129,14 @@
                     :selected="selected"
                   />
                 </div>
+                <div v-if="credentials.zephyr && credentials.zephyr.length > 0">
+                  <zephyr-export-session
+                    :title="$tc(`caption.export_to_zephyr`, 1)"
+                    :credential-items="credentials.zephyr"
+                    :items="items"
+                    :selected="selected"
+                  />
+                </div>
               </v-list>
             </v-card>
           </v-menu>
@@ -773,6 +781,7 @@ import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
 import XrayExportSession from "./xray/XrayExportSession";
+import ZephyrExportSession from "./zephyr/ZephyrExportSession";
 import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 
 import JiraAddIssue from "./jira/JiraAddIssue";
@@ -820,6 +829,7 @@ export default {
     JiraExportSession,
     TestRailExportSession,
     XrayExportSession,
+    ZephyrExportSession,
     JiraAddIssue,
   },
   props: {

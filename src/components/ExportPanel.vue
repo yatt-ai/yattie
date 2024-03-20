@@ -48,6 +48,19 @@
                   @close-menu="() => (evidenceExportDestinationMenu = false)"
                 />
               </div>
+              <div
+                v-if="
+                  this.credentials.zephyr && this.credentials.zephyr.length > 0
+                "
+              >
+                <zephyr-export-session
+                  :title="$tc(`caption.export_to_zephyr`, 1)"
+                  :credential-items="credentials.zephyr"
+                  :selected="[]"
+                  :items="itemLists"
+                  @close-menu="() => (evidenceExportDestinationMenu = false)"
+                />
+              </div>
               <!-- TODO - What does it look like to export an entire session to a 3rd party service?
               <div
                 v-if="this.credentials.jira && this.credentials.jira.length > 0"
@@ -87,6 +100,7 @@
 //import JiraExportSession from "./jira/JiraExportSession";
 //import TestRailExportSession from "./testrail/TestRailExportSession";
 import XrayExportSession from "./xray/XrayExportSession";
+import ZephyrExportSession from "./zephyr/ZephyrExportSession";
 
 export default {
   name: "ExportPanel",
@@ -94,6 +108,7 @@ export default {
     //JiraExportSession,
     //TestRailExportSession,
     XrayExportSession,
+    ZephyrExportSession,
   },
   props: {
     items: {
