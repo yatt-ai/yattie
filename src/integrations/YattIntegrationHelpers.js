@@ -12,11 +12,60 @@ export default {
       Accept: "application/json",
     };
   },
+  async newToken(credentials) {
+    const url = `${process.env.VUE_APP_YATT_API_URL}/app/profile/token`;
+    const newCredentialsResponse = await axios.get(url);
+    await this.saveCredentials(credentials, newCredentialsResponse.data);
+  },
+  async authenticateProfile(credentials, data) {
+    // update profile vs sign up?
+    const url = `${process.env.VUE_APP_YATT_API_URL}/app/profile/auth`;
+    const credential = credentials?.yatt[0];
+    const options = {
+      headers: this.getHeaders(credential),
+    };
+
+    // Post to YATT
+    let returnResponse = {};
+    await axios
+      .post(url, data, options)
+      .then(async (postedSession) => {
+        returnResponse = postedSession.data;
+        credential.user = returnResponse.user;
+        await this.saveCredentials(credentials, credential);
+        return returnResponse;
+      })
+      .catch((error) => {
+        returnResponse.error = error.response.data.errors;
+        return returnResponse;
+      });
+  },
+  async updateProfile(credentials, data) {
+    // update profile vs sign up?
+    const url = `${process.env.VUE_APP_YATT_API_URL}/app/profile`;
+    const credential = credentials?.yatt[0];
+    const options = {
+      headers: this.getHeaders(credential),
+    };
+
+    // Post to YATT
+    let returnResponse = {};
+    await axios
+      .patch(url, data, options)
+      .then(async (postedSession) => {
+        returnResponse = postedSession.data;
+        credential.user = returnResponse.user;
+        await this.saveCredentials(credentials, credential);
+        return returnResponse;
+      })
+      .catch((error) => {
+        returnResponse.error = error.response.data.errors;
+        return returnResponse;
+      });
+  },
   async saveSession(credentials) {
     if (!credentials?.yatt || credentials?.yatt.length < 1) {
-      const url = `${process.env.VUE_APP_YATT_API_URL}/app/signup/token`;
-      const newCredentialsResponse = await axios.get(url);
-      this.saveCredentials(credentials, newCredentialsResponse.data);
+      await this.newToken(credentials);
     }
 
     // Pull case and session data
@@ -74,7 +123,7 @@ export default {
     // Return result (with generated "link" field)
     return returnResponse;
   },
-  saveCredentials(credentials, data) {
+  async saveCredentials(credentials, data) {
     let formattedData = this.formatData(data);
 
     if (!credentials) {
@@ -84,7 +133,10 @@ export default {
     if (credentials.yatt && credentials.yatt.length > 0) {
       let matched = false;
       for (const [index, credential] of credentials.yatt.entries()) {
-        if (credential.user.id === formattedData.user.id) {
+        if (
+          credential.user.id === formattedData.user.id ||
+          credential.accessToken === formattedData.accessToken
+        ) {
           credentials.yatt[index] = formattedData;
           matched = true;
         }
@@ -96,7 +148,7 @@ export default {
       credentials.yatt = [formattedData];
     }
 
-    window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
+    await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
       func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
       data: credentials,
     });

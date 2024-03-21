@@ -8,50 +8,52 @@
   >
     <v-sheet rounded :style="{ backgroundColor: currentTheme.background }">
       <v-card :style="{ backgroundColor: currentTheme.background }">
-        <v-card-title class="text" :style="{ color: currentTheme.secondary }">
-          Share {{ getName }}'s session
-          <span style="font-size: 0.5em">
-            Not a {{ getName }}?
-            <a @click="openYattProfileDialog">Update your info</a>
-          </span>
-        </v-card-title>
         <v-card-text class="text" :style="{ color: currentTheme.secondary }">
-          <v-text-field
-            v-model="sessionURL"
-            disabled
-            label="Copy Link"
-            type="text"
-            variant="outlined"
-          >
-            <template v-slot:prepend-inner>
-              <v-icon icon="mdi-link" />
-            </template>
-          </v-text-field>
+          <v-form role="loginForm" @submit.prevent="handleConfirm()" id="form">
+            <v-text-field
+              :label="$t('email')"
+              name="email"
+              :rules="emailValidation"
+              v-model="user.email"
+              id="email"
+              required
+            />
+            <v-text-field
+              :label="$t('password')"
+              name="password"
+              type="password"
+              :rules="passwordValidation"
+              v-model="user.password"
+              id="password"
+            ></v-text-field>
+            <v-btn
+              small
+              :color="currentTheme.primary"
+              class="text-capitalize btn"
+              :style="{ color: currentTheme.white }"
+              v-shortkey="confirmHotkey"
+              @shortkey="handleConfirm()"
+              @click="handleConfirm()"
+            >
+              {{ $t("signIn") }}
+            </v-btn>
+            <v-btn
+              small
+              :color="currentTheme.background"
+              class="text-capitalize btn"
+              :style="{ color: currentTheme.secondary }"
+              v-shortkey="cancelHotkey"
+              @shortkey="handleClose()"
+              @click="handleClose()"
+            >
+              {{ $tc("caption.cancel", 1) }}
+            </v-btn>
+
+            <a @click="switchToProfile()">
+              {{ $t("newProfile") }}
+            </a>
+          </v-form>
         </v-card-text>
-        <v-card-actions>
-          <v-btn
-            small
-            :color="currentTheme.primary"
-            class="text-capitalize btn"
-            :style="{ color: currentTheme.white }"
-            v-shortkey="confirmHotkey"
-            @shortkey="handleCopy()"
-            @click="handleCopy()"
-          >
-            {{ $tc("caption.copy_link", 1) }}
-          </v-btn>
-          <v-btn
-            small
-            :color="currentTheme.background"
-            class="text-capitalize btn"
-            :style="{ color: currentTheme.secondary }"
-            v-shortkey="cancelHotkey"
-            @shortkey="handleClose()"
-            @click="handleClose()"
-          >
-            {{ $tc("caption.cancel", 1) }}
-          </v-btn>
-        </v-card-actions>
       </v-card>
     </v-sheet>
   </v-dialog>
@@ -60,23 +62,18 @@
 <script>
 import { mapGetters } from "vuex";
 
+import yattIntegrationHelper from "../../integrations/YattIntegrationHelpers";
+
 export default {
-  name: "ShareSessionDialog",
-  props: {
-    sessionLink: {
-      type: String,
-      default: () => "",
-    },
-  },
+  name: "YattLoginDialog",
+  props: {},
   data() {
     return {
-      sessionURL: "",
+      user: {
+        email: "",
+        password: "",
+      },
     };
-  },
-  watch: {
-    sessionLink: function () {
-      this.sessionURL = this.sessionLink;
-    },
   },
   computed: {
     ...mapGetters({
@@ -84,11 +81,17 @@ export default {
       config: "config/fullConfig",
       credentials: "auth/credentials",
     }),
-    getName() {
-      if (this.credentials?.yatt && this.credentials.yatt.length > 0) {
-        return this.credentials?.yatt[0]?.user?.name;
-      }
-      return "";
+    emailValidation() {
+      return [
+        (v) => !!v || this.$t("emailRequired"),
+        (v) => /.+@.+\..+/.test(v) || this.$t("validEmail"),
+      ];
+    },
+    passwordValidation() {
+      return [
+        (v) => !!v || this.$t("passwordRequired"),
+        (v) => (v && v.length >= 6) || this.$t("min6Chars"),
+      ];
     },
     confirmHotkey() {
       return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
@@ -105,13 +108,23 @@ export default {
     },
   },
   methods: {
-    handleClose() {
-      this.activeSource = "";
-      this.$root.$emit("close-sharesessiondialog");
-    },
-    openYattProfileDialog() {
+    switchToProfile() {
       this.$root.$emit("open-yattprofiledialog");
-      // TODO - pull updated info on close and update the message?
+      this.handleClose();
+    },
+    async handleConfirm() {
+      const response = await yattIntegrationHelper.authenticateProfile(
+        this.credentials,
+        this.user
+      );
+      if (response.error) {
+        // TODO emit snackbar message and also handle errors
+      } else {
+        this.handleClose();
+      }
+    },
+    handleClose() {
+      this.$emit("close");
     },
   },
 };
