@@ -1,7 +1,7 @@
 <template>
   <v-container class="wrapper">
     <div class="header" v-if="reportLogo">
-      <img :src="require('../assets/new_logo.png')" />
+      <img :src="`file://${logoPath}`" />
     </div>
     <div class="content">
       <v-row>
@@ -487,6 +487,7 @@ export default {
       items: [],
       textTypes: TEXT_TYPES,
       reportLogo: false,
+      logoPath: "",
       title: "",
       charter: "",
       preconditions: "",
@@ -511,7 +512,8 @@ export default {
   },
   mounted() {
     this.detectEnvironment();
-    // if (!window.ipc) return;
+
+    if (!window.ipc) return;
     window.ipc.on("ACTIVE_PDF", (data) => {
       this.title = data.title;
       this.charter = data.charter;
@@ -519,6 +521,7 @@ export default {
       this.timer = data.timer;
       this.duration = data.duration;
       this.reportLogo = data.reportLogo;
+      this.logoPath = data.logoPath;
     });
   },
   computed: {
@@ -642,15 +645,6 @@ export default {
         .then((result) => {
           this.items = result;
         });
-
-      window.ipc.on("ACTIVE_PDF", (data) => {
-        this.title = data.title;
-        this.charter = data.charter;
-        this.preconditions = data.preconditions;
-        this.timer = data.timer;
-        this.duration = data.duration;
-        this.reportLogo = data.reportLogo;
-      });
     },
     detectEnvironment() {
       const userAgent = navigator.userAgent;

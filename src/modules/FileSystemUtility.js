@@ -399,19 +399,6 @@ module.exports.openExternalLink = async (url = "") => {
   return shell.openExternal(url);
 };
 
-const saveBase64AsImage = async (base64Image) => {
-  const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
-  const buffer = Buffer.from(base64Data, "base64");
-  const fileName = `new_logo.png`; // Adjust the file type as needed
-  const filePath = `./src/assets/${fileName}`;
-  fs.writeFile(filePath, buffer, "base64", (err) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-  });
-};
-
 module.exports.openImage = async () => {
   return new Promise((resolve) => {
     const options = {
@@ -426,15 +413,12 @@ module.exports.openImage = async () => {
             resolve({
               status: STATUSES.ERROR,
               message: "Error",
-              data: null,
+              path: null,
             });
           }
-          const base64Image = Buffer.from(data).toString("base64");
-          saveBase64AsImage(base64Image);
           resolve({
             status: STATUSES.SUCCESS,
             message: "Image loaded successfully",
-            data: base64Image,
             path: imagePath,
           });
         });
@@ -442,7 +426,7 @@ module.exports.openImage = async () => {
         resolve({
           status: STATUSES.ERROR,
           message: "No Image selected",
-          data: null,
+          path: null,
         });
       }
     });

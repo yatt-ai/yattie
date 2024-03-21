@@ -73,7 +73,7 @@
         <v-divider class="" width="200px"></v-divider>
         <v-img
           class="bg-white"
-          :src="require('../../assets/new_logo.png')"
+          :src="`file://${config.logoPath}`"
           width="100%"
           height="100%"
           cover
@@ -121,15 +121,14 @@ export default {
 
     async openImage() {
       if (this.$isElectron) {
-        const { status, message } = await this.$electronService.openImage();
+        const { status, message, path } =
+          await this.$electronService.openImage();
 
         if (status === STATUSES.ERROR) {
           this.$root.$emit("set-snackbar", message);
         } else {
-          // const currentPath = this.$router.history.current.path;
-          // if (currentPath !== state.session.path) {
-          //   await this.$router.push({ path: state.session.path });
-          // }
+          this.config.logoPath = path;
+          this.$emit("submit-config", this.config);
         }
       } else {
         // todo Add web version handler
