@@ -187,4 +187,4 @@ ipcMain.handle(IPC_HANDLERS.SYSTEMINFO, async (event, args) => {
     case IPC_FUNCTIONS.GET_SYSTEM_INFO:
       return await systemInfoUtility.getSystemInfo();
   }
-})
+});

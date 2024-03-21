@@ -20,29 +20,43 @@ module.exports.startKeyboardCapture = () => {
   const startingPoint = Date.now();
   capturedEvents = [];
 
-  iohook.on("keydown", event => {
-    if ((event.ctrl || event.shift || event.alt || event.meta ) && !isControlKey(event.key)) {
+  iohook.on("keydown", (event) => {
+    if (
+      (event.ctrl || event.shift || event.alt || event.meta) &&
+      !isControlKey(event.key)
+    ) {
       // If Ctrl, Shift, Alt or Meta key is pressed along with a regular key
       capturedEvents.push({
         type: "hotkey",
-        text: `${event.ctrl ? 'Ctrl+' : ''}${event.shift ? 'Shift+' : ''}${event.alt ? 'Alt+' : ''}${event.meta ? 'Meta+' : ''}${event.key.toUpperCase()}`,
-        start: parseFloat((Date.now() - startingPoint)/1000).toFixed(2),
-        end: parseFloat(((Date.now() - startingPoint)/1000).toFixed(2)) + 1,
+        text: `${event.ctrl ? "Ctrl+" : ""}${event.shift ? "Shift+" : ""}${
+          event.alt ? "Alt+" : ""
+        }${event.meta ? "Meta+" : ""}${event.key.toUpperCase()}`,
+        start: parseFloat((Date.now() - startingPoint) / 1000).toFixed(2),
+        end: parseFloat(((Date.now() - startingPoint) / 1000).toFixed(2)) + 1,
       });
     }
   });
 
   function isControlKey(key) {
     // Check if the key is one of the individual control keys
-    return ['leftCtrl', 'rightCtrl', 'leftAlt', 'rightAlt', 'leftShift', 'rightShift', 'leftMeta', 'rightMeta'].includes(key);
+    return [
+      "leftCtrl",
+      "rightCtrl",
+      "leftAlt",
+      "rightAlt",
+      "leftShift",
+      "rightShift",
+      "leftMeta",
+      "rightMeta",
+    ].includes(key);
   }
 
-  iohook.on("mousedown", event => {
+  iohook.on("mousedown", () => {
     capturedEvents.push({
       type: "mouse",
       text: "Mouse Click",
-      start: parseFloat((Date.now() - startingPoint)/1000).toFixed(2),
-      end: parseFloat(((Date.now() - startingPoint)/1000).toFixed(2)) + 1,
+      start: parseFloat((Date.now() - startingPoint) / 1000).toFixed(2),
+      end: parseFloat(((Date.now() - startingPoint) / 1000).toFixed(2)) + 1,
     });
   });
 };

@@ -170,12 +170,14 @@ module.exports.optimizeVideo = ({ filePath, capturedEvents }) => {
     persistenceUtility.getSessionID(),
     tempName
   );
-  let filterString = capturedEvents.map((overlay, index) => {
-    let backgroundColor = 'black';
-    let textColor = 'white';
-    let padding = 5;
-    return `drawtext=text='${overlay.text}':x=(w-text_w)/2:y=(h-text_h)/2:fontcolor=${textColor}:box=1:boxcolor=${backgroundColor}:boxborderw=${padding}:fontsize=24:fontfile=/path/to/font.ttf:enable='between(t,${overlay.start},${overlay.end})'`;
-  }).join(',');
+  let filterString = capturedEvents
+    .map((overlay) => {
+      let backgroundColor = "black";
+      let textColor = "white";
+      let padding = 5;
+      return `drawtext=text='${overlay.text}':x=(w-text_w)/2:y=(h-text_h)/2:fontcolor=${textColor}:box=1:boxcolor=${backgroundColor}:boxborderw=${padding}:fontsize=24:fontfile=/path/to/font.ttf:enable='between(t,${overlay.start},${overlay.end})'`;
+    })
+    .join(",");
 
   return new Promise(function (resolve, reject) {
     ffmpeg(filePath)
