@@ -95,8 +95,8 @@ export default {
       });
   },
 
-  async fetchTestExecutions(authToken, projectKey, testCycle) {
-    const url = `${ZEPHYR_SQUAD_URL}/testcycles?projectKey=${projectKey}&testCycle=${testCycle}`;
+  async fetchTestExecutions(authToken, projectKey, testCycleKey) {
+    const url = `${ZEPHYR_SQUAD_URL}/testexecutions?projectKey=${projectKey}&testCycle=${testCycleKey}`;
     const authHeader = `Bearer ${authToken}`;
     let header = {
       headers: {
@@ -108,7 +108,6 @@ export default {
     return await axios
       .get(url, header)
       .then((response) => {
-        console.log(response);
         return response.data.values;
       })
       .catch((error) => {

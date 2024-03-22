@@ -116,9 +116,9 @@
                 </div>
               </v-col>
             </v-row>
-            <v-row v-if="selectTestRun">
+            <v-row v-if="selectTestExecution">
               <v-col cols="12">
-                <div class="loading-wrapper" v-if="testRunLoading">
+                <div class="loading-wrapper" v-if="testExecutionLoading">
                   <v-progress-circular
                     :size="70"
                     :width="7"
@@ -129,11 +129,11 @@
                 <div class="issue-wrapper" v-else>
                   <div class="issue-list">
                     <span class="issue-header"
-                      >{{ searchTestRunsList.length }}
-                      {{ $tc("caption.test_runs", 1) }}</span
+                      >{{ searchTestExecutionsList.length }}
+                      {{ $tc("caption.test_executions", 1) }}</span
                     >
                     <div
-                      v-for="item in searchTestRunsList"
+                      v-for="item in searchTestExecutionsList"
                       :key="item.id"
                       :class="
                         selectedItem && item.id === selectedItem.id
@@ -251,13 +251,10 @@ export default {
       projects: [],
       testCycles: [],
       testExecutions: [],
-      selectTestRun: true,
-      testRunLoading: true,
       dialog: false,
       itemLists: this.items,
       selectedIds: this.selected ? this.selected : [],
       search: "",
-      testRuns: [],
       selectedItem: null,
       snackBar: {
         enabled: false,
@@ -278,9 +275,9 @@ export default {
     }),
     disableDiscard() {
       return (
-        (this.selectTestExecution && this.testExecutionLoading) ||
-        (this.selectTestRun && this.testRunLoading) ||
-        (this.selectTest && this.testLoading)
+        (this.selectProject && this.projectLoading) ||
+        (this.selectTestCycle && this.testCycleLoading) ||
+        (this.selectTestExecution && this.testExecutionLoading)
       );
     },
     disableExport() {
@@ -331,21 +328,6 @@ export default {
       }
       return temp;
     },
-    searchTestRunsList() {
-      let temp = this.testRuns;
-      if (this.search !== "" && this.search) {
-        temp = temp.filter((item) => {
-          return (
-            item.key.toUpperCase().includes(this.search.toUpperCase()) ||
-            item.fields.summary
-              .toUpperCase()
-              .includes(this.search.toUpperCase()) ||
-            item.id.includes(this.search)
-          );
-        });
-      }
-      return temp;
-    },
     selectedAttachments() {
       let selectedAttachments = [];
       if (this.selectedIds.length > 0) {
@@ -387,11 +369,9 @@ export default {
       this.selectProject = type === "project";
       this.selectTestCycle = type === "testCycle";
       this.selectTestExecution = type === "testExecution";
-      this.selectTestRun = type === "testRun";
       this.testExecutionLoading = true;
-      this.testRunLoading = true;
       this.projectLoading = true;
-      this.projectLoading = true;
+      this.testCycleLoading = true;
     },
     async showDialog() {
       this.dialog = true;
@@ -441,6 +421,7 @@ export default {
         this.testCycles = data.map((testCycle) => ({
           ...testCycle,
           credential_index: item.credential_index,
+          project_key: item.key,
         }));
 
         this.testCycleLoading = false;
@@ -457,19 +438,20 @@ export default {
       console.log("Clicked showTestExecutions");
 
       try {
-        const data = await zephyrSquadIntegrationHelpers.fetchTestCycles(
-          this.credentials.xray[0].accessToken,
+        const data = await zephyrSquadIntegrationHelpers.fetchTestExecutions(
+          this.credentials.zephyrSquad[0].accessToken,
+          item.project_key,
           item.key
         );
 
-        this.testCycles = data.map((testRun) => ({
-          ...testRun,
+        this.testExecutions = data.map((testExecution) => ({
+          ...testExecution,
           credential_index: item.credential_index,
         }));
 
-        this.testRunLoading = false;
+        this.testExecutionLoading = false;
       } catch (error) {
-        this.testRunLoading = false;
+        this.testExecutionLoading = false;
         this.snackBar.enabled = true;
         this.snackBar.message = error.message
           ? error.message
