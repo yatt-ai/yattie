@@ -63,7 +63,6 @@ module.exports.startKeyboardCapture = () => {
 
 module.exports.stopKeyboardCapture = () => {
   iohook.stop();
-  capturedEvents.pop();
   return capturedEvents;
 };
 
