@@ -59,7 +59,7 @@
                           ? 'issue-item active'
                           : 'issue-item'
                       "
-                      @click="handleSelectTestExecution(item)"
+                      @click="handleSelectProject(item)"
                     >
                       <v-icon class="issue-icon">mdi-flag</v-icon>
                       <div class="issue-desc">
@@ -77,7 +77,7 @@
                 </div>
               </v-col>
             </v-row>
-            <v-row v-if="selectProject">
+            <v-row v-if="selectTestCycle">
               <v-col cols="12">
                 <div class="loading-wrapper" v-if="testCycleLoading">
                   <v-progress-circular
@@ -95,24 +95,21 @@
                     >
                     <div
                       v-for="item in searchTestCyclesList"
-                      :key="item.issueId"
+                      :key="item.id"
                       :class="
-                        selectedItem && item.issueId === selectedItem.issueId
+                        selectedItem && item.id === selectedItem.id
                           ? 'issue-item active'
                           : 'issue-item'
                       "
-                      @click="handleSelectProject(item)"
+                      @click="handleSelectTestCycle(item)"
                     >
                       <v-icon class="issue-icon">mdi-flag</v-icon>
                       <div class="issue-desc">
                         <span
                           class="issue-summary subtitle-1"
-                          v-text="item.jira.summary"
+                          v-text="item.name"
                         ></span>
-                        <span
-                          class="issue-key caption"
-                          v-text="item.jira.key"
-                        ></span>
+                        <span class="issue-key caption" v-text="item.id"></span>
                       </div>
                     </div>
                   </div>
@@ -247,19 +244,19 @@ export default {
     return {
       selectProject: true,
       selectTestCycle: true,
+      selectTestExecution: true,
       projectLoading: true,
       testCycleLoading: true,
+      testExecutionLoading: true,
       projects: [],
       testCycles: [],
-      selectTestExecution: true,
+      testExecutions: [],
       selectTestRun: true,
-      testExecutionLoading: true,
       testRunLoading: true,
       dialog: false,
       itemLists: this.items,
       selectedIds: this.selected ? this.selected : [],
       search: "",
-      testExecutions: [],
       testRuns: [],
       selectedItem: null,
       snackBar: {
@@ -294,15 +291,9 @@ export default {
       if (this.search !== "" && this.search) {
         temp = temp.filter((item) => {
           return (
-            item.issueId.includes(this.search) ||
-            (item.jira.assignee &&
-              item.jira.assignee.displayName
-                .toUpperCase()
-                .includes(this.search.toUpperCase())) ||
-            (item.jira.reporter &&
-              item.jira.reporter.displayName
-                .toUpperCase()
-                .includes(this.search.toUpperCase()))
+            item.id.includes(this.search) ||
+            item.jiraProjectId.includes(this.search) ||
+            item.key.includes(this.search)
           );
         });
       }
@@ -313,15 +304,9 @@ export default {
       if (this.search !== "" && this.search) {
         temp = temp.filter((item) => {
           return (
-            item.issueId.includes(this.search) ||
-            (item.jira.assignee &&
-              item.jira.assignee.displayName
-                .toUpperCase()
-                .includes(this.search.toUpperCase())) ||
-            (item.jira.reporter &&
-              item.jira.reporter.displayName
-                .toUpperCase()
-                .includes(this.search.toUpperCase()))
+            item.id.includes(this.search) ||
+            item.key.includes(this.search) ||
+            item.name.includes(this.search)
           );
         });
       }
@@ -400,7 +385,7 @@ export default {
     },
     resetResults(type) {
       this.selectProject = type === "project";
-      this.selectTestCycle = type = "testCycle";
+      this.selectTestCycle = type === "testCycle";
       this.selectTestExecution = type === "testExecution";
       this.selectTestRun = type === "testRun";
       this.testExecutionLoading = true;
@@ -411,7 +396,6 @@ export default {
     async showDialog() {
       this.dialog = true;
       this.resetResults("project");
-      //   let first = true;
       console.log("Clicked showDialog");
 
       for (const [i, credential] of Object.entries(this.credentials)) {
@@ -447,6 +431,30 @@ export default {
     async handleSelectProject(item) {
       this.resetResults("testCycle");
       console.log("Clicked showTestCycles");
+
+      try {
+        const data = await zephyrSquadIntegrationHelpers.fetchTestCycles(
+          this.credentials.zephyrSquad[0].accessToken,
+          item.key
+        );
+
+        this.testCycles = data.map((testCycle) => ({
+          ...testCycle,
+          credential_index: item.credential_index,
+        }));
+
+        this.testCycleLoading = false;
+      } catch (error) {
+        this.testCycleLoading = false;
+        this.snackBar.enabled = true;
+        this.snackBar.message = error.message
+          ? error.message
+          : this.$tc("message.api_error", 1);
+      }
+    },
+    async handleSelectTestCycle(item) {
+      this.resetResults("testExecution");
+      console.log("Clicked showTestExecutions");
 
       try {
         const data = await zephyrSquadIntegrationHelpers.fetchTestCycles(
