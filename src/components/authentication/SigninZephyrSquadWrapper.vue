@@ -9,7 +9,7 @@
         class="subtitle-1 signup-title text-center"
         :style="{ color: currentTheme.secondary }"
       >
-        <span>{{ $tc("caption.signin_zephyr", 1) }}</span>
+        <span>{{ $tc("caption.signin_zephyr_squad", 1) }}</span>
       </div>
     </div>
     <div class="content mt-2">
@@ -17,25 +17,29 @@
         <v-row>
           <v-col cols="12" class="d-flex justify-center pa-0">
             <img
-              :src="require('../../assets/icon/zephyr.png')"
-              alt="zephyr"
+              :src="require('../../assets/icon/zephyr-squad.png')"
+              alt="zephyr_squad"
               width="60"
             />
           </v-col>
           <v-col cols="12" class="pa-0 pt-4">
             <div class="subtitle-2 label-text">
-              {{ $tc("caption.zephyr_api_access_token", 1) }}
+              {{ $tc("caption.zephyr_squad_api_access_token", 1) }}
             </div>
             <div class="timer-box-wrapper">
               <v-text-field
-                :append-icon="showZephyrApiToken ? 'mdi-eye' : 'mdi-eye-off'"
+                :append-icon="
+                  showZephyrSquadApiToken ? 'mdi-eye' : 'mdi-eye-off'
+                "
                 outlined
                 dense
-                v-model="zephyr_api_access_token"
-                :type="showZephyrApiToken ? 'text' : 'password'"
+                v-model="zephyr_squad_api_access_token"
+                :type="showZephyrSquadApiToken ? 'text' : 'password'"
                 required
-                :rules="rules.zephyr_api_access_token"
-                @click:append="showZephyrApiToken = !showZephyrApiToken"
+                :rules="rules.zephyr_squad_api_access_token"
+                @click:append="
+                  showZephyrSquadApiToken = !showZephyrSquadApiToken
+                "
               />
             </div>
           </v-col>
@@ -48,7 +52,7 @@
                   )
                 "
               >
-                {{ $tc("message.zephyr_api_keys_docs") }}
+                {{ $tc("message.zephyr_squad_api_keys_docs") }}
               </a>
             </div>
           </v-col>
@@ -86,11 +90,11 @@
 <script>
 import axios from "axios";
 import dayjs from "dayjs";
-import zephyrIntegrationHelpers from "../../integrations/ZephyrIntegrationHelpers";
+import zephyrSquadIntegrationHelpers from "../../integrations/ZephyrSquadIntegrationHelpers";
 import { mapGetters } from "vuex";
 
 export default {
-  name: "SigninZephyrWrapper",
+  name: "SigninZephyrSquadWrapper",
   props: {
     prevRoute: {
       type: Object,
@@ -105,15 +109,15 @@ export default {
   data() {
     return {
       previousRoute: this.prevRoute,
-      zephyr_api_access_token: "",
-      showZephyrApiToken: false,
+      zephyr_squad_api_access_token: "",
+      showZephyrSquadApiToken: false,
       loading: false,
       valid: true,
       rules: {
-        zephyr_api_access_token: [
+        zephyr_squad_api_access_token: [
           (v) =>
             !!v ||
-            this.$i18n.t("message.zephyr_api_access_token") +
+            this.$i18n.t("message.zephyr_squad_api_access_token") +
               this.$i18n.t("message.is_required"),
         ],
       },
@@ -147,8 +151,8 @@ export default {
       const isValid = this.$refs.form.validate();
       if (isValid) {
         this.postLogin({
-          zephyr: {
-            auth_token: this.zephyr_api_access_token,
+          zephyrSquad: {
+            auth_token: this.zephyr_squad_api_access_token,
           },
         });
       }
@@ -156,7 +160,7 @@ export default {
     async postLogin(data) {
       console.log(data); //TODO - Abstract this to helper.
 
-      const authHeader = `Bearer ${data.zephyr.auth_token}`;
+      const authHeader = `Bearer ${data.zephyrSquad.auth_token}`;
       let header = {
         headers: {
           Authorization: authHeader,
@@ -170,16 +174,16 @@ export default {
         .then((response) => {
           if (response.status === 200) {
             const date = dayjs().format("YYYY-MM-DD HH:mm:ss");
-            const zephyrData = {
-              ...data.zephyr,
+            const zephyrSquadData = {
+              ...data.zephyrSquad,
               loggedInAt: date,
               lastRefreshed: date,
-              auth_token: data.zephyr.auth_token,
+              auth_token: data.zephyrSquad.auth_token,
             };
 
-            zephyrIntegrationHelpers.saveCredentials(
+            zephyrSquadIntegrationHelpers.saveCredentials(
               this.credentials,
-              zephyrData
+              zephyrSquadData
             );
 
             setTimeout(() => {
@@ -196,7 +200,7 @@ export default {
           if (error.response.status === 401) {
             this.snackBar.enabled = true;
             this.snackBar.message = this.$i18n.t(
-              "message.zephyr_api_access_token_error"
+              "message.zephyr_squad_api_access_token_error"
             );
           } else {
             this.snackBar.enabled = true;

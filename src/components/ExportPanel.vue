@@ -50,12 +50,13 @@
               </div>
               <div
                 v-if="
-                  this.credentials.zephyr && this.credentials.zephyr.length > 0
+                  this.credentials.zephyrSquad &&
+                  this.credentials.zephyrSquad.length > 0
                 "
               >
-                <zephyr-export-session
-                  :title="$tc(`caption.export_to_zephyr`, 1)"
-                  :credential-items="credentials.zephyr"
+                <zephyr-squad-export-session
+                  :title="$tc(`caption.export_to_zephyr_squad`, 1)"
+                  :credential-items="credentials.zephyrSquad"
                   :selected="[]"
                   :items="itemLists"
                   @close-menu="() => (evidenceExportDestinationMenu = false)"
@@ -100,7 +101,7 @@
 //import JiraExportSession from "./jira/JiraExportSession";
 //import TestRailExportSession from "./testrail/TestRailExportSession";
 import XrayExportSession from "./xray/XrayExportSession";
-import ZephyrExportSession from "./zephyr/ZephyrExportSession";
+import ZephyrSquadExportSession from "./zephyr/ZephyrSquadExportSession";
 
 export default {
   name: "ExportPanel",
@@ -108,7 +109,7 @@ export default {
     //JiraExportSession,
     //TestRailExportSession,
     XrayExportSession,
-    ZephyrExportSession,
+    ZephyrSquadExportSession,
   },
   props: {
     items: {

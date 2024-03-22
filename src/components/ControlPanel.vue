@@ -129,10 +129,15 @@
                     :selected="selected"
                   />
                 </div>
-                <div v-if="credentials.zephyr && credentials.zephyr.length > 0">
-                  <zephyr-export-session
-                    :title="$tc(`caption.export_to_zephyr`, 1)"
-                    :credential-items="credentials.zephyr"
+                <div
+                  v-if="
+                    credentials.zephyrSquad &&
+                    credentials.zephyrSquad.length > 0
+                  "
+                >
+                  <zephyr-squad-export-session
+                    :title="$tc(`caption.export_to_zephyr_squad`, 1)"
+                    :credential-items="credentials.zephyrSquad"
                     :items="items"
                     :selected="selected"
                   />
@@ -781,7 +786,7 @@ import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
 import XrayExportSession from "./xray/XrayExportSession";
-import ZephyrExportSession from "./zephyr/ZephyrExportSession";
+import ZephyrSquadExportSession from "./zephyr/ZephyrSquadExportSession";
 import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 
 import JiraAddIssue from "./jira/JiraAddIssue";
@@ -829,7 +834,7 @@ export default {
     JiraExportSession,
     TestRailExportSession,
     XrayExportSession,
-    ZephyrExportSession,
+    ZephyrSquadExportSession,
     JiraAddIssue,
   },
   props: {

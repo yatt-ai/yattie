@@ -45,8 +45,13 @@
             </div>
           </v-btn>
           <v-btn class="mb-4 outline-btn testrail" block outlined color="white">
-            <img :src="require('../../assets/icon/zephyr.png')" width="16" />
-            <div class="btn-text">{{ $tc("caption.signup_zephyr", 1) }}</div>
+            <img
+              :src="require('../../assets/icon/zephyr-squad.png')"
+              width="16"
+            />
+            <div class="btn-text">
+              {{ $tc("caption.signup_zephyr_squad", 1) }}
+            </div>
           </v-btn>
           <v-btn class="mb-4 outline-btn qtest" block outlined color="white">
             <img :src="require('../../assets/icon/qtest.png')" />

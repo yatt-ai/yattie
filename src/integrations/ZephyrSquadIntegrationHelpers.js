@@ -1,7 +1,7 @@
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 import axios from "axios";
 
-const ZEPHYR_URL = "https://prod-api.zephyr4jiracloud.com/v2";
+const ZEPHYR_SQUAD_URL = "https://prod-api.zephyr4jiracloud.com/v2";
 
 export default {
   saveCredentials(credentials, data) {
@@ -11,21 +11,21 @@ export default {
       credentials = {};
     }
 
-    if (credentials.zephyr && credentials.zephyr.length > 0) {
+    if (credentials.zephyrSquad && credentials.zephyrSquad.length > 0) {
       let matched = false;
-      for (const [zephyrIndex, credential] of Object.entries(
-        credentials.zephyr
+      for (const [zephyrSquadIndex, credential] of Object.entries(
+        credentials.zephyrSquad
       )) {
         if (credential.user.client_id === formattedData.user.client_id) {
-          credentials.zephyr[zephyrIndex] = formattedData;
+          credentials.zephyrSquad[zephyrSquadIndex] = formattedData;
           matched = true;
         }
       }
       if (!matched) {
-        credentials.zephyr.push(formattedData);
+        credentials.zephyrSquad.push(formattedData);
       }
     } else {
-      credentials.zephyr = [formattedData];
+      credentials.zephyrSquad = [formattedData];
     }
 
     window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
@@ -39,7 +39,7 @@ export default {
   formatData(data) {
     return {
       accessToken: data.auth_token,
-      type: "zephyr",
+      type: "zephyrSquad",
       url: "smartbear.com/test-management/zephyr-squad/",
       loggedInAt: data.loggedInAt,
       lastRefreshed: data.lastRefreshed,
@@ -48,7 +48,7 @@ export default {
   },
 
   async fetchProjects(authToken) {
-    const url = `${ZEPHYR_URL}/projects`;
+    const url = `${ZEPHYR_SQUAD_URL}/projects`;
     const authHeader = `Bearer ${authToken}`;
     let header = {
       headers: {
@@ -73,7 +73,7 @@ export default {
   },
 
   async fetchTestCycles(authToken, projectKey) {
-    const url = `${ZEPHYR_URL}/testcycles?projectKey=${projectKey}`;
+    const url = `${ZEPHYR_SQUAD_URL}/testcycles?projectKey=${projectKey}`;
     const authHeader = `Bearer ${authToken}`;
     let header = {
       headers: {
@@ -95,7 +95,7 @@ export default {
   },
 
   async fetchTestExecutions(authToken, projectKey, testCycle) {
-    const url = `${ZEPHYR_URL}/testcycles?projectKey=${projectKey}&testCycle=${testCycle}`;
+    const url = `${ZEPHYR_SQUAD_URL}/testcycles?projectKey=${projectKey}&testCycle=${testCycle}`;
     const authHeader = `Bearer ${authToken}`;
     let header = {
       headers: {

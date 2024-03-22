@@ -56,8 +56,8 @@
 
           <p></p>
 
-          <div class="avatar" v-if="credentials.zephyr">
-            <ConnectionPanel connectionType="zephyr" />
+          <div class="avatar" v-if="credentials.zephyrSquad">
+            <ConnectionPanel connectionType="zephyrSquad" />
           </div>
           <div v-else>
             <v-btn
@@ -65,14 +65,17 @@
               block
               outlined
               color="white"
-              @click="signinZephyr"
+              @click="signinZephyrSquad"
             >
-              <img :src="require('../../assets/icon/zephyr.png')" width="16" />
+              <img
+                :src="require('../../assets/icon/zephyr-squad.png')"
+                width="16"
+              />
               <div
                 class="btn-text ml-4"
                 :style="{ color: currentTheme.secondary }"
               >
-                {{ $t("message.connect_to_zephyr") }}
+                {{ $t("message.connect_to_zephyr_squad") }}
               </div>
             </v-btn>
           </div>
@@ -269,8 +272,8 @@ export default {
     signinXray() {
       this.$router.push({ path: "/authentication/signinXray" });
     },
-    signinZephyr() {
-      this.$router.push({ path: "/authentication/signinZephyr" });
+    signinZephyrSquad() {
+      this.$router.push({ path: "/authentication/signinZephyrSquad" });
     },
   },
 };

@@ -3,7 +3,7 @@
     <v-list-item-icon class="mr-4">
       <v-avatar width="16" size="24" rounded tile>
         <img
-          :src="require('../../assets/icon/zephyr.png')"
+          :src="require('../../assets/icon/zephyr-squad.png')"
           width="16"
           alt="avatar"
         />
@@ -17,7 +17,7 @@
       <v-sheet outlined color="accent" rounded>
         <v-card>
           <v-card-title class="dialog-title">
-            {{ $tc("caption.export_item_to_zephyr", 1) }}
+            {{ $tc("caption.export_item_to_zephyr_squad", 1) }}
           </v-card-title>
           <v-divider></v-divider>
           <div class="pa-2">
@@ -210,12 +210,12 @@
 <script>
 import axios from "axios";
 import xrayIntegrationHelper from "@/integrations/XrayIntegrationHelpers";
-import zephyrIntegrationHelpers from "@/integrations/ZephyrIntegrationHelpers";
+import zephyrSquadIntegrationHelpers from "@/integrations/ZephyrSquadIntegrationHelpers";
 import { mapGetters } from "vuex";
 import dayjs from "dayjs";
 
 export default {
-  name: "ZephyrExportSession",
+  name: "ZephyrSquadExportSession",
   components: {},
   props: {
     title: {
@@ -415,9 +415,9 @@ export default {
       console.log("Clicked showDialog");
 
       for (const [i, credential] of Object.entries(this.credentials)) {
-        if (credential[0].type === "zephyr") {
+        if (credential[0].type === "zephyrSquad") {
           try {
-            const projects = await zephyrIntegrationHelpers.fetchProjects(
+            const projects = await zephyrSquadIntegrationHelpers.fetchProjects(
               credential[0].accessToken
             );
 
@@ -434,7 +434,7 @@ export default {
               ? error.message
               : this.$tc("message.api_error", 1);
             if (
-              credential.type === "zephyr" &&
+              credential.type === "zephyrSquad" &&
               dayjs(credential.lastRefreshed) < dayjs().subtract(4, "minute") &&
               [401, 403].includes(error.status)
             ) {
@@ -449,7 +449,7 @@ export default {
       console.log("Clicked showTestCycles");
 
       try {
-        const data = await zephyrIntegrationHelpers.fetchTestCycles(
+        const data = await zephyrSquadIntegrationHelpers.fetchTestCycles(
           this.credentials.xray[0].accessToken,
           item.key
         );

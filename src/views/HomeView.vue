@@ -142,23 +142,23 @@
           <template v-slot:activator="{ on, attrs }">
             <button class="social-btn">
               <img
-                :src="require('../assets/icon/zephyr.png')"
+                :src="require('../assets/icon/zephyr-squad.png')"
                 width="35"
                 v-bind="attrs"
                 v-on="on"
               />
               <div
                 class="overlay"
-                v-if="!loggedInServices.zephyr"
+                v-if="!loggedInServices.zephyrSquad"
                 v-on="on"
               ></div>
             </button>
           </template>
           <span>
             {{
-              loggedInServices.zephyr
-                ? $tc("caption.logged_in_zephyr", 1)
-                : $tc("caption.not_logged_in_zephyr", 1)
+              loggedInServices.zephyrSquad
+                ? $tc("caption.logged_in_zephyr_squad", 1)
+                : $tc("caption.not_logged_in_zephyr_squad", 1)
             }}
           </span>
         </v-tooltip>
