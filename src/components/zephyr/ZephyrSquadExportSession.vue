@@ -140,19 +140,17 @@
                           ? 'issue-item active'
                           : 'issue-item'
                       "
-                      @click="handleSelectRun(item)"
+                      @click="handleSelectTestExecution(item)"
                     >
-                      <v-icon class="issue-icon">{{
-                        getIconByTestRunStatus(item.status.name)
-                      }}</v-icon>
+                      <v-icon class="issue-icon"> mdi-flag </v-icon>
                       <div class="issue-desc">
                         <span
                           class="issue-summary subtitle-1"
-                          v-text="item.test.jira.summary"
+                          v-text="item.key"
                         ></span>
                         <span
                           class="issue-key caption"
-                          v-text="item.test.jira.key"
+                          v-text="item.key"
                         ></span>
                       </div>
                     </div>
@@ -206,7 +204,6 @@
 
 <script>
 import axios from "axios";
-import xrayIntegrationHelper from "@/integrations/XrayIntegrationHelpers";
 import zephyrSquadIntegrationHelpers from "@/integrations/ZephyrSquadIntegrationHelpers";
 import { mapGetters } from "vuex";
 import dayjs from "dayjs";
@@ -345,26 +342,6 @@ export default {
   },
   async mounted() {},
   methods: {
-    getIconByTestRunStatus(description) {
-      let icon;
-      switch (description) {
-        case "EXECUTING":
-          icon = "mdi-play";
-          break;
-        case "PASSED":
-          icon = "mid-check";
-          break;
-        case "FAILED":
-          icon = "mdi-alert-circle";
-          break;
-        case "TO DO":
-        default:
-          icon = "mid-check";
-          break;
-      }
-
-      return icon;
-    },
     resetResults(type) {
       this.selectProject = type === "project";
       this.selectTestCycle = type === "testCycle";
@@ -459,28 +436,18 @@ export default {
       }
     },
     async handleSelectTestExecution(item) {
-      this.resetResults("testRun");
-      console.log("Clicked showTestRuns");
+      this.selectedItem = item;
+      const selection = item;
 
-      try {
-        const data = await xrayIntegrationHelper.fetchTestRuns(
-          this.credentials.xray[0].accessToken,
-          item.issueId
-        );
+      this.items.map(async (item, i) => {
+        if (item.fileName) {
+          // Todo: attach file to execution here
+          console.log({ item, i, selection });
+        }
+      });
 
-        this.testRuns = data.map((testRun) => ({
-          ...testRun,
-          credential_index: item.credential_index,
-        }));
-
-        this.testRunLoading = false;
-      } catch (error) {
-        this.testRunLoading = false;
-        this.snackBar.enabled = true;
-        this.snackBar.message = error.message
-          ? error.message
-          : this.$tc("message.api_error", 1);
-      }
+      this.dialog = false;
+      this.selectedItem = null;
     },
     async file2Base64(file) {
       return new Promise((resolve, reject) => {
@@ -495,43 +462,6 @@ export default {
         };
         reader.onerror = (error) => reject(error);
       });
-    },
-    async handleSelectRun(item) {
-      this.resetResults("test");
-      this.selectedItem = item;
-      const selection = item;
-
-      this.items.map(async (item, i) => {
-        if (item.fileName) {
-          const response = await fetch(`file:${item.filePath}`);
-          const file = new File([await response.blob()], item.fileName);
-
-          let exportFile = {
-            filename: item.fileName,
-            mimeType: item.fileType,
-            data: await this.file2Base64(file),
-            i,
-          };
-
-          try {
-            await xrayIntegrationHelper.addEvidenceToTestRun(
-              selection.id,
-              exportFile,
-              this.credentials.xray[0].accessToken
-            );
-          } catch (error) {
-            this.testLoading = false;
-            this.snackBar.enabled = true;
-            this.snackBar.message = error.message
-              ? error.message
-              : this.$tc("message.api_error", 1);
-          }
-        }
-      });
-
-      this.testLoading = false;
-      this.dialog = false;
-      this.selectedItem = null;
     },
     async handleExport() {
       const credential = this.credentials[this.selectedItem.credential_index];

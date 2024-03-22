@@ -108,6 +108,8 @@ export default {
     return await axios
       .get(url, header)
       .then((response) => {
+        console.log("Fetched Test Executions");
+
         return response.data.values;
       })
       .catch((error) => {
