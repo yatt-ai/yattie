@@ -312,12 +312,6 @@ export default class ElectronService {
     });
   }
 
-  async openImage() {
-    return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
-      func: IPC_FUNCTIONS.OPEN_IMAGE,
-    });
-  }
-
   async openSession() {
     return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
       func: IPC_FUNCTIONS.OPEN_SESSION,

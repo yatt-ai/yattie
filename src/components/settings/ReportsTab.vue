@@ -42,7 +42,7 @@
           </div>
           <div class="flex-grow-0">
             <v-switch
-              v-model="config.reportLogo"
+              v-model="reportLogo"
               inset
               hide-details
               dense
@@ -52,28 +52,30 @@
           </div>
         </div>
       </div>
+      <v-file-input
+        accept="image/png, image/jpeg, image/bmp"
+        label="Logo"
+        placeholder="Pick a Logo"
+        prepend-icon="mdi-camera"
+        :disabled="!reportLogo"
+        :show-size="1000"
+        v-model="chosenFile"
+        @change="handleConfig"
+      ></v-file-input>
       <v-card
-        class="mx-2 my-2 d-flex flex-column align-center selected"
-        max-width="200"
-        max-height="300"
+        class="mx-2 my-2 px-2 py-2 d-flex flex-column align-center selected"
+        max-width="250"
+        max-height="350"
         theme="dark"
         title="Card title"
-        :disabled="!config.reportLogo"
+        :disabled="!reportLogo"
         link
         hover
-        @click.stop="openImage"
       >
         <v-img
-          :aspect-ratio="1"
-          :src="require('../../assets/icon/plus.png')"
+          v-if="logoPath"
           class="bg-white"
-          width="80px"
-          cover
-        ></v-img>
-        <v-divider class="" width="200px"></v-divider>
-        <v-img
-          class="bg-white"
-          :src="`file://${config.logoPath}`"
+          :src="`file://${logoPath}`"
           width="100%"
           height="100%"
           cover
@@ -84,8 +86,6 @@
   </v-container>
 </template>
 <script>
-import { STATUSES } from "../../modules/constants";
-
 export default {
   name: "ReportsTab",
   components: {},
@@ -112,27 +112,32 @@ export default {
   data() {
     return {
       config: this.configItem,
+      reportLogo: false,
+      logoPath: "",
+      chosenFile: null,
     };
+  },
+  created() {
+    if (!this.config.logo) {
+      this.config.logo = {
+        enabled: false,
+        path: {},
+      };
+      this.$emit("submit-config", this.config);
+    } else {
+      this.reportLogo = this.config.logo.enabled;
+      this.chosenFile = this.config.logo.path;
+      this.logoPath = this.chosenFile.path;
+    }
   },
   methods: {
     handleConfig() {
-      this.$emit("submit-config", this.config);
-    },
-
-    async openImage() {
-      if (this.$isElectron) {
-        const { status, message, path } =
-          await this.$electronService.openImage();
-
-        if (status === STATUSES.ERROR) {
-          this.$root.$emit("set-snackbar", message);
-        } else {
-          this.config.logoPath = path;
-          this.$emit("submit-config", this.config);
-        }
-      } else {
-        // todo Add web version handler
-      }
+      let configToChange = structuredClone(this.config);
+      const { path, name, size } = this.chosenFile;
+      if (this.chosenFile) this.logoPath = this.chosenFile.path;
+      configToChange.logo.enabled = this.reportLogo;
+      configToChange.logo.path = { path, name, size };
+      this.$emit("submit-config", configToChange);
     },
   },
 };

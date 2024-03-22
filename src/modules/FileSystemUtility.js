@@ -398,37 +398,3 @@ module.exports.openExternalLink = async (url = "") => {
   if (url === "") return;
   return shell.openExternal(url);
 };
-
-module.exports.openImage = async () => {
-  return new Promise((resolve) => {
-    const options = {
-      filters: [{ name: "Images", extensions: ["jpg", "jpeg", "png", "gif"] }],
-      properties: ["openFile"],
-    };
-    dialog.showOpenDialog(options).then((result) => {
-      if (!result.canceled && result.filePaths.length > 0) {
-        const imagePath = result.filePaths[0];
-        fs.readFile(imagePath, (err, data) => {
-          if (err) {
-            resolve({
-              status: STATUSES.ERROR,
-              message: "Error",
-              path: null,
-            });
-          }
-          resolve({
-            status: STATUSES.SUCCESS,
-            message: "Image loaded successfully",
-            path: imagePath,
-          });
-        });
-      } else {
-        resolve({
-          status: STATUSES.ERROR,
-          message: "No Image selected",
-          path: null,
-        });
-      }
-    });
-  });
-};

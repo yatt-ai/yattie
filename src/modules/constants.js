@@ -75,7 +75,6 @@ export const IPC_FUNCTIONS = {
   OPEN_CREDENTIALS_FILE: "openCredentialsFile",
   DRAG_ITEM: "dragItem",
   OPEN_EXTERNAL_LINK: "openExternalLink",
-  OPEN_IMAGE: "openImage",
   CHANGE_MENUITEM_STATUS: "changeMenuItemStatus",
 
   START_SERVER: "startServer",
