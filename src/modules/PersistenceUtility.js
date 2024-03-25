@@ -116,7 +116,9 @@ const defaultConfig = {
   version: currentVersion,
   logo: {
     enabled: false,
-    path: {},
+    path: "",
+    name: "",
+    size: 0,
   },
 };
 

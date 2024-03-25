@@ -133,7 +133,7 @@ export default {
         started: this.$store.state.session.started,
         ended: this.$store.state.session.ended,
         reportLogo: logo && logo.enabled,
-        logoPath: logo && logo.path && logo.path.path,
+        logoPath: logo && logo.path,
       };
       if (this.$isElectron) {
         await this.$electronService.exportSession(data);

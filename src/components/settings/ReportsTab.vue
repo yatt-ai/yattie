@@ -120,7 +120,11 @@ export default {
   created() {
     if (this.config.logo) {
       this.reportLogo = this.config.logo.enabled;
-      this.chosenFile = this.config.logo.path;
+      this.chosenFile = {
+        path: this.config.logo.path,
+        name: this.config.logo.name,
+        size: this.config.logo.size,
+      };
       this.logoPath = this.chosenFile.path;
     }
   },
@@ -130,7 +134,9 @@ export default {
       const { path, name, size } = this.chosenFile;
       if (this.chosenFile) this.logoPath = this.chosenFile.path;
       configToChange.logo.enabled = this.reportLogo;
-      configToChange.logo.path = { path, name, size };
+      configToChange.logo.path = path;
+      configToChange.logo.name = name;
+      configToChange.logo.size = size;
       this.$emit("submit-config", configToChange);
     },
   },
