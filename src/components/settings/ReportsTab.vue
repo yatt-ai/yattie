@@ -118,13 +118,7 @@ export default {
     };
   },
   created() {
-    if (!this.config.logo) {
-      this.config.logo = {
-        enabled: false,
-        path: {},
-      };
-      this.$emit("submit-config", this.config);
-    } else {
+    if (this.config.logo) {
       this.reportLogo = this.config.logo.enabled;
       this.chosenFile = this.config.logo.path;
       this.logoPath = this.chosenFile.path;

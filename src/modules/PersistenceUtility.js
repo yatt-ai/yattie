@@ -114,6 +114,10 @@ const defaultConfig = {
     },
   },
   version: currentVersion,
+  logo: {
+    enabled: false,
+    path: {},
+  },
 };
 
 module.exports.initializeSession = () => {
@@ -488,7 +492,6 @@ module.exports.getItems = () => {
       return [];
     }
   }
-  return [];
 };
 
 module.exports.addItem = (item) => {
