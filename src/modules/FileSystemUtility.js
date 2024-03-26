@@ -243,7 +243,6 @@ module.exports.exportSession = async (params) => {
       : `file://${__dirname}/index.html#print`;
 
   pdfWin.loadURL(url);
-
   pdfWin.webContents.on("did-finish-load", () => {
     pdfWin.webContents.send("ACTIVE_PDF", params);
     pdfWin.webContents
@@ -251,7 +250,6 @@ module.exports.exportSession = async (params) => {
       .then((data) => {
         const pdfName = "yattie-session-" + timestamp + "-report.pdf";
         const pdfPath = path.join(configDir, "sessions", id, pdfName);
-
         fs.writeFile(pdfPath, data, (error) => {
           if (error) {
             return Promise.resolve({
@@ -263,7 +261,6 @@ module.exports.exportSession = async (params) => {
             const zip = new AdmZip();
 
             const items = persistenceUtility.getItems();
-
             items.map((item) => {
               if (item.filePath) {
                 const sanitizedPath =
@@ -279,7 +276,7 @@ module.exports.exportSession = async (params) => {
             }
 
             zip.addLocalFile(pdfPath);
-
+            zip.addLocalFile(params.logoPath);
             zip.writeZip(filePath, (error) => {
               if (error) {
                 return Promise.resolve({

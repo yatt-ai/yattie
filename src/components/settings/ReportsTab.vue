@@ -63,6 +63,7 @@
         @change="handleConfig"
       ></v-file-input>
       <v-card
+        v-if="chosenFile.path && reportLogo"
         class="mx-2 my-2 px-2 py-2 d-flex flex-column align-center selected"
         max-width="250"
         max-height="350"
