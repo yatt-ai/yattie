@@ -1,7 +1,7 @@
 <template>
   <v-container class="wrapper">
     <div class="header" v-if="reportLogo">
-      <img style="max-width: 100%" :src="`file://${logoPath}`" />
+      <img style="max-width: 200px" :src="`file://${logoPath}`" />
     </div>
     <div class="content">
       <v-row>
