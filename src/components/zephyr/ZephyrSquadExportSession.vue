@@ -216,10 +216,6 @@ export default {
       type: String,
       default: () => "",
     },
-    credentialItems: {
-      type: Array,
-      default: () => [],
-    },
     items: {
       type: Array,
       default: () => [],
@@ -310,17 +306,7 @@ export default {
       let temp = this.testExecutions;
       if (this.search !== "" && this.search) {
         temp = temp.filter((item) => {
-          return (
-            item.issueId.includes(this.search) ||
-            (item.jira.assignee &&
-              item.jira.assignee.displayName
-                .toUpperCase()
-                .includes(this.search.toUpperCase())) ||
-            (item.jira.reporter &&
-              item.jira.reporter.displayName
-                .toUpperCase()
-                .includes(this.search.toUpperCase()))
-          );
+          return item.key.includes(this.search);
         });
       }
       return temp;
@@ -438,39 +424,13 @@ export default {
     async handleSelectTestExecution(item) {
       this.selectedItem = item;
     },
-    async file2Base64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-          let encoded = reader.result.toString().replace(/^data:(.*,)?/, "");
-          if (encoded.length % 4 > 0) {
-            encoded += "=".repeat(4 - (encoded.length % 4));
-          }
-          resolve(encoded);
-        };
-        reader.onerror = (error) => reject(error);
-      });
-    },
     async handleExport() {
       this.testExecutionLoading = true;
-      let selectedAttachments = [];
-
-      if (this.selectedIds.length > 0) {
-        this.itemLists.map((item) => {
-          if (
-            item.comment.type !== "Summary" &&
-            this.selectedIds.includes(item.stepID)
-          ) {
-            selectedAttachments.push(item);
-          }
-        });
-      }
 
       let response = await jiraIntegrationHelper.createAttachments(
         this.credentials["jira"][0],
         this.selectedItem,
-        selectedAttachments
+        this.selectedAttachments
       );
 
       if (response.error) {
