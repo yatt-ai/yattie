@@ -51,7 +51,9 @@
               <div
                 v-if="
                   this.credentials.zephyrSquad &&
-                  this.credentials.zephyrSquad.length > 0
+                  this.credentials.zephyrSquad.length > 0 &&
+                  this.credentials.jira &&
+                  this.credentials.jira.length > 0
                 "
               >
                 <zephyr-squad-export-session
