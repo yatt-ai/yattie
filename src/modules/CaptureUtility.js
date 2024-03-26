@@ -389,31 +389,15 @@ module.exports.deleteFile = ({ filePath }) => {
   }
 };
 
-module.exports.saveNote = (comment, fileNameToSave = "") => {
-  const { stepID, attachmentID, fileName } = generateIDAndName("text");
-  const filePath = path.join(
-    configDir,
-    "sessions",
-    persistenceUtility.getSessionID(),
-    fileNameToSave ? fileNameToSave : fileName
-  );
+module.exports.saveNote = (comment) => {
+  const stepID = uuidv4();
+  const attachmentID = uuidv4();
 
-  fs.writeFile(filePath, comment.text, function (err) {
-    if (err) {
-      console.log(err);
-      return {
-        status: STATUSES.ERROR,
-        message: err,
-      };
-    }
-  });
   return {
     status: STATUSES.SUCCESS,
     item: {
       stepID,
       attachmentID,
-      fileName: fileNameToSave ? fileNameToSave : fileName,
-      filePath,
     },
   };
 };

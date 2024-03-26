@@ -781,7 +781,6 @@ import {
   createAudioForWeb,
   createImageForWeb,
   createVideoForWeb,
-  saveNoteForWeb,
 } from "@/helpers/WebHelpers";
 
 let mediaRecorder;
@@ -1728,47 +1727,19 @@ export default {
       }
     },
     async addNote(data) {
-      if (this.$isElectron) {
-        const { status, message, item } = await this.$storageService.saveNote(
-          data.comment
-        );
-        if (status === STATUSES.ERROR) {
-          this.$root.$emit("set-snackbar", message);
-          console.log(message);
-        } else {
-          let newItem = {
-            stepID: item.stepID,
-            fileType: DEFAULT_FILE_TYPES["text"].type,
-            fileName: item.fileName,
-            filePath: item.filePath,
-            comment: data.comment,
-            tags: data.tags,
-            emoji: data.emoji,
-            followUp: data.followUp,
-            timer_mark: this.timer,
-            createdAt: Date.now(),
-          };
-          this.$emit("add-item", newItem);
-          this.noteDialog = false;
-        }
-      } else {
-        const { item } = saveNoteForWeb(data.comment);
-        let newItem = {
-          stepID: item.stepID,
-          fileType: DEFAULT_FILE_TYPES["text"].type,
-          fileName: item.fileName,
-          filePath: item.filePath,
-          comment: data.comment,
-          tags: data.tags,
-          emoji: data.emoji,
-          followUp: data.followUp,
-          timer_mark: this.timer,
-          createdAt: Date.now(),
-        };
-
-        this.$emit("add-item", newItem);
-        this.noteDialog = false;
-      }
+      const stepID = uuidv4();
+      let newItem = {
+        stepID: stepID,
+        fileType: DEFAULT_FILE_TYPES["text"].type,
+        comment: data.comment,
+        tags: data.tags,
+        emoji: data.emoji,
+        followUp: data.followUp,
+        timer_mark: this.timer,
+        createdAt: Date.now(),
+      };
+      this.$emit("add-item", newItem);
+      this.noteDialog = false;
     },
     async addSummary(value) {
       // TODO - handle summary like a regular note and allow additional metadata
