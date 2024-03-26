@@ -52,8 +52,8 @@
                 v-if="
                   this.credentials.zephyrSquad &&
                   this.credentials.zephyrSquad.length > 0 &&
-                  this.credentials.jira &&
-                  this.credentials.jira.length > 0
+                  // Adding the false to make it invisible
+                  false
                 "
               >
                 <zephyr-squad-export-session
