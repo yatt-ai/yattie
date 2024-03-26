@@ -229,9 +229,10 @@ export default {
       );
     },
     async fetchItems() {
-      console.log("fetchItems from Main View");
-      const sessionItems = await this.$storageService.getItems();
-      this.$store.commit("setSessionItemsFromExternalWindow", sessionItems);
+      if (this.$isElectron) {
+        const sessionItems = await this.$storageService.getItems();
+        this.$store.commit("setSessionItemsFromExternalWindow", sessionItems);
+      }
     },
     addItem(newItem) {
       this.$store.commit("addSessionItem", newItem);

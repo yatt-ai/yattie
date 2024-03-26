@@ -54,6 +54,10 @@ export default class RestApiService extends StorageInterface {
                   "X-Upload-Content-Length": match.fileSize,
                 },
               })
+              .then((resp) => {
+                console.log("File upload response");
+                console.log(resp);
+              })
               .catch((error) => {
                 returnResponse.error.push(...error.response.data.errors);
               });
@@ -69,7 +73,7 @@ export default class RestApiService extends StorageInterface {
 
   async getConfig() {
     const response = await axios.get(
-      `http://localhost:5000/v1/app/org/89cf66b3-e392-11ee-af72-0242ac130002/config/5e0f71ff-987d-4240-85eb-df6adf568c31`
+      `http://localhost:5000/v1/app/org/2f6cb8ea-e5c0-11ee-87ec-0242ac130002/config/5e0f71ff-987d-4240-85eb-df6adf568c31`
     );
     console.log(response);
     return response.data.config;
@@ -77,7 +81,7 @@ export default class RestApiService extends StorageInterface {
 
   async updateConfig(config) {
     const response = await axios.put(
-      `http://localhost:5000/v1/app/org/89cf66b3-e392-11ee-af72-0242ac130002/config/5e0f71ff-987d-4240-85eb-df6adf568c31`,
+      `http://localhost:5000/v1/app/org/2f6cb8ea-e5c0-11ee-87ec-0242ac130002//config/5e0f71ff-987d-4240-85eb-df6adf568c31`,
       { config }
     );
     return response.data.config;
