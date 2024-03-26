@@ -71,15 +71,6 @@ module.exports.createNewSession = async (state) => {
 };
 
 module.exports.saveSession = async (data) => {
-  const notesFileName =
-    "yattie-session-" + dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + "-notes.txt";
-  const notes = persistenceUtility.getNotes();
-  let notesFilePath = "";
-  if (notes && notes.text) {
-    const notesItem = captureUtility.saveNote(notes, notesFileName);
-    notesFilePath = notesItem.item.filePath;
-  }
-
   const fileName = "TestSession.test";
   const { filePath } = await dialog.showSaveDialog({
     title: "Save Session",
@@ -123,10 +114,6 @@ module.exports.saveSession = async (data) => {
             zip.addLocalFile(sanitizedPath);
           }
         });
-
-        if (notesFilePath) {
-          zip.addLocalFile(notesFilePath);
-        }
 
         zip.writeZip(filePath, (error) => {
           if (error) {
@@ -203,14 +190,6 @@ module.exports.openSession = async () => {
 module.exports.exportSession = async (params) => {
   const timestamp = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms");
   const id = persistenceUtility.getSessionID();
-  const notesFileName = "yattie-session-" + timestamp + "-notes.txt";
-  const notes = persistenceUtility.getNotes();
-  let notesFilePath = "";
-  if (notes.text) {
-    const notesItem = captureUtility.saveNote(notes, notesFileName);
-    notesFilePath = notesItem.item.filePath;
-    console.log(notesFilePath);
-  }
   // show save dialog
   const fileName =
     params.type === "pdf"
