@@ -203,8 +203,8 @@
 </template>
 
 <script>
-import axios from "axios";
 import zephyrSquadIntegrationHelpers from "@/integrations/ZephyrSquadIntegrationHelpers";
+import jiraIntegrationHelper from "../../integrations/JiraIntegrationHelpers";
 import { mapGetters } from "vuex";
 import dayjs from "dayjs";
 
@@ -278,7 +278,7 @@ export default {
       );
     },
     disableExport() {
-      return this.disableDiscard || !this.selectedItem || !this.selectedStatus;
+      return this.disableDiscard || !this.selectedItem;
     },
     searchProjectsList() {
       let temp = this.projects;
@@ -437,17 +437,6 @@ export default {
     },
     async handleSelectTestExecution(item) {
       this.selectedItem = item;
-      const selection = item;
-
-      this.items.map(async (item, i) => {
-        if (item.fileName) {
-          // Todo: attach file to execution here
-          console.log({ item, i, selection });
-        }
-      });
-
-      this.dialog = false;
-      this.selectedItem = null;
     },
     async file2Base64(file) {
       return new Promise((resolve, reject) => {
@@ -464,70 +453,41 @@ export default {
       });
     },
     async handleExport() {
-      const credential = this.credentials[this.selectedItem.credential_index];
-      const url = `https://${credential.url}/index.php?/api/v2/add_result/${this.selectedItem.id}`;
-      const authHeader = `Basic ${credential.accessToken}`;
-      const headers = {
-        headers: {
-          Authorization: authHeader,
-          Accept: "application/json",
-        },
-      };
-      let resultId;
+      this.testExecutionLoading = true;
+      let selectedAttachments = [];
 
-      let attachmentComments = "";
-      this.selectedIds.map(async (id, i) => {
-        const item = this.selectedAttachments.find((item) => item.id === id);
-        attachmentComments += item.comment.type + ": " + item.comment.text;
-        if (i !== this.selectedIds.length - 1) {
-          attachmentComments += "\n";
-        }
-      });
-
-      let resultResponse = await axios.post(
-        url,
-        {
-          status_id: this.selectedStatus.id,
-          comment: attachmentComments,
-        },
-        headers
-      );
-
-      if (resultResponse.status === 200 && resultResponse.data.id) {
-        resultId = resultResponse.data.id;
-        this.uploadFile = async (resultId, data) => {
-          const attachmentURL = `https://${credential.url}/index.php?/api/v2/add_attachment_to_result/${resultId}`;
-
-          axios
-            .post(attachmentURL, data, headers)
-            .then((response) => {
-              if (response.status === 200) {
-                this.dialog = false;
-                // TODO - Save the state of the last test submitted to?
-                this.selectedItem = null;
-                this.selectedStatus = null;
-              }
-            })
-            .catch((error) => {
-              this.testExecutionLoading = false;
-              this.snackBar.enabled = true;
-              this.snackBar.message = error.message
-                ? error.message
-                : this.$tc("message.api_error", 1);
-            });
-        };
-
-        const formData = new FormData();
-        this.testExecutionLoading = true;
-
-        this.selectedAttachments.map(async (item, i) => {
-          const response = await fetch(`file:${item.filePath}`);
-          const file = new File([await response.blob()], item.fileName);
-          formData.append("attachment", file);
-          if (i === this.selectedIds.length - 1) {
-            this.uploadFile(resultId, formData);
+      if (this.selectedIds.length > 0) {
+        this.itemLists.map((item) => {
+          if (
+            item.comment.type !== "Summary" &&
+            this.selectedIds.includes(item.stepID)
+          ) {
+            selectedAttachments.push(item);
           }
         });
+      }
+
+      let response = await jiraIntegrationHelper.createAttachments(
+        this.credentials["jira"][0],
+        this.selectedItem,
+        selectedAttachments
+      );
+
+      if (response.error) {
+        this.testExecutionLoading = false;
+        this.handleDiscard();
+        this.$root.$emit(
+          "set-snackbar",
+          response.error.message && response.error.message !== "{}"
+            ? response.error.message
+            : this.$tc("message.api_error", 1)
+        );
+      } else {
+        this.dialog = false;
+        this.$root.$emit(
+          "set-snackbar",
+          this.$tc("message.successfully_added_attachment", 1)
+        );
       }
     },
     handleDiscard() {
