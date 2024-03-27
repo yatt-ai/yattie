@@ -484,7 +484,6 @@
                       <div class="duration-text">
                         <v-icon>mdi-clock-outline</v-icon>
                         <span> {{ formatTime(item.timer_mark) }}</span>
-                        <span class="filename-text">({{ item.fileName }})</span>
                       </div>
                       <div class="d-flex align-center">
                         <input
