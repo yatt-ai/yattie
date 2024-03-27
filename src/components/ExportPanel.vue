@@ -48,6 +48,22 @@
                   @close-menu="() => (evidenceExportDestinationMenu = false)"
                 />
               </div>
+              <div
+                v-if="
+                  this.credentials.zephyrSquad &&
+                  this.credentials.zephyrSquad.length > 0 &&
+                  // Adding the false to make it invisible
+                  false
+                "
+              >
+                <zephyr-squad-export-session
+                  :title="$tc(`caption.export_to_zephyr_squad`, 1)"
+                  :credential-items="credentials.zephyrSquad"
+                  :selected="[]"
+                  :items="itemLists"
+                  @close-menu="() => (evidenceExportDestinationMenu = false)"
+                />
+              </div>
               <!-- TODO - What does it look like to export an entire session to a 3rd party service?
               <div
                 v-if="this.credentials.jira && this.credentials.jira.length > 0"
@@ -87,6 +103,7 @@
 //import JiraExportSession from "./jira/JiraExportSession";
 //import TestRailExportSession from "./testrail/TestRailExportSession";
 import XrayExportSession from "./xray/XrayExportSession";
+import ZephyrSquadExportSession from "./zephyr/ZephyrSquadExportSession";
 
 export default {
   name: "ExportPanel",
@@ -94,6 +111,7 @@ export default {
     //JiraExportSession,
     //TestRailExportSession,
     XrayExportSession,
+    ZephyrSquadExportSession,
   },
   props: {
     items: {

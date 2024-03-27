@@ -71,6 +71,21 @@
               {{ $tc("caption.signin_xray", 1) }}
             </div>
           </v-btn>
+          <v-btn
+            class="mb-4 outline-btn jira"
+            block
+            outlined
+            color="white"
+            @click="signinZephyrSquad"
+          >
+            <img
+              :src="require('../../assets/icon/zephyr-squad.png')"
+              width="16"
+            />
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_zephyr_squad", 1) }}
+            </div>
+          </v-btn>
           <!--<v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/qtest.png')" />
             <div class="btn-text" :style="{ color: currentTheme.secondary }">
@@ -192,6 +207,9 @@ export default {
     },
     signinXray() {
       this.$router.push({ path: "/authentication/signinXray" });
+    },
+    signinZephyrSquad() {
+      this.$router.push({ path: "/authentication/signinZephyrSquad" });
     },
   },
 };
