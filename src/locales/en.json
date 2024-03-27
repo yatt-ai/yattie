@@ -137,6 +137,8 @@
     "start_quick_test": "Start Quick Test",
     "export": "Export",
     "save_as": "Save As",
+    "save_as_zip": "Save As Zip Archive",
+    "save_as_pdf": "Save As Pdf",
     "export_to_jira": "Export to JIRA",
     "export_to_testrail": "Export to TestRail",
     "resume_session": "Resume session",

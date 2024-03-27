@@ -27,13 +27,23 @@
           </template>
           <v-card tile>
             <v-list dense>
-              <v-list-item @click="exportSession">
+              <v-list-item @click="exportSession('archive')">
                 <v-list-item-icon class="mr-4">
                   <v-icon>mdi-download</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title>
-                    {{ $tc("caption.save_as", 1) }}
+                    {{ $tc("caption.save_as_zip", 1) }}
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="exportSession('pdf')">
+                <v-list-item-icon class="mr-4">
+                  <v-icon>mdi-download</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ $tc("caption.save_as_pdf", 1) }}
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -122,7 +132,7 @@ export default {
     });
   },
   methods: {
-    async exportSession() {
+    async exportSession(type) {
       const { logo } = await this.$storageService.getConfig();
       const data = {
         title: this.$store.state.case.title,
@@ -134,6 +144,7 @@ export default {
         ended: this.$store.state.session.ended,
         reportLogo: logo && logo.enabled,
         logoPath: logo && logo.path,
+        type: type,
       };
       if (this.$isElectron) {
         await this.$electronService.exportSession(data);

@@ -212,13 +212,21 @@ module.exports.exportSession = async (params) => {
     console.log(notesFilePath);
   }
   // show save dialog
-  const fileName = "yattie-session-" + timestamp + ".zip";
-  const { filePath } = await dialog.showSaveDialog({
-    title: "Save Items",
+  const fileName =
+    params.type === "pdf"
+      ? "yattie-session-" + timestamp + ".pdf"
+      : "yattie-session-" + timestamp + ".zip";
+  const options = {
+    title: params.type === "pdf" ? "Save Pdf" : "Save Items",
     defaultPath: fileName,
-    filters: [{ name: "Zip archives only", extensions: ["zip"] }],
+    filters: [
+      params.type === "pdf"
+        ? { name: "Pdf files only", extensions: ["pdf"] }
+        : { name: "Zip archives only", extensions: ["zip"] },
+    ],
     properties: ["createDirectory", "showOverwriteConfirmation"],
-  });
+  };
+  const { filePath } = await dialog.showSaveDialog(options);
 
   if (!filePath) {
     return Promise.resolve({ status: "canceled" });
@@ -251,54 +259,70 @@ module.exports.exportSession = async (params) => {
         .then((data) => {
           const pdfName = "yattie-session-" + timestamp + "-report.pdf";
           const pdfPath = path.join(configDir, "sessions", id, pdfName);
-          fs.writeFile(pdfPath, data, (error) => {
-            if (error) {
-              return Promise.resolve({
-                status: STATUSES.ERROR,
-                message: error,
-              });
-            }
-            try {
-              const zip = new AdmZip();
-
-              const items = persistenceUtility.getItems();
-              items.map((item) => {
-                if (item.filePath) {
-                  const sanitizedPath =
-                    item.filePath.substring(item.filePath.length - 1) !== "?"
-                      ? item.filePath
-                      : item.filePath.substring(0, item.filePath.length - 1);
-                  zip.addLocalFile(sanitizedPath, FILE_TYPES[item.fileType]);
-                }
-              });
-
-              if (notesFilePath) {
-                zip.addLocalFile(notesFilePath, "text");
-              }
-
-              zip.addLocalFile(pdfPath);
-              if (params.logoPath) zip.addLocalFile(params.logoPath);
-              zip.writeZip(filePath, (error) => {
+          params.type === "pdf"
+            ? fs.writeFile(filePath, data, (error) => {
                 if (error) {
                   return Promise.resolve({
                     status: STATUSES.ERROR,
                     message: error,
                   });
                 }
+              })
+            : fs.writeFile(pdfPath, data, (error) => {
+                if (error) {
+                  return Promise.resolve({
+                    status: STATUSES.ERROR,
+                    message: error,
+                  });
+                }
+                try {
+                  const zip = new AdmZip();
 
-                return Promise.resolve({
-                  status: STATUSES.SUCCESS,
-                  message: "Session Exported Successfully",
-                  filePath,
-                });
+                  const items = persistenceUtility.getItems();
+                  items.map((item) => {
+                    if (item.filePath) {
+                      const sanitizedPath =
+                        item.filePath.substring(item.filePath.length - 1) !==
+                        "?"
+                          ? item.filePath
+                          : item.filePath.substring(
+                              0,
+                              item.filePath.length - 1
+                            );
+                      zip.addLocalFile(
+                        sanitizedPath,
+                        FILE_TYPES[item.fileType]
+                      );
+                    }
+                  });
+
+                  if (notesFilePath) {
+                    zip.addLocalFile(notesFilePath, "text");
+                  }
+
+                  zip.addLocalFile(pdfPath);
+                  if (params.logoPath) zip.addLocalFile(params.logoPath);
+                  zip.writeZip(filePath, (error) => {
+                    if (error) {
+                      return Promise.resolve({
+                        status: STATUSES.ERROR,
+                        message: error,
+                      });
+                    }
+
+                    return Promise.resolve({
+                      status: STATUSES.SUCCESS,
+                      message: "Session Exported Successfully",
+                      filePath,
+                    });
+                  });
+                } catch (error) {
+                  return Promise.resolve({
+                    status: STATUSES.ERROR,
+                    message: error,
+                  });
+                }
               });
-            } catch (error) {
-              return Promise.resolve({
-                status: STATUSES.ERROR,
-                message: error,
-              });
-            }
-          });
         })
         .catch((error) => {
           return Promise.resolve({
