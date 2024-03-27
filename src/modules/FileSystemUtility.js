@@ -259,70 +259,65 @@ module.exports.exportSession = async (params) => {
         .then((data) => {
           const pdfName = "yattie-session-" + timestamp + "-report.pdf";
           const pdfPath = path.join(configDir, "sessions", id, pdfName);
-          params.type === "pdf"
-            ? fs.writeFile(filePath, data, (error) => {
-                if (error) {
-                  return Promise.resolve({
-                    status: STATUSES.ERROR,
-                    message: error,
-                  });
-                }
-              })
-            : fs.writeFile(pdfPath, data, (error) => {
-                if (error) {
-                  return Promise.resolve({
-                    status: STATUSES.ERROR,
-                    message: error,
-                  });
-                }
-                try {
-                  const zip = new AdmZip();
+          if (params.type === "pdf") {
+            fs.writeFile(filePath, data, (error) => {
+              if (error) {
+                return Promise.resolve({
+                  status: STATUSES.ERROR,
+                  message: error,
+                });
+              }
+            });
+          } else {
+            fs.writeFile(pdfPath, data, (error) => {
+              if (error) {
+                return Promise.resolve({
+                  status: STATUSES.ERROR,
+                  message: error,
+                });
+              }
+              try {
+                const zip = new AdmZip();
 
-                  const items = persistenceUtility.getItems();
-                  items.map((item) => {
-                    if (item.filePath) {
-                      const sanitizedPath =
-                        item.filePath.substring(item.filePath.length - 1) !==
-                        "?"
-                          ? item.filePath
-                          : item.filePath.substring(
-                              0,
-                              item.filePath.length - 1
-                            );
-                      zip.addLocalFile(
-                        sanitizedPath,
-                        FILE_TYPES[item.fileType]
-                      );
-                    }
-                  });
+                const items = persistenceUtility.getItems();
+                items.map((item) => {
+                  if (item.filePath) {
+                    const sanitizedPath =
+                      item.filePath.substring(item.filePath.length - 1) !== "?"
+                        ? item.filePath
+                        : item.filePath.substring(0, item.filePath.length - 1);
+                    zip.addLocalFile(sanitizedPath, FILE_TYPES[item.fileType]);
+                  }
+                });
 
-                  if (notesFilePath) {
-                    zip.addLocalFile(notesFilePath, "text");
+                if (notesFilePath) {
+                  zip.addLocalFile(notesFilePath, "text");
+                }
+
+                zip.addLocalFile(pdfPath);
+                if (params.logoPath) zip.addLocalFile(params.logoPath);
+                zip.writeZip(filePath, (error) => {
+                  if (error) {
+                    return Promise.resolve({
+                      status: STATUSES.ERROR,
+                      message: error,
+                    });
                   }
 
-                  zip.addLocalFile(pdfPath);
-                  if (params.logoPath) zip.addLocalFile(params.logoPath);
-                  zip.writeZip(filePath, (error) => {
-                    if (error) {
-                      return Promise.resolve({
-                        status: STATUSES.ERROR,
-                        message: error,
-                      });
-                    }
-
-                    return Promise.resolve({
-                      status: STATUSES.SUCCESS,
-                      message: "Session Exported Successfully",
-                      filePath,
-                    });
-                  });
-                } catch (error) {
                   return Promise.resolve({
-                    status: STATUSES.ERROR,
-                    message: error,
+                    status: STATUSES.SUCCESS,
+                    message: "Session Exported Successfully",
+                    filePath,
                   });
-                }
-              });
+                });
+              } catch (error) {
+                return Promise.resolve({
+                  status: STATUSES.ERROR,
+                  message: error,
+                });
+              }
+            });
+          }
         })
         .catch((error) => {
           return Promise.resolve({
