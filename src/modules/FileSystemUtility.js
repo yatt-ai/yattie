@@ -206,7 +206,6 @@ module.exports.exportSession = async (params) => {
   const notesFileName = "yattie-session-" + timestamp + "-notes.txt";
   const notes = persistenceUtility.getNotes();
   let notesFilePath = "";
-
   if (notes.text) {
     const notesItem = captureUtility.saveNote(notes, notesFileName);
     notesFilePath = notesItem.item.filePath;
@@ -244,71 +243,70 @@ module.exports.exportSession = async (params) => {
       : `file://${__dirname}/index.html#print`;
 
   pdfWin.loadURL(url);
-
   pdfWin.webContents.on("did-finish-load", () => {
     pdfWin.webContents.send("ACTIVE_PDF", params);
-    pdfWin.webContents
-      .printToPDF({})
-      .then((data) => {
-        const pdfName = "yattie-session-" + timestamp + "-report.pdf";
-        const pdfPath = path.join(configDir, "sessions", id, pdfName);
-
-        fs.writeFile(pdfPath, data, (error) => {
-          if (error) {
-            return Promise.resolve({
-              status: STATUSES.ERROR,
-              message: error,
-            });
-          }
-          try {
-            const zip = new AdmZip();
-
-            const items = persistenceUtility.getItems();
-
-            items.map((item) => {
-              if (item.filePath) {
-                const sanitizedPath =
-                  item.filePath.substring(item.filePath.length - 1) !== "?"
-                    ? item.filePath
-                    : item.filePath.substring(0, item.filePath.length - 1);
-                zip.addLocalFile(sanitizedPath, FILE_TYPES[item.fileType]);
-              }
-            });
-
-            if (notesFilePath) {
-              zip.addLocalFile(notesFilePath, "text");
-            }
-
-            zip.addLocalFile(pdfPath);
-
-            zip.writeZip(filePath, (error) => {
-              if (error) {
-                return Promise.resolve({
-                  status: STATUSES.ERROR,
-                  message: error,
-                });
-              }
-
+    setTimeout(() => {
+      pdfWin.webContents
+        .printToPDF({})
+        .then((data) => {
+          const pdfName = "yattie-session-" + timestamp + "-report.pdf";
+          const pdfPath = path.join(configDir, "sessions", id, pdfName);
+          fs.writeFile(pdfPath, data, (error) => {
+            if (error) {
               return Promise.resolve({
-                status: STATUSES.SUCCESS,
-                message: "Session Exported Successfully",
-                filePath,
+                status: STATUSES.ERROR,
+                message: error,
               });
-            });
-          } catch (error) {
-            return Promise.resolve({
-              status: STATUSES.ERROR,
-              message: error,
-            });
-          }
+            }
+            try {
+              const zip = new AdmZip();
+
+              const items = persistenceUtility.getItems();
+              items.map((item) => {
+                if (item.filePath) {
+                  const sanitizedPath =
+                    item.filePath.substring(item.filePath.length - 1) !== "?"
+                      ? item.filePath
+                      : item.filePath.substring(0, item.filePath.length - 1);
+                  zip.addLocalFile(sanitizedPath, FILE_TYPES[item.fileType]);
+                }
+              });
+
+              if (notesFilePath) {
+                zip.addLocalFile(notesFilePath, "text");
+              }
+
+              zip.addLocalFile(pdfPath);
+              if (params.logoPath) zip.addLocalFile(params.logoPath);
+              zip.writeZip(filePath, (error) => {
+                if (error) {
+                  return Promise.resolve({
+                    status: STATUSES.ERROR,
+                    message: error,
+                  });
+                }
+
+                return Promise.resolve({
+                  status: STATUSES.SUCCESS,
+                  message: "Session Exported Successfully",
+                  filePath,
+                });
+              });
+            } catch (error) {
+              return Promise.resolve({
+                status: STATUSES.ERROR,
+                message: error,
+              });
+            }
+          });
+        })
+        .catch((error) => {
+          return Promise.resolve({
+            status: STATUSES.ERROR,
+            message: error,
+          });
         });
-      })
-      .catch((error) => {
-        return Promise.resolve({
-          status: STATUSES.ERROR,
-          message: error,
-        });
-      });
+    }, 4000);
   });
 };
 

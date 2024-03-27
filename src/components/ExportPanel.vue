@@ -136,6 +136,7 @@ export default {
   },
   methods: {
     async exportSession() {
+      const { logo } = await this.$storageService.getConfig();
       const data = {
         title: this.$store.state.case.title,
         charter: this.$store.state.case.charter,
@@ -144,8 +145,9 @@ export default {
         timer: this.$store.state.session.timer,
         started: this.$store.state.session.started,
         ended: this.$store.state.session.ended,
+        reportLogo: logo && logo.enabled,
+        logoPath: logo && logo.path,
       };
-
       if (this.$isElectron) {
         await this.$electronService.exportSession(data);
       }
