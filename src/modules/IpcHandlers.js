@@ -19,8 +19,6 @@ ipcMain.handle(IPC_HANDLERS.CAPTURE, async (event, args) => {
   switch (args.func) {
     case IPC_FUNCTIONS.GET_MEDIA_SOURCE:
       return captureUtility.getMediaSource();
-    case IPC_FUNCTIONS.SAVE_NOTE:
-      return captureUtility.saveNote(args.data);
     case IPC_FUNCTIONS.CREATE_IMAGE:
       return captureUtility.createImage(args.data);
     case IPC_FUNCTIONS.UPDATE_IMAGE:

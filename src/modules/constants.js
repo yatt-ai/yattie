@@ -13,7 +13,6 @@ export const IPC_HANDLERS = {
 export const IPC_FUNCTIONS = {
   GET_SYSTEM_INFO: "getSystemInfo",
   GET_MEDIA_SOURCE: "getMediaSource",
-  SAVE_NOTE: "saveNote",
   CREATE_IMAGE: "createImage",
   UPDATE_IMAGE: "updateImage",
   CREATE_VIDEO: "createVideo",

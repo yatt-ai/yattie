@@ -91,8 +91,4 @@ export default class StorageService {
   async resetData() {
     return this.storage.resetData();
   }
-
-  async saveNote(note) {
-    return this.storage.saveNote(note);
-  }
 }
