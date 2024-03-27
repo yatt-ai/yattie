@@ -144,6 +144,8 @@
     "start_quick_test": "Start Quick Test",
     "export": "Export",
     "save_as": "Save As",
+    "save_as_zip": "Save As ZIP Archive",
+    "save_as_pdf": "Save As PDF",
     "export_to_jira": "Export to JIRA",
     "export_to_testrail": "Export to TestRail",
     "export_to_xray": "Export to XRAY",
