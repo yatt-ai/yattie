@@ -71,7 +71,7 @@
             <button class="social-btn">
               <img
                 :src="require('../assets/icon/jira.svg')"
-                width="45"
+                width="40"
                 v-bind="attrs"
                 v-on="on"
               />
@@ -95,7 +95,7 @@
             <button class="social-btn">
               <img
                 :src="require('../assets/icon/testrail.svg')"
-                width="55"
+                width="50"
                 v-bind="attrs"
                 v-on="on"
               />
@@ -119,7 +119,7 @@
             <button class="social-btn">
               <img
                 :src="require('../assets/icon/xray-logo.png')"
-                width="20"
+                width="15"
                 v-bind="attrs"
                 v-on="on"
               />
@@ -143,7 +143,7 @@
             <button class="social-btn">
               <img
                 :src="require('../assets/icon/zephyr-squad.png')"
-                width="35"
+                width="30"
                 v-bind="attrs"
                 v-on="on"
               />
@@ -166,8 +166,32 @@
           <template v-slot:activator="{ on, attrs }">
             <button class="social-btn">
               <img
+                :src="require('../assets/icon/zephyr-scale.png')"
+                width="30"
+                v-bind="attrs"
+                v-on="on"
+              />
+              <div
+                class="overlay"
+                v-if="!loggedInServices.zephyrScale"
+                v-on="on"
+              ></div>
+            </button>
+          </template>
+          <span>
+            {{
+              loggedInServices.zephyrScale
+                ? $tc("caption.logged_in_zephyr_scale", 1)
+                : $tc("caption.not_logged_in_zephyr_scale", 1)
+            }}
+          </span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <button class="social-btn">
+              <img
                 :src="require('../assets/icon/qtest.svg')"
-                width="45"
+                width="40"
                 v-bind="attrs"
                 v-on="on"
               />
@@ -191,7 +215,7 @@
             <button class="social-btn">
               <img
                 :src="require('../assets/icon/practitest.svg')"
-                width="55"
+                width="50"
                 v-bind="attrs"
                 v-on="on"
               />

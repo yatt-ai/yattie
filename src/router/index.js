@@ -19,6 +19,7 @@ import SigninJiraWrapper from "@/components/authentication/SigninJiraWrapper";
 import SigninTestRailWrapper from "@/components/authentication/SigninTestRailWrapper";
 import SigninXrayWrapper from "@/components/authentication/SigninXrayWrapper";
 import SigninZephyrSquadWrapper from "@/components/authentication/SigninZephyrSquadWrapper";
+import SigninZephyrScaleWrapper from "@/components/authentication/SigninZephyrScaleWrapper";
 
 import SettingView from "../views/SettingView.vue";
 import ConnectionsTab from "@/components/settings/ConnectionsTab.vue";
@@ -96,6 +97,12 @@ const routes = [
         path: "signinZephyrSquad",
         name: "signinZephyrSquad",
         component: SigninZephyrSquadWrapper,
+        props: true,
+      },
+      {
+        path: "signinZephyrScale",
+        name: "signinZephyrScale",
+        component: SigninZephyrScaleWrapper,
         props: true,
       },
     ],

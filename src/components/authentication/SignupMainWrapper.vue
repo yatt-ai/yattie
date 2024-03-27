@@ -53,6 +53,15 @@
               {{ $tc("caption.signup_zephyr_squad", 1) }}
             </div>
           </v-btn>
+          <v-btn class="mb-4 outline-btn testrail" block outlined color="white">
+            <img
+              :src="require('../../assets/icon/zephyr-scale.png')"
+              width="16"
+            />
+            <div class="btn-text">
+              {{ $tc("caption.signup_zephyr_scale", 1) }}
+            </div>
+          </v-btn>
           <v-btn class="mb-4 outline-btn qtest" block outlined color="white">
             <img :src="require('../../assets/icon/qtest.png')" />
             <div class="btn-text">{{ $tc("caption.signup_qtest", 1) }}</div>

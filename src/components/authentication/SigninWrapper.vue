@@ -86,6 +86,21 @@
               {{ $tc("caption.signin_zephyr_squad", 1) }}
             </div>
           </v-btn>
+          <v-btn
+            class="mb-4 outline-btn jira"
+            block
+            outlined
+            color="white"
+            @click="signinZephyrScale"
+          >
+            <img
+              :src="require('../../assets/icon/zephyr-scale.png')"
+              width="16"
+            />
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_zephyr_scale", 1) }}
+            </div>
+          </v-btn>
           <!--<v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/qtest.png')" />
             <div class="btn-text" :style="{ color: currentTheme.secondary }">
@@ -210,6 +225,9 @@ export default {
     },
     signinZephyrSquad() {
       this.$router.push({ path: "/authentication/signinZephyrSquad" });
+    },
+    signinZephyrScale() {
+      this.$router.push({ path: "/authentication/signinZephyrScale" });
     },
   },
 };

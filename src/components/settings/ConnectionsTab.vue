@@ -82,6 +82,32 @@
 
           <p></p>
 
+          <div class="avatar" v-if="credentials.zephyrScale">
+            <ConnectionPanel connectionType="zephyrScale" />
+          </div>
+          <div v-else>
+            <v-btn
+              class="m-4 outline-btn jira justify-start"
+              block
+              outlined
+              color="white"
+              @click="signinZephyrScale"
+            >
+              <img
+                :src="require('../../assets/icon/zephyr-scale.png')"
+                width="16"
+              />
+              <div
+                class="btn-text ml-4"
+                :style="{ color: currentTheme.secondary }"
+              >
+                {{ $t("message.connect_to_zephyr_scale") }}
+              </div>
+            </v-btn>
+          </div>
+
+          <p></p>
+
           <div class="avatar" v-if="credentials.jira">
             <ConnectionPanel connectionType="jira" />
           </div>
@@ -274,6 +300,9 @@ export default {
     },
     signinZephyrSquad() {
       this.$router.push({ path: "/authentication/signinZephyrSquad" });
+    },
+    signinZephyrScale() {
+      this.$router.push({ path: "/authentication/signinZephyrScale" });
     },
   },
 };
