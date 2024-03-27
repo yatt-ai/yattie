@@ -144,6 +144,22 @@
                     :selected="selected"
                   />
                 </div>
+                <div
+                  v-if="
+                    credentials.zephyrScale &&
+                    credentials.zephyrScale.length > 0
+                    // &&
+                    // // Adding the false to make it invisible
+                    // false
+                  "
+                >
+                  <zephyr-scale-export-session
+                    :title="$tc(`caption.export_to_zephyr_scale`, 1)"
+                    :credential-items="credentials.zephyrScale"
+                    :items="items"
+                    :selected="selected"
+                  />
+                </div>
               </v-list>
             </v-card>
           </v-menu>
@@ -789,6 +805,7 @@ import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
 import XrayExportSession from "./xray/XrayExportSession";
 import ZephyrSquadExportSession from "./zephyr/ZephyrSquadExportSession";
+import ZephyrScaleExportSession from "./zephyr/ZephyrScaleExportSession";
 import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 
 import JiraAddIssue from "./jira/JiraAddIssue";
@@ -837,6 +854,7 @@ export default {
     TestRailExportSession,
     XrayExportSession,
     ZephyrSquadExportSession,
+    ZephyrScaleExportSession,
     JiraAddIssue,
   },
   props: {

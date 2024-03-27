@@ -9,7 +9,7 @@
         class="subtitle-1 signup-title text-center"
         :style="{ color: currentTheme.secondary }"
       >
-        <span>{{ $tc("caption.signin_zephyr_squad", 1) }}</span>
+        <span>{{ $tc("caption.signin_zephyr_scale", 1) }}</span>
       </div>
     </div>
     <div class="content mt-2">
@@ -17,28 +17,28 @@
         <v-row>
           <v-col cols="12" class="d-flex justify-center pa-0">
             <img
-              :src="require('../../assets/icon/zephyr-squad.png')"
-              alt="zephyr_squad"
+              :src="require('../../assets/icon/zephyr-scale.png')"
+              alt="zephyr_scale"
               width="60"
             />
           </v-col>
           <v-col cols="12" class="pa-0 pt-4">
             <div class="subtitle-2 label-text">
-              {{ $tc("caption.zephyr_squad_api_access_token", 1) }}
+              {{ $tc("caption.zephyr_scale_api_access_token", 1) }}
             </div>
             <div class="timer-box-wrapper">
               <v-text-field
                 :append-icon="
-                  showZephyrSquadApiToken ? 'mdi-eye' : 'mdi-eye-off'
+                  showZephyrScaleApiToken ? 'mdi-eye' : 'mdi-eye-off'
                 "
                 outlined
                 dense
-                v-model="zephyr_squad_api_access_token"
-                :type="showZephyrSquadApiToken ? 'text' : 'password'"
+                v-model="zephyr_scale_api_access_token"
+                :type="showZephyrScaleApiToken ? 'text' : 'password'"
                 required
-                :rules="rules.zephyr_squad_api_access_token"
+                :rules="rules.zephyr_scale_api_access_token"
                 @click:append="
-                  showZephyrSquadApiToken = !showZephyrSquadApiToken
+                  showZephyrScaleApiToken = !showZephyrScaleApiToken
                 "
               />
             </div>
@@ -48,7 +48,7 @@
               <a
                 @click="
                   openExternalLink(
-                    'https://support.smartbear.com/zephyr-squad-cloud/docs/en/rest-api/generate-api-access-token.html'
+                    'https://support.smartbear.com/zephyr-scale-cloud/docs/en/rest-api/generating-api-access-tokens.html'
                   )
                 "
               >
@@ -90,11 +90,11 @@
 <script>
 import axios from "axios";
 import dayjs from "dayjs";
-import zephyrSquadIntegrationHelpers from "../../integrations/ZephyrSquadIntegrationHelpers";
+import zephyrScaleIntegrationHelpers from "../../integrations/ZephyrScaleIntegrationHelpers";
 import { mapGetters } from "vuex";
 
 export default {
-  name: "SigninZephyrSquadWrapper",
+  name: "SigninZephyrScaleWrapper",
   props: {
     prevRoute: {
       type: Object,
@@ -109,15 +109,15 @@ export default {
   data() {
     return {
       previousRoute: this.prevRoute,
-      zephyr_squad_api_access_token: "",
-      showZephyrSquadApiToken: false,
+      zephyr_scale_api_access_token: "",
+      showZephyrScaleApiToken: false,
       loading: false,
       valid: true,
       rules: {
-        zephyr_squad_api_access_token: [
+        zephyr_scale_api_access_token: [
           (v) =>
             !!v ||
-            this.$i18n.t("message.zephyr_squad_api_access_token") +
+            this.$i18n.t("message.zephyr_scale_api_access_token") +
               this.$i18n.t("message.is_required"),
         ],
       },
@@ -151,8 +151,8 @@ export default {
       const isValid = this.$refs.form.validate();
       if (isValid) {
         this.postLogin({
-          zephyrSquad: {
-            auth_token: this.zephyr_squad_api_access_token,
+          zephyrScale: {
+            auth_token: this.zephyr_scale_api_access_token,
           },
         });
       }
@@ -160,7 +160,7 @@ export default {
     async postLogin(data) {
       console.log(data); //TODO - Abstract this to helper.
 
-      const authHeader = `Bearer ${data.zephyrSquad.auth_token}`;
+      const authHeader = `Bearer ${data.zephyrScale.auth_token}`;
       let header = {
         headers: {
           Authorization: authHeader,
@@ -170,20 +170,20 @@ export default {
 
       // Request to validate token
       await axios
-        .get(`https://prod-api.zephyr4jiracloud.com/v2/testcases`, header)
+        .get(`https://api.zephyrscale.smartbear.com/v2/testcases`, header)
         .then((response) => {
           if (response.status === 200) {
             const date = dayjs().format("YYYY-MM-DD HH:mm:ss");
-            const zephyrSquadData = {
-              ...data.zephyrSquad,
+            const zephyrScaleData = {
+              ...data.zephyrScale,
               loggedInAt: date,
               lastRefreshed: date,
-              auth_token: data.zephyrSquad.auth_token,
+              auth_token: data.zephyrScale.auth_token,
             };
 
-            zephyrSquadIntegrationHelpers.saveCredentials(
+            zephyrScaleIntegrationHelpers.saveCredentials(
               this.credentials,
-              zephyrSquadData
+              zephyrScaleData
             );
 
             setTimeout(() => {
