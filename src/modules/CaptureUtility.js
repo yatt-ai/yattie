@@ -389,19 +389,6 @@ module.exports.deleteFile = ({ filePath }) => {
   }
 };
 
-module.exports.saveNote = (comment) => {
-  const stepID = uuidv4();
-  const attachmentID = uuidv4();
-
-  return {
-    status: STATUSES.SUCCESS,
-    item: {
-      stepID,
-      attachmentID,
-    },
-  };
-};
-
 module.exports.uploadEvidence = async () => {
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openFile"],

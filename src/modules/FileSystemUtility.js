@@ -190,6 +190,7 @@ module.exports.openSession = async () => {
 module.exports.exportSession = async (params) => {
   const timestamp = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms");
   const id = persistenceUtility.getSessionID();
+
   // show save dialog
   const fileName =
     params.type === "pdf"
