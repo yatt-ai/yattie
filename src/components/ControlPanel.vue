@@ -147,10 +147,9 @@
                 <div
                   v-if="
                     credentials.zephyrScale &&
-                    credentials.zephyrScale.length > 0
-                    // &&
+                    credentials.zephyrScale.length > 0 &&
                     // // Adding the false to make it invisible
-                    // false
+                    false
                   "
                 >
                   <zephyr-scale-export-session
