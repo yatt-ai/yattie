@@ -270,10 +270,6 @@ module.exports.exportSession = async (params) => {
                   }
                 });
 
-                if (notesFilePath) {
-                  zip.addLocalFile(notesFilePath, "text");
-                }
-
                 zip.addLocalFile(pdfPath);
                 if (params.logoPath) zip.addLocalFile(params.logoPath);
                 zip.writeZip(filePath, (error) => {
