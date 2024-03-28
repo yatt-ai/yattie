@@ -1,7 +1,7 @@
 <template>
   <v-container class="content-wrapper">
     <v-row>
-      <v-col cols="12" class="pa-4">
+      <v-col v-if="$isElectron" cols="12" class="pa-4">
         <p class="body-1">{{ $tc("caption.app_settings", 1) }}</p>
         <v-btn
           class="text-capitalize font-weight-regular"
@@ -20,7 +20,7 @@
           {{ $tc("caption.share_config", 1) }}
         </p>
       </v-col>
-      <v-col cols="12" class="border-bottom pa-4">
+      <v-col v-if="$isElectron" cols="12" class="border-bottom pa-4">
         <v-btn
           class="text-capitalize font-weight-regular"
           fill
@@ -47,10 +47,10 @@
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 theme-mode-section">
         <p class="body-1" :style="{ color: currentTheme.default }">
-          {{ $tc("caption.appearance", 1) }}
+          {{ $tc("caption.theme", 1) }}
         </p>
         <v-radio-group
-          v-model="config.apperance"
+          v-model="config.theme"
           row
           class="ma-0 pa-0 radio-control"
           dense
@@ -314,7 +314,6 @@ export default {
 </script>
 <style scoped>
 .content-wrapper {
-  height: 100vh;
   width: 100%;
   overflow-y: auto;
 }

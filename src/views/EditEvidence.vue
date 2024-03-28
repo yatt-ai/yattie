@@ -3,7 +3,7 @@
     <div class="content">
       <div
         class="content-top"
-        v-if="Object.keys(item).length && item.fileType !== 'text'"
+        v-if="Object.keys(item).length && getType(item.fileType) !== 'text'"
       >
         <ReviewWrapper
           :item="item"
@@ -14,7 +14,7 @@
       </div>
       <v-divider></v-divider>
       <div class="content-bottom">
-        <div v-if="item.fileType !== 'text'">
+        <div v-if="getType(item.fileType) !== 'text'">
           <div class="actions-wrapper">
             <template v-if="item.emoji.length">
               <v-btn
@@ -157,7 +157,7 @@
             </template>
           </v-tiptap>
         </div>
-        <div class="actions-wrapper" v-if="item.fileType === 'text'">
+        <div class="actions-wrapper" v-if="getType(item.fileType) === 'text'">
           <template v-if="item.emoji.length">
             <v-btn
               rounded
@@ -224,6 +224,7 @@
             class="input-box"
             v-model="tag"
             :tags="item.tags"
+            :autocomplete-items="filteredTags"
             :max-tags="10"
             :maxlength="20"
             @tags-changed="handleTags"
@@ -296,8 +297,13 @@
 import ReviewWrapper from "../components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
+import { mapGetters } from "vuex";
 
-import { TEXT_TYPES, AI_ENABLED_FIELDS } from "../modules/constants";
+import {
+  TEXT_TYPES,
+  AI_ENABLED_FIELDS,
+  FILE_TYPES,
+} from "../modules/constants";
 
 import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
 
@@ -328,6 +334,7 @@ export default {
       ),
       processing: false,
       triggerSaveEvent: false,
+      allTags: [],
     };
   },
   created() {
@@ -336,6 +343,19 @@ export default {
     this.getCredentials();
   },
   computed: {
+    ...mapGetters({
+      defaultTags: "config/defaultTags",
+      sessionItems: "sessionItems",
+    }),
+    filteredTags() {
+      return this.allTags
+        .filter((item) => {
+          return item.toLowerCase().includes(this.tag.toLowerCase());
+        })
+        .map((item) => {
+          return { text: item };
+        });
+    },
     nameHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "evidence.name",
@@ -400,14 +420,33 @@ export default {
     if (this.$isElectron) {
       this.$electronService.onActiveSession(this.activeSession);
     }
-    this.$root.$on("update-session", this.updateSession);
+    this.getAllTags();
+    this.$root.$on("update-edit-item", this.updateEditItem);
     this.$root.$on("update-processing", this.updateProcessing);
     this.$root.$on("save-data", this.saveData);
   },
   methods: {
+    getAllTags() {
+      const defaultTagTexts = this.defaultTags
+        .filter((tag) => tag.text !== "")
+        .map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      this.allTags = [...new Set([...defaultTagTexts, ...sessionTagTexts])];
+    },
+    getType(type) {
+      return FILE_TYPES[type];
+    },
     activeSession(data) {
       // set theme mode
-      const isDarkMode = this.config.apperance === "dark";
+      const isDarkMode = this.config.theme === "dark";
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode);
 
@@ -432,7 +471,7 @@ export default {
     async fetchItems() {
       this.items = await this.$storageService.getItems();
     },
-    updateSession(value) {
+    updateEditItem(value) {
       this.item = value;
     },
     updateProcessing(value) {
@@ -476,7 +515,7 @@ export default {
       }
     },
     async handleSave() {
-      if (this.item.sessionType !== "Note") {
+      if (FILE_TYPES[this.item.fileType] !== "text") {
         this.triggerSaveEvent = true;
       } else {
         await this.saveData(this.item);
@@ -495,17 +534,11 @@ export default {
       if (data) {
         this.item.fileName = data.fileName;
         this.item.filePath = data.filePath;
+        this.item.stepID = data.stepID;
+        this.item.attachmentID = data.attachmentID;
       }
 
-      this.items = this.items.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.id === this.item.id) {
-          temp = this.item;
-        }
-        return temp;
-      });
-
-      await this.$storageService.updateItems(this.items);
+      this.$store.commit("updateSessionItem", this.item);
       if (this.$isElectron) {
         await this.$electronService.closeEditWindow();
       }

@@ -1,7 +1,13 @@
 <template>
   <div>
     <div class="preview-wrapper" v-if="isProcessing">
-      <img :src="`file://${sessionItem.poster}`" />
+      <img
+        :src="
+          $isElectron
+            ? `file://${editSessionItem.poster}`
+            : editSessionItem.poster
+        "
+      />
       <div class="progress-bar">
         <v-progress-linear
           indeterminate
@@ -20,7 +26,14 @@
           @loadedmetadata="logDuration"
           style="width: 100%"
         >
-          <source :src="`file://${sessionItem.filePath}`" type="video/webm" />
+          <source
+            :src="
+              $isElectron
+                ? `file://${editSessionItem.filePath}`
+                : editSessionItem.filePath
+            "
+            type="video/webm"
+          />
         </video>
       </div>
       <div class="video-control">
@@ -90,7 +103,7 @@ export default {
   },
   watch: {
     item: function (newValue) {
-      this.sessionItem = newValue;
+      this.editSessionItem = newValue;
     },
     processing: function (newValue) {
       this.isProcessing = newValue;
@@ -103,7 +116,7 @@ export default {
   },
   data() {
     return {
-      sessionItem: this.item,
+      editSessionItem: this.item,
       start: "00:00",
       end: "00:00",
       isProcessing: this.processing,
@@ -138,23 +151,34 @@ export default {
       const endVal = this.timeInSeconds(this.end);
       this.handleProcessing(true);
 
-      const { status, message, item } = await this.$electronService.updateVideo(
-        this.sessionItem,
-        startVal,
-        endVal,
-        parseInt(this.duration)
-      );
+      if (this.$isElectron) {
+        const { status, message, item } =
+          await this.$electronService.updateVideo(
+            this.editSessionItem,
+            startVal,
+            endVal,
+            parseInt(this.duration)
+          );
 
-      if (status === STATUSES.ERROR) {
-        this.$root.$emit("set-snackbar", message);
-        console.log(message);
+        if (status === STATUSES.ERROR) {
+          this.$root.$emit("set-snackbar", message);
+          console.log(message);
+        } else {
+          this.editSessionItem.filePath = item.filePath;
+          this.editSessionItem.fileSize = item.fileSize;
+          this.editSessionItem.fileChecksum = item.fileChecksum;
+          this.$root.$emit("update-edit-item", this.editSessionItem);
+          if (needCallback) {
+            this.$root.$emit("save-data", this.editSessionItem);
+          }
+        }
       } else {
-        this.sessionItem.filePath = item.filePath;
-        this.$root.$emit("update-session", this.sessionItem);
+        this.$root.$emit("update-edit-item", this.editSessionItem);
         if (needCallback) {
-          this.$root.$emit("save-data", this.sessionItem);
+          this.$root.$emit("save-data", this.editSessionItem);
         }
       }
+
       this.handleProcessing(false);
     },
     handleProcessing(value) {

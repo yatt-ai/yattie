@@ -39,6 +39,7 @@
               class="input-box"
               v-model="tag"
               :tags="tags"
+              :autocomplete-items="filteredTags"
               :max-tags="10"
               :maxlength="20"
               @tags-changed="handleTags"
@@ -102,6 +103,7 @@
 </template>
 <script>
 import VueTagsInput from "@johmun/vue-tags-input";
+import { mapGetters } from "vuex";
 
 import {
   TEXT_TYPES,
@@ -127,6 +129,7 @@ export default {
       commentTypes: Object.keys(TEXT_TYPES).filter(
         (item) => item !== "Summary"
       ),
+      allTags: [],
     };
   },
   created() {
@@ -141,16 +144,25 @@ export default {
       }
 
       // set templates by config
-      this.config.templates.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.type === "Note") {
-          this.comment.content = temp.precondition.content;
-          this.comment.text = temp.precondition.text;
-        }
-      });
+      const template = this.config.templates["Note"];
+      this.comment.content = template.content;
+      this.comment.text = template.text;
     });
   },
   computed: {
+    ...mapGetters({
+      defaultTags: "config/defaultTags",
+      sessionItems: "sessionItems",
+    }),
+    filteredTags() {
+      return this.allTags
+        .filter((item) => {
+          return item.toLowerCase().includes(this.tag.toLowerCase());
+        })
+        .map((item) => {
+          return { text: item };
+        });
+    },
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -159,7 +171,25 @@ export default {
       }
     },
   },
+  mounted() {
+    this.getAllTags();
+  },
   methods: {
+    getAllTags() {
+      const defaultTagTexts = this.defaultTags
+        .filter((tag) => tag.text !== "")
+        .map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      this.allTags = [...new Set([...defaultTagTexts, ...sessionTagTexts])];
+    },
     handleNote() {
       const regex = /(<([^>]+)>)/gi;
       this.comment.text = this.comment.content.replace(regex, "");

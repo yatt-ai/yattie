@@ -11,6 +11,7 @@
             small
             ref="confirmBtn"
             :color="currentTheme.primary"
+            :style="{ color: currentTheme.white }"
             class="text-capitalize btn"
             v-shortkey="confirmHotkey"
             @shortkey="handleConfirm()"
@@ -20,7 +21,8 @@
           </v-btn>
           <v-btn
             small
-            color="currentTheme.background"
+            :color="currentTheme.background"
+            :style="{ color: currentTheme.secondary }"
             class="text-capitalize btn"
             v-shortkey="cancelHotkey"
             @shortkey="handleCancel()"

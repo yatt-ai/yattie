@@ -162,6 +162,8 @@ module.exports.openAddWindow = ({ width, height, data }) => {
 };
 
 module.exports.closeAddWindow = () => {
+  const browserWindow = browserUtility.getBrowserWindow();
+  browserWindow.webContents.send("DATA_CHANGE", {});
   addWin.close();
 };
 

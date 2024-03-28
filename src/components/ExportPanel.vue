@@ -27,16 +27,53 @@
           </template>
           <v-card tile>
             <v-list dense>
-              <v-list-item @click="exportSession">
+              <v-list-item @click="exportSession('archive')">
                 <v-list-item-icon class="mr-4">
                   <v-icon>mdi-download</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title>
-                    {{ $tc("caption.save_as", 1) }}
+                    {{ $tc("caption.save_as_zip", 1) }}
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
+              <v-list-item @click="exportSession('pdf')">
+                <v-list-item-icon class="mr-4">
+                  <v-icon>mdi-download</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ $tc("caption.save_as_pdf", 1) }}
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <div
+                v-if="this.credentials.xray && this.credentials.xray.length > 0"
+              >
+                <xray-export-session
+                  :title="$tc(`caption.export_to_xray`, 1)"
+                  :credential-items="credentials.xray"
+                  :selected="[]"
+                  :items="itemLists"
+                  @close-menu="() => (evidenceExportDestinationMenu = false)"
+                />
+              </div>
+              <div
+                v-if="
+                  this.credentials.zephyrSquad &&
+                  this.credentials.zephyrSquad.length > 0 &&
+                  // Adding the false to make it invisible
+                  false
+                "
+              >
+                <zephyr-squad-export-session
+                  :title="$tc(`caption.export_to_zephyr_squad`, 1)"
+                  :credential-items="credentials.zephyrSquad"
+                  :selected="[]"
+                  :items="itemLists"
+                  @close-menu="() => (evidenceExportDestinationMenu = false)"
+                />
+              </div>
               <!-- TODO - What does it look like to export an entire session to a 3rd party service?
               <div
                 v-if="this.credentials.jira && this.credentials.jira.length > 0"
@@ -75,12 +112,16 @@
 <script>
 //import JiraExportSession from "./jira/JiraExportSession";
 //import TestRailExportSession from "./testrail/TestRailExportSession";
+import XrayExportSession from "./xray/XrayExportSession";
+import ZephyrSquadExportSession from "./zephyr/ZephyrSquadExportSession";
 
 export default {
   name: "ExportPanel",
   components: {
     //JiraExportSession,
     //TestRailExportSession,
+    XrayExportSession,
+    ZephyrSquadExportSession,
   },
   props: {
     items: {
@@ -122,19 +163,20 @@ export default {
     });
   },
   methods: {
-    async exportSession() {
-      const sessionId = await this.$storageService.getSessionId();
+    async exportSession(type) {
+      const { logo } = await this.$storageService.getConfig();
       const data = {
-        id: sessionId,
-        title: this.$store.state.title,
-        charter: this.$store.state.charter,
-        preconditions: this.$store.state.preconditions,
-        duration: this.$store.state.duration,
-        timer: this.$store.state.timer,
-        started: this.$store.state.started,
-        ended: this.$store.state.ended,
+        title: this.$store.state.case.title,
+        charter: this.$store.state.case.charter,
+        preconditions: this.$store.state.case.preconditions,
+        duration: this.$store.state.case.duration,
+        timer: this.$store.state.session.timer,
+        started: this.$store.state.session.started,
+        ended: this.$store.state.session.ended,
+        reportLogo: logo && logo.enabled,
+        logoPath: logo && logo.path,
+        type: type,
       };
-
       if (this.$isElectron) {
         await this.$electronService.exportSession(data);
       }

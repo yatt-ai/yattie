@@ -1,41 +1,43 @@
 <template>
   <div
     class="review-wrapper"
-    v-if="Object.keys(sessionItem).length && sessionItem.fileType !== 'text'"
+    v-if="
+      Object.keys(editSessionItem).length &&
+      getType(editSessionItem.fileType) !== 'text'
+    "
   >
     <div
-      v-if="sessionItem.fileType === 'image'"
+      v-if="getType(editSessionItem.fileType) === 'image'"
       style="width: 100%; height: 100%"
     >
       <ImageEditor
-        :item="sessionItem"
+        :item="editSessionItem"
         :trigger-save="triggerSaveEvent"
         :defaultColor="config.defaultColor"
       />
     </div>
-    <div v-else-if="sessionItem.fileType === 'video'">
+    <div v-else-if="getType(editSessionItem.fileType) === 'video'">
       <VideoWrapper
-        :item="sessionItem"
+        :item="editSessionItem"
         :processing="processing"
         :trigger-save="triggerSaveEvent"
       />
     </div>
-    <div v-else-if="sessionItem.fileType === 'audio'">
-      <AudioWrapper :item="sessionItem" :trigger-save="triggerSaveEvent" />
+    <div v-else-if="getType(editSessionItem.fileType) === 'audio'">
+      <AudioWrapper :item="editSessionItem" :trigger-save="triggerSaveEvent" />
     </div>
-    <div v-else-if="sessionItem.fileType === 'other'">
-      <FileWrapper :item="sessionItem" :trigger-save="triggerSaveEvent" />
-    </div>
-    <div v-else-if="sessionItem.fileType === 'mindmap'">
+    <div v-else-if="getType(editSessionItem.fileType) === 'mindmap'">
       <mindmap-editor
-        :config-item="config"
-        :nodes-data="sessionItem.content.nodes"
-        :connections-data="sessionItem.content.connections"
+        :nodes-data="editSessionItem.content.nodes"
+        :connections-data="editSessionItem.content.connections"
         :edit="true"
         :trigger-save="triggerSaveEvent"
         :auto-save="autoSaveEvent"
         @submit-mindmap="handleMindmap"
       />
+    </div>
+    <div v-else>
+      <FileWrapper :item="editSessionItem" :trigger-save="triggerSaveEvent" />
     </div>
   </div>
 </template>
@@ -47,7 +49,8 @@ import AudioWrapper from "./AudioWrapper.vue";
 import FileWrapper from "./FileWrapper.vue";
 import MindmapEditor from "./MindmapEditor.vue";
 
-import { STATUSES } from "../modules/constants";
+import { STATUSES, FILE_TYPES } from "../modules/constants";
+import { updateImageForWeb } from "@/helpers/WebHelpers";
 
 export default {
   name: "ReviewWrapper",
@@ -86,7 +89,7 @@ export default {
   },
   watch: {
     item: function (newValue) {
-      this.sessionItem = newValue;
+      this.editSessionItem = newValue;
     },
     triggerSave: function (newValue) {
       this.triggerSaveEvent = newValue;
@@ -100,7 +103,7 @@ export default {
   },
   data() {
     return {
-      sessionItem: this.item,
+      editSessionItem: this.item,
       triggerSaveEvent: this.triggerSave,
       autoSaveEvent: this.autoSave,
       currentViewName: this.currentView,
@@ -108,25 +111,40 @@ export default {
     };
   },
   methods: {
+    getType(type) {
+      return FILE_TYPES[type];
+    },
     async handleMindmap(value) {
-      this.sessionItem.content.nodes = value.nodes;
-      this.sessionItem.content.connections = value.connections;
+      this.editSessionItem.content.nodes = value.nodes;
+      this.editSessionItem.content.connections = value.connections;
       if (this.$isElectron) {
         const { status, message, item } =
           await this.$electronService.updateImage(
-            this.sessionItem,
+            this.editSessionItem,
             value.imgURI
           );
         if (status === STATUSES.ERROR) {
           this.$root.$emit("set-snackbar", message);
           console.log(message);
         } else {
-          this.sessionItem.fileName = item.fileName;
-          this.sessionItem.filePath = item.filePath;
-          this.$root.$emit("update-session", this.sessionItem);
-          this.$root.$emit("save-data");
+          this.editSessionItem = {
+            ...this.editSessionItem,
+            ...item,
+          };
         }
+      } else {
+        const { item } = updateImageForWeb({
+          item: this.editSessionItem,
+          url: value.imgURI,
+        });
+        this.editSessionItem = {
+          ...this.editSessionItem,
+          ...item,
+        };
       }
+
+      this.$root.$emit("update-edit-item", this.editSessionItem);
+      this.$root.$emit("save-data");
     },
   },
 };

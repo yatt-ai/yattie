@@ -1,7 +1,7 @@
 <template>
   <v-container class="wrapper">
-    <div class="header">
-      <img :src="require('../assets/logo.png')" />
+    <div class="header" v-if="reportLogo">
+      <img style="max-width: 200px" :src="`file://${logoPath}`" />
     </div>
     <div class="content">
       <v-row>
@@ -94,7 +94,7 @@
 
             <div v-for="(item, i) in items" :key="i">
               <v-timeline-item
-                v-if="item.sessionType === 'Screenshot'"
+                v-if="getType(item.fileType) === 'image'"
                 color="primary"
                 icon="mdi-camera-plus"
                 fill-dot
@@ -129,7 +129,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Video'"
+                v-if="getType(item.fileType) === 'video'"
                 color="primary"
                 icon="mdi-video"
                 fill-dot
@@ -145,7 +145,7 @@
                   <div class="video-wrapper">
                     <img
                       style="max-width: 100%"
-                      :src="`file://${item.poster}`"
+                      :src="`file://${item.poster.filePath}`"
                     />
                     <v-icon class="video-play" x-large>mdi-play</v-icon>
                   </div>
@@ -165,7 +165,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Audio'"
+                v-if="getType(item.fileType) === 'audio'"
                 color="primary"
                 icon="mdi-microphone"
                 fill-dot
@@ -202,7 +202,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Note'"
+                v-if="getType(item.fileType) === 'text'"
                 color="primary"
                 icon="mdi-pencil"
                 fill-dot
@@ -230,7 +230,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'File'"
+                v-if="getType(item.fileType) === undefined"
                 color="primary"
                 icon="mdi-file"
                 fill-dot
@@ -244,7 +244,7 @@
                     </div>
                   </div>
                   <div
-                    v-if="item.fileType === 'image'"
+                    v-if="getType(item.fileType) === 'image'"
                     class="file-wrapper image"
                   >
                     <img
@@ -277,7 +277,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Mindmap'"
+                v-if="getType(item.fileType) === 'mindmap'"
                 color="primary"
                 icon="mdi-camera-plus"
                 fill-dot
@@ -313,7 +313,7 @@
                 </div>
               </v-timeline-item>
               <v-timeline-item
-                v-if="item.sessionType === 'Summary' && item.comment.text"
+                v-if="item.comment.type === 'Summary' && item.comment.text"
                 color="primary"
                 icon="mdi-pencil"
                 fill-dot
@@ -399,6 +399,54 @@
               </span>
               {{ screenWidth }} x {{ screenHeight }}
             </p>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.current_date_time", 1) }}:
+              </span>
+              {{ this.currentDateTime }}
+            </p>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.computer_name", 1) }}:
+              </span>
+              {{ this.computerName }}
+            </p>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.os_system", 1) }}:
+              </span>
+              {{ this.operatingSystem }}
+            </p>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.system_manufacturer", 1) }}:
+              </span>
+              {{ this.systemManufacturer }}
+            </p>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.system_model", 1) }}:
+              </span>
+              {{ this.systemModel }}
+            </p>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.bios", 1) }}:
+              </span>
+              {{ this.biosVersion }}
+            </p>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.processor", 1) }}:
+              </span>
+              {{ this.processor }}
+            </p>
+            <p class="item-value">
+              <span class="font-weight-bold">
+                {{ $tc("caption.memory", 1) }}:
+              </span>
+              {{ this.memory }}
+            </p>
           </div>
         </v-col>
       </v-row>
@@ -416,7 +464,12 @@ import {
   VIcon,
   VDivider,
 } from "vuetify/lib/components";
-import { IPC_HANDLERS, IPC_FUNCTIONS, TEXT_TYPES } from "../modules/constants";
+import {
+  IPC_HANDLERS,
+  IPC_FUNCTIONS,
+  TEXT_TYPES,
+  FILE_TYPES,
+} from "../modules/constants";
 
 export default {
   name: "PrintView",
@@ -433,6 +486,8 @@ export default {
     return {
       items: [],
       textTypes: TEXT_TYPES,
+      reportLogo: false,
+      logoPath: "",
       title: "",
       charter: "",
       preconditions: "",
@@ -442,6 +497,14 @@ export default {
       window: "",
       screenWidth: "",
       screenHeight: "",
+      currentDateTime: "",
+      computerName: "",
+      operatingSystem: "",
+      systemManufacturer: "",
+      systemModel: "",
+      biosVersion: "",
+      processor: "",
+      memory: "",
     };
   },
   created() {
@@ -451,13 +514,14 @@ export default {
     this.detectEnvironment();
 
     if (!window.ipc) return;
-
     window.ipc.on("ACTIVE_PDF", (data) => {
       this.title = data.title;
       this.charter = data.charter;
       this.preconditions = data.preconditions;
       this.timer = data.timer;
       this.duration = data.duration;
+      this.reportLogo = data.reportLogo;
+      this.logoPath = data.logoPath;
     });
   },
   computed: {
@@ -549,6 +613,9 @@ export default {
     },
   },
   methods: {
+    getType(type) {
+      return FILE_TYPES[type];
+    },
     formatTime(timeInSeconds) {
       const seconds = ("0" + (timeInSeconds % 60)).slice(-2);
       const minutes = ("0" + (parseInt(timeInSeconds / 60, 10) % 60)).slice(-2);
@@ -560,7 +627,21 @@ export default {
       if (!window.ipc) return;
 
       await window.ipc
-        .invoke(IPC_HANDLERS.DATABASE, { func: IPC_FUNCTIONS.GET_ITEMS })
+        .invoke(IPC_HANDLERS.SYSTEMINFO, {
+          func: IPC_FUNCTIONS.GET_SYSTEM_INFO,
+        })
+        .then((result) => {
+          this.currentDateTime = result.currentDateTime;
+          this.computerName = result.computerName;
+          this.operatingSystem = result.operatingSystem;
+          this.systemManufacturer = result.systemManufacturer;
+          this.systemModel = result.systemModel;
+          this.biosVersion = result.biosVersion;
+          this.processor = result.processor;
+          this.memory = result.memory;
+        });
+      await window.ipc
+        .invoke(IPC_HANDLERS.PERSISTENCE, { func: IPC_FUNCTIONS.GET_ITEMS })
         .then((result) => {
           this.items = result;
         });

@@ -164,6 +164,7 @@
             class="input-box"
             v-model="tagText"
             :tags="tags"
+            :autocomplete-items="filteredTags"
             label="Tags"
             :max-tags="10"
             :maxlength="20"
@@ -321,7 +322,12 @@ import ReviewWrapper from "../components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { TEXT_TYPES, STATUSES, AI_ENABLED_FIELDS } from "../modules/constants";
+import {
+  TEXT_TYPES,
+  STATUSES,
+  AI_ENABLED_FIELDS,
+  FILE_TYPES,
+} from "../modules/constants";
 
 import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
 import { mapGetters } from "vuex";
@@ -367,6 +373,7 @@ export default {
       triggerJiraSaveTicket: false,
       jiraTicketSaved: false,
       autoSaveEvent: false,
+      allTags: [],
     };
   },
   created() {
@@ -379,7 +386,18 @@ export default {
       hotkeys: "config/hotkeys",
       config: "config/fullConfig",
       credentials: "auth/credentials",
+      defaultTags: "config/defaultTags",
+      sessionItems: "sessionItems",
     }),
+    filteredTags() {
+      return this.allTags
+        .filter((item) => {
+          return item.toLowerCase().includes(this.tagText.toLowerCase());
+        })
+        .map((item) => {
+          return { text: item };
+        });
+    },
     nameHotkey() {
       return this.$hotkeyHelpers.findBinding("evidence.name", this.hotkeys);
     },
@@ -420,6 +438,7 @@ export default {
     },
   },
   mounted() {
+    this.getAllTags();
     if (this.$isElectron) {
       this.$electronService.onActiveSession(this.activeSession);
     }
@@ -427,7 +446,7 @@ export default {
     // Focus on comment
     this.$refs.comment.editor.commands.focus();
 
-    this.$root.$on("update-session", this.updateSession);
+    this.$root.$on("update-edit-item", this.updateEditItem);
     this.$root.$on("update-processing", this.updateProcessing);
     this.$root.$on("save-data", this.saveData);
   },
@@ -442,9 +461,24 @@ export default {
     },
   },
   methods: {
+    getAllTags() {
+      const defaultTagTexts = this.defaultTags
+        .filter((tag) => tag.text !== "")
+        .map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      this.allTags = [...new Set([...defaultTagTexts, ...sessionTagTexts])];
+    },
     async activeSession(data) {
       // set theme mode
-      const isDarkMode = this.config.apperance === "dark";
+      const isDarkMode = this.config.theme === "dark";
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode);
 
@@ -454,7 +488,7 @@ export default {
       this.name = splitName.slice(0, -1).join(".");
 
       // optimize video
-      if (this.item.fileType === "video") {
+      if (FILE_TYPES[this.item.fileType] === "video") {
         await this.optimizeVideo();
       } else {
         this.processing = false;
@@ -465,13 +499,9 @@ export default {
         this.comment.type = this.config.commentType;
       }
       // set templates by config
-      this.config.templates.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.type === this.item.sessionType) {
-          this.comment.content = temp.precondition.content;
-          this.comment.text = temp.precondition.text;
-        }
-      });
+      const template = this.config.templates[FILE_TYPES[this.item.fileType]];
+      this.comment.content = template.content;
+      this.comment.text = template.text;
     },
     toggleFollowUp() {
       this.followUp = !this.followUp;
@@ -499,13 +529,15 @@ export default {
         // todo add web handler for this
         this.processing = true;
 
-        const { status, message } = await this.$electronService.optimizeVideo(
-          this.item.filePath
-        );
+        const { status, message, fileSize, fileChecksum } =
+          await this.$electronService.optimizeVideo(this.item.filePath);
 
         if (status === STATUSES.ERROR) {
           this.$root.$emit("set-snackbar", message);
           console.log(message);
+        } else {
+          this.item.fileSize = fileSize;
+          this.item.fileChecksum = fileChecksum;
         }
         this.processing = false;
       }
@@ -514,7 +546,7 @@ export default {
       const regex = /(<([^>]+)>)/gi;
       this.comment.text = this.comment.content.replace(regex, "");
     },
-    updateSession(value) {
+    updateEditItem(value) {
       this.item = value;
     },
     updateProcessing(value) {
@@ -523,7 +555,7 @@ export default {
     async handleDiscard() {
       if (this.$isElectron) {
         await this.$electronService.deleteFile(this.item.filePath);
-        await this.$electronService.deleteFile(this.item.poster);
+        await this.$electronService.deleteFile(this.item.poster.filePath);
         await this.$electronService.closeAddWindow();
       }
     },
@@ -568,8 +600,7 @@ export default {
         createdAt: Date.now(),
       };
       this.items.push(newItem);
-
-      await this.$storageService.updateItems(this.items);
+      await this.$store.commit("setSessionItems", this.items);
       if (this.$isElectron) {
         await this.$electronService.closeAddWindow();
       }

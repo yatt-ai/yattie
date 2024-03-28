@@ -33,7 +33,7 @@ export default {
   },
   watch: {
     item: function (newValue) {
-      this.sessionItem = newValue;
+      this.editSessionItem = newValue;
       this.imageEditorInst.destroy();
       this.imageEditorInst = null;
       this.handleEditor();
@@ -46,7 +46,7 @@ export default {
   },
   data() {
     return {
-      sessionItem: this.item,
+      editSessionItem: this.item,
       imageEditorInst: null,
     };
   },
@@ -56,7 +56,10 @@ export default {
   methods: {
     handleEditor() {
       try {
-        const imgPath = `file://${this.sessionItem.filePath}`;
+        let imgPath = this.editSessionItem.filePath;
+        if (this.$isElectron) {
+          imgPath = `file://${this.editSessionItem.filePath}`;
+        }
         this.imageEditorInst = new ImageEditor(
           document.querySelector(".image-editor"),
           {
@@ -146,21 +149,27 @@ export default {
         // todo add web handler
         const imgURI = this.imageEditorInst.toDataURL();
         const { status, message, item } =
-          await this.$electronService.updateImage(this.sessionItem, imgURI);
+          await this.$electronService.updateImage(this.editSessionItem, imgURI);
 
         if (status === STATUSES.ERROR) {
           this.$root.$emit("set-snackbar", message);
         } else {
           // Force the timeline component to update the image through a fake QS
-          this.sessionItem.filePath =
-            this.sessionItem.filePath.substring(item.filePath.length) === "?"
+          this.editSessionItem.filePath =
+            this.editSessionItem.filePath.substring(item.filePath.length) ===
+            "?"
               ? item.filePath
               : item.filePath + "?";
-          this.$root.$emit("update-session", this.sessionItem);
+          this.editSessionItem.fileSize = item.fileSize;
+          this.editSessionItem.fileChecksum = item.fileChecksum;
+          this.$root.$emit("update-edit-item", this.editSessionItem);
           if (needCallback) {
-            this.$root.$emit("save-data", this.sessionItem);
+            this.$root.$emit("save-data", this.editSessionItem);
           }
         }
+      } else {
+        this.$root.$emit("update-edit-item", this.editSessionItem);
+        this.$root.$emit("save-data", this.editSessionItem);
       }
     },
   },

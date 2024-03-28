@@ -3,12 +3,13 @@
     <v-sheet outlined rounded>
       <v-card :style="{ backgroundColor: currentTheme.background }">
         <CheckTaskWrapper
-          :tasks="$store.state.postSessionTasks"
+          :tasks="$store.state.session.postSessionTasks"
           @taskToggle="handleTaskCheck"
         />
         <div class="footer">
           <v-btn
-            color="primary text-capitalize white__text"
+            :color="currentTheme.primary"
+            :style="{ color: currentTheme.white }"
             class="btn-end"
             v-shortkey="confirmHotkey"
             @shortkey="endSession()"
@@ -17,9 +18,9 @@
             {{ $tc("caption.end_session", 1) }}
           </v-btn>
           <v-btn
-            color="white text-capitalize"
+            :color="currentTheme.background"
             class="btn-end"
-            :style="{ color: currentTheme.black }"
+            :style="{ color: currentTheme.secondary }"
             v-shortkey="cancelHotkey"
             @shortkey="handleCancel()"
             @click="handleCancel()"
