@@ -36,6 +36,8 @@ export default {
   async created() {
     if (this.$router.history.current.path === "/") {
       this.renderRestoreSessionDialog = true;
+      const { message } = await this.$electronService.deleteSession("old");
+      this.$root.$emit("set-snackbar", message);
     }
 
     const config = await this.$storageService.getConfig();

@@ -346,6 +346,13 @@ export default class ElectronService {
     });
   }
 
+  async deleteSession(data) {
+    return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+      func: IPC_FUNCTIONS.DELETE_SESSION,
+      data,
+    });
+  }
+
   async stopServer() {
     return await window.ipc.invoke(IPC_HANDLERS.SERVER, {
       func: IPC_FUNCTIONS.STOP_SERVER,

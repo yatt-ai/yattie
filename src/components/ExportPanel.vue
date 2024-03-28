@@ -165,6 +165,7 @@ export default {
   methods: {
     async exportSession(type) {
       const { logo } = await this.$storageService.getConfig();
+      console.log(type);
       const data = {
         title: this.$store.state.case.title,
         charter: this.$store.state.case.charter,

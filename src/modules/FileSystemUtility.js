@@ -190,7 +190,6 @@ module.exports.openSession = async () => {
 module.exports.exportSession = async (params) => {
   const timestamp = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms");
   const id = persistenceUtility.getSessionID();
-
   // show save dialog
   const fileName =
     params.type === "pdf"
@@ -231,6 +230,7 @@ module.exports.exportSession = async (params) => {
       : `file://${__dirname}/index.html#print`;
 
   pdfWin.loadURL(url);
+
   pdfWin.webContents.on("did-finish-load", () => {
     pdfWin.webContents.send("ACTIVE_PDF", params);
     setTimeout(() => {
@@ -302,6 +302,73 @@ module.exports.exportSession = async (params) => {
           });
         });
     }, 4000);
+  });
+};
+
+const deleteFolder = function (folderPath) {
+  if (fs.existsSync(folderPath)) {
+    fs.readdirSync(folderPath).forEach((file, index) => {
+      const curPath = path.join(folderPath, file);
+      if (fs.lstatSync(curPath).isDirectory()) {
+        deleteFolder(curPath);
+      } else {
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(folderPath);
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const deleteOldFiles = (directoryPath, retentionPeriod) => {
+  fs.readdir(directoryPath, (err, files) => {
+    if (err) {
+      console.error("Error reading directory:", err);
+      return false;
+    }
+
+    files.forEach((file) => {
+      const filePath = path.join(directoryPath, file);
+
+      fs.stat(filePath, (err, stats) => {
+        if (err) {
+          console.error("Error getting file stats:", err);
+          return false;
+        }
+
+        const currentTime = new Date();
+        const fileModifiedTime = new Date(stats.mtime);
+
+        const timeDifference = currentTime - fileModifiedTime;
+        const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+        if (daysDifference > retentionPeriod) {
+          let status = deleteFolder(filePath);
+          if (!status) return false;
+        }
+      });
+    });
+  });
+  return true;
+};
+
+module.exports.deleteSession = async (type) => {
+  let status;
+  const metadata = persistenceUtility.getMetadata();
+  if (type === "all") status = deleteFolder(metadata.sessionPath);
+  else {
+    let config = persistenceUtility.getConfig();
+    status = deleteOldFiles(metadata.sessionPath, config.cache.retentionPeriod);
+  }
+  if (status)
+    return Promise.resolve({
+      status: STATUSES.SUCCESS,
+      message: "Session deleted successfully", // TODO i18n
+    });
+  return Promise.resolve({
+    status: STATUSES.ERROR,
+    message: "Session deleted failed", // TODO i18n
   });
 };
 

@@ -20,7 +20,7 @@
           {{ $tc("caption.share_config", 1) }}
         </p>
       </v-col>
-      <v-col v-if="$isElectron" cols="12" class="border-bottom pa-4">
+      <v-col v-if="$isElectron" cols="12" class="pa-4">
         <v-btn
           class="text-capitalize font-weight-regular"
           fill
@@ -44,6 +44,37 @@
             {{ $tc("caption.here", 1) }}
           </a>
         </p>
+      </v-col>
+      <v-col v-if="$isElectron" cols="12" class="border-bottom pa-4">
+        <div class="d-flex align-center">
+          <DeleteConfirmDialog
+            v-model="deleteConfirmDialog"
+            ref="deleteConfirmDialog"
+            :text="$t('message.confirm_clear_cache')"
+            :configItem="config"
+            @confirm="deleteSessions"
+            @cancel="deleteConfirmDialog = false"
+          />
+          <v-btn
+            class="text-capitalize font-weight-regular"
+            fill
+            small
+            color="primary"
+            :height="30"
+            @click="handleDeleteConfirmDialog"
+          >
+            {{ $tc("caption.clear_cache", 1) }}
+          </v-btn>
+          <v-responsive v-if="config.cache" class="mx-auto" max-width="344">
+            <v-text-field
+              class="ml-8"
+              label="Retention Period"
+              :value="config.cache.retentionPeriod"
+              suffix="Days"
+              @input="updateRetentionPeriod"
+            ></v-text-field>
+          </v-responsive>
+        </div>
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 theme-mode-section">
         <p class="body-1" :style="{ color: currentTheme.default }">
@@ -206,11 +237,12 @@
 
 <script>
 import { TEXT_TYPES, STATUSES } from "@/modules/constants";
+import DeleteConfirmDialog from "../dialogs/DeleteConfirmDialog.vue";
 import ShareOAuthDialog from "@/components/dialogs/ShareOAuthDialog.vue";
 import { mapGetters } from "vuex";
 export default {
   name: "GeneralTab",
-  components: { ShareOAuthDialog },
+  components: { ShareOAuthDialog, DeleteConfirmDialog },
   props: {
     metadata: {
       type: Object,
@@ -271,6 +303,7 @@ export default {
   },
   data() {
     return {
+      deleteConfirmDialog: false,
       shareOauthDialog: false,
       meta: this.metadata,
       config: this.configItem,
@@ -290,6 +323,11 @@ export default {
     handleConfig() {
       this.$emit("submit-config", this.config);
     },
+    updateRetentionPeriod(value) {
+      let configToChange = structuredClone(this.config);
+      configToChange.cache.retentionPeriod = parseInt(value);
+      this.$emit("submit-config", configToChange);
+    },
     async openConfigFile() {
       if (this.$isElectron) {
         const { status } = await this.$electronService.openConfigFile();
@@ -305,6 +343,19 @@ export default {
           this.$root.$emit("change-meta");
         }
       }
+    },
+    async deleteSessions() {
+      if (this.$isElectron) {
+        const { message } = await this.$electronService.deleteSession("all");
+        this.$root.$emit("set-snackbar", message);
+      }
+      this.deleteConfirmDialog = false;
+    },
+    handleDeleteConfirmDialog() {
+      this.deleteConfirmDialog = true;
+      setTimeout(() => {
+        this.$refs.deleteConfirmDialog.$refs.confirmBtn.$el.focus();
+      }, 100);
     },
     async showOAuthDialog() {
       this.shareOauthDialog = true;
@@ -358,5 +409,8 @@ export default {
 }
 .theme--light .border-bottom {
   border-color: #e5e7eb;
+}
+.align-center {
+  align-items: center;
 }
 </style>
