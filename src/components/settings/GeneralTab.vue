@@ -325,7 +325,7 @@ export default {
     },
     updateRetentionPeriod(value) {
       let configToChange = structuredClone(this.config);
-      configToChange.cache.retentionPeriod = parseInt(value);
+      configToChange.cache.retentionPeriod = value ? parseInt(value) : value;
       this.$emit("submit-config", configToChange);
     },
     async openConfigFile() {
