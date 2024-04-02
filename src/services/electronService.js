@@ -332,10 +332,10 @@ export default class ElectronService {
     });
   }
 
-  async setAppearance(appearance) {
+  async setAppearance(theme) {
     return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
       func: IPC_FUNCTIONS.SET_APPEARANCE,
-      data: { appearance },
+      data: { theme },
     });
   }
 

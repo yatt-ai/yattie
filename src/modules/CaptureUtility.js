@@ -495,9 +495,9 @@ module.exports.dropFile = async (data) => {
   });
 };
 
-module.exports.setAppearance = ({ theme }) => {
+module.exports.setAppearance = (theme) => {
   const browserWindow = browserUtility.getBrowserWindow();
-  browserWindow.webContents.send("SET_THEME", { theme });
+  browserWindow.webContents.send("SET_THEME", theme);
 };
 
 const generateIDAndName = (type, uid = undefined) => {
