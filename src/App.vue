@@ -36,8 +36,10 @@ export default {
   async created() {
     if (this.$router.history.current.path === "/") {
       this.renderRestoreSessionDialog = true;
-      const { message } = await this.$electronService.deleteSession("old");
-      this.$root.$emit("set-snackbar", message);
+      if (this.$isElectron) {
+        const { message } = await this.$electronService.deleteSession("old");
+        console.log("Session Clear : ", message);
+      }
     }
 
     const config = await this.$storageService.getConfig();
