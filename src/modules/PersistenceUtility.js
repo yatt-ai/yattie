@@ -18,6 +18,7 @@ let browserWindow;
 const defaultMeta = {
   configPath: path.join(configDir, "config.json"),
   credentialsPath: path.join(configDir, "credentials.json"),
+  sessionPath: path.join(configDir, "sessions"),
   sessionDataPath: "",
   version: currentVersion,
 };
@@ -120,6 +121,9 @@ const defaultConfig = {
     path: "",
     name: "",
     size: 0,
+  },
+  cache: {
+    retentionPeriod: 7,
   },
 };
 

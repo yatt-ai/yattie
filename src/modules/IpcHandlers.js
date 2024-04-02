@@ -147,6 +147,8 @@ ipcMain.handle(IPC_HANDLERS.FILE_SYSTEM, async (event, args) => {
       return fileSystemUtility.openSession(args.data);
     case IPC_FUNCTIONS.EXPORT_SESSION:
       return fileSystemUtility.exportSession(args.data);
+    case IPC_FUNCTIONS.DELETE_SESSION:
+      return fileSystemUtility.deleteSession(args.data);
     case IPC_FUNCTIONS.OPEN_CONFIG_FILE:
       return fileSystemUtility.openConfigFile(args.data);
     case IPC_FUNCTIONS.OPEN_CREDENTIALS_FILE:
