@@ -139,11 +139,4 @@ export default class LocalJsonDbService extends StorageInterface {
       func: IPC_FUNCTIONS.RESET_DATA,
     });
   }
-
-  async saveNote(note) {
-    return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
-      func: IPC_FUNCTIONS.SAVE_NOTE,
-      data: note,
-    });
-  }
 }

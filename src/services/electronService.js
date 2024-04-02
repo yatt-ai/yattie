@@ -332,16 +332,23 @@ export default class ElectronService {
     });
   }
 
-  async setAppearance(appearance) {
+  async setAppearance(theme) {
     return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
       func: IPC_FUNCTIONS.SET_APPEARANCE,
-      data: { appearance },
+      data: { theme },
     });
   }
 
   async exportSession(data) {
     return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
       func: IPC_FUNCTIONS.EXPORT_SESSION,
+      data,
+    });
+  }
+
+  async deleteSession(data) {
+    return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+      func: IPC_FUNCTIONS.DELETE_SESSION,
       data,
     });
   }

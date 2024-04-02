@@ -13,7 +13,6 @@ export const IPC_HANDLERS = {
 export const IPC_FUNCTIONS = {
   GET_SYSTEM_INFO: "getSystemInfo",
   GET_MEDIA_SOURCE: "getMediaSource",
-  SAVE_NOTE: "saveNote",
   CREATE_IMAGE: "createImage",
   UPDATE_IMAGE: "updateImage",
   CREATE_VIDEO: "createVideo",
@@ -71,11 +70,11 @@ export const IPC_FUNCTIONS = {
   RESET_SESSION: "resetSession",
   OPEN_SESSION: "openSession",
   EXPORT_SESSION: "exportSession",
+  DELETE_SESSION: "deleteSession",
   OPEN_CONFIG_FILE: "openConfigFile",
   OPEN_CREDENTIALS_FILE: "openCredentialsFile",
   DRAG_ITEM: "dragItem",
   OPEN_EXTERNAL_LINK: "openExternalLink",
-
   CHANGE_MENUITEM_STATUS: "changeMenuItemStatus",
 
   START_SERVER: "startServer",

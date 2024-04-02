@@ -1,8 +1,8 @@
-const os = require('os');
-const si = require('systeminformation');
+const os = require("os");
+const si = require("systeminformation");
 
 async function getCurrentDateTime() {
-  return new Date().toLocaleString('en-US', { timeZone: 'UTC' });
+  return new Date().toLocaleString("en-US", { timeZone: "UTC" });
 }
 
 async function getComputerName() {
@@ -18,7 +18,7 @@ async function getSystemInfo() {
   const systemInfo = await si.system();
   return {
     manufacturer: systemInfo.manufacturer,
-    model: systemInfo.model
+    model: systemInfo.model,
   };
 }
 
@@ -58,10 +58,9 @@ module.exports.getSystemInfo = async () => {
       biosVersion,
       processor,
       memory,
-
     };
   } catch (error) {
-    console.error('Error fetching system information:', error);
+    console.error("Error fetching system information:", error);
     return null; // or handle the error in a different way as per your requirement
   }
-}
+};

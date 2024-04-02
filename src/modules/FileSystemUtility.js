@@ -71,15 +71,6 @@ module.exports.createNewSession = async (state) => {
 };
 
 module.exports.saveSession = async (data) => {
-  const notesFileName =
-    "yattie-session-" + dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + "-notes.txt";
-  const notes = persistenceUtility.getNotes();
-  let notesFilePath = "";
-  if (notes && notes.text) {
-    const notesItem = captureUtility.saveNote(notes, notesFileName);
-    notesFilePath = notesItem.item.filePath;
-  }
-
   const fileName = "TestSession.test";
   const { filePath } = await dialog.showSaveDialog({
     title: "Save Session",
@@ -123,10 +114,6 @@ module.exports.saveSession = async (data) => {
             zip.addLocalFile(sanitizedPath);
           }
         });
-
-        if (notesFilePath) {
-          zip.addLocalFile(notesFilePath);
-        }
 
         zip.writeZip(filePath, (error) => {
           if (error) {
@@ -203,23 +190,22 @@ module.exports.openSession = async () => {
 module.exports.exportSession = async (params) => {
   const timestamp = dayjs().format("YYYY-MM-DD_HH-mm-ss-ms");
   const id = persistenceUtility.getSessionID();
-  const notesFileName = "yattie-session-" + timestamp + "-notes.txt";
-  const notes = persistenceUtility.getNotes();
-  let notesFilePath = "";
-
-  if (notes.text) {
-    const notesItem = captureUtility.saveNote(notes, notesFileName);
-    notesFilePath = notesItem.item.filePath;
-    console.log(notesFilePath);
-  }
   // show save dialog
-  const fileName = "yattie-session-" + timestamp + ".zip";
-  const { filePath } = await dialog.showSaveDialog({
-    title: "Save Items",
+  const fileName =
+    params.type === "pdf"
+      ? "yattie-session-" + timestamp + ".pdf"
+      : "yattie-session-" + timestamp + ".zip";
+  const options = {
+    title: params.type === "pdf" ? "Save Pdf" : "Save Items",
     defaultPath: fileName,
-    filters: [{ name: "Zip archives only", extensions: ["zip"] }],
+    filters: [
+      params.type === "pdf"
+        ? { name: "Pdf files only", extensions: ["pdf"] }
+        : { name: "Zip archives only", extensions: ["zip"] },
+    ],
     properties: ["createDirectory", "showOverwriteConfirmation"],
-  });
+  };
+  const { filePath } = await dialog.showSaveDialog(options);
 
   if (!filePath) {
     return Promise.resolve({ status: "canceled" });
@@ -247,68 +233,142 @@ module.exports.exportSession = async (params) => {
 
   pdfWin.webContents.on("did-finish-load", () => {
     pdfWin.webContents.send("ACTIVE_PDF", params);
-    pdfWin.webContents
-      .printToPDF({})
-      .then((data) => {
-        const pdfName = "yattie-session-" + timestamp + "-report.pdf";
-        const pdfPath = path.join(configDir, "sessions", id, pdfName);
-
-        fs.writeFile(pdfPath, data, (error) => {
-          if (error) {
-            return Promise.resolve({
-              status: STATUSES.ERROR,
-              message: error,
-            });
-          }
-          try {
-            const zip = new AdmZip();
-
-            const items = persistenceUtility.getItems();
-
-            items.map((item) => {
-              if (item.filePath) {
-                const sanitizedPath =
-                  item.filePath.substring(item.filePath.length - 1) !== "?"
-                    ? item.filePath
-                    : item.filePath.substring(0, item.filePath.length - 1);
-                zip.addLocalFile(sanitizedPath, FILE_TYPES[item.fileType]);
-              }
-            });
-
-            if (notesFilePath) {
-              zip.addLocalFile(notesFilePath, "text");
-            }
-
-            zip.addLocalFile(pdfPath);
-
-            zip.writeZip(filePath, (error) => {
+    setTimeout(() => {
+      pdfWin.webContents
+        .printToPDF({})
+        .then((data) => {
+          const pdfName = "yattie-session-" + timestamp + "-report.pdf";
+          const pdfPath = path.join(configDir, "sessions", id, pdfName);
+          if (params.type === "pdf") {
+            fs.writeFile(filePath, data, (error) => {
               if (error) {
                 return Promise.resolve({
                   status: STATUSES.ERROR,
                   message: error,
                 });
               }
-
-              return Promise.resolve({
-                status: STATUSES.SUCCESS,
-                message: "Session Exported Successfully",
-                filePath,
-              });
             });
-          } catch (error) {
-            return Promise.resolve({
-              status: STATUSES.ERROR,
-              message: error,
+          } else {
+            fs.writeFile(pdfPath, data, (error) => {
+              if (error) {
+                return Promise.resolve({
+                  status: STATUSES.ERROR,
+                  message: error,
+                });
+              }
+              try {
+                const zip = new AdmZip();
+
+                const items = persistenceUtility.getItems();
+                items.map((item) => {
+                  if (item.filePath) {
+                    const sanitizedPath =
+                      item.filePath.substring(item.filePath.length - 1) !== "?"
+                        ? item.filePath
+                        : item.filePath.substring(0, item.filePath.length - 1);
+                    zip.addLocalFile(sanitizedPath, FILE_TYPES[item.fileType]);
+                  }
+                });
+
+                zip.addLocalFile(pdfPath);
+                if (params.logoPath) zip.addLocalFile(params.logoPath);
+                zip.writeZip(filePath, (error) => {
+                  if (error) {
+                    return Promise.resolve({
+                      status: STATUSES.ERROR,
+                      message: error,
+                    });
+                  }
+
+                  return Promise.resolve({
+                    status: STATUSES.SUCCESS,
+                    message: "Session Exported Successfully",
+                    filePath,
+                  });
+                });
+              } catch (error) {
+                return Promise.resolve({
+                  status: STATUSES.ERROR,
+                  message: error,
+                });
+              }
             });
           }
+        })
+        .catch((error) => {
+          return Promise.resolve({
+            status: STATUSES.ERROR,
+            message: error,
+          });
         });
-      })
-      .catch((error) => {
-        return Promise.resolve({
-          status: STATUSES.ERROR,
-          message: error,
-        });
+    }, 4000);
+  });
+};
+
+const deleteFolder = function (folderPath) {
+  if (fs.existsSync(folderPath)) {
+    fs.readdirSync(folderPath).forEach((file, index) => {
+      const curPath = path.join(folderPath, file);
+      if (fs.lstatSync(curPath).isDirectory()) {
+        deleteFolder(curPath);
+      } else {
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(folderPath);
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const deleteOldFiles = (directoryPath, retentionPeriod) => {
+  fs.readdir(directoryPath, (err, files) => {
+    if (err) {
+      console.error("Error reading directory:", err);
+      return false;
+    }
+
+    files.forEach((file) => {
+      const filePath = path.join(directoryPath, file);
+
+      fs.stat(filePath, (err, stats) => {
+        if (err) {
+          console.error("Error getting file stats:", err);
+          return false;
+        }
+
+        const currentTime = new Date();
+        const fileModifiedTime = new Date(stats.mtime);
+
+        const timeDifference = currentTime - fileModifiedTime;
+        const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+        if (daysDifference > retentionPeriod) {
+          let status = deleteFolder(filePath);
+          if (!status) return false;
+        }
       });
+    });
+  });
+  return true;
+};
+
+module.exports.deleteSession = async (type) => {
+  let status;
+  const metadata = persistenceUtility.getMetadata();
+  if (type === "all") status = deleteFolder(metadata.sessionPath);
+  else {
+    let config = persistenceUtility.getConfig();
+    status = deleteOldFiles(metadata.sessionPath, config.cache.retentionPeriod);
+  }
+  if (status)
+    return Promise.resolve({
+      status: STATUSES.SUCCESS,
+      message: "Session deleted successfully", // TODO i18n
+    });
+  return Promise.resolve({
+    status: STATUSES.ERROR,
+    message: "Session deleted failed", // TODO i18n
   });
 };
 

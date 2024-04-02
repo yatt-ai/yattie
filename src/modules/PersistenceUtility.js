@@ -18,6 +18,7 @@ let browserWindow;
 const defaultMeta = {
   configPath: path.join(configDir, "config.json"),
   credentialsPath: path.join(configDir, "credentials.json"),
+  sessionPath: path.join(configDir, "sessions"),
   sessionDataPath: "",
   version: currentVersion,
 };
@@ -115,6 +116,15 @@ const defaultConfig = {
     },
   },
   version: currentVersion,
+  logo: {
+    enabled: false,
+    path: "",
+    name: "",
+    size: 0,
+  },
+  cache: {
+    retentionPeriod: 7,
+  },
 };
 
 module.exports.initializeSession = () => {
@@ -489,7 +499,6 @@ module.exports.getItems = () => {
       return [];
     }
   }
-  return [];
 };
 
 module.exports.addItem = (item) => {
@@ -528,6 +537,10 @@ module.exports.updateItem = (newItem) => {
 module.exports.updateItems = (items) => {
   try {
     let session = dataDb.get("session");
+    if (!session) {
+      dataDb.set("session", {});
+      session = {};
+    }
     session.items = items;
     dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();

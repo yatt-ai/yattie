@@ -129,6 +129,36 @@
                     :selected="selected"
                   />
                 </div>
+                <div
+                  v-if="
+                    credentials.zephyrSquad &&
+                    credentials.zephyrSquad.length > 0 &&
+                    // Adding the false to make it invisible
+                    false
+                  "
+                >
+                  <zephyr-squad-export-session
+                    :title="$tc(`caption.export_to_zephyr_squad`, 1)"
+                    :credential-items="credentials.zephyrSquad"
+                    :items="items"
+                    :selected="selected"
+                  />
+                </div>
+                <div
+                  v-if="
+                    credentials.zephyrScale &&
+                    credentials.zephyrScale.length > 0 &&
+                    // // Adding the false to make it invisible
+                    false
+                  "
+                >
+                  <zephyr-scale-export-session
+                    :title="$tc(`caption.export_to_zephyr_scale`, 1)"
+                    :credential-items="credentials.zephyrScale"
+                    :items="items"
+                    :selected="selected"
+                  />
+                </div>
               </v-list>
             </v-card>
           </v-menu>
@@ -773,6 +803,8 @@ import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
 import XrayExportSession from "./xray/XrayExportSession";
+import ZephyrSquadExportSession from "./zephyr/ZephyrSquadExportSession";
+import ZephyrScaleExportSession from "./zephyr/ZephyrScaleExportSession";
 import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 
 import JiraAddIssue from "./jira/JiraAddIssue";
@@ -790,7 +822,6 @@ import {
   createAudioForWeb,
   createImageForWeb,
   createVideoForWeb,
-  saveNoteForWeb,
 } from "@/helpers/WebHelpers";
 
 let mediaRecorder;
@@ -820,6 +851,8 @@ export default {
     JiraExportSession,
     TestRailExportSession,
     XrayExportSession,
+    ZephyrSquadExportSession,
+    ZephyrScaleExportSession,
     JiraAddIssue,
   },
   props: {
@@ -1738,47 +1771,19 @@ export default {
       }
     },
     async addNote(data) {
-      if (this.$isElectron) {
-        const { status, message, item } = await this.$storageService.saveNote(
-          data.comment
-        );
-        if (status === STATUSES.ERROR) {
-          this.$root.$emit("set-snackbar", message);
-          console.log(message);
-        } else {
-          let newItem = {
-            stepID: item.stepID,
-            fileType: DEFAULT_FILE_TYPES["text"].type,
-            fileName: item.fileName,
-            filePath: item.filePath,
-            comment: data.comment,
-            tags: data.tags,
-            emoji: data.emoji,
-            followUp: data.followUp,
-            timer_mark: this.timer,
-            createdAt: Date.now(),
-          };
-          this.$emit("add-item", newItem);
-          this.noteDialog = false;
-        }
-      } else {
-        const { item } = saveNoteForWeb(data.comment);
-        let newItem = {
-          stepID: item.stepID,
-          fileType: DEFAULT_FILE_TYPES["text"].type,
-          fileName: item.fileName,
-          filePath: item.filePath,
-          comment: data.comment,
-          tags: data.tags,
-          emoji: data.emoji,
-          followUp: data.followUp,
-          timer_mark: this.timer,
-          createdAt: Date.now(),
-        };
-
-        this.$emit("add-item", newItem);
-        this.noteDialog = false;
-      }
+      const stepID = uuidv4();
+      let newItem = {
+        stepID: stepID,
+        fileType: DEFAULT_FILE_TYPES["text"].type,
+        comment: data.comment,
+        tags: data.tags,
+        emoji: data.emoji,
+        followUp: data.followUp,
+        timer_mark: this.timer,
+        createdAt: Date.now(),
+      };
+      this.$emit("add-item", newItem);
+      this.noteDialog = false;
     },
     async addSummary(value) {
       // TODO - handle summary like a regular note and allow additional metadata

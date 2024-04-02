@@ -27,13 +27,23 @@
           </template>
           <v-card tile>
             <v-list dense>
-              <v-list-item @click="exportSession">
+              <v-list-item @click="exportSession('archive')">
                 <v-list-item-icon class="mr-4">
                   <v-icon>mdi-download</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title>
-                    {{ $tc("caption.save_as", 1) }}
+                    {{ $tc("caption.save_as_zip", 1) }}
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="exportSession('pdf')">
+                <v-list-item-icon class="mr-4">
+                  <v-icon>mdi-download</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ $tc("caption.save_as_pdf", 1) }}
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -43,6 +53,38 @@
                 <xray-export-session
                   :title="$tc(`caption.export_to_xray`, 1)"
                   :credential-items="credentials.xray"
+                  :selected="[]"
+                  :items="itemLists"
+                  @close-menu="() => (evidenceExportDestinationMenu = false)"
+                />
+              </div>
+              <div
+                v-if="
+                  this.credentials.zephyrSquad &&
+                  this.credentials.zephyrSquad.length > 0 &&
+                  // Adding the false to make it invisible
+                  false
+                "
+              >
+                <zephyr-squad-export-session
+                  :title="$tc(`caption.export_to_zephyr_squad`, 1)"
+                  :credential-items="credentials.zephyrSquad"
+                  :selected="[]"
+                  :items="itemLists"
+                  @close-menu="() => (evidenceExportDestinationMenu = false)"
+                />
+              </div>
+              <div
+                v-if="
+                  this.credentials.zephyrScale &&
+                  this.credentials.zephyrScale.length > 0 &&
+                  // // Adding the false to make it invisible
+                  false
+                "
+              >
+                <zephyr-scale-export-session
+                  :title="$tc(`caption.export_to_zephyr_scale`, 1)"
+                  :credential-items="credentials.zephyrScale"
                   :selected="[]"
                   :items="itemLists"
                   @close-menu="() => (evidenceExportDestinationMenu = false)"
@@ -87,6 +129,8 @@
 //import JiraExportSession from "./jira/JiraExportSession";
 //import TestRailExportSession from "./testrail/TestRailExportSession";
 import XrayExportSession from "./xray/XrayExportSession";
+import ZephyrSquadExportSession from "./zephyr/ZephyrSquadExportSession";
+import ZephyrScaleExportSession from "./zephyr/ZephyrScaleExportSession";
 
 export default {
   name: "ExportPanel",
@@ -94,6 +138,8 @@ export default {
     //JiraExportSession,
     //TestRailExportSession,
     XrayExportSession,
+    ZephyrSquadExportSession,
+    ZephyrScaleExportSession,
   },
   props: {
     items: {
@@ -135,7 +181,8 @@ export default {
     });
   },
   methods: {
-    async exportSession() {
+    async exportSession(type) {
+      const { logo } = await this.$storageService.getConfig();
       const data = {
         title: this.$store.state.case.title,
         charter: this.$store.state.case.charter,
@@ -144,8 +191,10 @@ export default {
         timer: this.$store.state.session.timer,
         started: this.$store.state.session.started,
         ended: this.$store.state.session.ended,
+        reportLogo: logo && logo.enabled,
+        logoPath: logo && logo.path,
+        type: type,
       };
-
       if (this.$isElectron) {
         await this.$electronService.exportSession(data);
       }

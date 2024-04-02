@@ -40,7 +40,27 @@
           </v-btn>
           <v-btn class="mb-4 outline-btn testrail" block outlined color="white">
             <img :src="require('../../assets/icon/xray-logo.png')" width="12" />
-            <div class="btn-text">{{ $tc("caption.signup_xray", 1) }}</div>
+            <div class="btn-text">
+              {{ $tc("caption.signup_xray", 1) }}
+            </div>
+          </v-btn>
+          <v-btn class="mb-4 outline-btn testrail" block outlined color="white">
+            <img
+              :src="require('../../assets/icon/zephyr-squad.png')"
+              width="16"
+            />
+            <div class="btn-text">
+              {{ $tc("caption.signup_zephyr_squad", 1) }}
+            </div>
+          </v-btn>
+          <v-btn class="mb-4 outline-btn testrail" block outlined color="white">
+            <img
+              :src="require('../../assets/icon/zephyr-scale.png')"
+              width="16"
+            />
+            <div class="btn-text">
+              {{ $tc("caption.signup_zephyr_scale", 1) }}
+            </div>
           </v-btn>
           <v-btn class="mb-4 outline-btn qtest" block outlined color="white">
             <img :src="require('../../assets/icon/qtest.png')" />

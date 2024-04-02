@@ -99,6 +99,7 @@
             </div>
           </div>
           <div
+            v-if="getType(item.fileType) !== undefined"
             v-shortkey="nameHotkey"
             @shortkey="$hotkeyHelpers.focusField($refs, 'nameTextField')"
           >
@@ -310,7 +311,7 @@ import ReviewWrapper from "@/components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { TEXT_TYPES, AI_ENABLED_FIELDS } from "@/modules/constants";
+import { TEXT_TYPES, AI_ENABLED_FIELDS, FILE_TYPES } from "@/modules/constants";
 
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
 import { mapGetters } from "vuex";
@@ -428,6 +429,9 @@ export default {
     },
   },
   methods: {
+    getType(type) {
+      return FILE_TYPES[type];
+    },
     getAllTags() {
       const defaultTagTexts = this.defaultTags
         .filter((tag) => tag.text !== "")

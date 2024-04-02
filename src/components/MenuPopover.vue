@@ -151,7 +151,11 @@ export default {
           window.open(jiraUrl, "_blank");
         }
         this.showMenu = false;
-      } else if (credentialType === "testrail" || credentialType === "xray") {
+      } else if (
+        ["testrail", "xray", "zephyrSquad", "zephyrScale"].includes(
+          credentialType
+        )
+      ) {
         const url = `https://${credential.url}`;
         if (this.$isElectron) {
           await this.$electronService.openExternalLink(url);

@@ -460,17 +460,18 @@
                 </div>
                 <div
                   v-else
-                  class="file-wrapper"
+                  class="note-wrapper"
                   @click="handleItemClick(item.stepID)"
                 >
-                  <div class="file-name">
-                    <span>{{ item.fileName }}</span>
-                  </div>
-                  <div class="file-icon">
-                    <v-icon medium>mdi-file</v-icon>
-                  </div>
-                </div>
-                <div class="comment-wrapper">
+                  <font-awesome-icon
+                    :icon="textTypes[item.comment.type].icon"
+                    class="mr-1"
+                    :style="{
+                      borderColor: textTypes[item.comment.type].fill,
+                      color: textTypes[item.comment.type].fill,
+                    }"
+                    :border="true"
+                  />
                   <span class="comment-type"
                     >{{
                       item.comment.text
@@ -568,8 +569,8 @@
 import draggable from "vuedraggable";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { FILE_TYPES } from "../modules/constants";
 import { debounce } from "lodash";
+import { FILE_TYPES, TEXT_TYPES } from "../modules/constants";
 
 export default {
   name: "NotesWrapper",
@@ -620,6 +621,7 @@ export default {
       selected: [],
       emojiMenu: {},
       selectedId: null,
+      textTypes: TEXT_TYPES,
     };
   },
   created() {
