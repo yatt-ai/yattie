@@ -23,7 +23,7 @@ export default {
     await page.locator("#login-submit").click();
 
     // Type password
-    await page.locator('input[name="password"]').fill("ethene20");
+    await page.locator('input[name="password"]').fill("*****");
 
     // Click login
     await page.locator("#login-submit").click();
