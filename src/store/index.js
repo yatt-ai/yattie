@@ -58,6 +58,15 @@ const store = new Vuex.Store({
     savedTimer: 0,
   },
   mutations: {
+    replaceAttachmentUrl(state, { attachmentID, url }) {
+      console.log("replaceAttachmentUrl");
+      const uploadedAttachment = state.session.items.find(
+        (item) => item.attachmentID === attachmentID
+      );
+      console.log({ uploadedAttachment });
+      uploadedAttachment.filePath = url;
+      uploadedAttachment.uploaded = true;
+    },
     setSessionIDFromBackend(state, payload) {
       state.session.sessionID = payload;
     },

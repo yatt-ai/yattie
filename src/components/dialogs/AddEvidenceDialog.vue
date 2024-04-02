@@ -634,6 +634,7 @@ export default {
         followUp: this.followUp,
         timer_mark: this.item.timer_mark,
         createdAt: Date.now(),
+        uploaded: false,
       };
       const updatedItems = [...this.items];
       updatedItems.push(newItem);

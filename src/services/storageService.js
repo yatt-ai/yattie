@@ -95,4 +95,8 @@ export default class StorageService {
   async saveNote(note) {
     return this.storage.saveNote(note);
   }
+
+  async getAttachment(attachmentId) {
+    return this.storage.getAttachment(attachmentId);
+  }
 }

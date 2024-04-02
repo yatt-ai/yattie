@@ -27,7 +27,7 @@ export default class RestApiService extends StorageInterface {
       link: "",
     };
     await axios
-      .patch(`http://localhost:5000/v1/yattie/executions`, data, options)
+      .patch(`http://localhost:5000/v1/pinata/executions`, data, options)
       .then((postedSession) => {
         returnResponse = postedSession.data;
       })
@@ -54,9 +54,17 @@ export default class RestApiService extends StorageInterface {
                   "X-Upload-Content-Length": match.fileSize,
                 },
               })
-              .then((resp) => {
+              .then(async (resp) => {
                 console.log("File upload response");
                 console.log(resp);
+                const attachmentResp = await this.getAttachment(
+                  step.custom_fields.attachmentID
+                );
+                console.log({ attachmentResp });
+                store.commit("replaceAttachmentUrl", {
+                  attachmentID: attachmentResp.external_id,
+                  url: attachmentResp.url,
+                });
               })
               .catch((error) => {
                 returnResponse.error.push(...error.response.data.errors);
@@ -73,15 +81,23 @@ export default class RestApiService extends StorageInterface {
 
   async getConfig() {
     const response = await axios.get(
-      `http://localhost:5000/v1/app/org/2f6cb8ea-e5c0-11ee-87ec-0242ac130002/config/5e0f71ff-987d-4240-85eb-df6adf568c31`
+      `http://localhost:5000/v1/app/org/f352ae63-11fc-4dbe-bab1-72561aa25fca/config/5e0f71ff-987d-4240-85eb-df6adf568c31`
     );
     console.log(response);
     return response.data.config;
   }
 
+  async getAttachment(attachmentId) {
+    const response = await axios.get(
+      `http://localhost:5000/v1/attachments/${attachmentId}/object`
+    );
+    console.log(response.data);
+    return response.data;
+  }
+
   async updateConfig(config) {
     const response = await axios.put(
-      `http://localhost:5000/v1/app/org/2f6cb8ea-e5c0-11ee-87ec-0242ac130002//config/5e0f71ff-987d-4240-85eb-df6adf568c31`,
+      `http://localhost:5000/v1/app/org/f352ae63-11fc-4dbe-bab1-72561aa25fca/config/5e0f71ff-987d-4240-85eb-df6adf568c31`,
       { config }
     );
     return response.data.config;
