@@ -1,4 +1,5 @@
 import * as path from "path";
+const { chromium } = require("playwright");
 
 export default {
   async uploadToScale() {
@@ -26,11 +27,6 @@ export default {
 
     // Click login
     await page.locator("#login-submit").click();
-
-    // the page takes so long to load
-    setTimeout(async () => {
-      await takeScreenshot({ page });
-    }, 120000);
 
     // Start waiting for file chooser before clicking. Note no await.
     const fileChooserPromise = page.waitForEvent("filechooser");
