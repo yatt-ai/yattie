@@ -499,6 +499,7 @@ module.exports.getItems = () => {
       return [];
     }
   }
+  return [];
 };
 
 module.exports.addItem = (item) => {
