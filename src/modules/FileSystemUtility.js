@@ -88,7 +88,6 @@ module.exports.saveSession = async (data) => {
 
   return new Promise(function (resolve) {
     const items = persistenceUtility.getItems();
-    data.session.notes = notes;
     data.session.items = items;
     const metaPath = path.join(configDir, "metadata.txt");
     const jsonStr = JSON.stringify(data);
