@@ -1120,7 +1120,6 @@ export default {
     },
     async handleActivateEditSession(id) {
       this.itemToEdit = await this.$storageService.getItemById(id);
-      console.log(this.itemToEdit);
       this.editEvidenceDialog = true;
     },
     async dragItem(event, item) {
