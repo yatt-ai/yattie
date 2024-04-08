@@ -74,6 +74,7 @@
 import dayjs from "dayjs";
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
 import { DEFAULT_OPENAI_CONFIGS } from "@/modules/constants";
+import { mapGetters } from "vuex";
 
 export default {
   name: "AddonsTab",
@@ -87,10 +88,6 @@ export default {
       type: Object,
       default: () => {},
     },
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
   },
   watch: {
     metadata: function (newValue) {
@@ -99,14 +96,11 @@ export default {
     credentialItems: function (newValue) {
       this.credentials = newValue;
     },
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
   },
   computed: {
-    // ...mapGetters({
-    //   config: "config/fullConfig",
-    // }),
+    ...mapGetters({
+      config: "config/fullConfig",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -119,7 +113,6 @@ export default {
     return {
       meta: this.metadata,
       configToChange: null,
-      config: this.configItem,
       credentials: this.credentialItems,
       rules: {
         noAsterisk: (value) =>
