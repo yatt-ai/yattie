@@ -70,7 +70,7 @@ export default {
     },
     triggerSave: function (newValue) {
       if (newValue) {
-        this.handleMindmap(true);
+        this.handleMindmap();
       }
     },
   },
@@ -305,9 +305,11 @@ export default {
         );
 
         let imgURI = canvas.toDataURL("image/png");
+        let new_nodes = structuredClone(this.nodes);
+        let new_connections = structuredClone(this.connections);
         this.$emit("submit-mindmap", {
-          nodes: this.nodes,
-          connections: this.connections,
+          nodes: new_nodes,
+          connections: new_connections,
           imgURI: imgURI,
         });
       };

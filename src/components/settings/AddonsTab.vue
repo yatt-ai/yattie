@@ -13,7 +13,7 @@
           </div>
           <div class="flex-grow-0">
             <v-switch
-              :value="config.ai.enabled"
+              v-model="config.ai.enabled"
               inset
               hide-details
               dense
@@ -33,7 +33,7 @@
             solo
             :rules="[rules.rightLength, rules.noAsterisk]"
             :errorMessages="customErrors"
-            :disabled="!config.ai.enabled"
+            :disabled="!config?.ai?.enabled"
             @focus="emptyKeyOnFocus"
           >
           </v-text-field>
@@ -74,7 +74,6 @@
 import dayjs from "dayjs";
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
 import { DEFAULT_OPENAI_CONFIGS } from "@/modules/constants";
-import { mapGetters } from "vuex";
 
 export default {
   name: "AddonsTab",
@@ -88,6 +87,10 @@ export default {
       type: Object,
       default: () => {},
     },
+    configItem: {
+      type: Object,
+      default: () => {},
+    },
   },
   watch: {
     metadata: function (newValue) {
@@ -96,11 +99,14 @@ export default {
     credentialItems: function (newValue) {
       this.credentials = newValue;
     },
+    configItem: function (newValue) {
+      this.config = newValue;
+    },
   },
   computed: {
-    ...mapGetters({
-      config: "config/fullConfig",
-    }),
+    // ...mapGetters({
+    //   config: "config/fullConfig",
+    // }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -113,6 +119,7 @@ export default {
     return {
       meta: this.metadata,
       configToChange: null,
+      config: this.configItem,
       credentials: this.credentialItems,
       rules: {
         noAsterisk: (value) =>
@@ -129,6 +136,7 @@ export default {
   },
   methods: {
     handleConfig() {
+      this.configToChange.ai.enabled = this.config.ai.enabled;
       if (this.configToChange.ai.enabled) {
         this.configToChange.ai.openai = DEFAULT_OPENAI_CONFIGS;
       } else {
