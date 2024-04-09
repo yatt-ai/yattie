@@ -87,7 +87,6 @@
             :items="items"
             :selectedItems="selected"
             event-type="dblclick"
-            @activate-edit-session="activateEditSession"
           />
         </v-tab-item>
       </v-tabs-items>
@@ -242,15 +241,6 @@ export default {
     },
     updateSelected(value) {
       this.selected = value;
-    },
-    activateEditSession(value) {
-      this.openEditWindow(value);
-    },
-    openEditWindow(data) {
-      // todo we want to replace electron window with the vuetify dialog instead to make it work for both electron & web
-      if (this.$isElectron) {
-        this.$electronService.openEditWindow(data);
-      }
     },
     async back() {
       this.$store.commit("clearState");

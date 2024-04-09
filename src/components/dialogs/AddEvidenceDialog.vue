@@ -625,7 +625,6 @@ export default {
       this.emojis = this.emojis.filter((item) => item.data !== emoji.data);
     },
     async saveData() {
-      console.log("save data from AddEvidence");
       const newItem = {
         ...this.item,
         comment: this.comment,

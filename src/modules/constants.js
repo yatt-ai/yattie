@@ -25,10 +25,6 @@ export const IPC_FUNCTIONS = {
   DROP_FILE: "dropFile",
 
   SET_DEV_MODE: "setDevMode",
-  OPEN_ADD_WINDOW: "openAddWindow",
-  CLOSE_ADD_WINDOW: "closeAddWindow",
-  OPEN_EDIT_WINDOW: "openEditWindow",
-  CLOSE_EDIT_WINDOW: "closeEditWindow",
   OPEN_SETTING_WINDOW: "openSettingWindow",
   CLOSE_SETTING_WINDOW: "closeSettingWindow",
   OPEN_MINIMIZE_WINDOW: "openMinimizeWindow",
@@ -38,8 +34,6 @@ export const IPC_FUNCTIONS = {
   CLOSE_MODAL_WINDOW: "closeModalWindow",
   SET_WINDOW_SIZE: "setWindowSize",
   SET_APPEARANCE: "setAppearance",
-  OPEN_NOTES_WINDOW: "openNotesWindow",
-  CLOSE_NOTES_WINDOW: "closeNotesWindow",
   MOVE_WINDOW: "moveWindow",
 
   INITIALIZE_SESSION: "initializeSession",

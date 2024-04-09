@@ -3,11 +3,8 @@ import VueRouter from "vue-router";
 
 import HomeView from "../views/HomeView.vue";
 import MainView from "../views/MainView.vue";
-import AddEvidence from "../views/AddEvidence.vue";
-import EditEvidence from "../views/EditEvidence.vue";
 import ResultView from "../views/ResultView.vue";
 import PrintView from "../views/PrintView.vue";
-import NoteView from "../views/NoteView.vue";
 import MinimizeView from "../views/MinimizeView.vue";
 
 import AuthenticationView from "../views/AuthenticationView.vue";
@@ -31,11 +28,6 @@ import ReportsTab from "@/components/settings/ReportsTab.vue";
 import AddonsTab from "@/components/settings/AddonsTab.vue";
 import HotkeysTab from "@/components/settings/HotkeysTab.vue";
 import TagsTab from "@/components/settings/TagsTab.vue";
-
-import NoteEditorView from "../views/NoteEditorView.vue";
-import SummaryEditorView from "../views/SummaryEditorView.vue";
-import EndSessionView from "../views/EndSessionView.vue";
-import ShareOAuthView from "../views/ShareOAuthView.vue";
 
 import store from "@/store";
 
@@ -178,16 +170,6 @@ const routes = [
     ],
   },
   {
-    path: "/addEvidence",
-    name: "addEvidence",
-    component: AddEvidence,
-  },
-  {
-    path: "/EditEvidence",
-    name: "EditEvidence",
-    component: EditEvidence,
-  },
-  {
     path: "/result",
     name: "result",
     component: ResultView,
@@ -198,35 +180,10 @@ const routes = [
     component: PrintView,
   },
   {
-    path: "/note",
-    name: "note",
-    component: NoteView,
-  },
-  {
     path: "/minimize",
     name: "minimize",
     meta: { layout: "minimize" },
     component: MinimizeView,
-  },
-  {
-    path: "/noteEditor",
-    name: "noteEditor",
-    component: NoteEditorView,
-  },
-  {
-    path: "/summaryEditor",
-    name: "summaryEditor",
-    component: SummaryEditorView,
-  },
-  {
-    path: "/shareOAuth",
-    name: "shareOAuth",
-    component: ShareOAuthView,
-  },
-  {
-    path: "/endsession",
-    name: "endsession",
-    component: EndSessionView,
   },
 ];
 

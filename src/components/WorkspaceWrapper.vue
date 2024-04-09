@@ -19,7 +19,6 @@
             :items="itemLists"
             :selectedItems="selected"
             :event-type="eventName"
-            @activate-edit-session="activateEditSession"
           />
         </v-tab-item>
         <v-tab-item value="notes" :transition="false">
@@ -27,7 +26,6 @@
             :items="itemLists"
             :selectedItems="selected"
             :event-type="eventName"
-            @activate-edit-session="activateEditSession"
           />
         </v-tab-item>
       </v-tabs-items>
@@ -85,12 +83,6 @@ export default {
       eventName: this.eventType,
       currentTab: "timeline",
     };
-  },
-  methods: {
-    activateEditSession(data) {
-      // TODO - Use injection here to avoid this chain of emits
-      this.$emit("activate-edit-session", data);
-    },
   },
 };
 </script>
