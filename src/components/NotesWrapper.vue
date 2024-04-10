@@ -562,6 +562,15 @@
         </draggable>
       </div>
     </div>
+    <EditEvidenceDialog
+      v-if="itemToEdit"
+      v-model="editEvidenceDialog"
+      :item-data="itemToEdit"
+      @close="
+        editEvidenceDialog = false;
+        itemToEdit = null;
+      "
+    />
   </v-container>
 </template>
 
@@ -571,12 +580,14 @@ import { VEmojiPicker } from "v-emoji-picker";
 
 import { debounce } from "lodash";
 import { FILE_TYPES, TEXT_TYPES } from "../modules/constants";
+import EditEvidenceDialog from "@/components/dialogs/EditEvidenceDialog.vue";
 
 export default {
   name: "NotesWrapper",
   components: {
     draggable,
     VEmojiPicker,
+    EditEvidenceDialog,
   },
   props: {
     items: {
@@ -622,6 +633,8 @@ export default {
       emojiMenu: {},
       selectedId: null,
       textTypes: TEXT_TYPES,
+      editEvidenceDialog: false,
+      itemToEdit: null,
     };
   },
   created() {
@@ -713,9 +726,10 @@ export default {
         );
       }
     },
+
     async handleActivateEditSession(id) {
-      const data = await this.$storageService.getItemById(id);
-      this.$emit("activate-edit-session", data);
+      this.itemToEdit = await this.$storageService.getItemById(id);
+      this.editEvidenceDialog = true;
     },
     handleSelectedItem(id) {
       this.selectedId = id;

@@ -2,7 +2,7 @@ const { app, BrowserWindow, screen } = require("electron");
 
 let isDevelopment = process.env.NODE_ENV !== "production";
 
-let addWin, editWin, settingsWin, notesWin, modalWin;
+let settingsWin, modalWin;
 
 const browserUtility = require("./BrowserWindowUtility");
 const path = require("path");
@@ -112,113 +112,6 @@ module.exports.closeSessionAndMinimizedWindow = (data) => {
   browserUtility.setViewMode(VIEW_MODE.NORMAL);
 };
 
-module.exports.openAddWindow = ({ width, height, data }) => {
-  const parentWindow = browserUtility.getParentWindow();
-
-  const modalPath =
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:8080/#/addEvidence"
-      : `file://${__dirname}/index.html#addEvidence`;
-
-  if (!addWin) {
-    addWin = new BrowserWindow({
-      width: width,
-      height: height,
-      minWidth: width,
-      minHeight: height,
-      center: true,
-      parent: parentWindow,
-      // eslint-disable-next-line no-undef
-      icon: path.join(__static, "logo.png"),
-      webPreferences: {
-        devTools: true,
-        nodeIntegration: true,
-        webSecurity: false,
-        enableRemoteModule: true,
-        preload: path.join(app.getAppPath(), "preload.js"),
-      },
-    });
-
-    addWin.loadURL(modalPath);
-    addWin.setMenuBarVisibility(false);
-    addWin.once("ready-to-show", () => {
-      if (isDevelopment) {
-        addWin.webContents.openDevTools();
-      }
-      addWin.show();
-
-      parentWindow.webContents.send("OPEN_CHILD_WINDOW");
-    });
-
-    addWin.webContents.on("did-finish-load", () => {
-      addWin.webContents.send("ACTIVE_SESSION", data);
-    });
-
-    addWin.on("close", () => {
-      parentWindow.webContents.send("CLOSE_CHILD_WINDOW", { data: "add" });
-      addWin = null;
-    });
-  }
-};
-
-module.exports.closeAddWindow = () => {
-  const browserWindow = browserUtility.getBrowserWindow();
-  browserWindow.webContents.send("DATA_CHANGE", {});
-  addWin.close();
-};
-
-module.exports.openEditWindow = (data) => {
-  const browserWindow = browserUtility.getBrowserWindow();
-  const url =
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:8080/#/editEvidence"
-      : `file://${__dirname}/index.html#editEvidence`;
-
-  if (!editWin) {
-    editWin = new BrowserWindow({
-      width: 800,
-      height: 800,
-      minWidth: 800,
-      minHeight: 800,
-      center: true,
-      parent: browserWindow,
-      // eslint-disable-next-line no-undef
-      icon: path.join(__static, "logo.png"),
-      webPreferences: {
-        devTools: true,
-        nodeIntegration: true,
-        webSecurity: false,
-        enableRemoteModule: true,
-        preload: path.join(app.getAppPath(), "preload.js"),
-      },
-    });
-
-    editWin.loadURL(url);
-    editWin.setMenuBarVisibility(false);
-
-    editWin.once("ready-to-show", () => {
-      if (isDevelopment) {
-        editWin.webContents.openDevTools();
-      }
-      editWin.show();
-      browserWindow.webContents.send("OPEN_CHILD_WINDOW");
-    });
-
-    editWin.webContents.on("did-finish-load", () => {
-      editWin.webContents.send("ACTIVE_SESSION", data);
-    });
-
-    editWin.on("close", () => {
-      browserWindow.webContents.send("CLOSE_CHILD_WINDOW", { data: "edit" });
-      editWin = null;
-    });
-  }
-};
-
-module.exports.closeEditWindow = () => {
-  editWin.close();
-};
-
 module.exports.openSettingWindow = () => {
   const browserWindow = browserUtility.getBrowserWindow();
   const url =
@@ -326,55 +219,6 @@ module.exports.closeModalWindow = (data) => {
     parentWindow.webContents.send(data.bindKey, data.data);
   }
   modalWin.close();
-};
-
-module.exports.openNotesWindow = (data) => {
-  const browserWindow = browserUtility.getBrowserWindow();
-  const modalPath =
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:8080/#/note"
-      : `file://${__dirname}/index.html#note`;
-
-  if (!notesWin) {
-    notesWin = new BrowserWindow({
-      width: data.width,
-      height: data.height,
-      minWidth: data.width,
-      minHeight: data.height,
-      center: true,
-      parent: browserWindow,
-      // eslint-disable-next-line no-undef
-      icon: path.join(__static, "logo.png"),
-      webPreferences: {
-        devTools: true,
-        nodeIntegration: true,
-        webSecurity: false,
-        enableRemoteModule: true,
-        preload: path.join(app.getAppPath(), "preload.js"),
-      },
-    });
-
-    notesWin.loadURL(modalPath);
-    notesWin.setMenuBarVisibility(false);
-    notesWin.once("ready-to-show", () => {
-      if (isDevelopment) {
-        notesWin.webContents.openDevTools();
-      }
-      notesWin.show();
-      browserWindow.webContents.send("OPEN_CHILD_WINDOW");
-    });
-
-    notesWin.webContents.on("did-finish-load", () => {});
-
-    notesWin.on("close", () => {
-      browserWindow.webContents.send("CLOSE_CHILD_WINDOW", { data: "notes" });
-      notesWin = null;
-    });
-  }
-};
-
-module.exports.closeNotesWindow = () => {
-  notesWin.close();
 };
 
 module.exports.moveWindow = (data) => {

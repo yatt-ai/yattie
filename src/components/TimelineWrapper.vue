@@ -1074,12 +1074,7 @@ export default {
         }
       }
     },
-    async openEditorModal(data) {
-      if (this.$isElectron) {
-        // todo replace with vuetify dialog
-        await this.$electronService.openAddWindow(data);
-      }
-    },
+
     checkedItem(id) {
       return this.selected.includes(id);
     },
@@ -1160,7 +1155,8 @@ export default {
             ...item,
             timer_mark: this.$store.state.session.timer,
           };
-          await this.openEditorModal(data);
+          this.evidenceData = data;
+          this.addEvidenceDialog = true;
         }
         this.isDragging = false;
       }

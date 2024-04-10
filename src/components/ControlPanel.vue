@@ -1153,13 +1153,7 @@ export default {
           this.loaded = true;
           this.sources = data;
 
-          if (this.viewMode === "normal") {
-            this.sourcePickerDialog = true;
-          } else {
-            if (this.$isElectron) {
-              await this.$electronService.openSourcePickerWindow(this.sources);
-            }
-          }
+          this.sourcePickerDialog = true;
         } catch (err) {
           console.log(err);
         }
@@ -1196,16 +1190,10 @@ export default {
       this.shareSessionDialog = false;
     },
     showNoteDialog() {
-      if (this.viewMode === "normal") {
-        this.noteDialog = true;
-        setTimeout(() => {
-          this.$refs.noteDialog.$refs.comment.editor.commands.focus();
-        });
-      } else {
-        if (this.$isElectron) {
-          this.$electronService.openNoteEditorWindow(this.config);
-        }
-      }
+      this.noteDialog = true;
+      setTimeout(() => {
+        this.$refs.noteDialog.$refs.comment.editor.commands.focus();
+      });
     },
     hideNoteDialog() {
       this.noteDialog = false;
@@ -1347,26 +1335,14 @@ export default {
       await this.$router.push({ path: "/result" });
     },
     showSummaryDialog() {
-      if (this.viewMode === "normal") {
-        this.summaryDialog = true;
+      this.summaryDialog = true;
 
-        setTimeout(() => {
-          this.$refs.summaryDialog.$refs.comment.editor.commands.focus();
-        }, 200);
-      } else {
-        if (this.$isElectron) {
-          this.$electronService.openSummaryWindow(this.config);
-        }
-      }
+      setTimeout(() => {
+        this.$refs.summaryDialog.$refs.comment.editor.commands.focus();
+      }, 200);
     },
     showEndSessionDialog() {
-      if (this.viewMode === "normal") {
-        this.endSessionDialog = true;
-      } else {
-        if (this.$isElectron) {
-          this.$electronService.openEndSessionWindow(this.config);
-        }
-      }
+      this.endSessionDialog = true;
     },
     closeEndSessionDialog(status) {
       this.endSessionDialog = false;
@@ -1765,11 +1741,6 @@ export default {
         console.log(error);
       }
     },
-    async openAddWindow(data) {
-      if (this.$isElectron) {
-        await this.$electronService.openAddWindow(data);
-      }
-    },
     async addNote(data) {
       const stepID = uuidv4();
       let newItem = {
@@ -1827,7 +1798,6 @@ export default {
         },
         timer_mark: this.timer,
       };
-      // this.openAddWindow(data);
       this.evidenceData = data;
       this.addEvidenceDialog = true;
     },

@@ -50,14 +50,6 @@ ipcMain.handle(IPC_HANDLERS.WINDOW, async (event, args) => {
   switch (args.func) {
     case IPC_FUNCTIONS.SET_DEV_MODE:
       return windowUtility.setDevMode(args.data);
-    case IPC_FUNCTIONS.OPEN_ADD_WINDOW:
-      return windowUtility.openAddWindow(args.data);
-    case IPC_FUNCTIONS.CLOSE_ADD_WINDOW:
-      return windowUtility.closeAddWindow(args.data);
-    case IPC_FUNCTIONS.OPEN_EDIT_WINDOW:
-      return windowUtility.openEditWindow(args.data);
-    case IPC_FUNCTIONS.CLOSE_EDIT_WINDOW:
-      return windowUtility.closeEditWindow(args.data);
     case IPC_FUNCTIONS.OPEN_SETTING_WINDOW:
       return windowUtility.openSettingWindow(args.data);
     case IPC_FUNCTIONS.CLOSE_SETTING_WINDOW:
@@ -74,10 +66,6 @@ ipcMain.handle(IPC_HANDLERS.WINDOW, async (event, args) => {
       return windowUtility.openModalWindow(args.data);
     case IPC_FUNCTIONS.CLOSE_MODAL_WINDOW:
       return windowUtility.closeModalWindow(args.data);
-    case IPC_FUNCTIONS.OPEN_NOTES_WINDOW:
-      return windowUtility.openNotesWindow(args.data);
-    case IPC_FUNCTIONS.CLOSE_NOTES_WINDOW:
-      return windowUtility.closeNotesWindow();
     case IPC_FUNCTIONS.MOVE_WINDOW:
       return windowUtility.moveWindow(args.data);
     case IPC_FUNCTIONS.RESET_SESSION:
