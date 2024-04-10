@@ -13,7 +13,7 @@
           </div>
           <div class="flex-grow-0">
             <v-switch
-              :value="config.ai.enabled"
+              v-model="config.ai.enabled"
               inset
               hide-details
               dense
@@ -33,7 +33,7 @@
             solo
             :rules="[rules.rightLength, rules.noAsterisk]"
             :errorMessages="customErrors"
-            :disabled="!config.ai.enabled"
+            :disabled="!config?.ai?.enabled"
             @focus="emptyKeyOnFocus"
           >
           </v-text-field>
@@ -129,6 +129,7 @@ export default {
   },
   methods: {
     handleConfig() {
+      this.configToChange.ai.enabled = this.config.ai.enabled;
       if (this.configToChange.ai.enabled) {
         this.configToChange.ai.openai = DEFAULT_OPENAI_CONFIGS;
       } else {

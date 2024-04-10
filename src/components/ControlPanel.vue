@@ -1791,6 +1791,9 @@ export default {
         stepID: uuidv4(),
         fileType: DEFAULT_FILE_TYPES["text"].type,
         comment: value,
+        tags: [],
+        emoji: [],
+        followUp: false,
         timer_mark: this.timer,
         createdAt: Date.now(),
       };

@@ -181,7 +181,7 @@
                           type="checkbox"
                           name="follow_up"
                           class="item-select"
-                          v-model="item.followUp"
+                          :checked="item.followUp"
                           @change="handleFollowUp($event, item.stepID)"
                         />{{ $tc("caption.required_follow_up", 1) }}
                       </label>
@@ -322,7 +322,7 @@
                           type="checkbox"
                           name="follow_up"
                           class="item-select"
-                          v-model="item.followUp"
+                          :checked="item.followUp"
                           @change="handleFollowUp($event, item.stepID)"
                         />{{ $tc("caption.required_follow_up", 1) }}
                       </label>
@@ -461,7 +461,7 @@
                           type="checkbox"
                           name="follow_up"
                           class="item-select"
-                          v-model="item.followUp"
+                          :checked="item.followUp"
                           @change="handleFollowUp($event, item.stepID)"
                         />{{ $tc("caption.required_follow_up", 1) }}
                       </label>
@@ -593,7 +593,7 @@
                           type="checkbox"
                           name="follow_up"
                           class="item-select"
-                          v-model="item.followUp"
+                          :checked="item.followUp"
                           @change="handleFollowUp($event, item.stepID)"
                         />{{ $tc("caption.required_follow_up", 1) }}
                       </label>
@@ -734,7 +734,7 @@
                           type="checkbox"
                           name="follow_up"
                           class="item-select"
-                          v-model="item.followUp"
+                          :checked="item.followUp"
                           @change="handleFollowUp($event, item.stepID)"
                         />{{ $tc("caption.required_follow_up", 1) }}
                       </label>
@@ -783,6 +783,90 @@
                         {{ item.comment.type }}:
                       </span>
                       <span v-html="item.comment.content"></span>
+                    </div>
+                    <div v-if="item.tags.length" class="tags-wrapper my-2">
+                      <v-chip
+                        v-for="(tag, i) in item.tags"
+                        :key="i"
+                        class="tag"
+                        small
+                        color="#fee2e2"
+                        text-color="#991b1b"
+                      >
+                        {{ tag.text }}
+                      </v-chip>
+                    </div>
+                    <div class="actions-wrapper">
+                      <template v-if="item.emoji.length">
+                        <v-btn
+                          rounded
+                          color="primary"
+                          class="pa-0 mb-1"
+                          height="26"
+                          min-width="45"
+                          style=""
+                          v-for="(emoji, i) in item.emoji"
+                          :key="i"
+                          @click="removeEmoji(item.stepID, emoji)"
+                        >
+                          <span class="emoji-icon">{{ emoji.data }}</span>
+                          <v-icon x-small>mdi-close</v-icon>
+                        </v-btn>
+                      </template>
+
+                      <v-menu
+                        v-model="emojiMenu[`menu-` + item.stepID]"
+                        :close-on-content-click="false"
+                        right
+                        bottom
+                        nudge-bottom="4"
+                        offset-y
+                      >
+                        <template v-slot:activator="{ on: menu }">
+                          <v-tooltip bottom>
+                            <template v-slot:activator="{ on: tooltip }">
+                              <v-btn
+                                rounded
+                                class="pa-0 mb-1"
+                                height="26"
+                                min-width="35"
+                                v-on="{
+                                  ...menu,
+                                  ...tooltip,
+                                }"
+                                @click="handleSelectedItem(item.stepID)"
+                              >
+                                <img
+                                  :src="
+                                    require('../assets/icon/add-emoticon.svg')
+                                  "
+                                  width="24"
+                                  height="24"
+                                />
+                              </v-btn>
+                            </template>
+                            <span>{{ $tc("caption.add_reaction", 1) }}</span>
+                          </v-tooltip>
+                        </template>
+                        <v-card class="emoji-lookup">
+                          <VEmojiPicker
+                            labelSearch="Search"
+                            lang="en-US"
+                            @select="selectEmoji"
+                          />
+                        </v-card>
+                      </v-menu>
+                    </div>
+                    <div class="check-box mt-1">
+                      <label
+                        ><input
+                          type="checkbox"
+                          name="follow_up"
+                          class="item-select"
+                          :checked="item.followUp"
+                          @change="handleFollowUp($event, item.stepID)"
+                        />{{ $tc("caption.required_follow_up", 1) }}
+                      </label>
                     </div>
                   </div>
                 </v-timeline-item>
@@ -973,7 +1057,6 @@ export default {
       return hours + ":" + minutes + ":" + seconds;
     },
     async uploadEvidence() {
-      console.log("upload evidence");
       // todo add relative handler for web app
       if (this.$isElectron) {
         const { status, message, item } =
@@ -1035,7 +1118,7 @@ export default {
     },
     handleFollowUp($event, id) {
       this.itemLists = this.itemLists.map((item) => {
-        let temp = Object.assign({}, item);
+        let temp = structuredClone(item);
         if (temp.stepID === id) {
           temp.followUp = $event.target.checked;
         }
@@ -1106,7 +1189,7 @@ export default {
       this.emojiMenu[`menu-${this.selectedId}`] = false;
 
       this.itemLists = this.itemLists.map((item) => {
-        let temp = Object.assign({}, item);
+        let temp = structuredClone(item);
         if (temp.stepID === this.selectedId) {
           if (temp.emoji.filter((item) => item.data === emoji.data).length) {
             temp.emoji = temp.emoji.filter((item) => item.data !== emoji.data);
@@ -1120,7 +1203,7 @@ export default {
     },
     removeEmoji(id, emoji) {
       this.itemLists = this.itemLists.map((item) => {
-        let temp = Object.assign({}, item);
+        let temp = structuredClone(item);
         if (temp.stepID === id) {
           temp.emoji = temp.emoji.filter((item) => item.data !== emoji.data);
         }
