@@ -223,7 +223,6 @@ export default {
       const uri = this.wavesurfer.exportImage("image/png", 1, "dataURL");
 
       if (this.$isElectron) {
-        // todo add web handler
         let posterResult = await this.$electronService.createImage(uri, true);
 
         if (posterResult.status === STATUSES.ERROR) {
@@ -248,6 +247,8 @@ export default {
         };
       } else {
         let posterResult = createImageForWeb(uri);
+        console.log(posterResult.item.filePath);
+        // todo use this logic to recreate the item on timeline
         this.sessionItem = {
           ...this.sessionItem,
           poster: posterResult.item.filePath,

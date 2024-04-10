@@ -359,9 +359,7 @@
                       <div class="audio-wave">
                         <img
                           :src="
-                            $isElectron
-                              ? `file://${item.poster}`
-                              : `${item.poster}`
+                            $isElectron ? `file://${item.poster}` : item.poster
                           "
                         />
                       </div>
@@ -864,6 +862,7 @@ import dayjs from "dayjs";
 import { STATUSES, TEXT_TYPES, FILE_TYPES } from "@/modules/constants";
 import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 import EditEvidenceDialog from "@/components/dialogs/EditEvidenceDialog.vue";
+import WaveSurfer from "wavesurfer.js";
 
 export default {
   name: "TimelineWrapper",
@@ -896,13 +895,21 @@ export default {
   },
   watch: {
     items: {
-      handler(newValue) {
+      async handler(newValue) {
         this.itemLists = newValue;
         let newMap = { ...this.emojiMenu };
-        this.itemLists.map((item) => {
+        this.itemLists.map(async (item) => {
           newMap[`menu-${item.stepID}`] = false;
         });
         this.emojiMenu = newMap;
+
+        if (!this.$isElectron) {
+          for (let item of this.itemLists) {
+            if (item.fileType === "audio/mp3") {
+              item.poster = await this.generatePoster(item.filePath);
+            }
+          }
+        }
       },
       immediate: true,
     },
@@ -930,6 +937,7 @@ export default {
       addEvidenceDialog: false,
       evidenceData: null,
       editEvidenceDialog: false,
+      posterUrl: null,
     };
   },
   computed: {
@@ -1122,6 +1130,49 @@ export default {
     },
     async saveData() {
       await this.$store.commit("setSessionItems", this.itemLists);
+    },
+    generatePoster(audioFilePath) {
+      return new Promise((resolve, reject) => {
+        const waveSurfer = WaveSurfer.create({
+          container: document.createElement("div"),
+          waveColor: "#6B7280",
+          progressColor: "hsla(200, 100%, 30%, 0.5)",
+          cursorColor: "#000",
+          barWidth: 3,
+        });
+
+        waveSurfer.load(audioFilePath);
+
+        waveSurfer.on("ready", () => {
+          const peaks = waveSurfer.backend.getPeaks(512);
+          if (!peaks) {
+            reject("No peaks data available.");
+            waveSurfer.destroy();
+            return;
+          }
+
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          canvas.width = 512;
+          canvas.height = 128;
+
+          context.fillStyle = "#8e8e8e";
+          peaks.forEach((peak, index) => {
+            const h = peak * canvas.height;
+            context.fillRect(index, canvas.height / 2 - h / 2, 1, h);
+          });
+
+          const dataURL = canvas.toDataURL("image/png");
+          resolve(dataURL);
+
+          waveSurfer.destroy();
+        });
+
+        waveSurfer.on("error", (error) => {
+          console.error("Error with WaveSurfer:", error);
+          reject(error);
+        });
+      });
     },
   },
 };
