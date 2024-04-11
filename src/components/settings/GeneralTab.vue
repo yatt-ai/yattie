@@ -248,17 +248,10 @@ export default {
       type: Object,
       default: () => {},
     },
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
   },
   watch: {
     metadata: function (newValue) {
       this.meta = newValue;
-    },
-    configItem: function (newValue) {
-      this.config = newValue;
     },
     color: function (newValue, oldValue) {
       if (newValue === oldValue) return;
@@ -269,6 +262,7 @@ export default {
   },
   computed: {
     ...mapGetters({
+      config: "config/fullConfig",
       credentials: "auth/credentials",
     }),
     serverOAuthCredentials() {
@@ -306,14 +300,13 @@ export default {
       deleteConfirmDialog: false,
       shareOauthDialog: false,
       meta: this.metadata,
-      config: this.configItem,
       comment: {
         type: "Comment",
         content: "",
         text: "",
       },
       menu: false,
-      color: this.configItem.defaultColor,
+      color: this.config?.defaultColor,
       commentTypes: Object.keys(TEXT_TYPES).filter(
         (item) => item !== "Summary"
       ),

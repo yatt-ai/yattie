@@ -26,7 +26,7 @@
           <div class="pa-2">
             <JiraAddIssueForm
               :in-dialog="true"
-              :credential-items="credentialItems"
+              :credential-items="credentials"
               :items="items"
               :selected="selected"
               :trigger-save="triggerJiraSaveTicket"
@@ -72,31 +72,18 @@
 
 <script>
 import JiraAddIssueForm from "@/components/jira/JiraAddIssueForm.vue";
+import { mapGetters } from "vuex";
 
 export default {
   name: "JiraAddIssue",
   components: { JiraAddIssueForm },
   props: {
-    credentialItems: {
-      type: Array,
-      default: () => [],
-    },
-    items: {
-      type: Array,
-      default: () => [],
-    },
     selected: {
       type: Array,
       default: () => [],
     },
   },
   watch: {
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
-    items: function (newValue) {
-      this.itemLists = newValue;
-    },
     selected: function (newValue) {
       this.selectedIds = newValue;
     },
@@ -104,14 +91,16 @@ export default {
   data() {
     return {
       triggerJiraSaveTicket: false,
-      credentials: this.credentialItems,
-      itemLists: this.items,
       selectedIds: this.selected ? this.selected : [],
       dialog: false,
       loading: false,
     };
   },
   computed: {
+    ...mapGetters({
+      credentials: "auth/credentials",
+      items: "sessionItems",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;

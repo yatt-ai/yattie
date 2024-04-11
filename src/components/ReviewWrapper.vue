@@ -51,6 +51,7 @@ import MindmapEditor from "./MindmapEditor.vue";
 
 import { STATUSES, FILE_TYPES } from "../modules/constants";
 import { updateImageForWeb } from "@/helpers/WebHelpers";
+import { mapGetters } from "vuex";
 
 export default {
   name: "ReviewWrapper",
@@ -82,10 +83,6 @@ export default {
       type: String,
       default: () => "",
     },
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
   },
   watch: {
     item: function (newValue) {
@@ -97,9 +94,6 @@ export default {
     autoSave: function (newValue) {
       this.autoSaveEvent = newValue;
     },
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
   },
   data() {
     return {
@@ -107,8 +101,12 @@ export default {
       triggerSaveEvent: this.triggerSave,
       autoSaveEvent: this.autoSave,
       currentViewName: this.currentView,
-      config: this.configItem,
     };
+  },
+  computed: {
+    ...mapGetters({
+      config: "config/fullConfig",
+    }),
   },
   methods: {
     getType(type) {

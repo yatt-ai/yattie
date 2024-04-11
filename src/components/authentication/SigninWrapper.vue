@@ -157,34 +157,18 @@ export default {
   name: "SigninWrapper",
   components: {},
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
     prevRoute: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
     prevRoute: function (newValue) {
       this.previousRoute = newValue;
     },
   },
   data() {
     return {
-      config: this.configItem,
-      credentials: this.credentialItems,
       previousRoute: this.prevRoute,
       loading: false,
       snackBar: {

@@ -87,21 +87,14 @@
   </v-container>
 </template>
 <script>
+import { mapGetters } from "vuex";
 export default {
   name: "ReportsTab",
   components: {},
-  props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-  },
   computed: {
+    ...mapGetters({
+      config: "config/fullConfig",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -112,7 +105,6 @@ export default {
   },
   data() {
     return {
-      config: this.configItem,
       reportLogo: false,
       logoPath: "",
       chosenFile: null,

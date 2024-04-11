@@ -26,35 +26,26 @@
 
 <script>
 import LogoWrapper from "../LogoWrapper.vue";
+import { mapGetters } from "vuex";
+
 export default {
   name: "AudioErrorDialog",
   components: {
     LogoWrapper,
   },
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
     title: String,
     text: String,
   },
   data() {
-    return {
-      config: this.configItem,
-    };
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
+    return {};
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+    }),
     cancelHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.cancel",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.cancel", this.hotkeys);
     },
     currentTheme() {
       if (this.$vuetify.theme.dark) {

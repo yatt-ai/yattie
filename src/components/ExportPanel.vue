@@ -131,6 +131,7 @@
 import XrayExportSession from "./xray/XrayExportSession";
 import ZephyrSquadExportSession from "./zephyr/ZephyrSquadExportSession";
 import ZephyrScaleExportSession from "./zephyr/ZephyrScaleExportSession";
+import { mapGetters } from "vuex";
 
 export default {
   name: "ExportPanel",
@@ -141,37 +142,18 @@ export default {
     ZephyrSquadExportSession,
     ZephyrScaleExportSession,
   },
-  props: {
-    items: {
-      type: Array,
-      default: () => [],
-    },
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
-  },
-  watch: {
-    items: function (newValue) {
-      this.itemLists = newValue;
-    },
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
+  props: {},
+
+  computed: {
+    ...mapGetters({
+      itemLists: "sessionItems",
+      config: "config/fullConfig",
+      credentials: "auth/credentials",
+    }),
   },
   data() {
     return {
       exportSessionDialog: false,
-      itemLists: this.items,
-      config: this.configItem,
-      credentials: this.credentialItems,
       evidenceExportDestinationMenu: false,
     };
   },

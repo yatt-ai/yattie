@@ -245,20 +245,8 @@ export default {
   components: {
     ConnectionPanel: () => import("../ConnectionPanel.vue"),
   },
-  props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-  },
   data() {
     return {
-      config: this.configItem,
       row: null,
       color: "#1976D2FF",
       mask: "!#XXXXXXXX",
@@ -278,6 +266,7 @@ export default {
       };
     },
     ...mapGetters({
+      config: "config/fullConfig",
       credentials: "auth/credentials",
     }),
     currentTheme() {

@@ -947,6 +947,7 @@ import { STATUSES, TEXT_TYPES, FILE_TYPES } from "@/modules/constants";
 import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 import EditEvidenceDialog from "@/components/dialogs/EditEvidenceDialog.vue";
 import WaveSurfer from "wavesurfer.js";
+import { mapGetters } from "vuex";
 
 export default {
   name: "TimelineWrapper",
@@ -964,10 +965,6 @@ export default {
     draggable,
   },
   props: {
-    items: {
-      type: Array,
-      default: () => [],
-    },
     selectedItems: {
       type: Array,
       default: () => [],
@@ -979,8 +976,8 @@ export default {
   },
   watch: {
     items: {
-      async handler(newValue) {
-        this.itemLists = newValue;
+      async handler() {
+        this.itemLists = this.items;
         let newMap = { ...this.emojiMenu };
         this.itemLists.map(async (item) => {
           newMap[`menu-${item.stepID}`] = false;
@@ -1025,6 +1022,9 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      items: "sessionItems",
+    }),
     status() {
       return this.$store.state.session.status;
     },
