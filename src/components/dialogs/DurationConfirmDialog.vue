@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import LogoWrapper from "../LogoWrapper.vue";
 export default {
   name: "DurationConfirmDialog",
@@ -43,35 +44,21 @@ export default {
     LogoWrapper,
   },
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
     title: String,
     text: String,
   },
   data() {
-    return {
-      config: this.configItem,
-    };
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
+    return {};
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+    }),
     proceedHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.save",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
     },
     endHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.cancel",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.cancel", this.hotkeys);
     },
     currentTheme() {
       if (this.$vuetify.theme.dark) {

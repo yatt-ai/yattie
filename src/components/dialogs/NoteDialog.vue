@@ -238,14 +238,6 @@ export default {
       type: Boolean,
       require: true,
     },
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
   },
   watch: {
     isVisible(newVal) {
@@ -253,33 +245,28 @@ export default {
         this.getAllTags();
       }
     },
-    configItem: function (newValue) {
-      this.config = newValue;
+    config: function () {
       this.resetData();
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
     },
   },
   data() {
     return {
-      config: this.configItem,
       comment: {
         type:
-          this.configItem &&
-          this.configItem.commentType &&
-          this.configItem.commentType !== ""
-            ? this.configItem.commentType
+          this.config &&
+          this.config.commentType &&
+          this.config.commentType !== ""
+            ? this.config.commentType
             : "Comment",
         content: "",
         text: "",
       },
       previousComment: {
         type:
-          this.configItem &&
-          this.configItem.commentType &&
-          this.configItem.commentType !== ""
-            ? this.configItem.commentType
+          this.config &&
+          this.config.commentType &&
+          this.config.commentType !== ""
+            ? this.config.commentType
             : "Comment",
         content: "",
         text: "",
@@ -298,6 +285,9 @@ export default {
   },
   computed: {
     ...mapGetters({
+      config: "config/fullConfig",
+      credentials: "auth/credentials",
+      hotkeys: "config/hotkeys",
       defaultTags: "config/defaultTags",
       sessionItems: "sessionItems",
     }),
@@ -311,16 +301,10 @@ export default {
         });
     },
     confirmHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.save",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
     },
     cancelHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.cancel",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.cancel", this.hotkeys);
     },
     aiAssistEnabled() {
       return this?.config?.ai?.enabled || false;

@@ -179,23 +179,12 @@ export default {
       type: String,
       default: () => "",
     },
-    credentialItems: {
-      type: Array,
-      default: () => [],
-    },
-    items: {
-      type: Array,
-      default: () => [],
-    },
     selected: {
       type: Array,
       default: () => [],
     },
   },
   watch: {
-    items: function (newValue) {
-      this.itemLists = newValue;
-    },
     selected: function (newValue) {
       this.selectedIds = newValue;
     },
@@ -207,7 +196,6 @@ export default {
       testExecutionLoading: true,
       testRunLoading: true,
       dialog: false,
-      itemLists: this.items,
       selectedIds: this.selected ? this.selected : [],
       search: "",
       testExecutions: [],
@@ -229,6 +217,7 @@ export default {
     },
     ...mapGetters({
       credentials: "auth/credentials",
+      itemLists: "sessionItems",
     }),
     disableDiscard() {
       return (

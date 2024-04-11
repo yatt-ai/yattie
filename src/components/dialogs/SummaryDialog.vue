@@ -144,26 +144,14 @@ export default {
   name: "SummaryDialog",
   components: {},
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
     summary: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-      this.isRequired = this.config.summaryRequired;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
+    config: function () {
+      this.isRequired = this.config?.summaryRequired;
     },
     summary: function (newValue) {
       if (Object.keys(newValue).length) {
@@ -174,7 +162,6 @@ export default {
   },
   data() {
     return {
-      config: this.configItem,
       comment: {
         type: "Summary",
         content: "",
@@ -187,7 +174,7 @@ export default {
       },
       commentLoading: false,
       commentTypes: Object.keys(TEXT_TYPES),
-      isRequired: this.configItem.summaryRequired,
+      isRequired: this.config?.summaryRequired,
       isEmpty: false,
     };
   },
@@ -196,6 +183,8 @@ export default {
   },
   computed: {
     ...mapGetters({
+      config: "config/fullConfig",
+      credentials: "auth/credentials",
       hotkeys: "config/hotkeys",
     }),
     confirmHotkey() {

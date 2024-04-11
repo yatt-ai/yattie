@@ -9,24 +9,15 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   name: "SupportTab",
   components: {},
-  props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-  },
-  data() {
-    return {
-      config: this.configItem,
-    };
+  computed: {
+    ...mapGetters({
+      config: "config/fullConfig",
+    }),
   },
   methods: {
     handleConfig() {

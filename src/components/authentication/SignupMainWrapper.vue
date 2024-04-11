@@ -147,39 +147,24 @@
 <script>
 import axios from "axios";
 import dayjs from "dayjs";
+import { mapGetters } from "vuex";
 
 export default {
   name: "SignupMainWrapper",
   components: {},
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
     prevRoute: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
     prevRoute: function (newValue) {
       this.previousRoute = newValue;
     },
   },
   data() {
     return {
-      config: this.configItem,
-      credentials: this.credentialItems,
       previousRoute: this.prevRoute,
       loading: false,
       snackBar: {
@@ -188,7 +173,11 @@ export default {
       },
     };
   },
-  computed: {},
+  computed: {
+    ...mapGetters({
+      credentials: "auth/credentials",
+    }),
+  },
   mounted() {
     if (this.$isElectron) {
       this.$electronService.onJiraLogin(this.jiraLogin);

@@ -129,6 +129,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import jiraIntegrationHelper from "../../integrations/JiraIntegrationHelpers";
 
 export default {
@@ -139,26 +140,12 @@ export default {
       type: String,
       default: () => "",
     },
-    credentialItems: {
-      type: Array,
-      default: () => [],
-    },
-    items: {
-      type: Array,
-      default: () => [],
-    },
     selected: {
       type: Array,
       default: () => [],
     },
   },
   watch: {
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
-    items: function (newValue) {
-      this.itemLists = newValue;
-    },
     selected: function (newValue) {
       this.selectedIds = newValue;
     },
@@ -167,8 +154,6 @@ export default {
     return {
       loading: false,
       dialog: false,
-      credentials: this.credentialItems,
-      itemLists: this.items,
       selectedIds: this.selected ? this.selected : [],
       search: "",
       issues: [],
@@ -180,6 +165,10 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      itemLists: "sessionItems",
+      credentials: "auth/credentials",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;

@@ -33,12 +33,16 @@
   </v-container>
 </template>
 <script>
+import { mapGetters } from "vuex";
 import NotesWrapper from "./NotesWrapper.vue";
 import TimelineWrapper from "./TimelineWrapper.vue";
 
 export default {
   name: "WorkspaceWrapper",
   computed: {
+    ...mapGetters({
+      itemLists: "sessionItems",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -52,10 +56,6 @@ export default {
     TimelineWrapper,
   },
   props: {
-    items: {
-      type: Array,
-      default: () => [],
-    },
     selectedItems: {
       type: Array,
       default: () => [],
@@ -66,9 +66,6 @@ export default {
     },
   },
   watch: {
-    items: function (newValue) {
-      this.itemLists = newValue;
-    },
     selectedItems: function (newValue) {
       this.selected = newValue;
     },
@@ -78,7 +75,6 @@ export default {
   },
   data() {
     return {
-      itemLists: this.items,
       selected: this.selectedItems,
       eventName: this.eventType,
       currentTab: "timeline",

@@ -249,6 +249,7 @@
 <script>
 import axios from "axios";
 import dayjs from "dayjs";
+import { mapGetters } from "vuex";
 export default {
   name: "TestRailExportSession",
   components: {},
@@ -257,26 +258,12 @@ export default {
       type: String,
       default: () => "",
     },
-    credentialItems: {
-      type: Array,
-      default: () => [],
-    },
-    items: {
-      type: Array,
-      default: () => [],
-    },
     selected: {
       type: Array,
       default: () => [],
     },
   },
   watch: {
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
-    items: function (newValue) {
-      this.itemLists = newValue;
-    },
     selected: function (newValue) {
       this.selectedIds = newValue;
     },
@@ -292,8 +279,6 @@ export default {
       testLoading: true,
       resultLoading: true,
       dialog: false,
-      credentials: this.credentialItems,
-      itemLists: this.items,
       selectedIds: this.selected ? this.selected : [],
       search: "",
       projects: [],
@@ -309,6 +294,10 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      itemLists: "sessionItems",
+      credentials: "auth/credentials",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
