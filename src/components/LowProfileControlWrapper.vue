@@ -169,7 +169,7 @@
 <script>
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
 export default {
-  name: "MinimizeControlWrapper",
+  name: "LowProfileControlWrapper",
   props: {
     pElapsedTime: {
       type: String,
@@ -280,7 +280,9 @@ export default {
   border-radius: 6px;
   display: flex;
   flex-direction: row;
-  width: 100%;
+  position: absolute;
+  right: 0px;
+  width: 480px;
   height: 50px;
   overflow: hidden;
 }

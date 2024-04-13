@@ -54,10 +54,10 @@ ipcMain.handle(IPC_HANDLERS.WINDOW, async (event, args) => {
       return windowUtility.openSettingWindow(args.data);
     case IPC_FUNCTIONS.CLOSE_SETTING_WINDOW:
       return windowUtility.closeSettingWindow(args.data);
-    case IPC_FUNCTIONS.OPEN_MINIMIZE_WINDOW:
-      return windowUtility.openMinimizeWindow(args.data);
-    case IPC_FUNCTIONS.CLOSE_MINIMIZE_WINDOW:
-      return windowUtility.closeMinimizeWindow(args.data);
+    case IPC_FUNCTIONS.OPEN_LOWPROFILE_WINDOW:
+      return windowUtility.openLowProfileWindow(args.data);
+    case IPC_FUNCTIONS.CLOSE_LOWPROFILE_WINDOW:
+      return windowUtility.closeLowProfileWindow(args.data);
     case IPC_FUNCTIONS.CLOSE_SESSION_AND_MINIIMIZED_WINDOW:
       return windowUtility.closeSessionAndMinimizedWindow(args.data);
     case IPC_FUNCTIONS.SET_WINDOW_SIZE:
