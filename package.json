@@ -82,7 +82,7 @@
     "@vue/vue2-jest": "^27.0.0-alpha.2",
     "babel-jest": "^27.0.6",
     "electron": "^13.0.0",
-    "electron-builder-notarize": "yatt-ai/electron-builder-notarize",
+    "electron-builder-notarize": "^1.5.2",
     "electron-devtools-installer": "^3.1.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
