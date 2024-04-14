@@ -62,6 +62,15 @@ jobs:
         #APPLE_TEAM_ID: ${{ secrets.team_id }}
       run: |
         npm run publish
+    - if: ${{ failure() }}
+      run: |
+        echo "###########################################";
+        echo "Printing logs from failure";
+        echo "###########################################";
+        echo "";
+        echo "###########";
+        cat notarization-error.log;
+        echo "###########";
 
   publish_on_arm64_mac:
     runs-on: flyci-macos-large-latest-m2 
