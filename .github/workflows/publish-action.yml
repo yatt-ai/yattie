@@ -59,7 +59,6 @@ jobs:
         APPLE_API_KEY: "~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8"
         APPLE_API_KEY_ID: ${{ secrets.api_key_id }}
         APPLE_API_KEY_ISSUER: ${{ secrets.api_key_issuer_id }}
-        #APPLE_TEAM_ID: ${{ secrets.team_id }}
       run: |
         npm run publish
     - if: ${{ failure() }}
@@ -93,18 +92,26 @@ jobs:
     - name: Prep key for app notarization
       run: |
         mkdir -p ~/private_keys/
-        echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
+        echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8"
     - name: Publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         CSC_LINK: ${{ secrets.mac_csc_link }}
         CSC_KEY_PASSWORD: ${{ secrets.mac_csc_key_password }}
-        APPLE_API_KEY: ${{ secrets.api_key_id }}
+        APPLE_API_KEY: "~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8"
         APPLE_API_KEY_ID: ${{ secrets.api_key_id }}
         APPLE_API_KEY_ISSUER: ${{ secrets.api_key_issuer_id }}
-        APPLE_TEAM_ID: ${{ secrets.team_id }}
       run: |
         npm run publish
+    - if: ${{ failure() }}
+      run: |
+        echo "###########################################";
+        echo "Printing logs from failure";
+        echo "###########################################";
+        echo "";
+        echo "###########";
+        cat notarization-error.log;
+        echo "###########";
       
   publish_on_win:
     runs-on: windows-latest
