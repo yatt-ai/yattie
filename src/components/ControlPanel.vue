@@ -1233,6 +1233,7 @@ export default {
       });
     },
     async startSession(id = null) {
+      console.log(this.$store.state);
       if (this.$isElectron) {
         this.sourceId = id;
       }

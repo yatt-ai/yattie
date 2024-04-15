@@ -330,7 +330,17 @@ export default {
           this.credentials.jira &&
           this.credentials.jira.length > 0
         ) {
-          yjsIntegrationHelper.connectToRoom(this.credentials.jira[0].user.id);
+          const state = yjsIntegrationHelper.connectToRoom(
+            this.credentials.jira[0].user.id
+          );
+
+          console.log("First login");
+          console.log({ state });
+
+          // Update state so the client gets updated immediately
+          if (state) {
+            this.$store.updateFromNetwork(state);
+          }
         }
       }
 

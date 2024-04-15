@@ -126,6 +126,7 @@ import ControlPanel from "../components/ControlPanel.vue";
 import TimeCounter from "../components/TimeCounter.vue";
 import CheckTaskWrapper from "@/components/CheckTaskWrapper.vue";
 import MenuPopover from "@/components/MenuPopover.vue";
+import yjsIntegrationHelper from "../integrations/YjsIntegrationHelper";
 
 import { SESSION_STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
@@ -245,6 +246,7 @@ export default {
     async back() {
       this.$store.commit("clearState");
       await this.$storageService.resetData();
+      yjsIntegrationHelper.resetData();
       await this.$router.push("/");
     },
     handleResetConfirmDialog() {
