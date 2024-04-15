@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import VuexPersist from "vuex-persist";
+import yjsIntegrationHelper from "@/integrations/YjsIntegrationHelper";
 
 import {
   SESSION_STATUSES,
@@ -257,6 +258,7 @@ const store = new Vuex.Store({
         content: "",
         text: "",
       };
+      yjsIntegrationHelper.updateRoomState(state);
       this._vm.$storageService.updateState(state);
     },
 

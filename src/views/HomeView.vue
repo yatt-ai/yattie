@@ -242,6 +242,7 @@
 import { VContainer, VBtn } from "vuetify/lib/components";
 import LogoWrapper from "../components/LogoWrapper.vue";
 import MenuPopover from "../components/MenuPopover.vue";
+import yjsIntegrationHelper from "../integrations/YjsIntegrationHelper";
 
 import { STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
@@ -322,6 +323,17 @@ export default {
       }
     },
     handleQuickTest() {
+      if (this.isAuthenticated && yjsIntegrationHelper.doc === null) {
+        // Testing with only JIRA users
+        if (
+          this.credentials &&
+          this.credentials.jira &&
+          this.credentials.jira.length > 0
+        ) {
+          yjsIntegrationHelper.connectToRoom(this.credentials.jira[0].user.id);
+        }
+      }
+
       this.$store.commit("startQuickTest");
       this.$router.push("/main/workspace");
     },
