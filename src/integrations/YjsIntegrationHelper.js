@@ -1,6 +1,5 @@
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
-// import Vue from "vue";
 import store from "../store/index";
 
 // Todo: Figure this out
@@ -27,48 +26,28 @@ export default {
   },
 
   updateRoomState(state) {
-    if (!this.doc) this.connectToRoom(state.credentials.jira[0].user.id);
+    if (
+      !this.doc &&
+      state.credentials &&
+      state.credentials.jira &&
+      state.credentials.jira.length > 0
+    ) {
+      this.connectToRoom(state.credentials.jira[0].user.id);
+    }
 
     if (!this.doc.getArray("stateArray").get(0)) {
       this.doc.getArray("stateArray").insert(0, [state]);
+    } else {
+      this.doc.getArray("stateArray").insert(0, [state]);
     }
-
-    this.doc.getArray("stateArray").insert(0, [state]);
 
     const yarray = this.doc.getArray("stateArray");
 
     yarray.observe((event) => {
-      // print updates when the data changes
-      console.log({
-        event,
-        x: event.currentTarget,
-        // This is the most necessary bit, now to share it
-        xx: event.currentTarget.doc.share.get("stateArray").get(0),
-      });
-
-      // Vue.prototype.$store.commit(
-      //   "updateFromNetwork",
-      //   event.currentTarget.doc.share.get("stateArray").get(0)
-      // );
-
-      // import { store } from "../store/index";
-
-      // Then use it directly
       store.commit(
         "updateFromNetwork",
         event.currentTarget.doc.share.get("stateArray").get(0)
       );
-
-      // console.log(typeof store.commit);
-
-      // store.mutations.updateFromNetwork(
-      //   event.currentTarget.doc.share.get("stateArray").get(0)
-      // );
-
-      // this.doc.on('update', () => {
-      //   const updatedState = this.doc.getArray("stateArray").toJSON();
-      //   Vue.prototype.$store.commit('updateFromNetwork', updatedState);
-      // });
     });
   },
 

@@ -1051,6 +1051,9 @@ export default {
     };
   },
   mounted() {
+    console.log("Control Panel Mounted");
+    console.log(this.$store.state);
+
     if (this.$isElectron) {
       this.$electronService.onNewSession(this.newSession);
       this.$electronService.onSaveSession(this.handleSaveConfirmDialog);
@@ -1233,7 +1236,9 @@ export default {
       });
     },
     async startSession(id = null) {
+      console.log("About to start session");
       console.log(this.$store.state);
+      
       if (this.$isElectron) {
         this.sourceId = id;
       }

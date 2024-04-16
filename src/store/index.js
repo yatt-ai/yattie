@@ -267,6 +267,7 @@ const store = new Vuex.Store({
     },
 
     updateFromNetwork(state) {
+      console.log("Called with state", state);
       this._vm.$storageService.updateState(state);
     },
 
