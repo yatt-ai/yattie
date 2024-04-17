@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <div class="mini-ctrl-wrapper" v-if="viewMode === 'mini'">
-      <!--<MinimizeControlWrapper
+      <LowProfileControlWrapper
         :p-elapsed-time="elapsedTime"
         :p-status="status"
         @pause-session="pauseSession()"
@@ -15,7 +15,7 @@
         @show-note-dialog="showNoteDialog()"
         @show-mindmap-dialog="addMindmap()"
         @show-source-picker="showSourcePickerDialog()"
-      />-->
+      />
     </div>
     <div className="nml-ctrl-wrapper" v-if="viewMode === 'normal'">
       <v-row class="text-center" v-if="status === 'pending'">
@@ -563,7 +563,7 @@
             </template>
             <span>{{ $tc("caption.mind_map", 1) }}</span>
           </v-tooltip>
-          <!--<v-tooltip top>
+          <v-tooltip top>
             <template v-slot:activator="{ on }">
               <v-btn
                 class="control-btn mx-1"
@@ -589,7 +589,7 @@
               </v-btn>
             </template>
             <span>{{ $tc("caption.minimize", 1) }}</span>
-          </v-tooltip>-->
+          </v-tooltip>
           <v-menu offset-y>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
@@ -691,94 +691,94 @@
           </v-menu>
         </v-col>
       </v-row>
-      <SourcePickerDialog
-        v-model="sourcePickerDialog"
-        :sources="sources"
-        :sourceId="sourceId"
-        :loaded="loaded"
-        @submit-source="startSession"
-      />
-      <ShareSessionDialog
-        v-if="isShareSessionAllowed"
-        v-model="shareSessionDialog"
-        :session-link="sessionLink"
-        :credentialItems="credentials"
-        :configItem="config"
-      />
-      <NoteDialog
-        v-model="noteDialog"
-        ref="noteDialog"
-        :isVisible="noteDialog"
-        :configItem="config"
-        :credentialItems="credentials"
-        @submit-note="addNote"
-      />
-      <SummaryDialog
-        ref="summaryDialog"
-        v-model="summaryDialog"
-        :configItem="config"
-        :credentialItems="credentials"
-        :summary="summary"
-        @submit-summary="addSummary"
-      />
-      <DeleteConfirmDialog
-        v-model="deleteConfirmDialog"
-        ref="deleteConfirmDialog"
-        :text="$t('message.confirm_delete')"
-        :configItem="config"
-        @confirm="deleteItems"
-        @cancel="deleteConfirmDialog = false"
-      />
-      <ResetConfirmDialog
-        v-model="resetConfirmDialog"
-        ref="resetConfirmDialog"
-        :text="$t('message.confirm_reset')"
-        @confirm="resetSession"
-        @cancel="resetConfirmDialog = false"
-      />
-      <SaveConfirmDialog
-        v-model="saveConfirmDialog"
-        ref="saveConfirmDialog"
-        :text="$t('message.confirm_session_saved')"
-        :configItem="config"
-        @confirm="handleSaveConfirmDialog"
-      />
-      <NewSessionDialog
-        v-model="newSessionDialog"
-        ref="newSessionDialog"
-        :text="$t('message.confirm_save_progress')"
-        :configItem="config"
-        @save="saveSession(callback)"
-        @discard="discardSession(callback)"
-      />
-      <DurationConfirmDialog
-        v-model="durationConfirmDialog"
-        :text="$t('message.confirm_proceed_session_time')"
-        :configItem="config"
-        @end="end"
-        @proceed="proceed"
-      />
-      <AudioErrorDialog
-        v-model="audioErrorDialog"
-        :text="$t('message.error_recording_audio')"
-        :configItem="config"
-        @cancel="audioErrorDialog = false"
-      />
-      <EndSessionDialog
-        v-model="endSessionDialog"
-        :post-session-data="postSessionData"
-        @proceed="closeEndSessionDialog"
-      />
-      <AddEvidenceDialog
-        v-if="evidenceData"
-        v-model="addEvidenceDialog"
-        :item-data="evidenceData"
-        @close="
-          addEvidenceDialog = false;
-          evidenceData = null;
-        "
-      />
     </div>
+    <SourcePickerDialog
+      v-model="sourcePickerDialog"
+      :sources="sources"
+      :sourceId="sourceId"
+      :loaded="loaded"
+      @submit-source="startSession"
+    />
+    <ShareSessionDialog
+      v-if="isShareSessionAllowed"
+      v-model="shareSessionDialog"
+      :session-link="sessionLink"
+      :credentialItems="credentials"
+      :configItem="config"
+    />
+    <NoteDialog
+      v-model="noteDialog"
+      ref="noteDialog"
+      :isVisible="noteDialog"
+      :configItem="config"
+      :credentialItems="credentials"
+      @submit-note="addNote"
+    />
+    <SummaryDialog
+      ref="summaryDialog"
+      v-model="summaryDialog"
+      :configItem="config"
+      :credentialItems="credentials"
+      :summary="summary"
+      @submit-summary="addSummary"
+    />
+    <DeleteConfirmDialog
+      v-model="deleteConfirmDialog"
+      ref="deleteConfirmDialog"
+      :text="$t('message.confirm_delete')"
+      :configItem="config"
+      @confirm="deleteItems"
+      @cancel="deleteConfirmDialog = false"
+    />
+    <ResetConfirmDialog
+      v-model="resetConfirmDialog"
+      ref="resetConfirmDialog"
+      :text="$t('message.confirm_reset')"
+      @confirm="resetSession"
+      @cancel="resetConfirmDialog = false"
+    />
+    <SaveConfirmDialog
+      v-model="saveConfirmDialog"
+      ref="saveConfirmDialog"
+      :text="$t('message.confirm_session_saved')"
+      :configItem="config"
+      @confirm="handleSaveConfirmDialog"
+    />
+    <NewSessionDialog
+      v-model="newSessionDialog"
+      ref="newSessionDialog"
+      :text="$t('message.confirm_save_progress')"
+      :configItem="config"
+      @save="saveSession(callback)"
+      @discard="discardSession(callback)"
+    />
+    <DurationConfirmDialog
+      v-model="durationConfirmDialog"
+      :text="$t('message.confirm_proceed_session_time')"
+      :configItem="config"
+      @end="end"
+      @proceed="proceed"
+    />
+    <AudioErrorDialog
+      v-model="audioErrorDialog"
+      :text="$t('message.error_recording_audio')"
+      :configItem="config"
+      @cancel="audioErrorDialog = false"
+    />
+    <EndSessionDialog
+      v-model="endSessionDialog"
+      :post-session-data="postSessionData"
+      @proceed="closeEndSessionDialog"
+    />
+    <AddEvidenceDialog
+      v-if="evidenceData"
+      v-model="addEvidenceDialog"
+      :item-data="evidenceData"
+      @close="
+        addEvidenceDialog = false;
+        evidenceData = null;
+      "
+    />
   </v-container>
 </template>
 
@@ -799,7 +799,7 @@ import NewSessionDialog from "./dialogs/NewSessionDialog.vue";
 import DurationConfirmDialog from "./dialogs/DurationConfirmDialog.vue";
 import AudioErrorDialog from "./dialogs/AudioErrorDialog.vue";
 import EndSessionDialog from "./dialogs/EndSessionDialog.vue";
-//import MinimizeControlWrapper from "../components/MinimizeControlWrapper.vue";
+import LowProfileControlWrapper from "../components/LowProfileControlWrapper.vue";
 import JiraExportSession from "./jira/JiraExportSession";
 import TestRailExportSession from "./testrail/TestRailExportSession";
 import XrayExportSession from "./xray/XrayExportSession";
@@ -847,7 +847,7 @@ export default {
     DurationConfirmDialog,
     AudioErrorDialog,
     EndSessionDialog,
-    // MinimizeControlWrapper,
+    LowProfileControlWrapper,
     JiraExportSession,
     TestRailExportSession,
     XrayExportSession,
@@ -1189,7 +1189,7 @@ export default {
     hideShareSessionDialog() {
       this.shareSessionDialog = false;
     },
-    showNoteDialog() {
+    async showNoteDialog() {
       this.noteDialog = true;
       setTimeout(() => {
         this.$refs.noteDialog.$refs.comment.editor.commands.focus();
@@ -1971,7 +1971,7 @@ export default {
       };
       localStorage.setItem("state-data", JSON.stringify(data));
       if (this.$isElectron) {
-        await this.$electronService.openMinimizeWindow();
+        await this.$electronService.openLowProfileWindow();
       }
     },
   },

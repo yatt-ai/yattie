@@ -5,7 +5,7 @@ import HomeView from "../views/HomeView.vue";
 import MainView from "../views/MainView.vue";
 import ResultView from "../views/ResultView.vue";
 import PrintView from "../views/PrintView.vue";
-import MinimizeView from "../views/MinimizeView.vue";
+import LowProfileView from "../views/LowProfileView.vue";
 
 import AuthenticationView from "../views/AuthenticationView.vue";
 import SignupMainWrapper from "@/components/authentication/SignupMainWrapper";
@@ -183,7 +183,7 @@ const routes = [
     path: "/minimize",
     name: "minimize",
     meta: { layout: "minimize" },
-    component: MinimizeView,
+    component: LowProfileView,
   },
 ];
 

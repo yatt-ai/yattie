@@ -21,6 +21,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import ControlPanel from "../components/ControlPanel.vue";
 
 import {
@@ -30,9 +31,15 @@ import {
 } from "../modules/constants";
 
 export default {
-  name: "MinimizeView",
+  name: "LowProfileView",
   components: {
     ControlPanel,
+  },
+  computed: {
+    ...mapGetters({
+      credentials: "auth/credentials",
+      items: "sessionItems",
+    }),
   },
   data() {
     return {
@@ -42,7 +49,6 @@ export default {
       sourceId: "",
       overlay: false,
 
-      items: [],
       selected: [],
       config: {},
       credentials: {},
@@ -68,7 +74,7 @@ export default {
   },
   mounted() {
     this.getConfig();
-    this.getCredentials();
+    // this.getCredentials();
 
     if (!window.ipc) return;
 
@@ -110,7 +116,7 @@ export default {
         sourceId: this.sourceId,
       };
       window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-        func: IPC_FUNCTIONS.CLOSE_MINIMIZE_WINDOW,
+        func: IPC_FUNCTIONS.CLOSE_LOWPROFILE_WINDOW,
         data: {
           data: data,
           bindKey: IPC_BIND_KEYS.CLOSED_MINIMIZE_WINDOW,
@@ -127,10 +133,11 @@ export default {
     addItem(data) {
       if (!window.ipc) return;
 
-      window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
-        func: IPC_FUNCTIONS.ADD_ITEM,
-        data: data,
-      });
+      // window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
+      //   func: IPC_FUNCTIONS.ADD_ITEM,
+      //   data: data,
+      // });
+      this.$store.commit("addSessionItem", data);
     },
   },
 };
