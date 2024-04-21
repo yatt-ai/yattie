@@ -636,6 +636,13 @@
                             : `${item.filePath}`
                         "
                       />
+                      <!-- <mindmap-editor
+                        :key="item.stepID"
+                        :nodes-data="item.data.content?.nodes"
+                        :connections-data="item.data.content?.connections"
+                        :edit="false"
+                        class="pointerEventsDisable"
+                      /> -->
                     </div>
                     <div class="comment-wrapper mt-2 mb-2">
                       <font-awesome-icon
@@ -944,6 +951,7 @@ import draggable from "vuedraggable";
 import dayjs from "dayjs";
 
 import { STATUSES, TEXT_TYPES, FILE_TYPES } from "@/modules/constants";
+// import MindmapEditor from "./MindmapEditor.vue";
 import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 import EditEvidenceDialog from "@/components/dialogs/EditEvidenceDialog.vue";
 import WaveSurfer from "wavesurfer.js";
@@ -954,6 +962,7 @@ export default {
   components: {
     EditEvidenceDialog,
     AddEvidenceDialog,
+    // MindmapEditor,
     VContainer,
     VRow,
     VCol,
@@ -980,8 +989,13 @@ export default {
         this.itemLists = this.items;
         let newMap = { ...this.emojiMenu };
         this.itemLists.map(async (item) => {
-          newMap[`menu-${item.stepID}`] = false;
+          let temp = structuredClone(item);
+          newMap[`menu-${temp.stepID}`] = false;
+          if (this.getType(temp.fileType) === "mindmap")
+            temp.data = await this.$storageService.getItemById(temp.stepID);
+          return temp;
         });
+
         this.emojiMenu = newMap;
 
         if (!this.$isElectron) {
@@ -1041,8 +1055,12 @@ export default {
   },
   mounted() {
     this.emojiMenu = {};
-    this.itemLists.map((item) => {
-      this.emojiMenu[`menu-${item.stepID}`] = false;
+    this.itemLists.map(async (item) => {
+      let temp = structuredClone(item);
+      this.emojiMenu[`menu-${temp.stepID}`] = false;
+      if (this.getType(temp.fileType) === "mindmap")
+        temp.data = await this.$storageService.getItemById(temp.stepID);
+      return temp;
     });
   },
   methods: {
@@ -1401,5 +1419,8 @@ export default {
   font-weight: 500;
   line-height: 20px;
   color: #6b7280;
+}
+.pointerEventsDisable {
+  pointer-events: none;
 }
 </style>

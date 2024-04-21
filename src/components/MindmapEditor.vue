@@ -1,44 +1,45 @@
 <template>
   <div class="wrapper">
     <svg class="mindmap-svg" ref="mountPoint"></svg>
-    <node-edit-dialog
-      v-model="nodeEditDialog"
-      :title="title"
-      @save="updateNode"
-      @cancel="nodeEditDialog = false"
-    />
   </div>
 </template>
 
 <script>
+import Vue from "vue";
 import {
   forceCollide,
   forceLink,
   forceManyBody,
   forceSimulation,
   select,
+  event,
   zoom,
   zoomIdentity,
 } from "d3";
+import { v4 as uuidv4 } from "uuid";
+import NodeComponent from "./NodeComponent.vue";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import vuetify from "@/plugins/vuetify";
+import i18n from "@/i18n";
+import store from "@/store";
 
+// mindmap import
 import {
+  d3Labels,
   d3Connections,
   d3Nodes,
   d3Drag,
   d3PanZoom,
   onTick,
-  d3NodeClick,
+  d3Connector,
+  d3Selection,
 } from "../modules/mindmap/utils/d3";
-
-import { getDimensions, getViewBox } from "../modules/mindmap/utils/dimensions";
-import nodeToHTML from "../modules/mindmap/utils/nodeToHTML";
-import uuidv4 from "uuid";
-import "@fortawesome/fontawesome-free/css/all.min.css";
-import NodeEditDialog from "./dialogs/NodeEditDialog.vue";
+import { getViewBox } from "../modules/mindmap/utils/dimensions";
+import "../modules/mindmap/sass/mindmap.sass";
+import domtoimage from "dom-to-image-more";
 
 export default {
   name: "MindmapEditor",
-  components: { NodeEditDialog },
   props: {
     nodesData: {
       type: Array,
@@ -50,7 +51,7 @@ export default {
     },
     edit: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     triggerSave: {
       type: Boolean,
@@ -70,7 +71,7 @@ export default {
     },
     triggerSave: function (newValue) {
       if (newValue) {
-        this.handleMindmap();
+        this.handleMindmap(true);
       }
     },
   },
@@ -79,10 +80,9 @@ export default {
       simulation: null,
       nodes: this.nodesData,
       connections: this.connectionsData,
+      clicked: [],
       editable: this.edit,
-      nodeEditDialog: false,
-      selected: null,
-      event: "",
+      selectedNodes: [],
       title: "",
     };
   },
@@ -92,7 +92,7 @@ export default {
     this.simulation = forceSimulation()
       .force(
         "link",
-        forceLink().id((node) => node.text)
+        forceLink().id((node) => node.id)
       )
       .force("charge", forceManyBody())
       .force("collide", forceCollide().radius(100));
@@ -108,12 +108,16 @@ export default {
   methods: {
     prepareNodes() {
       const render = (node) => {
-        node.uid = uuidv4();
-        node.html = nodeToHTML(node);
+        node.selected =
+          this.selectedNodes.find((ele) => ele.id === node.id) !== undefined;
+        node.width = node.width ?? 220;
+        node.height = node.height ?? 110;
+        // node.id = uuidv4();
+        // const html = nodeToHTML(node);
 
-        const dimensions = getDimensions(node.html, {}, "mindmap-node");
-        node.width = dimensions.width;
-        node.height = dimensions.height;
+        // const dimensions = getDimensions(html, {}, "mindmap-node");
+        // node.width = dimensions.width;
+        // node.height = dimensions.height;
       };
 
       this.nodes.forEach((node) => render(node));
@@ -122,26 +126,21 @@ export default {
      * Add new class to nodes, attach drag behevior,
      * and start simulation.
      */
-    prepareEditor(svg, conns, nodes) {
+    prepareEditor(svg, conns, nodes, labels) {
       nodes
         .attr("class", "mindmap-node mindmap-node--editable")
-        .attr("id", (d) => d.uid)
-        .on("dbclick", (node) => {
-          node.fx = null;
-          node.fy = null;
-        });
+        .attr("id", (d) => d.id);
 
       nodes.call(d3Drag(this.simulation, svg, nodes));
-      nodes.on("click", (d, i) => {
-        this.nodeClickEvent(d3NodeClick(d, i), d);
-      });
       // Tick the simulation 100 times
       for (let i = 0; i < 100; i += 1) {
         this.simulation.tick();
       }
 
       setTimeout(() => {
-        this.simulation.alphaTarget(0.5).on("tick", () => onTick(conns, nodes));
+        this.simulation
+          .alphaTarget(0.5)
+          .on("tick", () => onTick(conns, nodes, labels));
       }, 200);
     },
     /**
@@ -156,24 +155,73 @@ export default {
         .force("charge", forceManyBody())
         .force("collide", forceCollide().radius(200));
 
-      const svg = select(this.$refs.mountPoint);
-
-      // Clear the SVG in case there's stuff already there.
+      let svg = select(this.$refs.mountPoint).on("click", () => {
+        // Check if the left mouse button is clicked
+        event.preventDefault();
+        this.selectedNodes = [];
+        this.renderMap();
+      });
       svg.selectAll("*").remove();
 
       this.prepareNodes();
-
       // Bind data to SVG elements and set all the properties to render them
-      const connections = d3Connections(svg, this.connections);
-      const { nodes } = d3Nodes(svg, this.nodes);
+      const labels = d3Labels(svg, this.connections);
+      const connections = d3Connections(svg, this.connections, labels);
 
-      nodes.append("title").text(() => this.$tc("caption.map_node"));
+      const nodes = d3Nodes(svg, this.nodes);
+      // Bind vue component to the node
+      const self = this;
+      nodes.each(function (node) {
+        const container = select(this);
+        const vueComponent = new Vue({
+          vuetify,
+          i18n,
+          store,
+          render: (h) =>
+            h(NodeComponent, {
+              props: {
+                node,
+                editable: self.editable,
+                onAdd: (content, status) =>
+                  self.addNewNode(node, content, status),
+                onSave: (content, status) => self.onSave(content, status),
+                onRemove: () => self.removeNode(node),
+                onConnect: () => self.connectNode(svg, node),
+                onClick: (isAltKeyPressed) =>
+                  self.clickNode(isAltKeyPressed, node),
+                onTagsChanged: (newTags) => {
+                  node.tags = newTags;
+                },
+                onAttach: (files) => {
+                  node.attachments = files;
+                },
+              },
+              vuetify,
+              i18n,
+              store,
+            }),
+          mounted() {
+            this.$nextTick(() => {
+              const width = this.$el.offsetWidth;
+              const height = this.$el.offsetHeight;
+              node.width = width; // Store the computed size in your node's data
+              node.height = height; // Store the computed size in your node's data
+              container.attr("width", width).attr("height", height);
+            });
+            // TODO: need a function to resize the node
+          },
+        });
 
+        vueComponent.$mount();
+
+        container.node().appendChild(vueComponent.$el);
+      });
+      d3Selection(svg, this.nodes, this.onSelectedByDrag);
       // Bind nodes and connections to the simulation
       this.simulation.nodes(this.nodes).force("link").links(this.connections);
 
       if (this.editable) {
-        this.prepareEditor(svg, connections, nodes);
+        this.prepareEditor(svg, connections, nodes, labels);
       }
 
       // Tick the simulation 100 times
@@ -181,7 +229,9 @@ export default {
         this.simulation.tick();
       }
 
-      onTick(connections, nodes);
+      this.simulation
+        .alphaTarget(0.5)
+        .on("tick", () => onTick(connections, nodes, labels));
 
       svg
         .attr("viewBox", getViewBox(nodes.data()))
@@ -189,42 +239,36 @@ export default {
         .on("dbClick.zoom", null);
     },
 
-    /**
-     * node mouse click events
-     */
-    nodeClickEvent(event, node) {
-      switch (event) {
-        case "add":
-          this.selected = node;
-          this.event = "add";
-          this.title = "";
-          this.nodeEditDialog = true;
-          break;
-        case "edit":
-          this.selected = node;
-          this.event = "edit";
-          this.title = this.selected.text;
-          this.nodeEditDialog = true;
-          break;
-        case "remove":
-          this.removeNode(node);
-          break;
-        case "click":
-          this.clickNode(node);
-          break;
-      }
+    onSave(content, status) {
+      this.selectedNodes.forEach((node) => {
+        if (content) {
+          node.content = content;
+        }
+        if (status) {
+          node.status = status;
+        }
+      });
     },
 
+    onSelectedByDrag(selectedNodes) {
+      this.selectedNodes = [...selectedNodes];
+      this.renderMap();
+    },
     /**
      * * add new nodes
      */
-    addNewNode(target, text) {
+    addNewNode(target, content, status) {
       const nodeId = uuidv4();
+      let random_offset;
+      do {
+        random_offset = Math.floor(Math.random() * 400) - 200;
+      } while (random_offset >= -100 && random_offset <= 100);
       this.nodes.push({
         id: nodeId,
-        text: text,
-        fx: target.fx,
-        fy: target.fy + 200,
+        content: content,
+        status: status,
+        fx: target.fx + random_offset,
+        fy: target.fy + random_offset,
       });
       this.connections.push({
         source: target.id,
@@ -235,33 +279,14 @@ export default {
         this.handleMindmap();
       }
     },
-
-    /**
-     * edit node text
-     */
-    editNode(target, text) {
-      target.text = text;
-      this.renderMap();
-      if (this.autoSave) {
-        this.handleMindmap();
-      }
-    },
-    updateNode(text) {
-      if (this.event === "add") {
-        this.addNewNode(this.selected, text);
-      } else {
-        this.editNode(this.selected, text);
-      }
-      this.nodeEditDialog = false;
-    },
     /**
      * remove a node
      * todo: before remove nodes check all link
      */
-    removeNode(target) {
-      this.nodes = this.nodes.filter((item) => item.id !== target.id);
+    removeNode(node) {
+      this.nodes = this.nodes.filter((item) => item.id !== node.id);
       this.connections = this.connections.filter(
-        (item) => item.source.id !== target.id && item.target.id !== target.id
+        (item) => item.source.id !== node.id && item.target.id !== node.id
       );
       this.renderMap();
       if (this.autoSave) {
@@ -270,51 +295,73 @@ export default {
     },
 
     /**
-     * click on node text
+     * click on node
      */
-    clickNode() {},
+    clickNode(isAltKeyPressed, node) {
+      // Toggle the selection of the clicked node
+      if (isAltKeyPressed) {
+        const index = this.selectedNodes.indexOf(node);
+        if (index === -1) {
+          this.selectedNodes.push(node);
+        } else {
+          this.selectedNodes.splice(index, 1);
+        }
+      } else {
+        // If Ctrl/Cmd is not pressed, clear the selection and select only the clicked node
+        this.selectedNodes = [node];
+      }
+      this.renderMap();
+    },
 
-    handleMindmap() {
-      const svg = document.querySelector(`.mindmap-svg`);
-      let serializer = new XMLSerializer();
-      let serializedContent = serializer.serializeToString(svg);
-      let base64Content = btoa(unescape(encodeURIComponent(serializedContent)));
-      // TODO - Move to application/x-xmind format
-      let imageUrl = "data:image/svg+xml;base64," + base64Content;
-      const quality = 2;
-      const image = new Image();
+    /**
+     * link on node
+     */
+    connectNode(svg, node) {
+      this.clicked.push(node);
 
-      image.onload = () => {
-        // Create image canvas
-        const canvas = document.createElement("canvas");
-        // Set width and height based on SVG node
-        const rect = svg.getBoundingClientRect();
-        canvas.width = rect.width * quality;
-        canvas.height = rect.height * quality;
-
-        // Draw background
-        const context = canvas.getContext("2d");
-        context.fillStyle = "#FAFAFA";
-        context.fillRect(0, 0, rect.width * quality, rect.height * quality);
-        context.drawImage(
-          image,
-          0,
-          0,
-          rect.width * quality,
-          rect.height * quality
+      if (this.clicked.length === 2) {
+        // check if the previous connection exists
+        const previousConnection = this.connections.find(
+          ({ source, target }) =>
+            (source.id === this.clicked[0].id &&
+              target.id === this.clicked[1].id) ||
+            (source.id === this.clicked[1].id &&
+              target.id === this.clicked[0].id)
         );
+        if (!previousConnection) {
+          this.connections.push({
+            source: this.clicked[0].id,
+            target: this.clicked[1].id,
+          });
+        }
+        this.clicked = [];
+      }
+      this.renderMap();
+      d3Connector(svg, this.clicked[0]);
+    },
 
-        let imgURI = canvas.toDataURL("image/png");
-        let new_nodes = structuredClone(this.nodes);
-        let new_connections = structuredClone(this.connections);
-        this.$emit("submit-mindmap", {
-          nodes: new_nodes,
-          connections: new_connections,
-          imgURI: imgURI,
-        });
-      };
+    async handleMindmap() {
+      var svgElement = document.querySelector(`.mindmap-svg`);
+      var mainDom = document.createElement("div");
+      // var importedNode = document.importNode(svgElement.cloneNode(true), true);
+      mainDom.append(svgElement.cloneNode(true));
+      document.getElementsByTagName("BODY")[0].append(mainDom);
+      const quality = 2;
+      const rect = svgElement.getBoundingClientRect();
+      const imageUrl = await domtoimage.toPng(mainDom, {
+        bgcolor: "#FAFAFA",
+        height: rect.height * quality,
+        width: rect.width * quality,
+      });
+      let new_nodes = structuredClone(this.nodes);
+      let new_connections = structuredClone(this.connections);
 
-      image.src = imageUrl;
+      this.$emit("submit-mindmap", {
+        nodes: new_nodes,
+        connections: new_connections,
+        imgURI: imageUrl,
+      });
+      mainDom.remove();
     },
   },
 };
@@ -326,5 +373,6 @@ export default {
   align-items: center;
   overflow: hidden;
   max-height: 400px;
+  position: relative;
 }
 </style>

@@ -1,4 +1,4 @@
-import { drag, event, zoom } from "d3";
+import { drag, event, zoom, mouse, select } from "d3";
 import { getViewBox } from "./dimensions";
 
 /**
@@ -9,44 +9,89 @@ const bindData = (root, data, tag) =>
   root.append("g").selectAll(tag).data(data).enter().append(tag);
 
 /**
+ * Bind connection labels to text on the given SVG
+ */
+export const d3Labels = (svg, connections) =>
+  bindData(svg, connections, "text")
+    .attr("class", "mindmap-label")
+    .text((connection) => connection.label ?? "");
+
+/**
  * Bind connections to PATH tags on the given SVG
  */
-export const d3Connections = (svg, connections) =>
+export const d3Connections = (svg, connections, labels) =>
   bindData(svg, connections, "path")
     .attr("class", "mindmap-connection")
-    .style("fill", "transparent")
-    .style("stroke", "#9e9e9e")
-    .style("stroke-dasharray", "10px 4px")
-    .style("stroke-width", "3px");
+    .on("dblclick", (clickedConn) => {
+      // Prevent event propagation to the document
+      event.stopPropagation();
 
-/* eslint-disable no-param-reassign */
+      // Get the clicked connection index
+      const clickedConnectionIndex = connections.indexOf(clickedConn);
+
+      // Get the label text for the clicked connection
+      const label = prompt("Enter the label for the connection:");
+      clickedConn.label = label;
+
+      // Update the connection labels data with the label
+      labels
+        .data(connections)
+        .text((_, index) => (index === clickedConnectionIndex ? label : ""));
+    })
+    .on("click", () => {
+      // Prevent event propagation to the document
+      event.stopPropagation();
+    });
+
 /**
- * Bind rodes to FOREIGNOBJECT tags on the given SVG,
- * and set dimensions and html.
+ * Bind rodes to FOREIGNOBJECT tags on the given SVG
  */
-export const d3Nodes = (svg, nodes) => {
-  const selection = svg
-    .append("g")
-    .selectAll("foreignObject")
-    .data(nodes)
-    .enter();
-
-  const d3nodes = selection
-    .append("foreignObject")
+export const d3Nodes = (svg, data) =>
+  bindData(svg, data, "foreignObject")
     .attr("class", "mindmap-node")
-    .attr("width", (node) => node.width + 50)
-    .attr("height", (node) => node.height + 10)
-    .html((node) => node.html);
+    .attr("width", (node) => node.width)
+    .attr("height", (node) => node.height);
 
-  return {
-    nodes: d3nodes,
-  };
+/**
+ * connect nodes
+ */
+export const d3Connector = (svg, source) => {
+  // Function to handle mousemove event for connector line
+  function handleMouseMove() {
+    select(".mindmap-connector-line")
+      .attr("x2", mouse(this)[0] - 10)
+      .attr("y2", mouse(this)[1] - 10);
+  }
+
+  if (!source) {
+    // link icons' inactive color
+    svg.selectAll(".fa-link").style("color", "unset");
+
+    // Remove the connector line from the SVG
+    svg.select(".mindmap-connector-line").remove();
+    // Remove the mousemove and mouseup event listeners
+    svg.on("mousemove", null);
+  }
+
+  if (source) {
+    svg.on("mousemove", handleMouseMove);
+
+    svg
+      .append("g")
+      .append("line")
+      .attr("class", "mindmap-connector-line")
+      .attr("x1", source.x + source.width / 2 - 20)
+      .attr("y1", source.y - source.height / 2 + 20);
+
+    // link icons' active color
+    svg.selectAll(".fa-link").style("color", "#22c55e");
+  }
 };
 
 /**
  * Callback for forceSimulation tick event.
  */
-export const onTick = (conns, nodes) => {
+export const onTick = (conns, nodes, labels) => {
   const d = (conn) =>
     [
       "M",
@@ -75,6 +120,11 @@ export const onTick = (conns, nodes) => {
   nodes
     .attr("x", (node) => node.x - node.width / 2)
     .attr("y", (node) => node.y - node.height / 2);
+
+  // Re-position the connection labels
+  labels
+    .attr("x", (d) => (d.source.x + d.target.x) / 2)
+    .attr("y", (d) => (d.source.y + d.target.y) / 2 - 4);
 };
 
 /*
@@ -106,6 +156,106 @@ export const d3Drag = (simulation, svg, nodes) => {
   return drag().on("start", dragStart).on("drag", dragged).on("end", dragEnd);
 };
 
+/**
+ * select the nodes by draging
+ */
+export const d3Selection = (svg, nodes, callback) => {
+  // Add the drag overlay
+  const overlay = svg
+    .append("rect")
+    .attr("class", "mindmap-overlay")
+    .style("opacity", 0)
+    .style("pointer-events", "none");
+
+  svg.on("mousedown", mouseDown);
+  svg.on("mousemove", dragMove);
+  svg.on("mouseup", mouseUp);
+
+  let startX,
+    startY,
+    isSelecting = false;
+  let mouseButton = "left",
+    mouseClicked = false;
+  function mouseDown() {
+    // Check if Ctrl or Cmd key is pressed
+    // const isKeyPressed = event.ctrlKey || event.metaKey;
+    // if (!isKeyPressed) return;
+    mouseClicked = true;
+    if (event.button === 2) {
+      mouseButton = "right";
+      select("body").style("cursor", "auto");
+      const [relativeX, relativeY] = mouse(this);
+      startX = relativeX;
+      startY = relativeY;
+      isSelecting = true;
+
+      // Enable the overlay
+      overlay.style("opacity", 0.5).style("pointer-events", "all");
+    } else if (event.button === 0) {
+      mouseButton = "left";
+      select("body").style("cursor", "grab");
+    }
+  }
+
+  function dragMove() {
+    if (mouseClicked) {
+      if (mouseButton === "right") {
+        if (!isSelecting) return;
+        const [relativeX, relativeY] = mouse(this);
+        const mouseX = relativeX;
+        const mouseY = relativeY;
+
+        // Calculate the position and size of the box
+        const minX = Math.min(startX, mouseX);
+        const minY = Math.min(startY, mouseY);
+        const maxX = Math.max(startX, mouseX);
+        const maxY = Math.max(startY, mouseY);
+        const width = maxX - minX;
+        const height = maxY - minY;
+        // Update the overlay attributes
+        select("body").style("cursor", "auto");
+        overlay
+          .attr("x", minX)
+          .attr("y", minY)
+          .attr("width", width)
+          .attr("height", height);
+      } else if (mouseButton === "left") {
+        select("body").style("cursor", "crosshair");
+        select("body").style("cursor", "grabbing");
+      }
+    }
+  }
+
+  function mouseUp() {
+    select("body").style("cursor", "auto");
+    mouseClicked = false;
+    if (event.button === 2) {
+      isSelecting = false;
+      // Hide the overlay
+      overlay.style("opacity", 0).style("pointer-events", "none");
+
+      const selectedNodes = [];
+
+      // Iterate through each node's coordinates
+      // and check if it falls within the box
+      nodes.forEach((node) => {
+        if (
+          node.x >= overlay.attr("x") &&
+          node.x <= +overlay.attr("x") + +overlay.attr("width") &&
+          node.y >= overlay.attr("y") &&
+          node.y <= +overlay.attr("y") + +overlay.attr("height")
+        ) {
+          selectedNodes.push(node);
+        }
+      });
+
+      callback(selectedNodes);
+    }
+  }
+
+  return svg;
+};
+
 /* eslint-enable no-param-reassign */
 
 /*
@@ -117,22 +267,3 @@ export const d3PanZoom = (el) =>
     .on("zoom", () =>
       el.selectAll("svg > g").attr("transform", event.transform)
     );
-
-/*
- * d3 node click event
- */
-export const d3NodeClick = () => {
-  event.stopPropagation();
-  let target = event.target;
-
-  switch (target.className) {
-    case "fas fa-plus-circle":
-      return "add";
-    case "fas fa-pencil-alt":
-      return "edit";
-    case "fas fa-trash-alt":
-      return "remove";
-    case "node-text":
-      return "click";
-  }
-};
