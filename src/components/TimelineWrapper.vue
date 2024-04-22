@@ -624,18 +624,23 @@
                       </div>
                     </div>
                     <div
+                      v-if="$isElectron"
                       class="image-wrapper"
                       @click="handleItemClick(item.stepID)"
                     >
                       <img
                         class="screen-img"
                         style="max-width: 100%"
-                        :src="
-                          $isElectron
-                            ? `file://${item.filePath}`
-                            : `${item.filePath}`
-                        "
+                        :src="`file://${item.filePath}`"
                       />
+                    </div>
+                    <div v-else @click="handleItemClick(item.stepID)">
+                      <svg :class="`mindmap-${item.attachmentID}`"></svg>
+                      <!--                      <svg-->
+                      <!--                        :class="renderMap(item)"-->
+                      <!--                        class="mindmap-svg-test"-->
+                      <!--                        ref="mountPointTest"-->
+                      <!--                      ></svg>-->
                     </div>
                     <div class="comment-wrapper mt-2 mb-2">
                       <font-awesome-icon
@@ -947,6 +952,21 @@ import { STATUSES, TEXT_TYPES, FILE_TYPES } from "@/modules/constants";
 import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 import EditEvidenceDialog from "@/components/dialogs/EditEvidenceDialog.vue";
 import WaveSurfer from "wavesurfer.js";
+import {
+  d3Connections,
+  d3Nodes,
+  // d3PanZoom,
+  onTick,
+} from "@/modules/mindmap/utils/d3";
+import { getViewBox } from "@/modules/mindmap/utils/dimensions";
+
+import {
+  // forceCollide,
+  // forceLink,
+  // forceManyBody,
+  // forceSimulation,
+  select,
+} from "d3";
 import { mapGetters } from "vuex";
 
 export default {
@@ -990,6 +1010,9 @@ export default {
               item.poster = await this.generatePoster(item.filePath);
             }
           }
+          this.$nextTick(async () => {
+            this.renderAllMaps();
+          });
         }
       },
       immediate: true,
@@ -1038,14 +1061,39 @@ export default {
         return this.$vuetify.theme.themes.light;
       }
     },
+    mindmapItems() {
+      return this.itemLists.filter(
+        (item) => item.fileType === "application/json"
+      );
+    },
   },
   mounted() {
     this.emojiMenu = {};
     this.itemLists.map((item) => {
       this.emojiMenu[`menu-${item.stepID}`] = false;
     });
+
+    this.renderAllMaps();
   },
   methods: {
+    renderAllMaps() {
+      this.mindmapItems.forEach((item) => {
+        this.renderMap(item);
+      });
+    },
+    renderMap(item) {
+      const svgClass = `.mindmap-${item.attachmentID}`;
+      const svg = select(svgClass);
+      // Bind data to SVG elements and set all the properties to render them
+      const connections = d3Connections(svg, item.content.connections);
+      const { nodes } = d3Nodes(svg, item.content.nodes);
+      onTick(connections, nodes);
+
+      svg
+        .attr("viewBox", getViewBox(nodes.data()))
+        .on(".zoom", null)
+        .on("mousedown.drag", null);
+    },
     getType(type) {
       return FILE_TYPES[type];
     },
@@ -1257,6 +1305,17 @@ export default {
 };
 </script>
 <style scoped>
+::v-deep .options {
+  display: none !important;
+}
+
+.node-text {
+  cursor: default !important;
+}
+.options .option {
+  display: none;
+  cursor: default;
+}
 .icon {
   margin-top: 2px;
 }
