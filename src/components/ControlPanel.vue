@@ -1935,10 +1935,12 @@ export default {
       await this.$storageService.createNewSession(data);
       await this.$storageService.resetData();
 
-      const caseID = await this.$storageService.getCaseId();
-      const sessionID = await this.$storageService.getSessionId();
-      this.$store.commit("setCaseID", caseID);
-      this.$store.commit("setSessionID", sessionID);
+      if (this.$isElectron) {
+        const caseID = await this.$storageService.getCaseId();
+        const sessionID = await this.$storageService.getSessionId();
+        this.$store.commit("setCaseID", caseID);
+        this.$store.commit("setSessionID", sessionID);
+      }
 
       // Stop any ongoing intervals
       this.stopInterval();
