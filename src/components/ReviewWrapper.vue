@@ -125,10 +125,14 @@ export default {
           this.$root.$emit("set-snackbar", message);
           console.log(message);
         } else {
-          this.editSessionItem = {
-            ...this.editSessionItem,
-            ...item,
-          };
+          this.editSessionItem.filePath =
+            this.editSessionItem.filePath.substring(item.filePath.length) ===
+            "?"
+              ? item.filePath
+              : item.filePath + "?";
+          this.editSessionItem.fileSize = item.fileSize;
+          this.editSessionItem.fileChecksum = item.fileChecksum;
+          this.$root.$emit("update-edit-item", this.editSessionItem);
         }
       } else {
         const { item } = updateImageForWeb({
@@ -142,7 +146,7 @@ export default {
       }
 
       this.$root.$emit("update-edit-item", this.editSessionItem);
-      this.$root.$emit("save-data");
+      this.$root.$emit("save-data", this.editSessionItem);
     },
   },
 };

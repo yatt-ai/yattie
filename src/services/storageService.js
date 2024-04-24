@@ -72,6 +72,22 @@ export default class StorageService {
     return this.storage.deleteNotes(notes);
   }
 
+  async getNodes() {
+    return await this.storage.getNodes();
+  }
+
+  async updateNodes(nodes) {
+    return this.storage.updateNodes(nodes);
+  }
+
+  async getConnections() {
+    return await this.storage.getConnections();
+  }
+
+  async updateConnections(connections) {
+    return this.storage.updateConnections(connections);
+  }
+
   async createNewSession(data) {
     return this.storage.createNewSession(data);
   }

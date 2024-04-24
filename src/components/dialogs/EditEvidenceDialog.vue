@@ -544,7 +544,6 @@ export default {
         }
         return temp;
       });
-
       await this.$store.commit("setSessionItems", this.items);
       this.$emit("close");
     },

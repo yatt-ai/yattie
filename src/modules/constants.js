@@ -58,6 +58,11 @@ export const IPC_FUNCTIONS = {
   UPDATE_NOTES: "updateNotes",
   RESET_DATA: "resetData",
 
+  GET_NODES: "getNotes",
+  UPDATE_NODES: "updateNotes",
+  GET_CONNECTIONS: "getConnections",
+  UPDATE_CONNECTIONS: "updateConnections",
+
   EXPORT_ITEMS: "exportItems",
   CREATE_NEW_SESSION: "createNewSession",
   SAVE_SESSION: "saveSession",

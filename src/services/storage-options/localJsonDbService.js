@@ -108,6 +108,32 @@ export default class LocalJsonDbService extends StorageInterface {
     });
   }
 
+  async getNodes() {
+    return await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
+      func: IPC_FUNCTIONS.GET_NODES,
+    });
+  }
+
+  async updateNodes(nodes) {
+    await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
+      func: IPC_FUNCTIONS.UPDATE_NODES,
+      data: nodes,
+    });
+  }
+
+  async getConnections() {
+    return await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
+      func: IPC_FUNCTIONS.GET_CONNECTIONS,
+    });
+  }
+
+  async updateConnections(connections) {
+    await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
+      func: IPC_FUNCTIONS.UPDATE_CONNECTIONS,
+      data: connections,
+    });
+  }
+
   async createNewSession(data) {
     return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
       func: IPC_FUNCTIONS.CREATE_NEW_SESSION,

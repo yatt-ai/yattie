@@ -399,6 +399,8 @@ export default {
   computed: {
     ...mapGetters({
       items: "sessionItems",
+      nodes: "sessionNodes",
+      connections: "sessionConnections",
       hotkeys: "config/hotkeys",
       config: "config/fullConfig",
       credentials: "auth/credentials",
@@ -602,6 +604,7 @@ export default {
       }
     },
     async handleSaveAndClose() {
+      console.log("Evidence Save");
       this.triggerSaveEvent = !this.triggerSaveEvent;
     },
     handleName() {
@@ -636,9 +639,37 @@ export default {
         uploaded: false,
       };
       const updatedItems = [...this.items];
-      updatedItems.push(newItem);
+      let updatedNodes = [];
+      let updatedConnections = [...this.connections];
 
+      if (this.nodes.length == 0) {
+        newItem.fx = Math.floor(Math.random() * 1001) - 500;
+        newItem.fy = Math.floor(Math.random() * 1001) - 500;
+      } else {
+        let random_offset;
+        do {
+          random_offset = Math.floor(Math.random() * 400) - 200;
+        } while (random_offset >= -100 && random_offset <= 100);
+        newItem.fx = this.nodes[this.nodes.length - 1].fx + random_offset;
+        newItem.fy = this.nodes[this.nodes.length - 1].fy + random_offset;
+      }
+      updatedItems.push(newItem);
+      updatedItems.forEach((item) => {
+        item.id = item.stepID;
+        updatedNodes.push({ ...item, content: item.comment.text });
+      });
+
+      if (this.nodes.length > 0) {
+        updatedConnections.push({
+          source: this.nodes[this.nodes.length - 1].stepID,
+          target: newItem.stepID,
+        });
+      }
       await this.$store.commit("setSessionItems", [...updatedItems]);
+      await this.$store.commit("setSessionNodes", [...updatedNodes]);
+      await this.$store.commit("setSessionConnections", [
+        ...updatedConnections,
+      ]);
       this.$emit("close");
     },
     handleClear() {

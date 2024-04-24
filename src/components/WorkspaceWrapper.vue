@@ -10,6 +10,9 @@
           Timeline
         </v-tab>
         <v-tab class="notes-tab" @click="currentTab = 'notes'"> Notes </v-tab>
+        <v-tab class="mindmap-tab" @click="currentTab = 'mindmap'">
+          Mindmap
+        </v-tab>
       </v-tabs>
     </div>
     <div class="tab-content">
@@ -28,6 +31,13 @@
             :event-type="eventName"
           />
         </v-tab-item>
+        <v-tab-item value="mindmap" :transition="false">
+          <MindmapWrapper
+            :items="itemLists"
+            :selectedItems="selected"
+            :event-type="eventName"
+          />
+        </v-tab-item>
       </v-tabs-items>
     </div>
   </v-container>
@@ -36,6 +46,7 @@
 import { mapGetters } from "vuex";
 import NotesWrapper from "./NotesWrapper.vue";
 import TimelineWrapper from "./TimelineWrapper.vue";
+import MindmapWrapper from "./MindmapWrapper.vue";
 
 export default {
   name: "WorkspaceWrapper",
@@ -54,6 +65,7 @@ export default {
   components: {
     NotesWrapper,
     TimelineWrapper,
+    MindmapWrapper,
   },
   props: {
     selectedItems: {
@@ -79,6 +91,11 @@ export default {
       eventName: this.eventType,
       currentTab: "timeline",
     };
+  },
+  methods: {
+    handleAdd(content) {
+      console.log(content);
+    },
   },
 };
 </script>

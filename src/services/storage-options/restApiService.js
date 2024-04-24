@@ -168,6 +168,26 @@ export default class RestApiService extends StorageInterface {
     // saving notes endpoint here
   }
 
+  async getNodes() {
+    const response = await axios.get(`http://localhost:8082/nodes`);
+    return response.data;
+  }
+
+  async updateNodes(nodes) {
+    console.log(nodes);
+    // saving nodes endpoint here
+  }
+
+  async getConnections() {
+    const response = await axios.get(`http://localhost:8082/connections`);
+    return response.data;
+  }
+
+  async updateConnections(connections) {
+    console.log(connections);
+    // saving connections endpoint here
+  }
+
   async createNewSession(data) {
     console.log(data);
   }

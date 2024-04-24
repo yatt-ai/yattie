@@ -633,21 +633,9 @@
                         style="max-width: 100%"
                         :src="`file://${item.filePath}`"
                       />
-                      <!-- <mindmap-editor
-                        :key="item.stepID"
-                        :nodes-data="item.data.content?.nodes"
-                        :connections-data="item.data.content?.connections"
-                        :edit="false"
-                        class="pointerEventsDisable"
-                      /> -->
                     </div>
                     <div v-else @click="handleItemClick(item.stepID)">
                       <svg :class="`mindmap-${item.attachmentID}`"></svg>
-                      <!--                      <svg-->
-                      <!--                        :class="renderMap(item)"-->
-                      <!--                        class="mindmap-svg-test"-->
-                      <!--                        ref="mountPointTest"-->
-                      <!--                      ></svg>-->
                     </div>
                     <div class="comment-wrapper mt-2 mb-2">
                       <font-awesome-icon
@@ -956,7 +944,6 @@ import draggable from "vuedraggable";
 import dayjs from "dayjs";
 
 import { STATUSES, TEXT_TYPES, FILE_TYPES } from "@/modules/constants";
-// import MindmapEditor from "./MindmapEditor.vue";
 import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 import EditEvidenceDialog from "@/components/dialogs/EditEvidenceDialog.vue";
 import WaveSurfer from "wavesurfer.js";
@@ -982,7 +969,6 @@ export default {
   components: {
     EditEvidenceDialog,
     AddEvidenceDialog,
-    // MindmapEditor,
     VContainer,
     VRow,
     VCol,
@@ -1011,8 +997,6 @@ export default {
         this.itemLists.map(async (item) => {
           let temp = structuredClone(item);
           newMap[`menu-${temp.stepID}`] = false;
-          if (this.getType(temp.fileType) === "mindmap")
-            temp.data = await this.$storageService.getItemById(temp.stepID);
           return temp;
         });
 
@@ -1024,9 +1008,9 @@ export default {
               item.poster = await this.generatePoster(item.filePath);
             }
           }
-          this.$nextTick(async () => {
-            this.renderAllMaps();
-          });
+          // this.$nextTick(async () => {
+          //   this.renderAllMaps();
+          // });
         }
       },
       immediate: true,
@@ -1086,12 +1070,10 @@ export default {
     this.itemLists.map(async (item) => {
       let temp = structuredClone(item);
       this.emojiMenu[`menu-${temp.stepID}`] = false;
-      if (this.getType(temp.fileType) === "mindmap")
-        temp.data = await this.$storageService.getItemById(temp.stepID);
       return temp;
     });
 
-    this.renderAllMaps();
+    // this.renderAllMaps();
   },
   methods: {
     renderAllMaps() {
