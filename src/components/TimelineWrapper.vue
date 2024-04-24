@@ -1170,7 +1170,15 @@ export default {
       this.saveData();
     },
     async handleActivateEditSession(id) {
-      this.itemToEdit = await this.$storageService.getItemById(id);
+      if (this.$isElectron) {
+        this.itemToEdit = await this.$storageService.getItemById(id);
+      } else {
+        const itemInStore = this.$store.state.session.items.find(
+          (item) => item.stepID === id
+        );
+        this.itemToEdit = structuredClone(itemInStore);
+        console.log(this.itemToEdit);
+      }
       this.editEvidenceDialog = true;
     },
     async dragItem(event, item) {

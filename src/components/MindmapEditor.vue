@@ -77,8 +77,8 @@ export default {
   data() {
     return {
       simulation: null,
-      nodes: this.nodesData,
-      connections: this.connectionsData,
+      nodes: null,
+      connections: null,
       editable: this.edit,
       nodeEditDialog: false,
       selected: null,
@@ -98,6 +98,8 @@ export default {
       .force("collide", forceCollide().radius(100));
   },
   mounted() {
+    this.nodes = [...this.nodesData];
+    this.connections = [...this.connectionsData];
     this.renderMap();
   },
   updated() {
