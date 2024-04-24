@@ -98,6 +98,8 @@ export default {
       .force("collide", forceCollide().radius(100));
   },
   mounted() {
+    this.nodes = [...this.nodesData];
+    this.connections = [...this.connectionsData];
     this.renderMap();
   },
   updated() {

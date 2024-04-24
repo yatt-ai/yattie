@@ -354,9 +354,9 @@ export default {
     this.fetchItems();
     this.getConfig();
     this.getCredentials();
-    if (this.$isElectron) {
-      this.activeSession();
-    }
+    // if (this.$isElectron) {
+    this.activeSession();
+    // }
   },
   computed: {
     ...mapGetters({
@@ -472,7 +472,11 @@ export default {
       input.focus();
     },
     async fetchItems() {
-      this.items = await this.$storageService.getItems();
+      if (this.$isElectron) {
+        this.items = await this.$storageService.getItems();
+      } else {
+        this.items = structuredClone(this.$store.state.session.items);
+      }
     },
     updateEditItem(value) {
       this.item = value;
@@ -532,11 +536,14 @@ export default {
       this.item.followUp = $event.target.checked;
     },
     async saveData(data) {
+      console.log(data);
+      console.log("Save happens here");
       if (data) {
         this.item.fileName = data.fileName;
         this.item.filePath = data.filePath;
       }
 
+      console.log(this.items);
       this.items = this.items.map((item) => {
         let temp = Object.assign({}, item);
         if (temp.stepID === this.item.stepID) {

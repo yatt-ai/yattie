@@ -97,7 +97,7 @@ export default {
   },
   data() {
     return {
-      editSessionItem: this.item,
+      editSessionItem: { ...this.item },
       triggerSaveEvent: this.triggerSave,
       autoSaveEvent: this.autoSave,
       currentViewName: this.currentView,

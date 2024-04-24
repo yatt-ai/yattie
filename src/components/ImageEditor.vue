@@ -13,6 +13,7 @@ import "tui-image-editor/dist/tui-image-editor.css";
 import "tui-color-picker/dist/tui-color-picker.css";
 
 import { STATUSES } from "../modules/constants";
+import { updateImageForWeb } from "@/helpers/WebHelpers";
 
 export default {
   name: "EditorPanel",
@@ -168,6 +169,15 @@ export default {
           }
         }
       } else {
+        const imgURI = this.imageEditorInst.toDataURL();
+        const { item } = updateImageForWeb({
+          item: this.editSessionItem,
+          url: imgURI,
+        });
+        this.editSessionItem.filePath = item.filePath;
+        this.editSessionItem.fileSize = item.fileSize;
+        this.editSessionItem.fileChecksum = item.fileChecksum;
+
         this.$root.$emit("update-edit-item", this.editSessionItem);
         this.$root.$emit("save-data", this.editSessionItem);
       }
