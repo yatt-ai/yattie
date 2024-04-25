@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import VuexPersist from "vuex-persist";
+import yjsIntegrationHelper from "@/integrations/YjsIntegrationHelper";
 
 import {
   SESSION_STATUSES,
@@ -126,9 +127,11 @@ const store = new Vuex.Store({
     },
     setPreSessionTasks(state, payload) {
       state.session.preSessionTasks = payload;
+      yjsIntegrationHelper.updateRoomState(state);
     },
     setPostSessionTasks(state, payload) {
       state.session.postSessionTasks = payload;
+      yjsIntegrationHelper.updateRoomState(state);
     },
     setSessionItems(state, payload) {
       state.session.items = payload;
@@ -141,6 +144,7 @@ const store = new Vuex.Store({
     },
     setSessionItemsFromExternalWindow(state, payload) {
       state.session.items = payload;
+      yjsIntegrationHelper.updateRoomState(state);
     },
     addSessionItem(state, payload) {
       state.session.items.push(payload);
@@ -257,6 +261,13 @@ const store = new Vuex.Store({
         content: "",
         text: "",
       };
+
+      yjsIntegrationHelper.updateRoomState(state);
+      this._vm.$storageService.updateState(state);
+    },
+
+    updateFromNetwork(state) {
+      console.log("Called with state", state);
       this._vm.$storageService.updateState(state);
     },
 
