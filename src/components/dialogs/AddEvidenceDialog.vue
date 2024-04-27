@@ -357,6 +357,10 @@ export default {
       type: Object,
       default: () => {},
     },
+    selectedNodes: {
+      type: Array,
+      default: () => [],
+    },
   },
   data() {
     return {
@@ -638,10 +642,14 @@ export default {
         createdAt: Date.now(),
         uploaded: false,
       };
-      const updatedItems = [...this.items];
+      let tempItems = structuredClone(this.items);
+      for (let i = 0; i < this.nodes.length; i++) {
+        tempItems[i].fx = this.nodes[i].fx;
+        tempItems[i].fy = this.nodes[i].fy;
+      }
+      const updatedItems = [...tempItems];
       let updatedNodes = [];
       let updatedConnections = [...this.connections];
-
       if (this.nodes.length == 0) {
         newItem.fx = Math.floor(Math.random() * 1001) - 500;
         newItem.fy = Math.floor(Math.random() * 1001) - 500;
@@ -653,6 +661,7 @@ export default {
         newItem.fx = this.nodes[this.nodes.length - 1].fx + random_offset;
         newItem.fy = this.nodes[this.nodes.length - 1].fy + random_offset;
       }
+
       updatedItems.push(newItem);
       updatedItems.forEach((item) => {
         item.id = item.stepID;
@@ -660,10 +669,19 @@ export default {
       });
 
       if (this.nodes.length > 0) {
-        updatedConnections.push({
-          source: this.nodes[this.nodes.length - 1].stepID,
-          target: newItem.stepID,
-        });
+        if (this.selectedNodes.length) {
+          this.selectedNodes.forEach((node) => {
+            updatedConnections.push({
+              source: node.stepID,
+              target: newItem.stepID,
+            });
+          });
+        } else {
+          updatedConnections.push({
+            source: this.nodes[this.nodes.length - 1].stepID,
+            target: newItem.stepID,
+          });
+        }
       }
       await this.$store.commit("setSessionItems", [...updatedItems]);
       await this.$store.commit("setSessionNodes", [...updatedNodes]);

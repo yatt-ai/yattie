@@ -3,15 +3,16 @@
     <div class="tab-bar">
       <v-tabs :height="26" centered hide-slider>
         <v-tab
-          class="timeline-tab"
-          @click="currentTab = 'timeline'"
+          class="mindmap-tab"
+          @click="currentTab = 'mindmap'"
           :style="{ color: currentTheme.secondary }"
         >
-          Timeline
-        </v-tab>
-        <v-tab class="notes-tab" @click="currentTab = 'notes'"> Notes </v-tab>
-        <v-tab class="mindmap-tab" @click="currentTab = 'mindmap'">
           Mindmap
+        </v-tab>
+
+        <v-tab class="notes-tab" @click="currentTab = 'notes'"> Notes </v-tab>
+        <v-tab class="timeline-tab" @click="currentTab = 'timeline'">
+          Timeline
         </v-tab>
       </v-tabs>
     </div>
@@ -89,7 +90,7 @@ export default {
     return {
       selected: this.selectedItems,
       eventName: this.eventType,
-      currentTab: "timeline",
+      currentTab: "mindmap",
     };
   },
   methods: {

@@ -774,6 +774,7 @@
       v-if="evidenceData"
       v-model="addEvidenceDialog"
       :item-data="evidenceData"
+      :selectedNodes="selectedNodes"
       @close="
         addEvidenceDialog = false;
         evidenceData = null;
@@ -1044,6 +1045,7 @@ export default {
       started: "",
       ended: "",
       selected: [],
+      selectedNodes: [],
       callback: null,
       evidenceExportDestinationMenu: false,
       issueCreateDestinationMenu: false,
@@ -1059,6 +1061,7 @@ export default {
       this.$electronService.onResetSession(this.showResetConfirmDialog);
     }
 
+    this.$root.$on("update-selected-nodes", this.updateSelectedNodes);
     this.$root.$on("close-sourcepickerdialog", this.hideSourcePickerDialog);
     this.$root.$on("close-sharesessiondialog", this.hideShareSessionDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
@@ -1199,6 +1202,9 @@ export default {
     },
     hideNoteDialog() {
       this.noteDialog = false;
+    },
+    updateSelectedNodes(value) {
+      this.selectedNodes = value;
     },
     handleDeleteConfirmDialog() {
       this.deleteConfirmDialog = true;

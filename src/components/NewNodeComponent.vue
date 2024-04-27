@@ -8,8 +8,8 @@
       @click="handleClick"
     >
       <v-card-actions style="padding: 0px">
-        <v-btn icon color="#6b7280" @click="handleAdd">
-          <i class="fas fa-plus-circle" />
+        <v-btn icon color="#6b7280" @click="handleItemEdit">
+          <i class="fas fa-edit" />
         </v-btn>
         <v-btn icon color="#6b7280" @click="handleRemove">
           <i class="fas fa-trash-alt" />
@@ -32,7 +32,7 @@
       </v-card-actions>
       <v-divider></v-divider>
       <div class="node-content">{{ node.content }}</div>
-      <div class="node-attachments">
+      <div style="width: 100%">
         <div v-if="getType(node.fileType) === 'image'">
           <img
             class="screen-img"
@@ -48,7 +48,10 @@
           />
         </div>
         <div v-if="getType(node.fileType) === 'audio'">
-          <img :src="$isElectron ? `file://${node.poster}` : node.poster" />
+          <img
+            style="max-width: 100%"
+            :src="$isElectron ? `file://${node.poster}` : node.poster"
+          />
         </div>
         <div v-if="getType(node.fileType) === 'mindmap'">
           <img
@@ -96,7 +99,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    onAdd: {
+    onEdit: {
       type: Function,
     },
     onSave: {
@@ -142,15 +145,12 @@ export default {
       this.tags = newTags;
       this.onTagsChanged(newTags);
     },
-    handleAdd(e) {
+    handleItemEdit(e) {
       e.stopPropagation();
-      this.content = "";
-      this.status = "";
-      this.nodeEditDialog = true;
+      this.onEdit(this.node.stepID);
     },
     handleSubmit(title, type) {
-      if (this.content) this.onSave(title, type);
-      else this.onAdd(title, type);
+      this.onSave(title, type);
       this.nodeEditDialog = false;
     },
     handleRemove(e) {
@@ -222,11 +222,6 @@ export default {
 
 .node-content {
   text-align: center;
-}
-
-.node-attachments {
-  display: flex;
-  flex-wrap: wrap;
 }
 
 .vue-tags-input {

@@ -374,7 +374,7 @@ export default {
   display: flex;
   align-items: center;
   overflow: hidden;
-  max-height: 400px;
+  /* max-height: 400px; */
   position: relative;
 }
 </style>

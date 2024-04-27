@@ -36,7 +36,6 @@ import {
   zoom,
   zoomIdentity,
 } from "d3";
-import { v4 as uuidv4 } from "uuid";
 import NewNodeComponent from "./NewNodeComponent.vue";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import vuetify from "@/plugins/vuetify";
@@ -111,11 +110,22 @@ export default {
     },
     nodes: {
       async handler() {
-        this.renderMap();
+        this.nodesData = structuredClone(this.nodes);
+        this.connectionsData = structuredClone(this.connections);
+        await this.renderMap();
       },
     },
-    selectedItems: function (newValue) {
-      this.selected = newValue;
+    connections: {
+      async handler() {
+        this.nodesData = structuredClone(this.nodes);
+        this.connectionsData = structuredClone(this.connections);
+        await this.renderMap();
+      },
+    },
+    selectedNodes: {
+      async handler() {
+        this.$root.$emit("update-selected-nodes", this.selectedNodes);
+      },
     },
     eventType: function (newValue) {
       this.eventName = newValue;
@@ -135,7 +145,6 @@ export default {
       tags: "",
       eventName: this.eventType,
       textTypes: TEXT_TYPES,
-      clicks: 0,
       isDragging: false,
       itemDragging: false,
       emojiMenu: {},
@@ -149,12 +158,15 @@ export default {
       clicked: [],
       editable: this.edit,
       selectedNodes: [],
+      nodesData: [],
+      connectionsData: [],
       title: "",
     };
   },
   created() {
     // Create force simulation to position nodes that have
     // no coordinate, and add it to the component state
+
     this.simulation = forceSimulation()
       .force(
         "link",
@@ -162,8 +174,12 @@ export default {
       )
       .force("charge", forceManyBody())
       .force("collide", forceCollide().radius(100));
+    this.nodesData = structuredClone(this.nodes);
+    this.connectionsData = structuredClone(this.connections);
   },
   mounted() {
+    console.log("mounted");
+
     this.emojiMenu = {};
     this.itemLists.map(async (item) => {
       let temp = structuredClone(item);
@@ -203,13 +219,6 @@ export default {
     getType(type) {
       return FILE_TYPES[type];
     },
-    formatTime(timeInSeconds) {
-      const seconds = ("0" + (timeInSeconds % 60)).slice(-2);
-      const minutes = ("0" + (parseInt(timeInSeconds / 60, 10) % 60)).slice(-2);
-      const hours = ("0" + (parseInt(timeInSeconds / 3600, 10) % 24)).slice(-2);
-
-      return hours + ":" + minutes + ":" + seconds;
-    },
     async uploadEvidence() {
       // todo add relative handler for web app
       if (this.$isElectron) {
@@ -244,26 +253,9 @@ export default {
       this.saveData();
     },
     handleItemClick(id) {
-      this.clicks++;
-      if (this.clicks === 1) {
-        setTimeout(
-          function () {
-            switch (this.clicks) {
-              case 1:
-                if (this.eventName === "click") {
-                  this.handleActivateEditSession(id);
-                }
-                break;
-              default:
-                if (this.eventName === "dblclick") {
-                  this.handleActivateEditSession(id);
-                }
-            }
-            this.clicks = 0;
-          }.bind(this),
-          200
-        );
-      }
+      // setTimeout(function () {
+      this.handleActivateEditSession(id);
+      // }, 200);
     },
     handleFollowUp($event, id) {
       this.itemLists = this.itemLists.map((item) => {
@@ -282,32 +274,6 @@ export default {
 
     handleSelectedItem(id) {
       this.selectedId = id;
-    },
-    selectEmoji(emoji) {
-      this.emojiMenu[`menu-${this.selectedId}`] = false;
-
-      this.itemLists = this.itemLists.map((item) => {
-        let temp = structuredClone(item);
-        if (temp.stepID === this.selectedId) {
-          if (temp.emoji.filter((item) => item.data === emoji.data).length) {
-            temp.emoji = temp.emoji.filter((item) => item.data !== emoji.data);
-          } else {
-            temp.emoji.push(emoji);
-          }
-        }
-        return temp;
-      });
-      this.saveData();
-    },
-    removeEmoji(id, emoji) {
-      this.itemLists = this.itemLists.map((item) => {
-        let temp = structuredClone(item);
-        if (temp.stepID === id) {
-          temp.emoji = temp.emoji.filter((item) => item.data !== emoji.data);
-        }
-        return temp;
-      });
-      this.saveData();
     },
     async saveData() {
       await this.$store.commit("setSessionItems", this.itemLists);
@@ -381,26 +347,32 @@ export default {
           this.selectedNodes.find((ele) => ele.id === node.id) !== undefined;
         node.width = node.width ?? 220;
         node.height = node.height ?? 110;
-        // node.id = uuidv4();
-        // const html = nodeToHTML(node);
-
-        // const dimensions = getDimensions(html, {}, "mindmap-node");
-        // node.width = dimensions.width;
-        // node.height = dimensions.height;
       };
-
-      this.nodes.forEach((node) => render(node));
+      this.nodesData.forEach((node) => render(node));
     },
     /**
      * Add new class to nodes, attach drag behevior,
      * and start simulation.
      */
+
+    updateNodes() {
+      let updatedNodes = structuredClone(this.nodesData);
+      this.$store.commit("setSessionNodes", updatedNodes);
+    },
+
+    updateConnections() {
+      let updatedConnections = structuredClone(this.connectionsData);
+      this.$store.commit("setSessionConnections", updatedConnections);
+    },
+
     prepareEditor(svg, conns, nodes, labels) {
       nodes
         .attr("class", "mindmap-node mindmap-node--editable")
         .attr("id", (d) => d.id);
-
-      nodes.call(d3Drag(this.simulation, svg, nodes));
+      let dragging = false;
+      nodes.call(
+        d3Drag(this.simulation, svg, nodes, true, dragging, this.updateNodes)
+      );
       // Tick the simulation 100 times
       for (let i = 0; i < 100; i += 1) {
         this.simulation.tick();
@@ -416,6 +388,7 @@ export default {
      * Render mind map unsing D3
      */
     renderMap() {
+      console.log("Render Map");
       this.simulation = forceSimulation()
         .force(
           "link",
@@ -434,9 +407,9 @@ export default {
 
       this.prepareNodes();
       // Bind data to SVG elements and set all the properties to render them
-      const labels = d3Labels(svg, this.connections);
-      const connections = d3Connections(svg, this.connections, labels);
-      const nodes = d3Nodes(svg, this.nodes);
+      const labels = d3Labels(svg, this.connectionsData);
+      const connections = d3Connections(svg, this.connectionsData, labels);
+      const nodes = d3Nodes(svg, this.nodesData);
       // Bind vue component to the node
       const self = this;
       nodes.each(function (node) {
@@ -450,8 +423,7 @@ export default {
               props: {
                 node,
                 editable: self.editable,
-                onAdd: (content, status) =>
-                  self.addNewNode(node, content, status),
+                onEdit: (id) => self.handleItemClick(id),
                 onSave: (content, status) => self.onSave(content, status),
                 onRemove: () => self.removeNode(node),
                 onConnect: () => self.connectNode(svg, node),
@@ -484,9 +456,12 @@ export default {
 
         container.node().appendChild(vueComponent.$el);
       });
-      d3Selection(svg, this.nodes, this.onSelectedByDrag);
+      d3Selection(svg, this.nodesData, this.onSelectedByDrag);
       // Bind nodes and connections to the simulation
-      this.simulation.nodes(this.nodes).force("link").links(this.connections);
+      this.simulation
+        .nodes(this.nodesData)
+        .force("link")
+        .links(this.connectionsData);
 
       if (this.editable) {
         this.prepareEditor(svg, connections, nodes, labels);
@@ -505,6 +480,9 @@ export default {
         .attr("viewBox", getViewBox(nodes.data()))
         .call(d3PanZoom(svg))
         .on("dbClick.zoom", null);
+
+      // this.$store.commit("setSessionNodes", [...this.nodes]);
+      // this.$store.commit("setSessionConnections", [...this.connections]);
     },
 
     onSave(content, status) {
@@ -523,39 +501,16 @@ export default {
       this.renderMap();
     },
     /**
-     * * add new nodes
-     */
-    addNewNode(target, content, status) {
-      const nodeId = uuidv4();
-      let random_offset;
-      do {
-        random_offset = Math.floor(Math.random() * 400) - 200;
-      } while (random_offset >= -100 && random_offset <= 100);
-      this.nodes.push({
-        id: nodeId,
-        content: content,
-        status: status,
-        fx: target.fx + random_offset,
-        fy: target.fy + random_offset,
-      });
-      this.connections.push({
-        source: target.id,
-        target: nodeId,
-      });
-      this.renderMap();
-      if (this.autoSave) {
-        this.handleMindmap();
-      }
-    },
-    /**
      * remove a node
      * todo: before remove nodes check all link
      */
     removeNode(node) {
-      this.nodes = this.nodes.filter((item) => item.id !== node.id);
-      this.connections = this.connections.filter(
+      this.nodesData = this.nodesData.filter((item) => item.id !== node.id);
+      this.connectionsData = this.connectionsData.filter(
         (item) => item.source.id !== node.id && item.target.id !== node.id
       );
+      this.updateNodes();
+      this.updateConnections();
       this.renderMap();
       if (this.autoSave) {
         this.handleMindmap();
@@ -589,7 +544,7 @@ export default {
 
       if (this.clicked.length === 2) {
         // check if the previous connection exists
-        const previousConnection = this.connections.find(
+        const previousConnection = this.connectionsData.find(
           ({ source, target }) =>
             (source.id === this.clicked[0].id &&
               target.id === this.clicked[1].id) ||
@@ -597,13 +552,14 @@ export default {
               target.id === this.clicked[0].id)
         );
         if (!previousConnection) {
-          this.connections.push({
+          this.connectionsData.push({
             source: this.clicked[0].id,
             target: this.clicked[1].id,
           });
         }
         this.clicked = [];
       }
+      this.updateConnections();
       this.renderMap();
       d3Connector(svg, this.clicked[0]);
     },
@@ -621,8 +577,8 @@ export default {
         height: rect.height * quality,
         width: rect.width * quality,
       });
-      let new_nodes = structuredClone(this.nodes);
-      let new_connections = structuredClone(this.connections);
+      let new_nodes = structuredClone(this.nodesData);
+      let new_connections = structuredClone(this.connectionsData);
 
       this.$emit("submit-mindmap", {
         nodes: new_nodes,
