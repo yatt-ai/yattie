@@ -242,7 +242,7 @@
 import { VContainer, VBtn } from "vuetify/lib/components";
 import LogoWrapper from "../components/LogoWrapper.vue";
 import MenuPopover from "../components/MenuPopover.vue";
-
+import { socketState, socket } from "@/socket";
 import { STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
 export default {
@@ -322,6 +322,9 @@ export default {
       }
     },
     handleQuickTest() {
+      socket.connect();
+
+      console.log(socketState);
       this.$store.commit("startQuickTest");
       this.$router.push("/main/workspace");
     },
