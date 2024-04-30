@@ -1426,7 +1426,6 @@ export default {
           video.remove();
           const imgURI = canvas.toDataURL("image/png");
           stream.getTracks().forEach((track) => track.stop());
-
           if (this.$isElectron) {
             // todo add web implementation
             const { status, message, item } =

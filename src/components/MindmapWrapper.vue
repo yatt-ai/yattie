@@ -346,7 +346,7 @@ export default {
         node.selected =
           this.selectedNodes.find((ele) => ele.id === node.id) !== undefined;
         node.width = node.width ?? 220;
-        node.height = node.height ?? 110;
+        node.height = node.height ?? 250;
       };
       this.nodesData.forEach((node) => render(node));
     },
@@ -558,8 +558,8 @@ export default {
           });
         }
         this.clicked = [];
+        this.updateConnections();
       }
-      this.updateConnections();
       this.renderMap();
       d3Connector(svg, this.clicked[0]);
     },

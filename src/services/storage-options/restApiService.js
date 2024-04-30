@@ -83,8 +83,7 @@ export default class RestApiService extends StorageInterface {
     const response = await axios.get(
       `http://localhost:5000/v1/app/org/f352ae63-11fc-4dbe-bab1-72561aa25fca/config/5e0f71ff-987d-4240-85eb-df6adf568c31`
     );
-    console.log(response);
-    return response.data.config;
+    return response.config;
   }
 
   async getAttachment(attachmentId) {
