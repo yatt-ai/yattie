@@ -159,6 +159,7 @@ export const FILE_TYPES = {
   "audio/wav": "audio",
   "audio/webm": "audio",
   "application/json": "mindmap",
+  "application/zip": "file",
 };
 
 export const TEXT_TYPES = {

@@ -60,6 +60,16 @@
             :src="`file://${node.filePath}`"
           />
         </div>
+        <div
+          v-if="
+            getType(node.fileType) === undefined &&
+            node.comment.type !== 'Summary'
+          "
+          class="node-file-content"
+        >
+          <v-icon x-large>mdi-file</v-icon>
+          <span>{{ node.fileName }}</span>
+        </div>
       </div>
       <div class="node-tags" @click="handleClickTagsInput">
         <vue-tags-input
@@ -69,26 +79,16 @@
         />
       </div>
     </v-card>
-
-    <node-edit-dialog
-      v-model="nodeEditDialog"
-      :title="content"
-      :type="status"
-      @save="handleSubmit"
-      @cancel="nodeEditDialog = false"
-    />
   </div>
 </template>
 
 <script>
 import VueTagsInput from "@johmun/vue-tags-input";
-import NodeEditDialog from "./dialogs/NodeEditDialog.vue";
 import { FILE_TYPES } from "@/modules/constants";
 export default {
   name: "NewNodeComponent",
   components: {
     VueTagsInput,
-    NodeEditDialog,
   },
   props: {
     node: {
@@ -127,7 +127,6 @@ export default {
       tags: this.node.tags ?? [],
       attachments: this.node.attachments ?? [],
       // border colors map with status as key
-      nodeEditDialog: false,
       content: "",
       status: "",
       BorderColorByStatus: {
@@ -149,10 +148,6 @@ export default {
       e.stopPropagation();
       this.onEdit(this.node.stepID);
     },
-    handleSubmit(title, type) {
-      this.onSave(title, type);
-      this.nodeEditDialog = false;
-    },
     handleRemove(e) {
       e.stopPropagation();
       this.onRemove();
@@ -165,7 +160,6 @@ export default {
       e.stopPropagation();
       this.content = this.node.content;
       this.status = this.node.status;
-      if (!e.altKey) this.nodeEditDialog = true;
       this.onClick(e.altKey);
     },
     handleFileUpload(e) {
@@ -195,6 +189,7 @@ export default {
   background-color: #fff;
   border-radius: 12px;
   width: 100%;
+  height: 100%;
   padding: 8px;
   display: flex;
   justify-content: space-between;
@@ -207,6 +202,12 @@ export default {
 
 .node-body:hover {
   background-color: #c5ebdc;
+}
+
+.node-file-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .selected {

@@ -1,7 +1,24 @@
 <template>
   <v-container>
     <div class="wrapper">
-      <svg class="mindmap-wrapper-svg" ref="mindmapWrapper"></svg>
+      <svg
+        v-if="nodes.length"
+        class="mindmap-wrapper-svg"
+        ref="mindmapWrapper"
+      ></svg>
+      <div v-else class="center">
+        {{ $tc("message.empty_workspace") }}
+      </div>
+      <div v-if="status !== 'pending' && status !== 'pause'">
+        <v-btn
+          plain
+          :style="{ color: currentTheme.secondary }"
+          class="text-capitalize"
+          @click="uploadEvidence"
+        >
+          {{ $tc("caption.upload_evidence", 1) }}
+        </v-btn>
+      </div>
     </div>
     <AddEvidenceDialog
       v-if="evidenceData"
@@ -32,7 +49,7 @@ import {
   forceManyBody,
   forceSimulation,
   select,
-  event,
+  // event,
   zoom,
   zoomIdentity,
 } from "d3";
@@ -179,6 +196,7 @@ export default {
   },
   mounted() {
     console.log("mounted");
+    this.$root.$on("render-mindmap", this.renderMindmap);
 
     this.emojiMenu = {};
     this.itemLists.map(async (item) => {
@@ -345,8 +363,8 @@ export default {
       const render = (node) => {
         node.selected =
           this.selectedNodes.find((ele) => ele.id === node.id) !== undefined;
-        node.width = node.width ?? 220;
-        node.height = node.height ?? 250;
+        node.width = node.width ?? 200;
+        node.height = node.height ?? 300;
       };
       this.nodesData.forEach((node) => render(node));
     },
@@ -384,11 +402,16 @@ export default {
           .on("tick", () => onTick(conns, nodes, labels));
       }, 200);
     },
+
+    renderMindmap() {
+      setTimeout(() => {
+        this.renderMap();
+      }, 200);
+    },
     /**
      * Render mind map unsing D3
      */
     renderMap() {
-      console.log("Render Map");
       this.simulation = forceSimulation()
         .force(
           "link",
@@ -397,12 +420,7 @@ export default {
         .force("charge", forceManyBody())
         .force("collide", forceCollide().radius(200));
 
-      let svg = select(this.$refs.mindmapWrapper).on("click", () => {
-        // Check if the left mouse button is clicked
-        event.preventDefault();
-        this.selectedNodes = [];
-        this.renderMap();
-      });
+      let svg = select(this.$refs.mindmapWrapper);
       svg.selectAll("*").remove();
 
       this.prepareNodes();
@@ -443,10 +461,9 @@ export default {
           mounted() {
             this.$nextTick(() => {
               const width = this.$el.offsetWidth;
-              const height = this.$el.offsetHeight;
               node.width = width; // Store the computed size in your node's data
-              node.height = height; // Store the computed size in your node's data
-              container.attr("width", width).attr("height", height);
+              // node.height = height; // Store the computed size in your node's data
+              container.attr("width", width);
             });
             // TODO: need a function to resize the node
           },
@@ -594,12 +611,22 @@ export default {
 <style scoped>
 .wrapper {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  /* justify-content: center; */
+  justify-content: center;
   overflow: hidden;
   width: 100%;
   /* height: 100vh; */
   /* background: linear-gradient(90deg, #1d8bdd 20%, #6d61b1 80%); */
   position: relative;
+}
+
+.center {
+  margin-top: 16rem;
+  align-items: center;
+  justify-content: center;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
 }
 </style>

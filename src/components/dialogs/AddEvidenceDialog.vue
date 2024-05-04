@@ -654,12 +654,13 @@ export default {
         newItem.fx = Math.floor(Math.random() * 1001) - 500;
         newItem.fy = Math.floor(Math.random() * 1001) - 500;
       } else {
-        let random_offset;
+        let random_offset_x, random_offset_y;
         do {
-          random_offset = Math.floor(Math.random() * 400) - 200;
-        } while (random_offset >= -100 && random_offset <= 100);
-        newItem.fx = this.nodes[this.nodes.length - 1].fx + random_offset;
-        newItem.fy = this.nodes[this.nodes.length - 1].fy + random_offset;
+          random_offset_x = Math.floor(Math.random() * 800) - 400;
+          random_offset_y = Math.floor(Math.random() * 800) - 400;
+        } while (random_offset_x >= -200 && random_offset_x <= 200);
+        newItem.fx = this.nodes[this.nodes.length - 1].fx + random_offset_x;
+        newItem.fy = this.nodes[this.nodes.length - 1].fy + random_offset_y;
       }
 
       updatedItems.push(newItem);
@@ -689,6 +690,7 @@ export default {
         ...updatedConnections,
       ]);
       this.$emit("close");
+      this.$root.$emit("render-mindmap");
     },
     handleClear() {
       this.comment = {
