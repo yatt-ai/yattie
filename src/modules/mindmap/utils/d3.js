@@ -25,7 +25,6 @@ export const d3Connections = (svg, connections, labels) =>
     .on("dblclick", (clickedConn) => {
       // Prevent event propagation to the document
       event.stopPropagation();
-
       // Get the clicked connection index
       const clickedConnectionIndex = connections.indexOf(clickedConn);
 

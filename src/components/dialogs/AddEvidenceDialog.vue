@@ -664,12 +664,17 @@ export default {
       }
 
       updatedItems.push(newItem);
-      updatedItems.forEach((item) => {
+      tempItems = updatedItems
+        .slice()
+        .filter((item) => item?.comment?.type !== "Summary");
+
+      tempItems.forEach((item) => {
         item.id = item.stepID;
         updatedNodes.push({ ...item, content: item.comment.text });
       });
 
       if (this.nodes.length > 0) {
+        console.log(this.selectedNodes);
         if (this.selectedNodes.length) {
           this.selectedNodes.forEach((node) => {
             updatedConnections.push({

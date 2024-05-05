@@ -9,7 +9,9 @@
       <div v-else class="center">
         {{ $tc("message.empty_workspace") }}
       </div>
-      <div v-if="status !== 'pending' && status !== 'pause'">
+      <div
+        v-if="status !== 'pending' && status !== 'pause' && status !== 'end'"
+      >
         <v-btn
           plain
           :style="{ color: currentTheme.secondary }"
@@ -171,6 +173,8 @@ export default {
       editEvidenceDialog: false,
       posterUrl: null,
 
+      clicks: 0,
+      timer: null,
       simulation: null,
       clicked: [],
       editable: this.edit,
@@ -461,9 +465,10 @@ export default {
           mounted() {
             this.$nextTick(() => {
               const width = this.$el.offsetWidth;
+              const height = this.$el.offsetHeight;
               node.width = width; // Store the computed size in your node's data
-              // node.height = height; // Store the computed size in your node's data
-              container.attr("width", width);
+              node.height = height; // Store the computed size in your node's data
+              container.attr("width", width).attr("height", height);
             });
             // TODO: need a function to resize the node
           },
@@ -496,8 +501,7 @@ export default {
       svg
         .attr("viewBox", getViewBox(nodes.data()))
         .call(d3PanZoom(svg))
-        .on("dbClick.zoom", null);
-
+        .on("dblclick.zoom", null);
       // this.$store.commit("setSessionNodes", [...this.nodes]);
       // this.$store.commit("setSessionConnections", [...this.connections]);
     },
@@ -539,6 +543,17 @@ export default {
      */
     clickNode(isAltKeyPressed, node) {
       // Toggle the selection of the clicked node
+      this.clicks++;
+      if (this.clicks === 1) {
+        var self = this;
+        this.timer = setTimeout(function () {
+          self.clicks = 0;
+        }, 700);
+      } else {
+        clearTimeout(this.timer);
+        this.handleActivateEditSession(node.id);
+        this.clicks = 0;
+      }
       if (isAltKeyPressed) {
         const index = this.selectedNodes.indexOf(node);
         if (index === -1) {
