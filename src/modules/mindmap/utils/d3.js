@@ -126,6 +126,42 @@ export const onTick = (conns, nodes, labels) => {
     .attr("y", (d) => (d.source.y + d.target.y) / 2 - 4);
 };
 
+export const onNextTick = (conns, nodes, labels) => {
+  const d = (conn) =>
+    [
+      "M",
+      conn.source.x,
+      ",",
+      conn.source.y - 100,
+      " ",
+      "C",
+      (conn.source.x + conn.target.x) / 2,
+      ",",
+      conn.source.y,
+      " ",
+      (conn.source.x + conn.target.x) / 2,
+      ",",
+      conn.target.y,
+      " ",
+      conn.target.x,
+      ",",
+      conn.target.y - 100,
+    ].join("");
+
+  // Set the connections path.
+  conns.attr("d", d);
+
+  // Set nodes position.
+  nodes
+    .attr("x", (node) => node.x - node.width / 2)
+    .attr("y", (node) => node.y - node.height / 2);
+
+  // Re-position the connection labels
+  labels
+    .attr("x", (d) => (d.source.x + d.target.x) / 2)
+    .attr("y", (d) => (d.source.y + d.target.y) / 2 - 4);
+};
+
 /*
  * Return drag behavior to use on d3.selection.call().
  */

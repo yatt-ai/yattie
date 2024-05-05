@@ -68,7 +68,7 @@ import {
   d3Nodes,
   d3Drag,
   d3PanZoom,
-  onTick,
+  onNextTick,
   d3Connector,
   d3Selection,
 } from "../modules/mindmap/utils/d3";
@@ -403,7 +403,7 @@ export default {
       setTimeout(() => {
         this.simulation
           .alphaTarget(0.5)
-          .on("tick", () => onTick(conns, nodes, labels));
+          .on("tick", () => onNextTick(conns, nodes, labels));
       }, 200);
     },
 
@@ -464,11 +464,11 @@ export default {
             }),
           mounted() {
             this.$nextTick(() => {
-              const width = this.$el.offsetWidth;
-              const height = this.$el.offsetHeight;
-              node.width = width; // Store the computed size in your node's data
-              node.height = height; // Store the computed size in your node's data
-              container.attr("width", width).attr("height", height);
+              // const width = this.$el.offsetWidth;
+              // const height = this.$el.offsetHeight;
+              // node.width = width; // Store the computed size in your node's data
+              // node.height = height; // Store the computed size in your node's data
+              // container.attr("width", width).attr("height", height);
             });
             // TODO: need a function to resize the node
           },
@@ -496,7 +496,7 @@ export default {
 
       this.simulation
         .alphaTarget(0.5)
-        .on("tick", () => onTick(connections, nodes, labels));
+        .on("tick", () => onNextTick(connections, nodes, labels));
 
       svg
         .attr("viewBox", getViewBox(nodes.data()))
