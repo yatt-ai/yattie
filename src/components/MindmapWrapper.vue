@@ -199,7 +199,6 @@ export default {
     this.connectionsData = structuredClone(this.connections);
   },
   mounted() {
-    console.log("mounted");
     this.$root.$on("render-mindmap", this.renderMindmap);
 
     this.emojiMenu = {};

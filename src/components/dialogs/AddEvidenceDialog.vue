@@ -658,7 +658,10 @@ export default {
         do {
           random_offset_x = Math.floor(Math.random() * 800) - 400;
           random_offset_y = Math.floor(Math.random() * 800) - 400;
-        } while (random_offset_x >= -200 && random_offset_x <= 200);
+        } while (
+          (random_offset_x >= -200 && random_offset_x <= -100) ||
+          (random_offset_x >= 100 && random_offset_x <= 200)
+        );
         newItem.fx = this.nodes[this.nodes.length - 1].fx + random_offset_x;
         newItem.fy = this.nodes[this.nodes.length - 1].fy + random_offset_y;
       }
@@ -674,7 +677,6 @@ export default {
       });
 
       if (this.nodes.length > 0) {
-        console.log(this.selectedNodes);
         if (this.selectedNodes.length) {
           this.selectedNodes.forEach((node) => {
             updatedConnections.push({
