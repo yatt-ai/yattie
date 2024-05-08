@@ -55,6 +55,15 @@
         </div>
         <div
           v-if="
+            node.fileType === 'text/plain' && node.comment.type !== 'Summary'
+          "
+          class="node-file-content"
+        >
+          <span>{{ node.fileName }}</span>
+        </div>
+        <div
+          v-if="
+            node.fileType !== 'text/plain' &&
             getType(node.fileType) === undefined &&
             node.comment.type !== 'Summary'
           "

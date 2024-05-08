@@ -476,11 +476,11 @@ export default {
             }),
           mounted() {
             this.$nextTick(() => {
-              // const width = this.$el.offsetWidth;
-              // const height = this.$el.offsetHeight;
+              const width = this.$el.offsetWidth;
+              const height = this.$el.offsetHeight;
               // node.width = width; // Store the computed size in your node's data
               // node.height = height; // Store the computed size in your node's data
-              // container.attr("width", width).attr("height", height);
+              container.attr("width", width).attr("height", height);
             });
             // TODO: need a function to resize the node
           },
@@ -591,8 +591,15 @@ export default {
       tempItems.forEach((item) => {
         if (item.id === node.id) item.tags = newTags;
       });
+      let updatedNodes = structuredClone(this.nodesData);
+      updatedNodes.forEach((item) => {
+        if (item.id === node.id) item.tags = newTags;
+      });
       this.itemLists = tempItems;
+      this.$store.commit("setSessionNodes", updatedNodes);
       this.saveData();
+
+      this.renderMap();
     },
 
     /**

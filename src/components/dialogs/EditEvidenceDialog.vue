@@ -536,14 +536,11 @@ export default {
       this.item.followUp = $event.target.checked;
     },
     async saveData(data) {
-      console.log(data);
-      console.log("Save happens here");
       if (data) {
         this.item.fileName = data.fileName;
         this.item.filePath = data.filePath;
       }
 
-      console.log(this.items);
       this.items = this.items.map((item) => {
         let temp = Object.assign({}, item);
         if (temp.stepID === this.item.stepID) {
@@ -551,8 +548,22 @@ export default {
         }
         return temp;
       });
-      await this.$store.commit("setSessionItems", this.items);
+      const updatedItems = [...this.items];
+      let updatedNodes = [];
+      let tempItems = updatedItems
+        .slice()
+        .filter((item) => item?.comment?.type !== "Summary");
+
+      tempItems.forEach((item) => {
+        item.id = item.stepID;
+        updatedNodes.push({ ...item, content: item.comment.text });
+      });
+
+      await this.$store.commit("setSessionItems", [...updatedItems]);
+      await this.$store.commit("setSessionNodes", [...updatedNodes]);
+
       this.$emit("close");
+      this.$root.$emit("render-mindmap");
     },
     async handleAISuggestion(field, event) {
       if (
