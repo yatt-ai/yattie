@@ -366,8 +366,10 @@ export default {
       const render = (node) => {
         node.selected =
           this.selectedNodes.find((ele) => ele.id === node.id) !== undefined;
+        node.connectClicked =
+          this.clicked.find((ele) => ele.id === node.id) !== undefined;
         node.width = node.width ?? 200;
-        node.height = node.height ?? 300;
+        node.height = node.height ?? 270;
       };
       this.nodesData.forEach((node) => render(node));
     },
@@ -378,6 +380,17 @@ export default {
 
     updateNodes() {
       let updatedNodes = structuredClone(this.nodesData);
+      let tempItems = structuredClone(this.itemLists);
+      for (let i = 0; i < tempItems.length; i++) {
+        let node = updatedNodes.find((ele) => ele.id === tempItems[i].id);
+        if (node) {
+          tempItems[i].fx = node.fx;
+          tempItems[i].fy = node.fy;
+          tempItems[i].x = node.x;
+          tempItems[i].y = node.y;
+        }
+      }
+      this.$store.commit("setSessionItems", tempItems);
       this.$store.commit("setSessionNodes", updatedNodes);
     },
 
@@ -407,6 +420,8 @@ export default {
     },
 
     renderMindmap() {
+      this.selectedNodes = [];
+      this.selectedNodes.push(this.nodesData[this.nodesData.length - 1]);
       setTimeout(() => {
         this.renderMap();
       }, 200);
@@ -450,9 +465,7 @@ export default {
                 onConnect: () => self.connectNode(svg, node),
                 onClick: (isAltKeyPressed) =>
                   self.clickNode(isAltKeyPressed, node),
-                onTagsChanged: (newTags) => {
-                  node.tags = newTags;
-                },
+                onTagsChanged: (newTags) => self.changeTags(newTags, node),
                 onAttach: (files) => {
                   node.attachments = files;
                 },
@@ -518,6 +531,7 @@ export default {
 
     onSelectedByDrag(selectedNodes) {
       this.selectedNodes = [...selectedNodes];
+      this.clicked = [];
       this.renderMap();
     },
     /**
@@ -547,11 +561,13 @@ export default {
         var self = this;
         this.timer = setTimeout(function () {
           self.clicks = 0;
-        }, 700);
+          self.renderMap();
+        }, 300);
       } else {
         clearTimeout(this.timer);
         this.handleActivateEditSession(node.id);
         this.clicks = 0;
+        this.renderMap();
       }
       if (isAltKeyPressed) {
         const index = this.selectedNodes.indexOf(node);
@@ -560,11 +576,23 @@ export default {
         } else {
           this.selectedNodes.splice(index, 1);
         }
+        this.renderMap();
       } else {
         // If Ctrl/Cmd is not pressed, clear the selection and select only the clicked node
         this.selectedNodes = [node];
       }
-      this.renderMap();
+    },
+    /**
+     * Change the tages of node
+     */
+    changeTags(newTags, node) {
+      node.tags = newTags;
+      let tempItems = structuredClone(this.itemLists);
+      tempItems.forEach((item) => {
+        if (item.id === node.id) item.tags = newTags;
+      });
+      this.itemLists = tempItems;
+      this.saveData();
     },
 
     /**
@@ -572,7 +600,6 @@ export default {
      */
     connectNode(svg, node) {
       this.clicked.push(node);
-
       if (this.clicked.length === 2) {
         // check if the previous connection exists
         const previousConnection = this.connectionsData.find(
@@ -636,7 +663,7 @@ export default {
 }
 
 .center {
-  margin-top: 16rem;
+  margin-top: 10rem;
   align-items: center;
   justify-content: center;
   font-style: normal;

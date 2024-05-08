@@ -7,26 +7,19 @@
       style="border: 3px solid #bb199a"
       @click="handleClick"
     >
-      <v-card-actions style="padding: 0px">
+      <v-card-actions style="justify-content: center">
         <v-btn icon color="#6b7280" @click="handleItemEdit">
           <i class="fas fa-edit" />
         </v-btn>
         <v-btn icon color="#6b7280" @click="handleRemove">
           <i class="fas fa-trash-alt" />
         </v-btn>
-        <v-btn icon color="#6b7280" @click="handleUpload">
-          <label :for="`uploadFile-${node.id}`">
-            <i class="fas fa-file-lines" />
-          </label>
-          <input
-            type="file"
-            :id="`uploadFile-${node.id}`"
-            hidden
-            @change="handleFileUpload"
-            @click="handleUpload"
-          />
-        </v-btn>
-        <v-btn icon color="#6b7280" @click="handleConnect">
+        <v-btn
+          icon
+          color="#6b7280"
+          @click="handleConnect"
+          :class="{ link: node.connectClicked }"
+        >
           <i class="fas fa-link" />
         </v-btn>
       </v-card-actions>
@@ -212,6 +205,11 @@ export default {
 
 .selected {
   background: #3df1e7 !important;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.link {
+  background: #3a3a3a !important;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
 }
 

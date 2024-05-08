@@ -240,7 +240,7 @@ export const d3Selection = (svg, nodes, callback) => {
       overlay.style("opacity", 0.5).style("pointer-events", "all");
     } else if (event.button === 0) {
       mouseButton = "left";
-      select("body").style("cursor", "grab");
+      select("body").style("cursor", "auto");
     }
   }
 
@@ -267,8 +267,9 @@ export const d3Selection = (svg, nodes, callback) => {
           .attr("width", width)
           .attr("height", height);
       } else if (mouseButton === "left") {
-        select("body").style("cursor", "crosshair");
-        select("body").style("cursor", "grabbing");
+        // select("body").style("cursor", "crosshair");
+        // select("body").style("cursor", "grabbing");
+        select("body").style("cursor", "auto");
       }
     }
   }

@@ -114,6 +114,9 @@ export default {
 .theme--dark .v-tab {
   border-color: #4b5563;
 }
+.workspace {
+  height: 100%;
+}
 .workspace .theme--light.v-tabs .v-tabs-bar .v-tab--active,
 .workspace .theme--light.v-tabs .v-tabs-bar .v-tab:not(.v-tab--disabled) {
   font-weight: bold;
