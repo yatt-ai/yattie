@@ -774,6 +774,7 @@
       v-if="evidenceData"
       v-model="addEvidenceDialog"
       :item-data="evidenceData"
+      :selectedNodes="selectedNodes"
       @close="
         addEvidenceDialog = false;
         evidenceData = null;
@@ -926,6 +927,8 @@ export default {
   computed: {
     ...mapGetters({
       items: "sessionItems",
+      nodes: "sessionNodes",
+      connections: "sessionConnections",
       hotkeys: "config/hotkeys",
       postSessionData: "config/postSessionData",
       config: "config/fullConfig",
@@ -1042,6 +1045,7 @@ export default {
       started: "",
       ended: "",
       selected: [],
+      selectedNodes: [],
       callback: null,
       evidenceExportDestinationMenu: false,
       issueCreateDestinationMenu: false,
@@ -1057,6 +1061,7 @@ export default {
       this.$electronService.onResetSession(this.showResetConfirmDialog);
     }
 
+    this.$root.$on("update-selected-nodes", this.updateSelectedNodes);
     this.$root.$on("close-sourcepickerdialog", this.hideSourcePickerDialog);
     this.$root.$on("close-sharesessiondialog", this.hideShareSessionDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
@@ -1197,6 +1202,9 @@ export default {
     },
     hideNoteDialog() {
       this.noteDialog = false;
+    },
+    updateSelectedNodes(value) {
+      this.selectedNodes = value;
     },
     handleDeleteConfirmDialog() {
       this.deleteConfirmDialog = true;
@@ -1418,7 +1426,6 @@ export default {
           video.remove();
           const imgURI = canvas.toDataURL("image/png");
           stream.getTracks().forEach((track) => track.stop());
-
           if (this.$isElectron) {
             // todo add web implementation
             const { status, message, item } =
@@ -1753,8 +1760,54 @@ export default {
         timer_mark: this.timer,
         createdAt: Date.now(),
       };
-      this.$emit("add-item", newItem);
+      const updatedItems = [...this.items];
+      let updatedNodes = [];
+      let updatedConnections = [...this.connections];
+
+      if (this.nodes.length == 0) {
+        newItem.fx = Math.floor(Math.random() * 1001) - 500;
+        newItem.fy = Math.floor(Math.random() * 1001) - 500;
+      } else {
+        let random_offset_x, random_offset_y;
+        do {
+          random_offset_x = Math.floor(Math.random() * 800) - 400;
+          random_offset_y = Math.floor(Math.random() * 800) - 400;
+        } while (
+          (random_offset_x >= -200 && random_offset_x <= -100) ||
+          (random_offset_x >= 100 && random_offset_x <= 200)
+        );
+        newItem.fx = this.nodes[this.nodes.length - 1].fx + random_offset_x;
+        newItem.fy = this.nodes[this.nodes.length - 1].fy + random_offset_y;
+      }
+      updatedItems.push(newItem);
+      updatedItems.forEach((item) => {
+        item.id = item.stepID;
+        updatedNodes.push({ ...item, content: item.comment.text });
+      });
+
+      if (this.nodes.length > 0) {
+        if (this.selectedNodes.length) {
+          this.selectedNodes.forEach((node) => {
+            updatedConnections.push({
+              source: node.stepID,
+              target: newItem.stepID,
+            });
+          });
+        } else {
+          updatedConnections.push({
+            source: this.nodes[this.nodes.length - 1].stepID,
+            target: newItem.stepID,
+          });
+        }
+      }
+      console.log(updatedItems);
+      await this.$store.commit("setSessionItems", [...updatedItems]);
+      await this.$store.commit("setSessionNodes", [...updatedNodes]);
+      await this.$store.commit("setSessionConnections", [
+        ...updatedConnections,
+      ]);
       this.noteDialog = false;
+      this.$root.$emit("render-mindmap");
     },
     async addSummary(value) {
       // TODO - handle summary like a regular note and allow additional metadata

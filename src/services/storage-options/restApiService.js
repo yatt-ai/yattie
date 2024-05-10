@@ -84,7 +84,7 @@ export default class RestApiService extends StorageInterface {
       `http://localhost:5000/v1/app/org/f352ae63-11fc-4dbe-bab1-72561aa25fca/config/5e0f71ff-987d-4240-85eb-df6adf568c31`
     );
     console.log(response);
-    return response.data.config;
+    return response.config;
   }
 
   async getAttachment(attachmentId) {
@@ -166,6 +166,26 @@ export default class RestApiService extends StorageInterface {
   async updateNotes(notes) {
     console.log(notes);
     // saving notes endpoint here
+  }
+
+  async getNodes() {
+    const response = await axios.get(`http://localhost:8082/nodes`);
+    return response.data;
+  }
+
+  async updateNodes(nodes) {
+    console.log(nodes);
+    // saving nodes endpoint here
+  }
+
+  async getConnections() {
+    const response = await axios.get(`http://localhost:8082/connections`);
+    return response.data;
+  }
+
+  async updateConnections(connections) {
+    console.log(connections);
+    // saving connections endpoint here
   }
 
   async createNewSession(data) {

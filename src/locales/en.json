@@ -311,6 +311,7 @@
     "add_default_tags": "Add your default tags that will be used in any session",
     "browser_action_attempts": "Waiting for browser action. Attempts:",
     "invalid_html": "Invalid HTML returned",
+    "empty_workspace": "Get started testing to build a testing tree.",
     "ai_assist_not_empty": "AI assist field cannot be empty",
     "successfully_added_attachment": "Successfully added attachment to issue",
     "api_error": "API error",

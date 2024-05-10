@@ -121,10 +121,10 @@ export const config = {
     },
     defaultTags: (state) => state.defaultTags,
     hotkeys: (state) => state.hotkeys,
-    checklistPresessionStatus: (state) => state.checklist.presession.status,
-    checklistPresessionTasks: (state) => state.checklist.presession.tasks,
+    checklistPresessionStatus: (state) => state.checklist?.presession.status,
+    checklistPresessionTasks: (state) => state.checklist?.presession.tasks,
     isAiAssistEnabled: (state) => state.ai?.enabled || false,
-    postSessionData: (state) => state.checklist.postsession,
+    postSessionData: (state) => state.checklist?.postsession,
     checklistPostsessionStatus: (state) =>
       state?.checklist?.postsession?.status,
     checklistPostsessionTasks: (state) => state.checklist.postsession.tasks,
