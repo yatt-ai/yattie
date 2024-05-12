@@ -15,7 +15,7 @@
 
 <script>
 import ResetSessionDialog from "@/components/dialogs/ResetSessionDialog.vue";
-
+import { socket } from "@/socket";
 const default_layout = "default";
 
 export default {
@@ -48,6 +48,9 @@ export default {
     const credentials = await this.$storageService.getCredentials();
     this.$store.commit("auth/setCredentials", credentials);
     await this.updateAuth();
+
+    // remove any existing listeners (in case of hot reload)
+    socket.off();
   },
   async mounted() {
     if (this.renderRestoreSessionDialog && this.$isElectron) {
