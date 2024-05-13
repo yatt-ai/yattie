@@ -19,6 +19,11 @@
             ></v-text-field>
           </v-form>
         </v-card-text>
+        <v-select
+          label="Status"
+          :items="['Passed', 'Failed', 'In Progress']"
+          v-model="status"
+        ></v-select>
         <v-card-actions>
           <v-btn
             small
@@ -61,15 +66,23 @@ export default {
       type: String,
       default: () => "",
     },
+    type: {
+      type: String,
+      default: () => "",
+    },
   },
   watch: {
     title: function () {
       this.text = this.title;
     },
+    type: function () {
+      this.status = this.type;
+    },
   },
   data() {
     return {
       text: "",
+      status: "",
       valid: false,
       textRules: [(v) => !!v || "Node title is required"],
     };
@@ -98,7 +111,7 @@ export default {
     },
     handleSave() {
       if (this.$refs.form.validate()) {
-        this.$emit("save", this.text);
+        this.$emit("save", this.text, this.status);
         this.$refs.form.reset();
       }
     },

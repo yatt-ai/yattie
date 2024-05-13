@@ -234,6 +234,7 @@ export default {
       }
     },
     addItem(newItem) {
+      console.log("Add");
       this.$store.commit("addSessionItem", newItem);
     },
     updateItem(newItem) {
@@ -250,7 +251,7 @@ export default {
     handleResetConfirmDialog() {
       this.resetConfirmDialog = true;
       setTimeout(() => {
-        this.$refs.resetConfirmDialog.$refs.confirmBtn.$el.focus();
+        this.$refs.resetConfirmDialog?.$refs.confirmBtn.$el.focus();
       }, 100);
     },
   },

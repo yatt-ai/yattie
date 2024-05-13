@@ -54,6 +54,8 @@ const store = new Vuex.Store({
         content: "",
         text: "",
       },
+      nodes: [],
+      connections: [],
     },
     savedTimer: 0,
   },
@@ -139,6 +141,18 @@ const store = new Vuex.Store({
         this._vm.$storageService.updateState(state);
       }
     },
+    setSessionNodes(state, payload) {
+      state.session.nodes = payload;
+      if (Vue.prototype.$isElectron)
+        this._vm.$storageService.updateNodes(payload);
+      else this._vm.$storageService.updateState(state);
+    },
+    setSessionConnections(state, payload) {
+      state.session.connections = payload;
+      if (Vue.prototype.$isElectron)
+        this._vm.$storageService.updateConnections(payload);
+      else this._vm.$storageService.updateState(state);
+    },
     setSessionItemsFromExternalWindow(state, payload) {
       state.session.items = payload;
     },
@@ -220,10 +234,13 @@ const store = new Vuex.Store({
       state.session.quickTest = false;
       state.session.remote = false;
       state.session.items = [];
+
       state.session.notes = {
         content: "",
         text: "",
       };
+      state.session.nodes = [];
+      state.session.connections = [];
       this._vm.$storageService.updateState(state);
     },
 
@@ -257,6 +274,8 @@ const store = new Vuex.Store({
         content: "",
         text: "",
       };
+      state.session.nodes = [];
+      state.session.connections = [];
       this._vm.$storageService.updateState(state);
     },
 
@@ -321,6 +340,12 @@ const store = new Vuex.Store({
   getters: {
     sessionItems(state) {
       return state.session.items;
+    },
+    sessionNodes(state) {
+      return state.session.nodes;
+    },
+    sessionConnections(state) {
+      return state.session.connections;
     },
     requiredPreSessionTasksChecked(state) {
       const uncheckedTasks = state.session.preSessionTasks.filter(

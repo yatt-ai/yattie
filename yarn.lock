@@ -5401,6 +5401,11 @@ dom-serializer@^2.0.0:
     domhandler "^5.0.2"
     entities "^4.2.0"
 
+dom-to-image-more@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/dom-to-image-more/-/dom-to-image-more-3.3.0.tgz#17823e6c96c965cdb016fadf0efdbd475853ea5d"
+  integrity sha512-4k0oxVfQ4Nrv4/Iva6FpsXTAtPCp5JnZNO/n/hsuOpe3ANlMiK50URZDQKzJslthQD8k76z9vHS3usIzmJoFVw==
+
 domain-browser@^1.1.1:
   version "1.2.0"
   resolved "https://registry.npmjs.org/domain-browser/-/domain-browser-1.2.0.tgz"
@@ -5563,9 +5568,10 @@ ejs@^3.1.7:
   dependencies:
     jake "^10.8.5"
 
-electron-builder-notarize@yatt-ai/electron-builder-notarize:
-  version "1.5.1"
-  resolved "https://codeload.github.com/yatt-ai/electron-builder-notarize/tar.gz/805e588b5c33f25240399d0ac60e363723f60c5b"
+electron-builder-notarize@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/electron-builder-notarize/-/electron-builder-notarize-1.5.2.tgz#540185b57a336fc6eec01bfe092a3b4764459255"
+  integrity sha512-vo6RGgIFYxMk2yp59N4NsvmAYfB7ncYi6gV9Fcq2TVKxEn2tPXrSjIKB2e/pu+5iXIY6BHNZNXa75F3DHgOOLA==
   dependencies:
     dotenv "^8.2.0"
     electron-notarize "^1.1.1"

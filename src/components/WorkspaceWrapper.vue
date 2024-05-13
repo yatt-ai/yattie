@@ -3,13 +3,17 @@
     <div class="tab-bar">
       <v-tabs :height="26" centered hide-slider>
         <v-tab
-          class="timeline-tab"
-          @click="currentTab = 'timeline'"
+          class="mindmap-tab"
+          @click="currentTab = 'mindmap'"
           :style="{ color: currentTheme.secondary }"
         >
+          Mindmap
+        </v-tab>
+
+        <v-tab class="notes-tab" @click="currentTab = 'notes'"> Notes </v-tab>
+        <v-tab class="timeline-tab" @click="currentTab = 'timeline'">
           Timeline
         </v-tab>
-        <v-tab class="notes-tab" @click="currentTab = 'notes'"> Notes </v-tab>
       </v-tabs>
     </div>
     <div class="tab-content">
@@ -28,6 +32,13 @@
             :event-type="eventName"
           />
         </v-tab-item>
+        <v-tab-item value="mindmap" :transition="false">
+          <MindmapWrapper
+            :items="itemLists"
+            :selectedItems="selected"
+            :event-type="eventName"
+          />
+        </v-tab-item>
       </v-tabs-items>
     </div>
   </v-container>
@@ -36,6 +47,7 @@
 import { mapGetters } from "vuex";
 import NotesWrapper from "./NotesWrapper.vue";
 import TimelineWrapper from "./TimelineWrapper.vue";
+import MindmapWrapper from "./MindmapWrapper.vue";
 
 export default {
   name: "WorkspaceWrapper",
@@ -54,6 +66,7 @@ export default {
   components: {
     NotesWrapper,
     TimelineWrapper,
+    MindmapWrapper,
   },
   props: {
     selectedItems: {
@@ -77,8 +90,13 @@ export default {
     return {
       selected: this.selectedItems,
       eventName: this.eventType,
-      currentTab: "timeline",
+      currentTab: "mindmap",
     };
+  },
+  methods: {
+    handleAdd(content) {
+      console.log(content);
+    },
   },
 };
 </script>
@@ -95,6 +113,9 @@ export default {
 }
 .theme--dark .v-tab {
   border-color: #4b5563;
+}
+.workspace {
+  height: 100%;
 }
 .workspace .theme--light.v-tabs .v-tabs-bar .v-tab--active,
 .workspace .theme--light.v-tabs .v-tabs-bar .v-tab:not(.v-tab--disabled) {

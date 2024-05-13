@@ -636,11 +636,6 @@
                     </div>
                     <div v-else @click="handleItemClick(item.stepID)">
                       <svg :class="`mindmap-${item.attachmentID}`"></svg>
-                      <!--                      <svg-->
-                      <!--                        :class="renderMap(item)"-->
-                      <!--                        class="mindmap-svg-test"-->
-                      <!--                        ref="mountPointTest"-->
-                      <!--                      ></svg>-->
                     </div>
                     <div class="comment-wrapper mt-2 mb-2">
                       <font-awesome-icon
@@ -1000,8 +995,11 @@ export default {
         this.itemLists = this.items;
         let newMap = { ...this.emojiMenu };
         this.itemLists.map(async (item) => {
-          newMap[`menu-${item.stepID}`] = false;
+          let temp = structuredClone(item);
+          newMap[`menu-${temp.stepID}`] = false;
+          return temp;
         });
+
         this.emojiMenu = newMap;
 
         if (!this.$isElectron) {
@@ -1010,9 +1008,9 @@ export default {
               item.poster = await this.generatePoster(item.filePath);
             }
           }
-          this.$nextTick(async () => {
-            this.renderAllMaps();
-          });
+          // this.$nextTick(async () => {
+          //   this.renderAllMaps();
+          // });
         }
       },
       immediate: true,
@@ -1069,11 +1067,13 @@ export default {
   },
   mounted() {
     this.emojiMenu = {};
-    this.itemLists.map((item) => {
-      this.emojiMenu[`menu-${item.stepID}`] = false;
+    this.itemLists.map(async (item) => {
+      let temp = structuredClone(item);
+      this.emojiMenu[`menu-${temp.stepID}`] = false;
+      return temp;
     });
 
-    this.renderAllMaps();
+    // this.renderAllMaps();
   },
   methods: {
     renderAllMaps() {
@@ -1468,5 +1468,8 @@ export default {
   font-weight: 500;
   line-height: 20px;
   color: #6b7280;
+}
+.pointerEventsDisable {
+  pointer-events: none;
 }
 </style>

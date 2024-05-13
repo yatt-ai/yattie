@@ -672,6 +672,48 @@ module.exports.updateNotes = (notes) => {
   }
 };
 
+module.exports.getNodes = () => {
+  try {
+    const session = dataDb.get("session");
+    return session.nodes;
+  } catch (error) {
+    return [];
+  }
+};
+
+module.exports.updateNodes = (nodes) => {
+  try {
+    let session = dataDb.get("session");
+    session.nodes = nodes;
+    dataDb.set("session", session);
+    browserWindow = browserUtility.getBrowserWindow();
+    browserWindow.webContents.send("DATA_CHANGE");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.getConnections = () => {
+  try {
+    const session = dataDb.get("session");
+    return session.connections;
+  } catch (error) {
+    return [];
+  }
+};
+
+module.exports.updateConnections = (connections) => {
+  try {
+    let session = dataDb.get("session");
+    session.connections = connections;
+    dataDb.set("session", session);
+    browserWindow = browserUtility.getBrowserWindow();
+    browserWindow.webContents.send("DATA_CHANGE");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports.resetData = () => {
   try {
     let session = dataDb.get("session");
