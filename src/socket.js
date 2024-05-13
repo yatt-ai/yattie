@@ -3,6 +3,8 @@ import { ref } from "vue";
 
 const socketState = {
   socketIsConnected: ref(false),
+  socketData: ref({}),
+  activeSource: ref(""),
 };
 
 export const socket = io("http://localhost:3000");
@@ -10,20 +12,18 @@ export const socket = io("http://localhost:3000");
 const _connectToSocket = async () => {
   try {
     await socket.connect();
-    socketState.socketIsConnected.value = true;
+    socket.on("connection", () => {
+      console.log("Socket connected");
+      socketState.socketIsConnected.value = true;
+    });
   } catch (error) {
-    socketState.socketIsConnected.value = false;
-    setTimeout(() => {
-      _connectToSocket();
-    }, 1000);
+    socket.on("disconnect", () => {
+      socketState.socketIsConnected.value = false;
+      setTimeout(() => {
+        _connectToSocket();
+      }, 1000);
+    });
   }
-
-  socket.on("disconnect", () => {
-    socketState.socketIsConnected.value = false;
-    setTimeout(() => {
-      _connectToSocket();
-    }, 1000);
-  });
 };
 
 export const useSocketIo = () => {
@@ -36,7 +36,7 @@ export const useSocketIo = () => {
     }
   };
 
-  return { listenToEvent, _connectToSocket };
+  return { listenToEvent, _connectToSocket, socketState };
 };
 
 // import { useSocketIo } from '@/api_factory/socket.config'

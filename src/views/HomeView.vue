@@ -242,7 +242,7 @@
 import { VContainer, VBtn } from "vuetify/lib/components";
 import LogoWrapper from "../components/LogoWrapper.vue";
 import MenuPopover from "../components/MenuPopover.vue";
-import { socketState, useSocketIo } from "@/socket";
+import { useSocketIo } from "@/socket";
 import { STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
 export default {
@@ -281,7 +281,7 @@ export default {
       );
     },
   },
-  mounted() {
+  async mounted() {
     if (this.$isElectron) {
       // handle electron menu -> New Session
       this.$electronService.onNewSession(this.newSession);
@@ -322,14 +322,9 @@ export default {
       }
     },
     handleQuickTest() {
-      // console.log({ socket });
-      // console.log({ socketState });
-
-      // socket.connect();
       const { _connectToSocket } = useSocketIo();
       _connectToSocket();
 
-      console.log({ socketState });
       this.$store.commit("startQuickTest");
       this.$router.push("/main/workspace");
     },

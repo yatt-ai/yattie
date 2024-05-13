@@ -72,6 +72,7 @@
 
 <script>
 import { mapGetters } from "vuex";
+import { socket, useSocketIo } from "@/socket";
 
 export default {
   name: "SourcePickerDialog",
@@ -119,6 +120,15 @@ export default {
       this.$root.$emit("close-sourcepickerdialog");
     },
     handleSelect() {
+      const id = "123456789";
+      const { socketState, listenToEvent } = useSocketIo();
+
+      socket.emit("test-session", id);
+      listenToEvent("start-session", (data) => {
+        socketState.socketData.value = data;
+        socketState.activeSource.value = this.activeSource;
+        // this.$emit("submit-source", this.activeSource);
+      });
       this.$emit("submit-source", this.activeSource);
     },
     setActiveSource(value) {
