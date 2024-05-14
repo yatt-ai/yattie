@@ -177,7 +177,7 @@ export default {
       evidenceData: null,
       editEvidenceDialog: false,
       posterUrl: null,
-
+      mindmapURL: null,
       clicks: 0,
       timer: null,
       simulation: null,
@@ -205,22 +205,28 @@ export default {
   },
   mounted() {
     this.$root.$on("render-mindmap", this.renderMindmap);
+    this.$root.$on("handle-mindmap", this.handleMindmap);
 
     this.emojiMenu = {};
+    this.itemLists = structuredClone(this.items);
+    let newMap = { ...this.emojiMenu };
     this.itemLists.map(async (item) => {
+      newMap[`menu-${item.stepID}`] = false;
       let temp = structuredClone(item);
-      this.emojiMenu[`menu-${temp.stepID}`] = false;
-      if (this.getType(temp.fileType) === "mindmap")
+      if (this.getType(item.fileType) === "mindmap") {
         if (this.$isElectron)
           temp.data = await this.$storageService.getItemById(temp.stepID);
         else {
-          console.log("Mounted");
           const itemInStore = this.$store.state.session.items.find(
-            (node) => node.stepID === item.stepID
+            (newItem) => newItem.stepID === item.stepID
           );
           temp.data = structuredClone(itemInStore);
         }
-
+      } else if (item.fileType === "audio/mp3") {
+        if (!this.$isElectron) {
+          temp.poster = this.generatePoster(item.filePath);
+        }
+      }
       return temp;
     });
     this.renderMap();
@@ -401,13 +407,8 @@ export default {
 
     updateNodes() {
       let updatedNodes, tempItems;
-      if (this.$isElectron) {
-        updatedNodes = structuredClone(this.nodesData);
-        tempItems = structuredClone(this.itemLists);
-      } else {
-        updatedNodes = structuredClone(this.nodesData);
-        tempItems = structuredClone(this.itemLists);
-      }
+      updatedNodes = structuredClone(this.nodesData);
+      tempItems = structuredClone(this.itemLists);
       for (let i = 0; i < tempItems.length; i++) {
         let node = updatedNodes.find((ele) => ele.id === tempItems[i].id);
         if (node) {
@@ -669,14 +670,7 @@ export default {
         height: rect.height * quality,
         width: rect.width * quality,
       });
-      let new_nodes = structuredClone(this.nodesData);
-      let new_connections = structuredClone(this.connectionsData);
-
-      this.$emit("submit-mindmap", {
-        nodes: new_nodes,
-        connections: new_connections,
-        imgURI: imageUrl,
-      });
+      this.mindmapURL = imageUrl;
       mainDom.remove();
     },
   },

@@ -1341,6 +1341,7 @@ export default {
       this.status = SESSION_STATUSES.END;
       this.changeSessionStatus(SESSION_STATUSES.END);
       this.stopInterval();
+      this.$root.$emit("handle-mindmap");
       await this.$router.push({ path: "/result" });
     },
     showSummaryDialog() {
