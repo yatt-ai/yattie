@@ -31,7 +31,6 @@ module.exports.updateImageForWeb = ({ item, url }) => {
   const { fileName } = item.fileName
     ? { fileName: item.fileName }
     : generateIDAndName("image");
-
   const base64Response = atob(url.split(",")[1]);
   const binaryData = new Uint8Array(base64Response.length);
   for (let i = 0; i < base64Response.length; i++) {
@@ -39,6 +38,28 @@ module.exports.updateImageForWeb = ({ item, url }) => {
   }
   let blob = new Blob([binaryData], { type: item.fileType });
 
+  const filePath = URL.createObjectURL(blob);
+  const fileSize = blob.size;
+
+  return {
+    item: {
+      fileName,
+      filePath,
+      fileSize,
+    },
+  };
+};
+
+module.exports.createMindmapForWeb = ({ item, url }) => {
+  const { fileName } = item.fileName
+    ? { fileName: item.fileName }
+    : generateIDAndName("mindmap");
+  const base64Response = atob(url.split(",")[1]);
+  const binaryData = new Uint8Array(base64Response.length);
+  for (let i = 0; i < base64Response.length; i++) {
+    binaryData[i] = base64Response.charCodeAt(i);
+  }
+  let blob = new Blob([binaryData], { type: "image/png" });
   const filePath = URL.createObjectURL(blob);
   const fileSize = blob.size;
 

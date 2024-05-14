@@ -105,26 +105,31 @@ export default {
   watch: {
     items: {
       async handler() {
-        this.itemLists = this.items;
+        this.itemLists = structuredClone(this.items);
         let newMap = { ...this.emojiMenu };
         this.itemLists.map(async (item) => {
+          newMap[`menu-${item.stepID}`] = false;
           let temp = structuredClone(item);
-          newMap[`menu-${temp.stepID}`] = false;
-          if (this.getType(temp.fileType) === "mindmap")
-            temp.data = await this.$storageService.getItemById(temp.stepID);
+          if (this.getType(item.fileType) === "mindmap") {
+            if (this.$isElectron)
+              temp.data = await this.$storageService.getItemById(temp.stepID);
+            else {
+              const itemInStore = this.$store.state.session.items.find(
+                (newItem) => newItem.stepID === item.stepID
+              );
+              temp.data = structuredClone(itemInStore);
+            }
+          } else if (item.fileType === "audio/mp3") {
+            if (!this.$isElectron) {
+              temp.poster = this.generatePoster(item.filePath);
+            }
+          }
           return temp;
         });
 
         this.emojiMenu = newMap;
-
-        if (!this.$isElectron) {
-          for (let item of this.itemLists) {
-            if (item.fileType === "audio/mp3") {
-              item.poster = await this.generatePoster(item.filePath);
-            }
-          }
-        }
       },
+
       immediate: true,
     },
     nodes: {
@@ -206,7 +211,16 @@ export default {
       let temp = structuredClone(item);
       this.emojiMenu[`menu-${temp.stepID}`] = false;
       if (this.getType(temp.fileType) === "mindmap")
-        temp.data = await this.$storageService.getItemById(temp.stepID);
+        if (this.$isElectron)
+          temp.data = await this.$storageService.getItemById(temp.stepID);
+        else {
+          console.log("Mounted");
+          const itemInStore = this.$store.state.session.items.find(
+            (node) => node.stepID === item.stepID
+          );
+          temp.data = structuredClone(itemInStore);
+        }
+
       return temp;
     });
     this.renderMap();
@@ -289,7 +303,14 @@ export default {
       this.saveData();
     },
     async handleActivateEditSession(id) {
-      this.itemToEdit = await this.$storageService.getItemById(id);
+      if (this.$isElectron) {
+        this.itemToEdit = await this.$storageService.getItemById(id);
+      } else {
+        const itemInStore = this.$store.state.session.items.find(
+          (item) => item.stepID === id
+        );
+        this.itemToEdit = structuredClone(itemInStore);
+      }
       this.editEvidenceDialog = true;
     },
 
@@ -379,8 +400,14 @@ export default {
      */
 
     updateNodes() {
-      let updatedNodes = structuredClone(this.nodesData);
-      let tempItems = structuredClone(this.itemLists);
+      let updatedNodes, tempItems;
+      if (this.$isElectron) {
+        updatedNodes = structuredClone(this.nodesData);
+        tempItems = structuredClone(this.itemLists);
+      } else {
+        updatedNodes = structuredClone(this.nodesData);
+        tempItems = structuredClone(this.itemLists);
+      }
       for (let i = 0; i < tempItems.length; i++) {
         let node = updatedNodes.find((ele) => ele.id === tempItems[i].id);
         if (node) {
@@ -476,11 +503,11 @@ export default {
             }),
           mounted() {
             this.$nextTick(() => {
-              const width = this.$el.offsetWidth;
-              const height = this.$el.offsetHeight;
+              // const width = this.$el.offsetWidth;
+              // const height = this.$el.offsetHeight;
               // node.width = width; // Store the computed size in your node's data
               // node.height = height; // Store the computed size in your node's data
-              container.attr("width", width).attr("height", height);
+              // container.attr("width", width).attr("height", height);
             });
             // TODO: need a function to resize the node
           },

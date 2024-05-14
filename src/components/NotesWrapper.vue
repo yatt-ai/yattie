@@ -55,7 +55,11 @@
                   <img
                     class="screen-img"
                     style="max-width: 100%"
-                    :src="`file://${item.filePath}`"
+                    :src="
+                      $isElectron
+                        ? `file://${item.filePath}`
+                        : `${item.filePath}`
+                    "
                   />
                 </div>
                 <div class="comment-wrapper">
@@ -521,7 +525,11 @@
                   <img
                     class="screen-img"
                     style="max-width: 100%"
-                    :src="`file://${item.filePath}`"
+                    :src="
+                      $isElectron
+                        ? `file://${item.filePath}`
+                        : `${item.filePath}`
+                    "
                   />
                 </div>
                 <div class="comment-wrapper">

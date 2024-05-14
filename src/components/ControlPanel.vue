@@ -567,6 +567,7 @@
             <template v-slot:activator="{ on }">
               <v-btn
                 class="control-btn mx-1"
+                v-if="$isElectron"
                 fab
                 outlined
                 small

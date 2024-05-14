@@ -631,7 +631,11 @@
                       <img
                         class="screen-img"
                         style="max-width: 100%"
-                        :src="`file://${item.filePath}`"
+                        :src="
+                          $isElectron
+                            ? `file://${item.filePath}`
+                            : `${item.filePath}`
+                        "
                       />
                     </div>
                     <div v-else @click="handleItemClick(item.stepID)">
@@ -895,7 +899,9 @@
         <img :src="require('../assets/icon/plus.svg')" width="24" height="24" />
       </p>
     </v-row>
-    <v-row v-if="status !== 'pending' && status !== 'pause'">
+    <v-row
+      v-if="status !== 'pending' && status !== 'pause' && status !== 'end'"
+    >
       <v-col cols="12" class="text-center">
         <v-btn
           plain
