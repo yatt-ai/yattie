@@ -50,7 +50,7 @@ module.exports.updateImageForWeb = ({ item, url }) => {
   };
 };
 
-module.exports.createMindmapForWeb = ({ item, url }) => {
+module.exports.createMindmapImageForWeb = ({ item, url }) => {
   const { fileName } = item.fileName
     ? { fileName: item.fileName }
     : generateIDAndName("mindmap");
@@ -72,7 +72,7 @@ module.exports.createMindmapForWeb = ({ item, url }) => {
   };
 };
 
-module.exports.updateMindmapForWeb = ({ item, url }) => {
+module.exports.updateMindmapImageForWeb = ({ item, url }) => {
   const { fileName } = item.fileName
     ? { fileName: item.fileName }
     : generateIDAndName("mindmap");

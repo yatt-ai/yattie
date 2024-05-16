@@ -109,22 +109,6 @@ export default {
         let newMap = { ...this.emojiMenu };
         this.itemLists.map(async (item) => {
           newMap[`menu-${item.stepID}`] = false;
-          let temp = structuredClone(item);
-          if (this.getType(item.fileType) === "mindmap") {
-            if (this.$isElectron)
-              temp.data = await this.$storageService.getItemById(temp.stepID);
-            else {
-              const itemInStore = this.$store.state.session.items.find(
-                (newItem) => newItem.stepID === item.stepID
-              );
-              temp.data = structuredClone(itemInStore);
-            }
-          } else if (item.fileType === "audio/mp3") {
-            if (!this.$isElectron) {
-              temp.poster = this.generatePoster(item.filePath);
-            }
-          }
-          return temp;
         });
 
         this.emojiMenu = newMap;
@@ -206,28 +190,12 @@ export default {
   mounted() {
     this.$root.$on("render-mindmap", this.renderMindmap);
     this.$root.$on("handle-mindmap", this.handleMindmap);
-
+    console.log("Mounted");
     this.emojiMenu = {};
     this.itemLists = structuredClone(this.items);
     let newMap = { ...this.emojiMenu };
     this.itemLists.map(async (item) => {
       newMap[`menu-${item.stepID}`] = false;
-      let temp = structuredClone(item);
-      if (this.getType(item.fileType) === "mindmap") {
-        if (this.$isElectron)
-          temp.data = await this.$storageService.getItemById(temp.stepID);
-        else {
-          const itemInStore = this.$store.state.session.items.find(
-            (newItem) => newItem.stepID === item.stepID
-          );
-          temp.data = structuredClone(itemInStore);
-        }
-      } else if (item.fileType === "audio/mp3") {
-        if (!this.$isElectron) {
-          temp.poster = this.generatePoster(item.filePath);
-        }
-      }
-      return temp;
     });
     this.renderMap();
   },
@@ -504,13 +472,13 @@ export default {
             }),
           mounted() {
             this.$nextTick(() => {
-              // const width = this.$el.offsetWidth;
-              // const height = this.$el.offsetHeight;
-              // node.width = width; // Store the computed size in your node's data
-              // node.height = height; // Store the computed size in your node's data
-              // container.attr("width", width).attr("height", height);
+              // TODO: need a function to resize the node
+              const width = this.$el.offsetWidth;
+              const height = this.$el.offsetHeight;
+              node.width = width; // Store the computed size in your node's data
+              node.height = height; // Store the computed size in your node's data
+              container.attr("width", width).attr("height", height);
             });
-            // TODO: need a function to resize the node
           },
         });
 

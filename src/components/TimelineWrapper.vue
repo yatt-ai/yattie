@@ -1008,16 +1008,17 @@ export default {
 
         this.emojiMenu = newMap;
 
-        if (!this.$isElectron) {
-          for (let item of this.itemLists) {
-            if (item.fileType === "audio/mp3") {
-              item.poster = await this.generatePoster(item.filePath);
-            }
-          }
-          // this.$nextTick(async () => {
-          //   this.renderAllMaps();
-          // });
-        }
+        // if (!this.$isElectron) {
+        //   for (let item of this.itemLists) {
+        //     if (item.fileType === "audio/mp3") {
+        //       item.poster = await this.generatePoster(item.filePath);
+        //       console.log(item.poster);
+        //     }
+        //   }
+        //   // this.$nextTick(async () => {
+        //   //   this.renderAllMaps();
+        //   // });
+        // }
       },
       immediate: true,
     },

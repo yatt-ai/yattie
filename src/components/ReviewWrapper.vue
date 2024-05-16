@@ -50,7 +50,7 @@ import FileWrapper from "./FileWrapper.vue";
 import MindmapEditor from "./MindmapEditor.vue";
 
 import { STATUSES, FILE_TYPES } from "../modules/constants";
-import { createMindmapForWeb } from "@/helpers/WebHelpers";
+import { createMindmapImageForWeb } from "@/helpers/WebHelpers";
 import { mapGetters } from "vuex";
 
 export default {
@@ -135,7 +135,7 @@ export default {
           this.$root.$emit("update-edit-item", this.editSessionItem);
         }
       } else {
-        const { item } = createMindmapForWeb({
+        const { item } = createMindmapImageForWeb({
           item: this.editSessionItem,
           url: value.imgURI,
         });
