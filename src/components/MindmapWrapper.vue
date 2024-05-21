@@ -81,6 +81,7 @@ import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 import EditEvidenceDialog from "@/components/dialogs/EditEvidenceDialog.vue";
 import WaveSurfer from "wavesurfer.js";
 import { mapGetters } from "vuex";
+import { createImageForWeb } from "@/helpers/WebHelpers";
 
 export default {
   name: "MindmapWrapper",
@@ -358,13 +359,21 @@ export default {
     },
 
     prepareNodes() {
-      const render = (node) => {
+      const render = async (node) => {
         node.selected =
           this.selectedNodes.find((ele) => ele.id === node.id) !== undefined;
         node.connectClicked =
           this.clicked.find((ele) => ele.id === node.id) !== undefined;
         node.width = node.width ?? 200;
         node.height = node.height ?? 270;
+
+        if (node.fileType === "audio/mp3") {
+          if (!this.$isElectron) {
+            let imageUrl = await this.generatePoster(node.filePath);
+            let posterResult = createImageForWeb(imageUrl);
+            node.poster = posterResult.item.filePath;
+          }
+        }
       };
       this.nodesData.forEach((node) => render(node));
     },
@@ -425,7 +434,7 @@ export default {
     /**
      * Render mind map unsing D3
      */
-    renderMap() {
+    async renderMap() {
       this.simulation = forceSimulation()
         .force(
           "link",
@@ -438,10 +447,12 @@ export default {
       svg.selectAll("*").remove();
 
       this.prepareNodes();
+
       // Bind data to SVG elements and set all the properties to render them
       const labels = d3Labels(svg, this.connectionsData);
       const connections = d3Connections(svg, this.connectionsData, labels);
       const nodes = d3Nodes(svg, this.nodesData);
+
       // Bind vue component to the node
       const self = this;
       nodes.each(function (node) {
@@ -473,11 +484,11 @@ export default {
           mounted() {
             this.$nextTick(() => {
               // TODO: need a function to resize the node
-              const width = this.$el.offsetWidth;
-              const height = this.$el.offsetHeight;
-              node.width = width; // Store the computed size in your node's data
-              node.height = height; // Store the computed size in your node's data
-              container.attr("width", width).attr("height", height);
+              // const width = this.$el.offsetWidth;
+              // const height = this.$el.offsetHeight;
+              // node.width = width; // Store the computed size in your node's data
+              // node.height = height; // Store the computed size in your node's data
+              // container.attr("width", width).attr("height", height);
             });
           },
         });

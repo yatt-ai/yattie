@@ -38,9 +38,9 @@ export const config = {
   mutations: {
     setFullConfig(state, payload) {
       // Clear existing state properties
-      // Object.keys(state).forEach((key) => {
-      //   Vue.delete(state, key);
-      // });
+      Object.keys(state).forEach((key) => {
+        Vue.delete(state, key);
+      });
 
       // Add new properties from payload
       Object.keys(payload).forEach((key) => {
