@@ -461,11 +461,6 @@ export default {
               i18n,
               store,
             }),
-          mounted() {
-            this.$nextTick(() => {
-              // TODO: need a function to resize the node
-            });
-          },
         });
 
         vueComponent.$mount();
