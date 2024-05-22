@@ -278,14 +278,7 @@ export default {
       this.saveData();
     },
     async handleActivateEditSession(id) {
-      if (this.$isElectron) {
-        this.itemToEdit = await this.$storageService.getItemById(id);
-      } else {
-        const itemInStore = this.$store.state.session.items.find(
-          (item) => item.stepID === id
-        );
-        this.itemToEdit = structuredClone(itemInStore);
-      }
+      this.itemToEdit = await this.$storageService.getItemById(id);
       this.editEvidenceDialog = true;
     },
 
@@ -343,19 +336,6 @@ export default {
         let node = { ...item, id: item.stepID };
         this.nodes.push(node);
       });
-
-      // const map = new Map();
-      // this.nodes.forEach((item) => {
-      //   map.set(item, item.stepID);
-      // });
-      // this.itemLists.forEach((item) => {
-      //   if (map.has(item.stepID)) map.delete(item.stepID);
-      //   else map.set(item.stepID, item);
-      // });
-      // const differences = Array.from(map.values());
-      // differences.forEach((item) => {
-      //   if(this.nodes.contains(item))
-      // })
     },
 
     prepareNodes() {
@@ -484,11 +464,6 @@ export default {
           mounted() {
             this.$nextTick(() => {
               // TODO: need a function to resize the node
-              // const width = this.$el.offsetWidth;
-              // const height = this.$el.offsetHeight;
-              // node.width = width; // Store the computed size in your node's data
-              // node.height = height; // Store the computed size in your node's data
-              // container.attr("width", width).attr("height", height);
             });
           },
         });
@@ -521,8 +496,6 @@ export default {
         .attr("viewBox", getViewBox(nodes.data()))
         .call(d3PanZoom(svg))
         .on("dblclick.zoom", null);
-      // this.$store.commit("setSessionNodes", [...this.nodes]);
-      // this.$store.commit("setSessionConnections", [...this.connections]);
     },
 
     onSave(content, status) {

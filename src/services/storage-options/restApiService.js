@@ -145,8 +145,6 @@ export default class RestApiService extends StorageInterface {
     const itemInStore = store.state.session.items.find(
       (item) => item.stepID === id
     );
-    // const response = await axios.get(`http://localhost:8082/item`);
-    // console.log(response);
     return itemInStore;
   }
 

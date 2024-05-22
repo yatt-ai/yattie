@@ -1007,18 +1007,6 @@ export default {
         });
 
         this.emojiMenu = newMap;
-
-        // if (!this.$isElectron) {
-        //   for (let item of this.itemLists) {
-        //     if (item.fileType === "audio/mp3") {
-        //       item.poster = await this.generatePoster(item.filePath);
-        //       console.log(item.poster);
-        //     }
-        //   }
-        //   // this.$nextTick(async () => {
-        //   //   this.renderAllMaps();
-        //   // });
-        // }
       },
       immediate: true,
     },
@@ -1177,15 +1165,7 @@ export default {
       this.saveData();
     },
     async handleActivateEditSession(id) {
-      if (this.$isElectron) {
-        this.itemToEdit = await this.$storageService.getItemById(id);
-      } else {
-        const itemInStore = this.$store.state.session.items.find(
-          (item) => item.stepID === id
-        );
-        this.itemToEdit = structuredClone(itemInStore);
-        console.log(this.itemToEdit);
-      }
+      this.itemToEdit = await this.$storageService.getItemById(id);
       this.editEvidenceDialog = true;
     },
     async dragItem(event, item) {
