@@ -221,7 +221,6 @@ export default {
     },
     async handleAudio() {
       const uri = this.wavesurfer.exportImage("image/png", 1, "dataURL");
-
       if (this.$isElectron) {
         let posterResult = await this.$electronService.createImage(uri, true);
 
@@ -247,7 +246,6 @@ export default {
         };
       } else {
         let posterResult = createImageForWeb(uri);
-        console.log(posterResult.item.filePath);
         // todo use this logic to recreate the item on timeline
         this.sessionItem = {
           ...this.sessionItem,

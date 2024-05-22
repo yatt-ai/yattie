@@ -81,6 +81,7 @@ import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
 import EditEvidenceDialog from "@/components/dialogs/EditEvidenceDialog.vue";
 import WaveSurfer from "wavesurfer.js";
 import { mapGetters } from "vuex";
+import { createImageForWeb } from "@/helpers/WebHelpers";
 
 export default {
   name: "MindmapWrapper",
@@ -105,26 +106,15 @@ export default {
   watch: {
     items: {
       async handler() {
-        this.itemLists = this.items;
+        this.itemLists = structuredClone(this.items);
         let newMap = { ...this.emojiMenu };
         this.itemLists.map(async (item) => {
-          let temp = structuredClone(item);
-          newMap[`menu-${temp.stepID}`] = false;
-          if (this.getType(temp.fileType) === "mindmap")
-            temp.data = await this.$storageService.getItemById(temp.stepID);
-          return temp;
+          newMap[`menu-${item.stepID}`] = false;
         });
 
         this.emojiMenu = newMap;
-
-        if (!this.$isElectron) {
-          for (let item of this.itemLists) {
-            if (item.fileType === "audio/mp3") {
-              item.poster = await this.generatePoster(item.filePath);
-            }
-          }
-        }
       },
+
       immediate: true,
     },
     nodes: {
@@ -172,7 +162,7 @@ export default {
       evidenceData: null,
       editEvidenceDialog: false,
       posterUrl: null,
-
+      mindmapURL: null,
       clicks: 0,
       timer: null,
       simulation: null,
@@ -200,14 +190,13 @@ export default {
   },
   mounted() {
     this.$root.$on("render-mindmap", this.renderMindmap);
-
+    this.$root.$on("handle-mindmap", this.handleMindmap);
+    console.log("Mounted");
     this.emojiMenu = {};
+    this.itemLists = structuredClone(this.items);
+    let newMap = { ...this.emojiMenu };
     this.itemLists.map(async (item) => {
-      let temp = structuredClone(item);
-      this.emojiMenu[`menu-${temp.stepID}`] = false;
-      if (this.getType(temp.fileType) === "mindmap")
-        temp.data = await this.$storageService.getItemById(temp.stepID);
-      return temp;
+      newMap[`menu-${item.stepID}`] = false;
     });
     this.renderMap();
   },
@@ -347,29 +336,24 @@ export default {
         let node = { ...item, id: item.stepID };
         this.nodes.push(node);
       });
-
-      // const map = new Map();
-      // this.nodes.forEach((item) => {
-      //   map.set(item, item.stepID);
-      // });
-      // this.itemLists.forEach((item) => {
-      //   if (map.has(item.stepID)) map.delete(item.stepID);
-      //   else map.set(item.stepID, item);
-      // });
-      // const differences = Array.from(map.values());
-      // differences.forEach((item) => {
-      //   if(this.nodes.contains(item))
-      // })
     },
 
     prepareNodes() {
-      const render = (node) => {
+      const render = async (node) => {
         node.selected =
           this.selectedNodes.find((ele) => ele.id === node.id) !== undefined;
         node.connectClicked =
           this.clicked.find((ele) => ele.id === node.id) !== undefined;
         node.width = node.width ?? 200;
         node.height = node.height ?? 270;
+
+        if (node.fileType === "audio/mp3") {
+          if (!this.$isElectron) {
+            let imageUrl = await this.generatePoster(node.filePath);
+            let posterResult = createImageForWeb(imageUrl);
+            node.poster = posterResult.item.filePath;
+          }
+        }
       };
       this.nodesData.forEach((node) => render(node));
     },
@@ -379,8 +363,9 @@ export default {
      */
 
     updateNodes() {
-      let updatedNodes = structuredClone(this.nodesData);
-      let tempItems = structuredClone(this.itemLists);
+      let updatedNodes, tempItems;
+      updatedNodes = structuredClone(this.nodesData);
+      tempItems = structuredClone(this.itemLists);
       for (let i = 0; i < tempItems.length; i++) {
         let node = updatedNodes.find((ele) => ele.id === tempItems[i].id);
         if (node) {
@@ -429,7 +414,7 @@ export default {
     /**
      * Render mind map unsing D3
      */
-    renderMap() {
+    async renderMap() {
       this.simulation = forceSimulation()
         .force(
           "link",
@@ -442,10 +427,12 @@ export default {
       svg.selectAll("*").remove();
 
       this.prepareNodes();
+
       // Bind data to SVG elements and set all the properties to render them
       const labels = d3Labels(svg, this.connectionsData);
       const connections = d3Connections(svg, this.connectionsData, labels);
       const nodes = d3Nodes(svg, this.nodesData);
+
       // Bind vue component to the node
       const self = this;
       nodes.each(function (node) {
@@ -474,16 +461,6 @@ export default {
               i18n,
               store,
             }),
-          mounted() {
-            this.$nextTick(() => {
-              const width = this.$el.offsetWidth;
-              const height = this.$el.offsetHeight;
-              // node.width = width; // Store the computed size in your node's data
-              // node.height = height; // Store the computed size in your node's data
-              container.attr("width", width).attr("height", height);
-            });
-            // TODO: need a function to resize the node
-          },
         });
 
         vueComponent.$mount();
@@ -514,8 +491,6 @@ export default {
         .attr("viewBox", getViewBox(nodes.data()))
         .call(d3PanZoom(svg))
         .on("dblclick.zoom", null);
-      // this.$store.commit("setSessionNodes", [...this.nodes]);
-      // this.$store.commit("setSessionConnections", [...this.connections]);
     },
 
     onSave(content, status) {
@@ -642,14 +617,7 @@ export default {
         height: rect.height * quality,
         width: rect.width * quality,
       });
-      let new_nodes = structuredClone(this.nodesData);
-      let new_connections = structuredClone(this.connectionsData);
-
-      this.$emit("submit-mindmap", {
-        nodes: new_nodes,
-        connections: new_connections,
-        imgURI: imageUrl,
-      });
+      this.mindmapURL = imageUrl;
       mainDom.remove();
     },
   },

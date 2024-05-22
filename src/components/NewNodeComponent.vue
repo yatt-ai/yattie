@@ -50,7 +50,7 @@
           <img
             class="screen-img"
             style="max-width: 100%"
-            :src="`file://${node.filePath}`"
+            :src="$isElectron ? `file://${node.filePath}` : `${node.filePath}`"
           />
         </div>
         <div
@@ -75,9 +75,14 @@
       </div>
       <div class="node-tags" @click="handleClickTagsInput">
         <vue-tags-input
+          ref="tags"
           v-model="tag"
+          class="input-box"
           :tags="tags"
           @tags-changed="(newTags) => handleTagsChanged(newTags)"
+          label="Tags"
+          :max-tags="10"
+          :maxlength="20"
         />
       </div>
     </v-card>
@@ -87,6 +92,7 @@
 <script>
 import VueTagsInput from "@johmun/vue-tags-input";
 import { FILE_TYPES } from "@/modules/constants";
+import { mapGetters } from "vuex";
 export default {
   name: "NewNodeComponent",
   components: {
@@ -136,7 +142,26 @@ export default {
         Failed: "red",
         "In Progress": "yellow",
       },
+      allTags: [],
     };
+  },
+  computed: {
+    ...mapGetters({
+      defaultTags: "config/defaultTags",
+      sessionItems: "sessionItems",
+    }),
+    filteredTags() {
+      return this.allTags
+        .filter((item) => {
+          return item.toLowerCase().includes(this.tagText.toLowerCase());
+        })
+        .map((item) => {
+          return { text: item };
+        });
+    },
+  },
+  mounted() {
+    this.getAllTags();
   },
   methods: {
     handleClickTagsInput(e) {
@@ -180,6 +205,21 @@ export default {
     },
     getType(type) {
       return FILE_TYPES[type];
+    },
+    getAllTags() {
+      const defaultTagTexts = this.defaultTags
+        .filter((tag) => tag.text !== "")
+        .map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      this.allTags = [...new Set([...defaultTagTexts, ...sessionTagTexts])];
     },
   },
 };
