@@ -17,6 +17,11 @@ export default class StorageInterface {
   }
 
   // eslint-disable-next-line
+  async getStateMethod(executionId) {
+    throw new Error("Method 'getStateMethod()' must be implemented.");
+  }
+
+  // eslint-disable-next-line
   async updateCredentials(credentials) {
     throw new Error("Method 'updateCredentials()' must be implemented.");
   }

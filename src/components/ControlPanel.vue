@@ -1802,7 +1802,6 @@ export default {
           });
         }
       }
-      console.log(updatedItems);
       await this.$store.commit("setSessionItems", [...updatedItems]);
       await this.$store.commit("setSessionNodes", [...updatedNodes]);
       await this.$store.commit("setSessionConnections", [

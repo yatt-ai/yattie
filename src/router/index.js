@@ -103,11 +103,7 @@ const routes = [
     path: "/main",
     name: "main",
     component: MainView,
-    children: [
-      {
-        path: "workspace",
-      },
-    ],
+    children: [{ path: "workspace" }, { path: "workspace/:execID" }],
   },
   {
     path: "/settings",

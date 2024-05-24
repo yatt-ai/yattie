@@ -128,6 +128,13 @@ export default class RestApiService extends StorageInterface {
     };
   }
 
+  async getStateMethod(executionId) {
+    const { data } = await axios.get(
+      `http://localhost:5000/v1/pinata/executions/${executionId}`
+    );
+    return data;
+  }
+
   async getMetaData() {}
 
   async updateCredentials(credentials) {

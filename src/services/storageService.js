@@ -28,6 +28,10 @@ export default class StorageService {
     return await this.storage.getCredentials();
   }
 
+  async getStateMethod(executionId) {
+    return await this.storage.getStateMethod(executionId);
+  }
+
   async getMetaData() {
     return await this.storage.getMetaData();
   }
