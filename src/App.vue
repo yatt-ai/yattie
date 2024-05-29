@@ -42,6 +42,14 @@ export default {
       }
     }
 
+    if (!this.$isElectron) {
+      const cookies = document.cookie.split(";").map((cookie) => {
+        const [name, value] = cookie.trim().split("=");
+        return { name, value };
+      });
+      console.log("Cookies", cookies);
+    }
+
     const config = await this.$storageService.getConfig();
     this.$store.commit("config/setFullConfig", config);
 

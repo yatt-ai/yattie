@@ -26,8 +26,10 @@ export default {
     });
 
     const credential = credentials?.yatt[0];
+    let formattedData = this.formatData(data);
     const options = {
-      headers: this.getHeaders(credential),
+      headers:
+        formattedData.type === "bearer" ? this.getHeaders(credential) : "",
     };
 
     // Post to YATT
