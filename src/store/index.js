@@ -173,12 +173,14 @@ const store = new Vuex.Store({
       }
       this._vm.$storageService.updateItem(payload);
     },
+
     deleteSessionItems(state, ids) {
       state.session.items = ids.reduce((acc, currentId) => {
         return acc.filter((item) => item.stepID !== currentId);
       }, state.session.items);
       this._vm.$storageService.deleteItems(ids);
     },
+
     setSessionNotes(state, payload) {
       state.session.notes.content = payload.content;
       state.session.notes.text = payload.text;
@@ -186,6 +188,7 @@ const store = new Vuex.Store({
         this._vm.$storageService.updateState(state);
       }
     },
+
     updateSession(state, payload) {
       let isStatusChanged = false;
       if (state.session.status !== payload.status) {
@@ -198,6 +201,15 @@ const store = new Vuex.Store({
       if (state.case.duration !== payload.duration) {
         state.case.duration = payload.duration;
       }
+      if (state.session.ended !== payload.ended && payload.ended) {
+        state.session.ended = payload.ended;
+      }
+      if (state.session.quickTest !== payload.quickTest && payload.quickTest) {
+        state.session.quickTest = payload.quickTest;
+      }
+      if (state.session.sessionID !== payload.sessionID && payload.sessionID) {
+        state.session.sessionID = payload.sessionID;
+      }
 
       if (
         Vue.prototype.$isElectron ||
@@ -209,6 +221,7 @@ const store = new Vuex.Store({
         this._vm.$storageService.updateState(state);
       }
     },
+
     clearState(state) {
       state.case.caseID = null;
       state.case.title = "";
@@ -287,6 +300,7 @@ const store = new Vuex.Store({
       state.session.ended = "";
       this._vm.$storageService.updateState(state);
     },
+
     restoreState(state, payload) {
       state.case = {
         ...state.case,
@@ -319,6 +333,7 @@ const store = new Vuex.Store({
 
       this._vm.$storageService.updateState(state);
     },
+
     togglePreSessionTask(state, { taskId, checked }) {
       const taskIndex = state.session.preSessionTasks.findIndex(
         (task) => task.id === taskId
@@ -327,6 +342,7 @@ const store = new Vuex.Store({
         state.session.preSessionTasks[taskIndex].checked = checked;
       }
     },
+
     togglePostSessionTask(state, { taskId, checked }) {
       const taskIndex = state.session.postSessionTasks.findIndex(
         (task) => task.id === taskId

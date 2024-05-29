@@ -8,8 +8,8 @@ export default class StorageService {
       : new RestApiService();
   }
 
-  async getState() {
-    return await this.storage.getState();
+  async getState(executionId) {
+    return await this.storage.getState(executionId);
   }
 
   async updateState(state) {

@@ -173,6 +173,7 @@ export default {
       this.$electronService.onDataChange(this.fetchItems);
       this.$electronService.onMetaChange(this.fetchItems);
     }
+    this.getCurrentExecution();
   },
   computed: {
     ...mapGetters({
@@ -231,6 +232,22 @@ export default {
       if (this.$isElectron) {
         const sessionItems = await this.$storageService.getItems();
         this.$store.commit("setSessionItemsFromExternalWindow", sessionItems);
+      }
+    },
+    async getCurrentExecution() {
+      let currentPath = this.$route.path;
+      const executionId = currentPath.split("/").pop();
+
+      if (executionId !== "" && executionId !== "workspace") {
+        const currentExecution = await this.$storageService.getState(
+          executionId
+        );
+        const data = currentExecution.custom_fields;
+        this.$store.commit("updateSession", data);
+        this.$store.commit("setSessionItems", data.items);
+        this.$store.commit("setSessionNodes", data.nodes);
+        this.$store.commit("setSessionConnections", data.connections);
+        await this.$router.push({ path: "/main/workspace" });
       }
     },
     addItem(newItem) {
