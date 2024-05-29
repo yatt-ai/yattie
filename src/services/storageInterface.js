@@ -1,5 +1,6 @@
 export default class StorageInterface {
-  async getState() {
+  // eslint-disable-next-line
+  async getState(executionId) {
     throw new Error("Method 'getState()' must be implemented.");
   }
 
@@ -14,11 +15,6 @@ export default class StorageInterface {
 
   async getCredentials() {
     throw new Error("Method 'getCredentials()' must be implemented.");
-  }
-
-  // eslint-disable-next-line
-  async getStateMethod(executionId) {
-    throw new Error("Method 'getStateMethod()' must be implemented.");
   }
 
   // eslint-disable-next-line
