@@ -8,8 +8,8 @@ export default class StorageService {
       : new RestApiService();
   }
 
-  async getState() {
-    return await this.storage.getState();
+  async getState(executionId) {
+    return await this.storage.getState(executionId);
   }
 
   async updateState(state) {
@@ -26,10 +26,6 @@ export default class StorageService {
 
   async getCredentials() {
     return await this.storage.getCredentials();
-  }
-
-  async getStateMethod(executionId) {
-    return await this.storage.getStateMethod(executionId);
   }
 
   async getMetaData() {

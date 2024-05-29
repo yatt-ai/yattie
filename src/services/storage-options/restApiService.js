@@ -4,9 +4,11 @@ import StorageInterface from "../storageInterface";
 import store from "@/store";
 
 export default class RestApiService extends StorageInterface {
-  async getState() {
-    const response = await axios.get(`http://localhost:3000/state`);
-    return response.data;
+  async getState(executionId) {
+    const { data } = await axios.get(
+      `http://localhost:5000/v1/pinata/executions/${executionId}`
+    );
+    return data;
   }
 
   async updateState(state) {
@@ -126,13 +128,6 @@ export default class RestApiService extends StorageInterface {
         },
       ],
     };
-  }
-
-  async getStateMethod(executionId) {
-    const { data } = await axios.get(
-      `http://localhost:5000/v1/pinata/executions/${executionId}`
-    );
-    return data;
   }
 
   async getMetaData() {}

@@ -239,7 +239,7 @@ export default {
       const executionId = currentPath.split("/").pop();
 
       if (executionId !== "" && executionId !== "workspace") {
-        const currentExecution = await this.$storageService.getStateMethod(
+        const currentExecution = await this.$storageService.getState(
           executionId
         );
         const data = currentExecution.custom_fields;
