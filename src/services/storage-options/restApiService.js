@@ -2,6 +2,7 @@ import axios from "axios";
 import dayjs from "dayjs";
 import StorageInterface from "../storageInterface";
 import store from "@/store";
+import YattIntegrationHelpers from "@/integrations/YattIntegrationHelpers";
 
 export default class RestApiService extends StorageInterface {
   async getState(executionId) {
@@ -18,23 +19,14 @@ export default class RestApiService extends StorageInterface {
       session: state.session,
     };
     const credential = state.auth.credentials?.yatt[0];
-    let authHeader;
-    authHeader = `Bearer ${credential.accessToken}`;
-    const options = {
-      headers: {
-        Authorization: authHeader,
-        Accept: "application/json",
-      },
-    };
-    if (credential.type === "cookie") {
-      options.withCredentials = true;
-    }
+
     let returnResponse = {
       link: "",
     };
+    const headers = YattIntegrationHelpers.getHeaders(credential);
 
     await axios
-      .patch(`http://localhost:5000/v1/pinata/executions`, data, options)
+      .patch(`http://localhost:5000/v1/pinata/executions`, data, headers)
       .then((postedSession) => {
         returnResponse = postedSession.data;
       })

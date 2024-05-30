@@ -5,16 +5,23 @@ import dayjs from "dayjs";
 
 export default {
   getHeaders(credential) {
-    let authHeader = {},
-      authorization = "";
+    let authHeader = { headers: {} };
     if (credential.type === "bearer")
-      authorization = `Bearer ${credential.accessToken}`;
-    else if (credential.type === "cookie") authHeader.withCredentials = true;
+      authHeader = {
+        headers: {
+          Authorization: `Bearer ${credential.accessToken}`,
+          Accept: "application/json",
+        },
+      };
+    else if (credential.type === "cookie")
+      authHeader = {
+        headers: {
+          Authorization: `Bearer ${credential.accessToken}`,
+          Accept: "application/json",
+        },
+        withCredentials: true,
+      };
 
-    authHeader = {
-      Authorization: authorization,
-      Accept: "application/json",
-    };
     return authHeader;
   },
   async saveSession(credentials) {
