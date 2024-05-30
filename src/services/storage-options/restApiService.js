@@ -2,18 +2,13 @@ import axios from "axios";
 import dayjs from "dayjs";
 import StorageInterface from "../storageInterface";
 import store from "@/store";
-import makeAPI from "@/services/api";
 
 export default class RestApiService extends StorageInterface {
-  #api;
-
-  constructor() {
-    super();
-    this.#api = makeAPI("http://localhost:5000/v1"); // private value
-  }
-
   async getState(executionId) {
-    const { data } = await this.#api.get(`pinata/executions/${executionId}`);
+    const { data } = await axios.get(
+      `http://localhost:5000/v1/pinata/executions/${executionId}`,
+      { withCredentials: true }
+    );
     return data;
   }
 
@@ -23,22 +18,23 @@ export default class RestApiService extends StorageInterface {
       session: state.session,
     };
     const credential = state.auth.credentials?.yatt[0];
-    const cookies = document.cookie;
-    console.log(cookies);
     let authHeader;
     authHeader = `Bearer ${credential.accessToken}`;
     const options = {
       headers: {
         Authorization: authHeader,
         Accept: "application/json",
-        // Cookie: cookies,
       },
     };
+    if (credential.type === "cookie") {
+      options.withCredentials = true;
+    }
     let returnResponse = {
       link: "",
     };
-    await this.#api
-      .patch(`pinata/executions`, data, options)
+
+    await axios
+      .patch(`http://localhost:5000/v1/pinata/executions`, data, options)
       .then((postedSession) => {
         returnResponse = postedSession.data;
       })
@@ -91,28 +87,52 @@ export default class RestApiService extends StorageInterface {
   }
 
   async getConfig() {
-    const response = await this.#api.get(
-      `app/org/f352ae63-11fc-4dbe-bab1-72561aa25fca/config/5e0f71ff-987d-4240-85eb-df6adf568c31`
+    const response = await axios.get(
+      `http://localhost:5000/v1/app/org/f352ae63-11fc-4dbe-bab1-72561aa25fca/config/5e0f71ff-987d-4240-85eb-df6adf568c31`
     );
     return response.data.config;
   }
 
   async getAttachment(attachmentId) {
-    const response = await this.#api.get(`attachments/${attachmentId}/object`);
+    const response = await axios.get(
+      `http://localhost:5000/v1/attachments/${attachmentId}/object`,
+      {
+        withCredentials: true,
+      }
+    );
     console.log(response.data);
     return response.data;
   }
 
   async updateConfig(config) {
-    const response = await this.#api.put(
-      `app/org/f352ae63-11fc-4dbe-bab1-72561aa25fca/config/5e0f71ff-987d-4240-85eb-df6adf568c31`,
-      { config }
+    const response = await axios.put(
+      `http://localhost:5000/v1/app/org/f352ae63-11fc-4dbe-bab1-72561aa25fca/config/5e0f71ff-987d-4240-85eb-df6adf568c31`,
+      { config, withCredentials: true }
     );
     return response.data.config;
   }
 
   async getCredentials() {
-    const { data } = await this.#api.get("app/profile/token");
+    const { data } = await axios.get(
+      "http://localhost:5000/v1/app/profile/token",
+      {
+        withCredentials: true,
+      }
+    );
+    const allCookies = document.cookie;
+    const cookieArray = allCookies.split("; ");
+    let accessToken = null;
+    for (const cookie of cookieArray) {
+      const [name, value] = cookie.split("=");
+      if (name.trim() === "access_token") {
+        accessToken = value;
+        break;
+      }
+    }
+
+    if (accessToken) data.type = "cookie";
+    else data.type = "bearer";
+
     return {
       yatt: [
         {

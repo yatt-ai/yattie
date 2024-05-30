@@ -5,12 +5,17 @@ import dayjs from "dayjs";
 
 export default {
   getHeaders(credential) {
-    let authHeader;
-    authHeader = `Bearer ${credential.accessToken}`;
-    return {
-      Authorization: authHeader,
+    let authHeader = {},
+      authorization = "";
+    if (credential.type === "bearer")
+      authorization = `Bearer ${credential.accessToken}`;
+    else if (credential.type === "cookie") authHeader.withCredentials = true;
+
+    authHeader = {
+      Authorization: authorization,
       Accept: "application/json",
     };
+    return authHeader;
   },
   async saveSession(credentials) {
     if (!credentials?.yatt || credentials?.yatt.length < 1) {
@@ -26,10 +31,8 @@ export default {
     });
 
     const credential = credentials?.yatt[0];
-    let formattedData = this.formatData(data);
     const options = {
-      headers:
-        formattedData.type === "bearer" ? this.getHeaders(credential) : "",
+      headers: this.getHeaders(credential),
     };
 
     // Post to YATT
