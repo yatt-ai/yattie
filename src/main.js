@@ -27,7 +27,6 @@ import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import { faBookmark } from "@fortawesome/free-solid-svg-icons";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { faTableList } from "@fortawesome/free-solid-svg-icons";
-import makeAPI from "@/services/api";
 
 library.add(faComment);
 library.add(faTriangleExclamation);
@@ -48,7 +47,6 @@ Vue.component("font-awesome-icon", FontAwesomeIcon);
 
 Vue.config.productionTip = false;
 
-const api = makeAPI(process.env.VUE_APP_SERVER_BASEURL);
 const isElectronApp = navigator.userAgent.includes("Electron");
 
 const plugins = {
@@ -71,6 +69,5 @@ new Vue({
   router,
   store,
   i18n,
-  api,
   render: (h) => h(App),
 }).$mount("#app");

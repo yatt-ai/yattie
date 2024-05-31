@@ -1,10 +1,9 @@
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
-
 import axios from "axios";
 import dayjs from "dayjs";
 
 export default {
-  getHeaders(credential) {
+  async getHeaders(credential) {
     let authHeader = { headers: {} };
     if (credential.type === "bearer")
       authHeader = {

@@ -6,9 +6,11 @@ import YattIntegrationHelpers from "@/integrations/YattIntegrationHelpers";
 
 export default class RestApiService extends StorageInterface {
   async getState(executionId) {
+    const credential = store.state.auth.credentials?.yatt[0];
+    const headers = await YattIntegrationHelpers.getHeaders(credential);
     const { data } = await axios.get(
       `http://localhost:5000/v1/pinata/executions/${executionId}`,
-      { withCredentials: true }
+      headers
     );
     return data;
   }
@@ -23,8 +25,7 @@ export default class RestApiService extends StorageInterface {
     let returnResponse = {
       link: "",
     };
-    const headers = YattIntegrationHelpers.getHeaders(credential);
-
+    const headers = await YattIntegrationHelpers.getHeaders(credential);
     await axios
       .patch(`http://localhost:5000/v1/pinata/executions`, data, headers)
       .then((postedSession) => {
@@ -43,7 +44,7 @@ export default class RestApiService extends StorageInterface {
           if (match?.filePath) {
             const fetchResponse = await fetch(match.filePath);
             const fileBlob = await fetchResponse.blob();
-            const file = new File([fileBlob], step.uid, {
+            const file = new File([fileBlob], step?.uid, {
               type: match.fileType,
             });
             await axios
@@ -86,31 +87,29 @@ export default class RestApiService extends StorageInterface {
   }
 
   async getAttachment(attachmentId) {
+    const credential = store.state.auth.credentials?.yatt[0];
+    const headers = await YattIntegrationHelpers.getHeaders(credential);
     const response = await axios.get(
       `http://localhost:5000/v1/attachments/${attachmentId}/object`,
-      {
-        withCredentials: true,
-      }
+      headers
     );
-    console.log(response.data);
     return response.data;
   }
 
   async updateConfig(config) {
+    const credential = store.state.auth.credentials?.yatt[0];
+    const headers = await YattIntegrationHelpers.getHeaders(credential);
     const response = await axios.put(
       `http://localhost:5000/v1/app/org/f352ae63-11fc-4dbe-bab1-72561aa25fca/config/5e0f71ff-987d-4240-85eb-df6adf568c31`,
-      { config, withCredentials: true }
+      config,
+      headers
     );
     return response.data.config;
   }
 
   async getCredentials() {
-    const { data } = await axios.get(
-      "http://localhost:5000/v1/app/profile/token",
-      {
-        withCredentials: true,
-      }
-    );
+    let data = { user: {} };
+
     const allCookies = document.cookie;
     const cookieArray = allCookies.split("; ");
     let accessToken = null;
@@ -121,10 +120,16 @@ export default class RestApiService extends StorageInterface {
         break;
       }
     }
-
-    if (accessToken) data.type = "cookie";
-    else data.type = "bearer";
-
+    data = store.state.auth.credentials?.yatt[0];
+    if (accessToken) {
+      data.type = "cookie";
+    } else {
+      const response = await axios.get(
+        "http://localhost:5000/v1/app/profile/token"
+      );
+      data = response.data;
+      data.type = "bearer";
+    }
     return {
       yatt: [
         {
