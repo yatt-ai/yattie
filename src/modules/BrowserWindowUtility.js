@@ -8,12 +8,12 @@ module.exports.getBrowserWindow = () => {
   return this._browserWindow;
 };
 
-module.exports.setMinimizedWindow = (minimizedWindow) => {
-  this._minimizedWindow = minimizedWindow;
+module.exports.setLowProfiledWindow = (lowProfiledWindow) => {
+  this._lowProfiledWindow = lowProfiledWindow;
 };
 
-module.exports.getMinimizedWindow = () => {
-  return this._minimizedWindow;
+module.exports.getLowProfiledWindow = () => {
+  return this._lowProfiledWindow;
 };
 
 module.exports.setViewMode = (viewMode) => {
@@ -26,5 +26,5 @@ module.exports.getViewMode = () => {
 
 module.exports.getParentWindow = () => {
   if (this._viewMode === VIEW_MODE.NORMAL) return this._browserWindow;
-  else return this._minimizedWindow;
+  else return this._lowProfiledWindow;
 };

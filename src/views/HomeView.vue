@@ -1,7 +1,11 @@
 <template>
   <v-container class="wrapper">
     <div class="header">
-      <div class="avatar" v-if="isAuthenticated">
+      <div
+        class="avatar"
+        v-if="isAuthenticated"
+        :style="{ width: $isElectron ? 'auto' : '100%' }"
+      >
         <MenuPopover />
       </div>
     </div>
@@ -67,7 +71,7 @@
             <button class="social-btn">
               <img
                 :src="require('../assets/icon/jira.svg')"
-                width="50"
+                width="40"
                 v-bind="attrs"
                 v-on="on"
               />
@@ -91,7 +95,7 @@
             <button class="social-btn">
               <img
                 :src="require('../assets/icon/testrail.svg')"
-                width="60"
+                width="50"
                 v-bind="attrs"
                 v-on="on"
               />
@@ -114,8 +118,80 @@
           <template v-slot:activator="{ on, attrs }">
             <button class="social-btn">
               <img
+                :src="require('../assets/icon/xray-logo.png')"
+                width="15"
+                v-bind="attrs"
+                v-on="on"
+              />
+              <div
+                class="overlay"
+                v-if="!loggedInServices.xray"
+                v-on="on"
+              ></div>
+            </button>
+          </template>
+          <span>
+            {{
+              loggedInServices.xray
+                ? $tc("caption.logged_in_xray", 1)
+                : $tc("caption.not_logged_in_xray", 1)
+            }}
+          </span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <button class="social-btn">
+              <img
+                :src="require('../assets/icon/zephyr-squad.png')"
+                width="30"
+                v-bind="attrs"
+                v-on="on"
+              />
+              <div
+                class="overlay"
+                v-if="!loggedInServices.zephyrSquad"
+                v-on="on"
+              ></div>
+            </button>
+          </template>
+          <span>
+            {{
+              loggedInServices.zephyrSquad
+                ? $tc("caption.logged_in_zephyr_squad", 1)
+                : $tc("caption.not_logged_in_zephyr_squad", 1)
+            }}
+          </span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <button class="social-btn">
+              <img
+                :src="require('../assets/icon/zephyr-scale.png')"
+                width="30"
+                v-bind="attrs"
+                v-on="on"
+              />
+              <div
+                class="overlay"
+                v-if="!loggedInServices.zephyrScale"
+                v-on="on"
+              ></div>
+            </button>
+          </template>
+          <span>
+            {{
+              loggedInServices.zephyrScale
+                ? $tc("caption.logged_in_zephyr_scale", 1)
+                : $tc("caption.not_logged_in_zephyr_scale", 1)
+            }}
+          </span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <button class="social-btn">
+              <img
                 :src="require('../assets/icon/qtest.svg')"
-                width="50"
+                width="40"
                 v-bind="attrs"
                 v-on="on"
               />
@@ -139,7 +215,7 @@
             <button class="social-btn">
               <img
                 :src="require('../assets/icon/practitest.svg')"
-                width="60"
+                width="50"
                 v-bind="attrs"
                 v-on="on"
               />
@@ -221,7 +297,7 @@ export default {
     },
     async newSession() {
       this.$store.commit("clearState");
-      await this.$store.commit("setQuickTest", false);
+      await this.$store.commit("setSessionQuickTest", false);
       if (this.$router.history.current.path === "/") {
         await this.$router.push("/main");
       }
@@ -237,34 +313,16 @@ export default {
           this.$store.commit("restoreState", state);
 
           const currentPath = this.$router.history.current.path;
-          if (currentPath !== state.path) {
-            await this.$router.push({ path: state.path });
+          if (currentPath !== state.session.path) {
+            await this.$router.push({ path: state.session.path });
           }
         }
       } else {
         // todo Add web version handler
       }
     },
-    setInitialPreSession() {
-      this.$store.commit(
-        "setPreSessionTasks",
-        this.checklistPresessionTasks.map((task) => {
-          return { ...task, checked: false };
-        })
-      );
-    },
-    setInitialPostSession() {
-      console.log(456);
-      // this.$store.commit(
-      //   "setPostSessionTasks",
-      //   this.checklistPostsessionTasks.map((task) => {
-      //     return { ...task, checked: false };
-      //   })
-      // );
-    },
     handleQuickTest() {
-      this.$store.commit("clearState");
-      this.$store.commit("setQuickTest", true);
+      this.$store.commit("startQuickTest");
       this.$router.push("/main/workspace");
     },
   },

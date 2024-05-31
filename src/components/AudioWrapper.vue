@@ -108,6 +108,7 @@
 <script>
 import WaveSurfer from "wavesurfer.js";
 import { STATUSES } from "@/modules/constants";
+import { createImageForWeb } from "@/helpers/WebHelpers";
 
 export default {
   name: "AudioWrapper",
@@ -188,7 +189,12 @@ export default {
         cursorColor: "#000",
         barWidth: 3,
       });
-      this.wavesurfer.load(`file://${this.item.filePath}`);
+      const filePath = this.$isElectron
+        ? `file://${this.item.filePath}`
+        : this.item.filePath;
+
+      this.wavesurfer.load(filePath);
+
       this.wavesurfer.on("audioprocess", () => {
         this.setCurrentProgress();
       });
@@ -214,10 +220,8 @@ export default {
       this.wavesurfer.setVolume(volume);
     },
     async handleAudio() {
+      const uri = this.wavesurfer.exportImage("image/png", 1, "dataURL");
       if (this.$isElectron) {
-        // todo add web handler
-        const uri = this.wavesurfer.exportImage("image/png", 1, "dataURL");
-
         let posterResult = await this.$electronService.createImage(uri, true);
 
         if (posterResult.status === STATUSES.ERROR) {
@@ -240,9 +244,17 @@ export default {
           poster: posterResult.item.filePath,
           ...audioResult.item,
         };
-        this.$root.$emit("update-session", this.sessionItem);
-        this.$root.$emit("save-data", this.sessionItem);
+      } else {
+        let posterResult = createImageForWeb(uri);
+        // todo use this logic to recreate the item on timeline
+        this.sessionItem = {
+          ...this.sessionItem,
+          poster: posterResult.item.filePath,
+        };
       }
+
+      this.$root.$emit("update-edit-item", this.sessionItem);
+      this.$root.$emit("save-data", this.sessionItem);
     },
   },
 };

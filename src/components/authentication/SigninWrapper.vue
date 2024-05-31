@@ -59,6 +59,48 @@
               {{ $tc("caption.signin_testrail", 1) }}
             </div>
           </v-btn>
+          <v-btn
+            class="mb-4 outline-btn jira"
+            block
+            outlined
+            color="white"
+            @click="signinXray"
+          >
+            <img :src="require('../../assets/icon/xray-logo.png')" width="12" />
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_xray", 1) }}
+            </div>
+          </v-btn>
+          <v-btn
+            class="mb-4 outline-btn jira"
+            block
+            outlined
+            color="white"
+            @click="signinZephyrSquad"
+          >
+            <img
+              :src="require('../../assets/icon/zephyr-squad.png')"
+              width="16"
+            />
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_zephyr_squad", 1) }}
+            </div>
+          </v-btn>
+          <v-btn
+            class="mb-4 outline-btn jira"
+            block
+            outlined
+            color="white"
+            @click="signinZephyrScale"
+          >
+            <img
+              :src="require('../../assets/icon/zephyr-scale.png')"
+              width="16"
+            />
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_zephyr_scale", 1) }}
+            </div>
+          </v-btn>
           <!--<v-btn class="mb-4 outline-btn" block outlined color="white">
             <img :src="require('../../assets/icon/qtest.png')" />
             <div class="btn-text" :style="{ color: currentTheme.secondary }">
@@ -115,34 +157,18 @@ export default {
   name: "SigninWrapper",
   components: {},
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
     prevRoute: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
     prevRoute: function (newValue) {
       this.previousRoute = newValue;
     },
   },
   data() {
     return {
-      config: this.configItem,
-      credentials: this.credentialItems,
       previousRoute: this.prevRoute,
       loading: false,
       snackBar: {
@@ -177,6 +203,15 @@ export default {
     },
     signinTestRail() {
       this.$router.push({ path: "/authentication/signinTestRail" });
+    },
+    signinXray() {
+      this.$router.push({ path: "/authentication/signinXray" });
+    },
+    signinZephyrSquad() {
+      this.$router.push({ path: "/authentication/signinZephyrSquad" });
+    },
+    signinZephyrScale() {
+      this.$router.push({ path: "/authentication/signinZephyrScale" });
     },
   },
 };

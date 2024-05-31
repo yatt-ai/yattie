@@ -86,13 +86,6 @@ export default class ElectronService {
     });
   }
 
-  async openAddWindow(data) {
-    await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-      func: IPC_FUNCTIONS.OPEN_ADD_WINDOW,
-      data: { width: 700, height: 800, data },
-    });
-  }
-
   async closeAddWindow() {
     return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
       func: IPC_FUNCTIONS.CLOSE_ADD_WINDOW,
@@ -120,87 +113,10 @@ export default class ElectronService {
     });
   }
 
-  async openShareOauthWindow(credentials) {
+  async openLowProfileWindow() {
     return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-      func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-      data: {
-        path: "shareOAuth",
-        size: {
-          width: 400,
-          height: 550,
-        },
-        data: credentials,
-      },
-    });
-  }
-
-  async openSourcePickerWindow(sources) {
-    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-      func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-      data: {
-        path: "sourcepicker",
-        size: {
-          width: 600,
-          height: 500,
-        },
-        data: sources,
-      },
-    });
-  }
-
-  async openNoteEditorWindow(config) {
-    return window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-      func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-      data: {
-        path: "noteEditor",
-        size: {
-          width: 500,
-          height: 550,
-        },
-        data: config,
-      },
-    });
-  }
-
-  async openSummaryWindow(config) {
-    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-      func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-      data: {
-        path: "summaryEditor",
-        size: {
-          width: 500,
-          height: 500,
-        },
-        data: config,
-      },
-    });
-  }
-
-  async openEndSessionWindow(config) {
-    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-      func: IPC_FUNCTIONS.OPEN_MODAL_WINDOW,
-      data: {
-        path: "endsession",
-        size: {
-          width: 450,
-          height: 500,
-        },
-        data: config,
-      },
-    });
-  }
-
-  async openMinimizeWindow() {
-    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-      func: IPC_FUNCTIONS.OPEN_MINIMIZE_WINDOW,
+      func: IPC_FUNCTIONS.OPEN_LOWPROFILE_WINDOW,
       data: { width: 400, height: 84 },
-    });
-  }
-
-  async openEditWindow(data) {
-    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
-      func: IPC_FUNCTIONS.OPEN_EDIT_WINDOW,
-      data: data,
     });
   }
 
@@ -224,6 +140,7 @@ export default class ElectronService {
   }
 
   async dragItem(item) {
+    console.log(item);
     return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
       func: IPC_FUNCTIONS.DRAG_ITEM,
       data: item,
@@ -330,16 +247,23 @@ export default class ElectronService {
     });
   }
 
-  async setAppearance(appearance) {
+  async setAppearance(theme) {
     return await window.ipc.invoke(IPC_HANDLERS.CAPTURE, {
       func: IPC_FUNCTIONS.SET_APPEARANCE,
-      data: { appearance },
+      data: { theme },
     });
   }
 
   async exportSession(data) {
     return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
       func: IPC_FUNCTIONS.EXPORT_SESSION,
+      data,
+    });
+  }
+
+  async deleteSession(data) {
+    return await window.ipc.invoke(IPC_HANDLERS.FILE_SYSTEM, {
+      func: IPC_FUNCTIONS.DELETE_SESSION,
       data,
     });
   }
@@ -354,6 +278,12 @@ export default class ElectronService {
     return await window.ipc.invoke(IPC_HANDLERS.SERVER, {
       func: IPC_FUNCTIONS.START_SERVER,
       data,
+    });
+  }
+
+  async resetSession() {
+    return await window.ipc.invoke(IPC_HANDLERS.WINDOW, {
+      func: IPC_FUNCTIONS.RESET_SESSION,
     });
   }
 }

@@ -147,6 +147,7 @@
                 class="input-box"
                 v-model="tag_text"
                 :tags="tags"
+                :autocomplete-items="filteredTags"
                 :max-tags="10"
                 :maxlength="20"
                 @tags-changed="handleTags"
@@ -189,6 +190,7 @@
                 small
                 block
                 :color="currentTheme.background"
+                :style="{ color: currentTheme.secondary }"
                 v-shortkey="cancelHotkey"
                 @shortkey="handleDiscard()"
                 @click="handleDiscard()"
@@ -201,7 +203,8 @@
                 class="btn"
                 small
                 block
-                color="primary"
+                :color="currentTheme.primary"
+                :style="{ color: currentTheme.white }"
                 v-shortkey="confirmHotkey"
                 @shortkey="handleSave()"
                 @click="handleSave()"
@@ -218,10 +221,11 @@
 
 <script>
 import VueTagsInput from "@johmun/vue-tags-input";
-import { TEXT_TYPES, AI_ENABLED_FIELDS } from "../../modules/constants";
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
+import { mapGetters } from "vuex";
 
 import { VEmojiPicker } from "v-emoji-picker";
+import { TEXT_TYPES, AI_ENABLED_FIELDS } from "../../modules/constants";
 
 export default {
   name: "NoteDialog",
@@ -230,43 +234,39 @@ export default {
     VEmojiPicker,
   },
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
+    isVisible: {
+      type: Boolean,
+      require: true,
     },
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-      this.resetData();
+    isVisible(newVal) {
+      if (newVal) {
+        this.getAllTags();
+      }
     },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
+    config: function () {
+      this.resetData();
     },
   },
   data() {
     return {
-      config: this.configItem,
       comment: {
         type:
-          this.configItem &&
-          this.configItem.commentType &&
-          this.configItem.commentType !== ""
-            ? this.configItem.commentType
+          this.config &&
+          this.config.commentType &&
+          this.config.commentType !== ""
+            ? this.config.commentType
             : "Comment",
         content: "",
         text: "",
       },
       previousComment: {
         type:
-          this.configItem &&
-          this.configItem.commentType &&
-          this.configItem.commentType !== ""
-            ? this.configItem.commentType
+          this.config &&
+          this.config.commentType &&
+          this.config.commentType !== ""
+            ? this.config.commentType
             : "Comment",
         content: "",
         text: "",
@@ -278,22 +278,33 @@ export default {
       tag_text: "",
       emojiMenu: false,
       tags: [],
+      allTags: [],
       emoji: [],
       followUp: false,
     };
   },
   computed: {
+    ...mapGetters({
+      config: "config/fullConfig",
+      credentials: "auth/credentials",
+      hotkeys: "config/hotkeys",
+      defaultTags: "config/defaultTags",
+      sessionItems: "sessionItems",
+    }),
+    filteredTags() {
+      return this.allTags
+        .filter((item) => {
+          return item.toLowerCase().includes(this.tag_text.toLowerCase());
+        })
+        .map((item) => {
+          return { text: item };
+        });
+    },
     confirmHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.save",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
     },
     cancelHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.cancel",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.cancel", this.hotkeys);
     },
     aiAssistEnabled() {
       return this?.config?.ai?.enabled || false;
@@ -307,20 +318,34 @@ export default {
     },
   },
   methods: {
+    getAllTags() {
+      const defaultTagTexts = this.defaultTags
+        .filter((tag) => tag.text !== "")
+        .map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      this.allTags = [...new Set([...defaultTagTexts, ...sessionTagTexts])];
+    },
     resetData() {
       // set comment type by config
       if (this.config.commentType && this.config.commentType !== "") {
         this.comment.type = this.config.commentType;
       }
 
-      // set templates by config
-      this.config.templates.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.type === "Note") {
-          this.comment.content = temp.precondition.content;
-          this.comment.text = temp.precondition.text;
-        }
-      });
+      if (this.$isElectron) {
+        // set templates by config
+        const template = this.config.templates["text"];
+
+        this.comment.content = template.content;
+        this.comment.text = template.text;
+      }
 
       this.emojiMenu = false;
       this.tags = [];

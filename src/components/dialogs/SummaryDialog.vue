@@ -106,6 +106,7 @@
                 small
                 block
                 :color="currentTheme.background"
+                :style="{ color: currentTheme.secondary }"
                 v-shortkey="cancelHotkey"
                 @shortkey="handleCancel()"
                 @click="handleCancel()"
@@ -118,7 +119,8 @@
                 class="btn px-8"
                 small
                 block
-                color="primary"
+                :color="currentTheme.primary"
+                :style="{ color: currentTheme.white }"
                 v-shortkey="confirmHotkey"
                 @shortkey="handleSave()"
                 @click="handleSave()"
@@ -142,26 +144,14 @@ export default {
   name: "SummaryDialog",
   components: {},
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
     summary: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-      this.isRequired = this.config.summary;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
+    config: function () {
+      this.isRequired = this.config?.summaryRequired;
     },
     summary: function (newValue) {
       if (Object.keys(newValue).length) {
@@ -172,7 +162,6 @@ export default {
   },
   data() {
     return {
-      config: this.configItem,
       comment: {
         type: "Summary",
         content: "",
@@ -185,7 +174,7 @@ export default {
       },
       commentLoading: false,
       commentTypes: Object.keys(TEXT_TYPES),
-      isRequired: this.configItem.summary,
+      isRequired: this.config?.summaryRequired,
       isEmpty: false,
     };
   },
@@ -194,6 +183,8 @@ export default {
   },
   computed: {
     ...mapGetters({
+      config: "config/fullConfig",
+      credentials: "auth/credentials",
       hotkeys: "config/hotkeys",
     }),
     confirmHotkey() {
@@ -222,7 +213,7 @@ export default {
         this.isEmpty = true;
         return;
       }
-      this.$emit("submit-summary", this.comment);
+      this.$emit("submit-summary", { ...this.comment });
     },
     handleClear() {
       this.comment.type = "Summary";

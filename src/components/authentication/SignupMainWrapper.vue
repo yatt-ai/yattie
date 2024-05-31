@@ -38,6 +38,30 @@
             <img :src="require('../../assets/icon/testrail.png')" />
             <div class="btn-text">{{ $tc("caption.signup_testrail", 1) }}</div>
           </v-btn>
+          <v-btn class="mb-4 outline-btn testrail" block outlined color="white">
+            <img :src="require('../../assets/icon/xray-logo.png')" width="12" />
+            <div class="btn-text">
+              {{ $tc("caption.signup_xray", 1) }}
+            </div>
+          </v-btn>
+          <v-btn class="mb-4 outline-btn testrail" block outlined color="white">
+            <img
+              :src="require('../../assets/icon/zephyr-squad.png')"
+              width="16"
+            />
+            <div class="btn-text">
+              {{ $tc("caption.signup_zephyr_squad", 1) }}
+            </div>
+          </v-btn>
+          <v-btn class="mb-4 outline-btn testrail" block outlined color="white">
+            <img
+              :src="require('../../assets/icon/zephyr-scale.png')"
+              width="16"
+            />
+            <div class="btn-text">
+              {{ $tc("caption.signup_zephyr_scale", 1) }}
+            </div>
+          </v-btn>
           <v-btn class="mb-4 outline-btn qtest" block outlined color="white">
             <img :src="require('../../assets/icon/qtest.png')" />
             <div class="btn-text">{{ $tc("caption.signup_qtest", 1) }}</div>
@@ -123,39 +147,24 @@
 <script>
 import axios from "axios";
 import dayjs from "dayjs";
+import { mapGetters } from "vuex";
 
 export default {
   name: "SignupMainWrapper",
   components: {},
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
     prevRoute: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
     prevRoute: function (newValue) {
       this.previousRoute = newValue;
     },
   },
   data() {
     return {
-      config: this.configItem,
-      credentials: this.credentialItems,
       previousRoute: this.prevRoute,
       loading: false,
       snackBar: {
@@ -164,7 +173,11 @@ export default {
       },
     };
   },
-  computed: {},
+  computed: {
+    ...mapGetters({
+      credentials: "auth/credentials",
+    }),
+  },
   mounted() {
     if (this.$isElectron) {
       this.$electronService.onJiraLogin(this.jiraLogin);

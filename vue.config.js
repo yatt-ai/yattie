@@ -41,6 +41,10 @@ module.exports = {
             from: "server",
             to: "server",
           },
+          {
+            from: "src/modules/migrations",
+            to: "migrations",
+          },
         ],
         dmg: {
           artifactName: "${productName}-${version}-${arch}.${ext}",

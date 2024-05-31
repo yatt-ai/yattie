@@ -1,14 +1,14 @@
 import Vuetify from "vuetify";
-import MinimizeView from "../MinimizeView.vue";
+import LowProfileView from "../LowProfileView.vue";
 import ControlPanel from "../../components/ControlPanel.vue";
 
 import { shallowMount } from "@vue/test-utils";
 
 const vuetify = new Vuetify();
 
-describe("MinimizeView.vue", () => {
+describe("LowProfileView.vue", () => {
   test("render a view", () => {
-    const wrapper = shallowMount(MinimizeView, {
+    const wrapper = shallowMount(LowProfileView, {
       mocks: {
         $t: () => {},
         $tc: () => {},
@@ -29,7 +29,7 @@ describe("MinimizeView.vue", () => {
   });
 
   test('trigger the click event of "Maximize" button', () => {
-    const wrapper = shallowMount(MinimizeView, {
+    const wrapper = shallowMount(LowProfileView, {
       mocks: {
         $t: () => {},
         $tc: () => {},

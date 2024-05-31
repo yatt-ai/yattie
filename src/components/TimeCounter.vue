@@ -18,7 +18,7 @@
             <span
               :class="[
                 'time-value',
-                this.$store.state.status,
+                this.$store.state.session.status,
                 { overtime: isOverTimeLimit },
               ]"
               :style="{ color: currentTheme.secondary }"
@@ -46,7 +46,7 @@ export default {
   },
   computed: {
     elapsedTime() {
-      const timer = this.$store.state.timer;
+      const timer = this.$store.state.session.timer;
       const date = new Date(null);
       date.setSeconds(timer);
       const result = date.toISOString().substr(11, 8);
@@ -60,8 +60,8 @@ export default {
       }
     },
     remainingTime() {
-      const elapsedTime = this.$store.state.timer;
-      const timer = this.$store.state.duration;
+      const elapsedTime = this.$store.state.session.timer;
+      const timer = this.$store.state.case.duration;
       const remainingSeconds = timer - elapsedTime;
       if (remainingSeconds >= 0) {
         const date = new Date(null);
@@ -72,8 +72,8 @@ export default {
       }
     },
     isOverTimeLimit() {
-      const elapsedTime = this.$store.state.timer;
-      const timer = this.$store.state.duration;
+      const elapsedTime = this.$store.state.session.timer;
+      const timer = this.$store.state.case.duration;
       return timer - elapsedTime < 0;
     },
   },

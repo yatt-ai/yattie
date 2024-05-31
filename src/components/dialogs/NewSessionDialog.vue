@@ -4,7 +4,7 @@
       <v-card :style="{ backgroundColor: currentTheme.background }">
         <LogoWrapper :height="20" :width="60" />
         <v-card-text class="text" :style="{ color: currentTheme.secondary }">
-          {{ text || $t("message.confirm_delete") }}
+          {{ text }}
         </v-card-text>
         <v-card-actions>
           <v-btn
@@ -36,6 +36,7 @@
   </v-dialog>
 </template>
 <script>
+import { mapGetters } from "vuex";
 import LogoWrapper from "../LogoWrapper.vue";
 export default {
   name: "NewSessionDialog",
@@ -43,35 +44,21 @@ export default {
     LogoWrapper,
   },
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
     title: String,
     text: String,
   },
   data() {
-    return {
-      config: this.configItem,
-    };
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
+    return {};
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+    }),
     confirmHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.save",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
     },
     cancelHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.cancel",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.cancel", this.hotkeys);
     },
     currentTheme() {
       if (this.$vuetify.theme.dark) {

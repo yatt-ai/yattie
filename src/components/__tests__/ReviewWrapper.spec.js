@@ -20,7 +20,7 @@ describe("ReivewWrapper.vue", () => {
       },
       propsData: {
         item: {
-          fileType: "mindmap",
+          fileType: "application/mindmap",
           content: { nodes: [] },
         },
         processing: false,
@@ -34,7 +34,7 @@ describe("ReivewWrapper.vue", () => {
       data() {
         return {
           sessionItem: {
-            fileType: "mindmap",
+            fileType: "application/mindmap",
           },
         };
       },
@@ -45,7 +45,7 @@ describe("ReivewWrapper.vue", () => {
 
     await wrapper.setData({
       sessionItem: {
-        fileType: "image",
+        fileType: "image/png",
       },
     });
 
@@ -53,14 +53,14 @@ describe("ReivewWrapper.vue", () => {
 
     await wrapper.setData({
       sessionItem: {
-        fileType: "video",
+        fileType: "video/mp4",
       },
     });
     expect(wrapper.findComponent(VideoWrapper).exists()).toBe(true);
 
     await wrapper.setData({
       sessionItem: {
-        fileType: "audio",
+        fileType: "audio/mp3",
       },
     });
     expect(wrapper.findComponent(AudioWrapper).exists()).toBe(true);

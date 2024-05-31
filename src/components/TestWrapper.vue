@@ -26,7 +26,7 @@
                   : 'mdi-robot-outline'
                 : ''
             "
-            v-model="title"
+            :value="title"
             ref="titleTextField"
             @input="updateTitle"
             @click:append="handleAISuggestion('title', $event)"
@@ -79,7 +79,7 @@
               </v-card>
               <v-tiptap
                 v-else
-                v-model="charter.content"
+                :value="charter.content"
                 :placeholder="$t('message.describe_test_charter')"
                 ref="charter"
                 :toolbar="[
@@ -149,9 +149,9 @@
               outlined
               dense
               v-model="duration"
-              @input="handleDuration"
+              @change="handleDuration()"
               hide-details="true"
-              :disabled="this.$store.state.status !== 'pending'"
+              :disabled="this.$store.state.session.status !== 'pending'"
             />
             <span class="timer-box-wrapper-label">
               {{ $tc("caption.minute", 1) }}
@@ -182,7 +182,7 @@
           </v-card>
           <v-tiptap
             v-else
-            v-model="preconditions.content"
+            :value="preconditions.content"
             :placeholder="$t('message.define_required_precondition')"
             ref="preconditions"
             :toolbar="[
@@ -230,6 +230,7 @@
 <script>
 import { VContainer, VRow, VCol, VTextField } from "vuetify/lib/components";
 import MindmapEditor from "./MindmapEditor.vue";
+import { debounce } from "lodash";
 
 import {
   DEFAULT_CHARTER_MAP_NODES,
@@ -251,12 +252,12 @@ export default {
   },
   data() {
     return {
-      title: this.$store.state.title,
+      title: this.$store.state.case.title,
       previousTitle: "",
       titleLoading: false,
       charter: {
-        content: this.$store.state.charter.content,
-        text: this.$store.state.charter.text,
+        content: this.$store.state.case.charter.content,
+        text: this.$store.state.case.charter.text,
       },
       previousCharter: {
         content: "",
@@ -268,8 +269,8 @@ export default {
         connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
       },
       preconditions: {
-        content: this.$store.state.preconditions.content,
-        text: this.$store.state.preconditions.text,
+        content: this.$store.state.case.preconditions.content,
+        text: this.$store.state.case.preconditions.text,
       },
       previousPreconditions: {
         content: "",
@@ -325,27 +326,27 @@ export default {
     },
   },
   watch: {
-    "$store.state.title": {
+    "$store.state.case.title": {
       deep: true,
       handler(newValue) {
         this.title = newValue;
       },
     },
-    "$store.state.charter": {
+    "$store.state.case.charter": {
       deep: true,
       handler(newValue) {
         this.charter.content = newValue.content;
         this.charter.text = newValue.text;
       },
     },
-    "$store.state.preconditions": {
+    "$store.state.case.preconditions": {
       deep: true,
       handler(newValue) {
         this.preconditions.content = newValue.content;
         this.preconditions.text = newValue.text;
       },
     },
-    "$store.state.mindmap": {
+    "$store.state.case.mindmap": {
       deep: true,
       handler(newValue) {
         this.mindmap.nodes = newValue.nodes;
@@ -353,25 +354,48 @@ export default {
       },
     },
   },
+  created() {
+    this.debouncedUpdateTitle = debounce(this.actualUpdateTitle, 500);
+    this.debouncedUpdateCharter = debounce(this.actualUpdateCharter, 500);
+    this.debouncedUpdatePreconditions = debounce(
+      this.actualUpdatePreconditions,
+      500
+    );
+  },
   mounted() {
     this.$root.$on("reset-duration", () => {
       this.duration = "";
     });
-    this.duration = this.formatDuration(this.$store.state.duration);
+    this.duration = this.formatDuration(this.$store.state.case.duration);
   },
   methods: {
-    updateTitle() {
-      this.$store.commit("setTitle", this.title);
+    actualUpdateTitle(title) {
+      this.$store.commit("setCaseTitle", title);
     },
-    updateCharter() {
-      const regex = /(<([^>]+)>)/gi;
-      this.charter.text = this.charter.content.replace(regex, "");
-      this.$store.commit("setCharter", this.charter);
+    updateTitle(title) {
+      this.debouncedUpdateTitle(title);
     },
-    updatePreconditions() {
+    actualUpdateCharter(charterContent) {
       const regex = /(<([^>]+)>)/gi;
-      this.preconditions.text = this.preconditions.content.replace(regex, "");
-      this.$store.commit("setPrecondition", this.preconditions);
+      const charterText = charterContent.replace(regex, "");
+      this.$store.commit("setCaseCharter", {
+        content: charterContent,
+        text: charterText,
+      });
+    },
+    updateCharter(charterContent) {
+      this.debouncedUpdateCharter(charterContent);
+    },
+    actualUpdatePreconditions(preconditionsContent) {
+      const regex = /(<([^>]+)>)/gi;
+      const preconditionsText = preconditionsContent.replace(regex, "");
+      this.$store.commit("setCasePrecondition", {
+        content: preconditionsContent,
+        text: preconditionsText,
+      });
+    },
+    updatePreconditions(preconditionsContent) {
+      this.debouncedUpdatePreconditions(preconditionsContent);
     },
     async handleAISuggestion(field, event) {
       if (
@@ -477,7 +501,7 @@ export default {
         return;
       }
       const temp = minutes * 60 + seconds;
-      this.$store.commit("setDuration", temp);
+      this.$store.commit("setCaseDuration", temp);
     },
     handleMindmap(value) {
       const newNodes = value.nodes.map((obj) => {
@@ -498,7 +522,7 @@ export default {
         nodes: newNodes,
         connections: newConnections,
       };
-      this.$store.commit("setMindmap", data);
+      this.$store.commit("setCaseMindmap", data);
     },
   },
 };

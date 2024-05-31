@@ -1,14 +1,17 @@
 <template>
-  <v-container class="wrapper pa-0">
-    <div class="top" v-if="this.status === 'pending' || $store.state.quickTest">
+  <v-container class="wrapper pa-0" fluid>
+    <div
+      class="top"
+      v-if="this.status === 'pending' || $store.state.session.quickTest"
+    >
       <v-btn
         class="text-capitalize pa-0 back-btn"
         plain
         rounded
         solid
         v-shortkey="backHotkey"
-        @shortkey="back()"
-        @click="back()"
+        @shortkey="handleResetConfirmDialog"
+        @click="handleResetConfirmDialog"
       >
         <v-icon class="ma-0">mdi-chevron-left</v-icon>
         {{ $tc("caption.back", 1) }}
@@ -75,7 +78,7 @@
           <TestWrapper />
           <CheckTaskWrapper
             v-if="showCheckList"
-            :tasks="$store.state.preSessionTasks"
+            :tasks="$store.state.session.preSessionTasks"
             @taskToggle="handleTaskCheck"
           />
         </v-tab-item>
@@ -84,21 +87,27 @@
             :items="items"
             :selectedItems="selected"
             event-type="dblclick"
-            @submit-session="updateActiveSession"
           />
         </v-tab-item>
       </v-tabs-items>
     </div>
     <div class="footer">
       <ControlPanel
-        :items="items"
         @add-item="addItem"
+        @update-item="updateItem"
         :selectedItems="selected"
         :preSessionRequirementsMet="presessionValid"
         view-mode="normal"
       />
-      <TimeCounter v-if="$store.state.status !== 'pending'" />
+      <TimeCounter v-if="$store.state.session.status !== 'pending'" />
     </div>
+    <ResetConfirmDialog
+      v-model="resetConfirmDialog"
+      ref="resetConfirmDialog"
+      :text="$t('message.confirm_back')"
+      @confirm="back"
+      @cancel="resetConfirmDialog = false"
+    />
   </v-container>
 </template>
 
@@ -109,6 +118,7 @@ import {
   VTab,
   VTabsItems,
   VTabItem,
+  VBtn,
 } from "vuetify/lib/components";
 import TestWrapper from "../components/TestWrapper.vue";
 import WorkspaceWrapper from "../components/WorkspaceWrapper.vue";
@@ -119,11 +129,14 @@ import MenuPopover from "@/components/MenuPopover.vue";
 
 import { SESSION_STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
+import ResetConfirmDialog from "@/components/dialogs/ResetConfirmDialog.vue";
 
 export default {
   name: "MainView",
   components: {
+    ResetConfirmDialog,
     VContainer,
+    VBtn,
     VTabs,
     VTab,
     VTabsItems,
@@ -138,11 +151,10 @@ export default {
   data() {
     return {
       activeTab: "/main",
-      items: [],
       selected: [],
-      activeSession: {},
       showTaskError: false,
       showMenu: false,
+      resetConfirmDialog: false,
     };
   },
   created() {
@@ -152,7 +164,6 @@ export default {
     this.setInitialPreSession();
     this.setInitialPostSession();
     this.$root.$on("update-selected", this.updateSelected);
-    this.$root.$on("save-session", this.saveSession);
     this.$root.$on("new-session", () => {
       this.setInitialPreSession();
       this.setInitialPostSession();
@@ -162,9 +173,11 @@ export default {
       this.$electronService.onDataChange(this.fetchItems);
       this.$electronService.onMetaChange(this.fetchItems);
     }
+    this.getCurrentExecution();
   },
   computed: {
     ...mapGetters({
+      items: "sessionItems",
       hotkeys: "config/hotkeys",
       checklistPresessionStatus: "config/checklistPresessionStatus",
       checklistPresessionTasks: "config/checklistPresessionTasks",
@@ -183,11 +196,11 @@ export default {
       return this.$hotkeyHelpers.findBinding("workspace.back", this.hotkeys);
     },
     status() {
-      return this.$store.state.status;
+      return this.$store.state.session.status;
     },
     showCheckList() {
       return (
-        this.$store.state.status === SESSION_STATUSES.PENDING &&
+        this.$store.state.session.status === SESSION_STATUSES.PENDING &&
         this.checklistPresessionStatus
       );
     },
@@ -216,32 +229,47 @@ export default {
       );
     },
     async fetchItems() {
-      console.log("fetchItems from Main View");
-      this.items = await this.$storageService.getItems();
+      if (this.$isElectron) {
+        const sessionItems = await this.$storageService.getItems();
+        this.$store.commit("setSessionItemsFromExternalWindow", sessionItems);
+      }
+    },
+    async getCurrentExecution() {
+      let currentPath = this.$route.path;
+      const executionId = currentPath.split("/").pop();
+
+      if (executionId !== "" && executionId !== "workspace") {
+        const currentExecution = await this.$storageService.getState(
+          executionId
+        );
+        const data = currentExecution.custom_fields;
+        this.$store.commit("updateSession", data);
+        this.$store.commit("setSessionItems", data.items);
+        this.$store.commit("setSessionNodes", data.nodes);
+        this.$store.commit("setSessionConnections", data.connections);
+        await this.$router.push({ path: "/main/workspace" });
+      }
     },
     addItem(newItem) {
-      this.items.push(newItem);
-      this.saveSession(this.items);
+      console.log("Add");
+      this.$store.commit("addSessionItem", newItem);
     },
-    saveSession(items) {
-      this.$storageService.updateItems(items);
+    updateItem(newItem) {
+      this.$store.commit("updateSessionItem", newItem);
     },
     updateSelected(value) {
       this.selected = value;
     },
-    updateActiveSession(value) {
-      this.activeSession = value;
-      this.openEditWindow(this.activeSession);
+    async back() {
+      this.$store.commit("clearState");
+      await this.$storageService.resetData();
+      await this.$router.push("/");
     },
-    openEditWindow(data) {
-      // todo we want to replace electron window with the vuetify dialog instead to make it work for both electron & web
-      if (this.$isElectron) {
-        this.$electronService.openEditWindow(data);
-      }
-    },
-    back() {
-      this.$store.commit("resetState");
-      this.$router.push("/");
+    handleResetConfirmDialog() {
+      this.resetConfirmDialog = true;
+      setTimeout(() => {
+        this.$refs.resetConfirmDialog?.$refs.confirmBtn.$el.focus();
+      }, 100);
     },
   },
 };
@@ -253,7 +281,6 @@ export default {
   flex-direction: column;
   height: 100vh;
   width: 100%;
-  max-width: 600px;
   overflow-y: auto;
   border-left: 1px solid rgba(0, 0, 0, 0.12);
   border-right: 1px solid rgba(0, 0, 0, 0.12);
