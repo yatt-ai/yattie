@@ -2,11 +2,15 @@ import axios from "axios";
 import dayjs from "dayjs";
 import StorageInterface from "../storageInterface";
 import store from "@/store";
+import YattIntegrationHelpers from "@/integrations/YattIntegrationHelpers";
 
 export default class RestApiService extends StorageInterface {
   async getState(executionId) {
+    const credential = store.state.auth.credentials?.yatt[0];
+    const headers = await YattIntegrationHelpers.getHeaders(credential);
     const { data } = await axios.get(
-      `http://localhost:5000/v1/pinata/executions/${executionId}`
+      `http://localhost:5000/v1/pinata/executions/${executionId}`,
+      headers
     );
     return data;
   }
@@ -17,19 +21,13 @@ export default class RestApiService extends StorageInterface {
       session: state.session,
     };
     const credential = state.auth.credentials?.yatt[0];
-    let authHeader;
-    authHeader = `Bearer ${credential.accessToken}`;
-    const options = {
-      headers: {
-        Authorization: authHeader,
-        Accept: "application/json",
-      },
-    };
+
     let returnResponse = {
       link: "",
     };
+    const headers = await YattIntegrationHelpers.getHeaders(credential);
     await axios
-      .patch(`http://localhost:5000/v1/pinata/executions`, data, options)
+      .patch(`http://localhost:5000/v1/pinata/executions`, data, headers)
       .then((postedSession) => {
         returnResponse = postedSession.data;
       })
@@ -46,7 +44,7 @@ export default class RestApiService extends StorageInterface {
           if (match?.filePath) {
             const fetchResponse = await fetch(match.filePath);
             const fileBlob = await fetchResponse.blob();
-            const file = new File([fileBlob], step.uid, {
+            const file = new File([fileBlob], step?.uid, {
               type: match.fileType,
             });
             await axios
@@ -89,25 +87,49 @@ export default class RestApiService extends StorageInterface {
   }
 
   async getAttachment(attachmentId) {
+    const credential = store.state.auth.credentials?.yatt[0];
+    const headers = await YattIntegrationHelpers.getHeaders(credential);
     const response = await axios.get(
-      `http://localhost:5000/v1/attachments/${attachmentId}/object`
+      `http://localhost:5000/v1/attachments/${attachmentId}/object`,
+      headers
     );
-    console.log(response.data);
     return response.data;
   }
 
   async updateConfig(config) {
+    const credential = store.state.auth.credentials?.yatt[0];
+    const headers = await YattIntegrationHelpers.getHeaders(credential);
     const response = await axios.put(
       `http://localhost:5000/v1/app/org/f352ae63-11fc-4dbe-bab1-72561aa25fca/config/5e0f71ff-987d-4240-85eb-df6adf568c31`,
-      { config }
+      config,
+      headers
     );
     return response.data.config;
   }
 
   async getCredentials() {
-    const { data } = await axios.get(
-      "http://localhost:5000/v1/app/profile/token"
-    );
+    let data = { user: {} };
+
+    const allCookies = document.cookie;
+    const cookieArray = allCookies.split("; ");
+    let accessToken = null;
+    for (const cookie of cookieArray) {
+      const [name, value] = cookie.split("=");
+      if (name.trim() === "access_token") {
+        accessToken = value;
+        break;
+      }
+    }
+    data = store.state.auth.credentials?.yatt[0];
+    if (accessToken) {
+      data.type = "cookie";
+    } else {
+      const response = await axios.get(
+        "http://localhost:5000/v1/app/profile/token"
+      );
+      data = response.data;
+      data.type = "bearer";
+    }
     return {
       yatt: [
         {

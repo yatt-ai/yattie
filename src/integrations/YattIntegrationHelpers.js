@@ -1,16 +1,26 @@
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
-
 import axios from "axios";
 import dayjs from "dayjs";
 
 export default {
-  getHeaders(credential) {
-    let authHeader;
-    authHeader = `Bearer ${credential.accessToken}`;
-    return {
-      Authorization: authHeader,
-      Accept: "application/json",
-    };
+  async getHeaders(credential) {
+    let authHeader = { headers: {} };
+    if (credential.type === "bearer")
+      authHeader = {
+        headers: {
+          Authorization: `Bearer ${credential.accessToken}`,
+          Accept: "application/json",
+        },
+      };
+    else if (credential.type === "cookie")
+      authHeader = {
+        headers: {
+          Accept: "application/json",
+        },
+        withCredentials: true,
+      };
+
+    return authHeader;
   },
   async saveSession(credentials) {
     if (!credentials?.yatt || credentials?.yatt.length < 1) {
