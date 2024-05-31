@@ -15,7 +15,6 @@ export default {
     else if (credential.type === "cookie")
       authHeader = {
         headers: {
-          Authorization: `Bearer ${credential.accessToken}`,
           Accept: "application/json",
         },
         withCredentials: true,
