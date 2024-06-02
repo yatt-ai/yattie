@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import StorageInterface from "../storageInterface";
 import store from "@/store";
 import YattIntegrationHelpers from "@/integrations/YattIntegrationHelpers";
+import YjsIntegrationHelpers from "@/integrations/YjsIntegrationHelpers";
 
 export default class RestApiService extends StorageInterface {
   async getState(executionId) {
@@ -20,58 +21,64 @@ export default class RestApiService extends StorageInterface {
       case: state.case,
       session: state.session,
     };
-    const credential = state.auth.credentials?.yatt[0];
+    let credentials = state.auth.credentials?.yatt;
+    let credential;
+    if (credentials && credentials.length > 0) credential = credentials[0];
 
     let returnResponse = {
       link: "",
     };
-    const headers = await YattIntegrationHelpers.getHeaders(credential);
-    await axios
-      .patch(`http://localhost:5000/v1/pinata/executions`, data, headers)
-      .then((postedSession) => {
-        returnResponse = postedSession.data;
-      })
-      .catch((error) => {
-        returnResponse.error = error.response.data.errors;
-      });
+    let doc = YjsIntegrationHelpers.updateState(state);
+    data.yjs = doc.getArray("stateArray").get(0);
+    if (credential) {
+      const headers = await YattIntegrationHelpers.getHeaders(credential);
+      await axios
+        .patch(`http://localhost:5000/v1/pinata/executions`, data, headers)
+        .then((postedSession) => {
+          returnResponse = postedSession.data;
+        })
+        .catch((error) => {
+          returnResponse.error = error.response.data.errors;
+        });
 
-    if (returnResponse?.steps) {
-      returnResponse.steps.map(async (step) => {
-        if (step.uploadURL) {
-          const match = state.session.items.find(
-            (item) => item.stepID === step.external_id
-          );
-          if (match?.filePath) {
-            const fetchResponse = await fetch(match.filePath);
-            const fileBlob = await fetchResponse.blob();
-            const file = new File([fileBlob], step?.uid, {
-              type: match.fileType,
-            });
-            await axios
-              .put(step.uploadURL, file, {
-                headers: {
-                  "Content-Type": match.fileType,
-                  "X-Upload-Content-Length": match.fileSize,
-                },
-              })
-              .then(async (resp) => {
-                console.log("File upload response");
-                console.log(resp);
-                const attachmentResp = await this.getAttachment(
-                  step.custom_fields.attachmentID
-                );
-                console.log({ attachmentResp });
-                store.commit("replaceAttachmentUrl", {
-                  attachmentID: attachmentResp.external_id,
-                  url: attachmentResp.url,
-                });
-              })
-              .catch((error) => {
-                returnResponse.error.push(...error.response.data.errors);
+      if (returnResponse?.steps) {
+        returnResponse.steps.map(async (step) => {
+          if (step.uploadURL) {
+            const match = state.session.items.find(
+              (item) => item.stepID === step.external_id
+            );
+            if (match?.filePath) {
+              const fetchResponse = await fetch(match.filePath);
+              const fileBlob = await fetchResponse.blob();
+              const file = new File([fileBlob], step?.uid, {
+                type: match.fileType,
               });
+              await axios
+                .put(step.uploadURL, file, {
+                  headers: {
+                    "Content-Type": match.fileType,
+                    "X-Upload-Content-Length": match.fileSize,
+                  },
+                })
+                .then(async (resp) => {
+                  console.log("File upload response");
+                  console.log(resp);
+                  const attachmentResp = await this.getAttachment(
+                    step.custom_fields.attachmentID
+                  );
+                  console.log({ attachmentResp });
+                  store.commit("replaceAttachmentUrl", {
+                    attachmentID: attachmentResp.external_id,
+                    url: attachmentResp.url,
+                  });
+                })
+                .catch((error) => {
+                  returnResponse.error.push(...error.response.data.errors);
+                });
+            }
           }
-        }
-      });
+        });
+      }
     }
     if (returnResponse?.data) {
       store.commit("setSessionIDFromBackend", returnResponse.data.sessionID);
@@ -120,7 +127,8 @@ export default class RestApiService extends StorageInterface {
         break;
       }
     }
-    data = store.state.auth.credentials?.yatt[0];
+    data = { ...data, ...store.state.auth.credentials?.yatt };
+    if (data.length > 0) data = data[0];
     if (accessToken) {
       data.type = "cookie";
     } else {
