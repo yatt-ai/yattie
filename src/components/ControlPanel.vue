@@ -825,6 +825,7 @@ import {
   createImageForWeb,
   createVideoForWeb,
 } from "@/helpers/WebHelpers";
+import { socket, useSocketIo } from "@/socket";
 
 let mediaRecorder;
 let audioContext;
@@ -884,6 +885,9 @@ export default {
     }
   },
   watch: {
+    socketData(newVal) {
+      console.log(newVal);
+    },
     selectedItems: function (newValue) {
       this.selected = newValue;
     },
@@ -1048,6 +1052,7 @@ export default {
       selected: [],
       selectedNodes: [],
       callback: null,
+      socketData: [],
       evidenceExportDestinationMenu: false,
       issueCreateDestinationMenu: false,
       evidenceData: null,
@@ -1055,7 +1060,43 @@ export default {
       mediaStream: null,
     };
   },
-  mounted() {
+  async mounted() {
+    const { socketState, listenToEvent } = useSocketIo();
+    const id = "123456789";
+
+    async function getConfig() {
+      try {
+        const config = await fetch(
+          `http://localhost:3000/session/${id}/config`
+        );
+        const data = await config.json();
+
+        return data;
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    const config = await getConfig();
+
+    if (config.startSession) {
+      socket.emit("test-session", id);
+      listenToEvent("start-session", (data) => {
+        socketState.socketData.value = data;
+      });
+
+      this.startSession(this.sourceId);
+      if (config.startVideoSession) {
+        this.startRecordVideo();
+      }
+
+      return;
+    }
+
+    if (config.pauseSession) {
+      return this.pauseSession();
+    }
+
     if (this.$isElectron) {
       this.$electronService.onNewSession(this.newSession);
       this.$electronService.onSaveSession(this.handleSaveConfirmDialog);
@@ -1242,6 +1283,71 @@ export default {
       });
     },
     async startSession(id = null) {
+      const { listenToEvent, socketState } = useSocketIo();
+      socket.emit("start-session");
+      listenToEvent("session-started", async (data) => {
+        console.log("session-started");
+        socketState.socketData.value = data;
+
+        //TODO: Remove HARAM
+        if (this.$isElectron) {
+          this.sourceId = id;
+        }
+        this.sourcePickerDialog = false;
+
+        this.timer = this.$store.state.session.timer;
+        this.duration = this.$store.state.case.duration;
+        if (this.duration > 0) {
+          this.isDuration = true;
+        }
+
+        if (this.started === "") {
+          this.started = this.getCurrentDateTime();
+          this.$store.commit("setSessionStarted", this.started);
+        }
+
+        if (this.status !== SESSION_STATUSES.START) {
+          console.log("start interval-2");
+          this.status = SESSION_STATUSES.START;
+          this.startInterval();
+          this.changeSessionStatus(SESSION_STATUSES.START);
+        }
+
+        if (!this.$store.state.session.sessionID) {
+          const data = {
+            case: {
+              title: this.$store.state.case.title,
+              charter: this.$store.state.case.charter,
+              preconditions: this.$store.state.case.preconditions,
+              duration: this.$store.state.case.duration,
+            },
+            session: {
+              status: this.$store.state.session.status,
+              timer: this.$store.state.session.timer,
+              started: this.$store.state.session.started,
+              ended: this.$store.state.session.ended,
+              quickTest: this.$store.state.session.quickTest,
+              path: this.$route.path,
+            },
+          };
+
+          await this.$storageService.createNewSession(data);
+          if (this.$isElectron) {
+            const caseID = await this.$storageService.getCaseId();
+            const sessionID = await this.$storageService.getSessionId();
+            this.$store.commit("setCaseID", caseID);
+            this.$store.commit("setSessionID", sessionID);
+          }
+        }
+
+        if (this.viewMode === "normal") {
+          const currentPath = this.$router.history.current.path;
+          if (currentPath !== "/main/workspace") {
+            await this.$router.push({ path: "/main/workspace" });
+          }
+        }
+      });
+
       if (this.$isElectron) {
         this.sourceId = id;
       }
@@ -1299,12 +1405,56 @@ export default {
         }
       }
     },
-    pauseSession() {
+    pauseSessionConfig() {
       this.status = SESSION_STATUSES.PAUSE;
       this.changeSessionStatus(SESSION_STATUSES.PAUSE);
       this.stopInterval();
     },
+    pauseSession() {
+      const { listenToEvent, socketState } = useSocketIo();
+
+      socket.emit("pause-session");
+      listenToEvent("session-paused", (data) => {
+        console.log("session-paused");
+        socketState.socketData.value = data;
+        this.pauseSessionConfig();
+      });
+
+      this.pauseSessionConfig();
+    },
     async resumeSession() {
+      const { listenToEvent, socketState } = useSocketIo();
+
+      socket.emit("resume-session");
+      listenToEvent("session-resumed", async (data) => {
+        console.log("session-resumed");
+        socketState.socketData.value = data;
+
+        if (this.$isElectron) {
+          this.fetchSources().then((data) => {
+            const list = data.filter((v) => v.id === this.sourceId);
+            if (list.length === 0) {
+              console.log("hit this place");
+              this.showSourcePickerDialog();
+            } else {
+              this.status = SESSION_STATUSES.START;
+              this.timer = this.$store.state.session.timer;
+              console.log("start interval-3");
+              this.startInterval();
+            }
+          });
+        } else {
+          if (!this.mediaStream) {
+            await this.setMediaStream();
+          }
+          this.status = SESSION_STATUSES.START;
+          this.timer = this.$store.state.session.timer;
+          console.log("start interval-3");
+          this.startInterval();
+        }
+      });
+
+      // TODO: Remove Haram-------------------------------------------
       if (this.$isElectron) {
         this.fetchSources().then((data) => {
           const list = data.filter((v) => v.id === this.sourceId);
@@ -1328,6 +1478,19 @@ export default {
       }
     },
     endSession() {
+      const { listenToEvent, socketState } = useSocketIo();
+
+      socket.emit("end-session");
+      listenToEvent("session-ended", (data) => {
+        socketState.socketData.value = data;
+
+        if (this.postSessionData.status) {
+          this.showEndSessionDialog();
+        } else {
+          this.showSummaryDialog();
+        }
+      });
+
       if (this.postSessionData.status) {
         this.showEndSessionDialog();
       } else {
@@ -1348,7 +1511,9 @@ export default {
       this.summaryDialog = true;
 
       setTimeout(() => {
-        this.$refs.summaryDialog.$refs.comment.editor.commands.focus();
+        if (this.$refs.summaryDialog.$refs.comment.editor.commands) {
+          this.$refs.summaryDialog.$refs.comment.editor.commands.focus();
+        }
       }, 200);
     },
     showEndSessionDialog() {
@@ -1415,6 +1580,7 @@ export default {
     },
     async screenshotProcess() {
       this.handleStream = (stream) => {
+        const { listenToEvent, socketState } = useSocketIo();
         const video = document.createElement("video");
         video.srcObject = stream;
         video.onloadedmetadata = async () => {
@@ -1443,6 +1609,12 @@ export default {
               };
               this.evidenceData = data;
               this.addEvidenceDialog = true;
+
+              socket.emit("screen-shot", item);
+              listenToEvent("screen-shot-taken", (data) => {
+                socketState.socketData.value = data;
+                this.socketData = [...this.socketData, data];
+              });
             }
           } else {
             const { item } = createImageForWeb(imgURI);
@@ -1483,7 +1655,7 @@ export default {
         this.handleError(e);
       }
     },
-    async startRecordVideo() {
+    async startRecordVideoConfig() {
       if (this.$isElectron) {
         this.fetchSources().then((data) => {
           const list = data.filter((v) => v.id === this.sourceId);
@@ -1499,6 +1671,17 @@ export default {
         }
         this.videoRecordProcess();
       }
+    },
+    async startRecordVideo() {
+      const { listenToEvent, socketState } = useSocketIo();
+
+      socket.emit("start-record-video");
+      listenToEvent("video-session-started", async (data) => {
+        socketState.socketData.value = data;
+        this.startRecordVideoConfig();
+      });
+
+      this.startRecordVideoConfig();
     },
     async videoRecordProcess() {
       this.handleStream = (stream) => {
