@@ -29,7 +29,8 @@ export default class RestApiService extends StorageInterface {
       link: "",
     };
     let doc = YjsIntegrationHelpers.updateState(state);
-    data.yjs = doc.getArray("stateArray").get(0);
+    console.log(doc);
+    // data.yjs = Y.encodeStateAsUpdate(doc);
     if (credential) {
       const headers = await YattIntegrationHelpers.getHeaders(credential);
       await axios

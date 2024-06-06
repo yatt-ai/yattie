@@ -1,22 +1,28 @@
 import * as Y from "yjs";
-// import { WebsocketProvider } from "y-websocket";
+import { WebsocketProvider } from "y-websocket";
 import store from "../store/index";
 
 let doc = null;
+let wsProvider = null;
 export default {
   doc,
-  connectToRoom(user_id) {
-    const doc = new Y.Doc();
+  wsProvider,
+  connectToRoom(credentials) {
+    let credential = credentials?.yatt;
+    if (credential && credential.length > 0) credential = credential[0];
+    let user_id = credential?.user?.id || "guest";
+    const ydoc = new Y.Doc();
     console.log(user_id);
-    // const wsProvider = new WebsocketProvider(
-    //   "ws://localhost:3000",
-    //   `yattie-share-${user_id}`,
-    //   doc
-    // );
-    // wsProvider.on("status", (event) => {
-    //   console.log({ status: event.status, doc }); // logs "connected" or "disconnected"
-    // });
-    this.doc = doc;
+    const provider = new WebsocketProvider(
+      "ws://localhost:4444",
+      `yattie-share-${user_id}`,
+      ydoc
+    );
+    provider.on("status", (event) => {
+      console.log({ status: event.status, ydoc }); // logs "connected" or "disconnected"
+    });
+    this.doc = ydoc;
+    this.wsProvider = provider;
     return this.doc.getArray("stateArray").get(0);
   },
   updateState(state) {
@@ -38,6 +44,15 @@ export default {
     } else {
       this.doc.getArray("stateArray").insert(0, [state]);
     }
+
+    this.doc.on("update", (update) => {
+      // Send the update to the server
+      console.log("Update - ", update);
+      // this.wsProvider.ws.send(JSON.stringify(update));
+      if (this.wsProvider.ws.readyState === WebSocket.OPEN) {
+        this.wsProvider.ws.send(JSON.stringify(update));
+      }
+    });
 
     return this.doc;
   },
