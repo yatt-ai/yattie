@@ -2,6 +2,7 @@ import axios from "axios";
 import dayjs from "dayjs";
 import StorageInterface from "../storageInterface";
 import store from "@/store";
+import * as Y from "yjs";
 import YattIntegrationHelpers from "@/integrations/YattIntegrationHelpers";
 import YjsIntegrationHelpers from "@/integrations/YjsIntegrationHelpers";
 
@@ -17,10 +18,7 @@ export default class RestApiService extends StorageInterface {
   }
 
   async updateState(state) {
-    const data = {
-      case: state.case,
-      session: state.session,
-    };
+    const data = {};
     let credentials = state.auth.credentials?.yatt;
     let credential;
     if (credentials && credentials.length > 0) credential = credentials[0];
@@ -29,8 +27,12 @@ export default class RestApiService extends StorageInterface {
       link: "",
     };
     let doc = YjsIntegrationHelpers.updateState(state);
-    console.log(doc);
-    // data.yjs = Y.encodeStateAsUpdate(doc);
+    // eslint-disable-next-line
+    doc.on("update", (update, origin) => {
+      data.yjs = update;
+    });
+    data.yjs = Y.encodeStateAsUpdate(doc);
+
     if (credential) {
       const headers = await YattIntegrationHelpers.getHeaders(credential);
       await axios

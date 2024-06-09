@@ -1,5 +1,5 @@
 import * as Y from "yjs";
-import { WebsocketProvider } from "y-websocket";
+// import { WebsocketProvider } from "y-websocket";
 import store from "../store/index";
 
 let doc = null;
@@ -10,19 +10,18 @@ export default {
   connectToRoom(credentials) {
     let credential = credentials?.yatt;
     if (credential && credential.length > 0) credential = credential[0];
-    let user_id = credential?.user?.id || "guest";
+    // let user_id = credential?.user?.id || "guest";
     const ydoc = new Y.Doc();
-    console.log(user_id);
-    const provider = new WebsocketProvider(
-      "ws://localhost:4444",
-      `yattie-share-${user_id}`,
-      ydoc
-    );
-    provider.on("status", (event) => {
-      console.log({ status: event.status, ydoc }); // logs "connected" or "disconnected"
-    });
+    // const provider = new WebsocketProvider(
+    //   "ws://localhost:4444",
+    //   `yattie-share-${user_id}`,
+    //   ydoc
+    // );
+    // provider.on("status", (event) => {
+    //   console.log({ status: event.status, ydoc }); // logs "connected" or "disconnected"
+    // });
     this.doc = ydoc;
-    this.wsProvider = provider;
+    // this.wsProvider = provider;
     return this.doc.getArray("stateArray").get(0);
   },
   updateState(state) {
@@ -35,7 +34,7 @@ export default {
       this.connectToRoom(state.credentials.jira[0].user.id);
     }
     let credential = state.auth.credentials?.yatt[0];
-    if (credential) {
+    if (credential && !this.doc) {
       this.connectToRoom(credential.user.id);
     }
 
@@ -45,13 +44,12 @@ export default {
       this.doc.getArray("stateArray").insert(0, [state]);
     }
 
-    this.doc.on("update", (update) => {
+    this.doc.on("update", () => {
       // Send the update to the server
-      console.log("Update - ", update);
       // this.wsProvider.ws.send(JSON.stringify(update));
-      if (this.wsProvider.ws.readyState === WebSocket.OPEN) {
-        this.wsProvider.ws.send(JSON.stringify(update));
-      }
+      // if (this.wsProvider.ws.readyState === WebSocket.OPEN) {
+      //   this.wsProvider.ws.send(JSON.stringify(update));
+      // }
     });
 
     return this.doc;
