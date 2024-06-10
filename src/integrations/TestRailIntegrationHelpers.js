@@ -1,4 +1,4 @@
-import { IPC_HANDLERS, IPC_FUNCTIONS } from "../modules/constants";
+import { IPC_HANDLERS, IPC_FUNCTIONS } from "@/modules/constants";
 
 export default {
   saveCredentials(credentials, data) {

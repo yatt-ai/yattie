@@ -81,6 +81,7 @@ const defaultConfig = {
       quickTest: ["ctrl", "q"],
       newExploratorySession: ["ctrl", "e"],
       openExploratorySession: ["ctrl", "o"],
+      scriptedTestSession: ["ctrl", "s"],
     },
     sessionPlanning: {
       title: ["ctrl", "t"],

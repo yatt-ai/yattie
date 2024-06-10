@@ -29,6 +29,20 @@
       </div>
       <div class="open-section">
         <v-btn
+          class="my-4 text-capitalize"
+          fill
+          block
+          small
+          color="primary"
+          v-shortkey="scriptedTestSessionHotkey"
+          @shortkey="handleScriptedTestSession()"
+          @click="handleScriptedTestSession()"
+        >
+          {{ $tc("caption.scripted_test_session", 1) }}
+        </v-btn>
+      </div>
+      <div class="open-section">
+        <v-btn
           class="text-capitalize"
           fill
           block
@@ -236,6 +250,7 @@
         </v-tooltip>
       </div>
     </div>
+    <TestRunPickerDialog v-model="testRunPickerDialog" />
   </v-container>
 </template>
 <script>
@@ -245,6 +260,8 @@ import MenuPopover from "../components/MenuPopover.vue";
 
 import { STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
+import TestRunPickerDialog from "@/components/dialogs/TestRunPickerDialog.vue";
+
 export default {
   name: "HomeView",
   components: {
@@ -252,9 +269,12 @@ export default {
     VBtn,
     LogoWrapper,
     MenuPopover,
+    TestRunPickerDialog,
   },
   data() {
-    return {};
+    return {
+      testRunPickerDialog: false,
+    };
   },
   computed: {
     ...mapGetters({
@@ -267,6 +287,12 @@ export default {
     }),
     quickTestHotkey() {
       return this.$hotkeyHelpers.findBinding("home.quickTest", this.hotkeys);
+    },
+    scriptedTestSessionHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "home.scriptedTestSession",
+        this.hotkeys
+      );
     },
     newExploratoryHotkey() {
       return this.$hotkeyHelpers.findBinding(
@@ -289,6 +315,8 @@ export default {
         this.getConfig();
       });
     }
+
+    this.$root.$on("close-testrunpickerdialog", this.hideTestRunPickerDialog);
   },
   methods: {
     async getConfig() {
@@ -325,6 +353,22 @@ export default {
       this.$store.commit("startQuickTest");
       this.$router.push("/main/workspace");
     },
+    handleScriptedTestSession() {
+      this.showTestRunPickerDialog();
+    },
+    async showTestRunPickerDialog() {
+      try {
+        // throw new Error("Not implemented yet!");
+
+        this.testRunPickerDialog = true;
+      } catch (error) {
+        console.log(error);
+        this.$root.$emit("set-snackbar", error.message);
+      }
+    },
+    hideTestRunPickerDialog() {
+      this.testRunPickerDialog = false;
+    },
   },
 };
 </script>
@@ -340,6 +384,7 @@ export default {
   justify-content: flex-start;
   max-width: 320px;
 }
+
 .header {
   width: 100%;
   flex-grow: 0;
@@ -349,6 +394,7 @@ export default {
   column-gap: 15px;
   padding: 10px 0;
 }
+
 .content {
   flex-grow: 1;
   display: flex;
@@ -357,29 +403,35 @@ export default {
   width: 100%;
   padding-top: 50px;
 }
+
 .new-section {
   width: 100%;
   padding: 0;
 }
+
 .open-section {
   width: 100%;
   padding: 20px 0;
   border-top: 1px solid #e5e7eb;
 }
+
 .theme--dark .open-section {
   border-color: rgba(255, 255, 255, 0.15);
 }
+
 .open-section.social {
   display: flex;
   align-items: center;
   column-gap: 10px;
   padding: 10px 0;
 }
+
 .open-section .open-btn {
   background: #ede9fe;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
   border-radius: 4px;
 }
+
 .social-btn {
   flex: 1;
   background-color: transparent !important;
@@ -388,13 +440,16 @@ export default {
   box-shadow: none;
   position: relative;
 }
+
 .social-btn::before:hover,
 .social-btn:hover {
   background-color: transparent !important;
 }
+
 .social-btn.inactive .overlay {
   display: block;
 }
+
 .social-btn .overlay {
   position: absolute;
   display: block;
@@ -404,6 +459,7 @@ export default {
   bottom: 0;
   background-color: rgba(255, 255, 255, 0.8);
 }
+
 .theme--dark .overlay {
   background-color: rgba(31, 41, 55, 0.8);
 }
