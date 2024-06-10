@@ -27,20 +27,10 @@
           {{ $tc("caption.quick_test", 1) }}
         </v-btn>
       </div>
-      <div class="open-section">
-        <v-btn
-          class="my-4 text-capitalize"
-          fill
-          block
-          small
-          color="primary"
-          v-shortkey="scriptedTestSessionHotkey"
-          @shortkey="handleScriptedTestSession()"
-          @click="handleScriptedTestSession()"
-        >
-          {{ $tc("caption.scripted_test_session", 1) }}
-        </v-btn>
-      </div>
+      <TestRunPickerDialog
+        :isAuthenticated="isAuthenticated"
+        :isLoggedInToTestrail="loggedInServices.testrail"
+      />
       <div class="open-section">
         <v-btn
           class="text-capitalize"
@@ -250,7 +240,6 @@
         </v-tooltip>
       </div>
     </div>
-    <TestRunPickerDialog v-model="testRunPickerDialog" />
   </v-container>
 </template>
 <script>
@@ -272,9 +261,7 @@ export default {
     TestRunPickerDialog,
   },
   data() {
-    return {
-      testRunPickerDialog: false,
-    };
+    return {};
   },
   computed: {
     ...mapGetters({
@@ -287,12 +274,6 @@ export default {
     }),
     quickTestHotkey() {
       return this.$hotkeyHelpers.findBinding("home.quickTest", this.hotkeys);
-    },
-    scriptedTestSessionHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "home.scriptedTestSession",
-        this.hotkeys
-      );
     },
     newExploratoryHotkey() {
       return this.$hotkeyHelpers.findBinding(
@@ -315,8 +296,6 @@ export default {
         this.getConfig();
       });
     }
-
-    this.$root.$on("close-testrunpickerdialog", this.hideTestRunPickerDialog);
   },
   methods: {
     async getConfig() {
@@ -352,22 +331,6 @@ export default {
     handleQuickTest() {
       this.$store.commit("startQuickTest");
       this.$router.push("/main/workspace");
-    },
-    handleScriptedTestSession() {
-      this.showTestRunPickerDialog();
-    },
-    async showTestRunPickerDialog() {
-      try {
-        // throw new Error("Not implemented yet!");
-
-        this.testRunPickerDialog = true;
-      } catch (error) {
-        console.log(error);
-        this.$root.$emit("set-snackbar", error.message);
-      }
-    },
-    hideTestRunPickerDialog() {
-      this.testRunPickerDialog = false;
     },
   },
 };

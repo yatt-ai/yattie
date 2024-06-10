@@ -248,8 +248,9 @@
 
 <script>
 import axios from "axios";
-import dayjs from "dayjs";
 import { mapGetters } from "vuex";
+import testrailIntegrationHelper from "../../integrations/TestRailIntegrationHelpers";
+
 export default {
   name: "TestRailExportSession",
   components: {},
@@ -391,53 +392,27 @@ export default {
     async showDialog() {
       this.dialog = true;
       this.resetResults("project");
-      let first = true;
-      for (const [i, credential] of Object.entries(this.credentials)) {
-        let url, authHeader;
-        // TODO - build headers in TestRailIntegrationHelper function
-        url = `https://${credential.url}/index.php?/api/v2/get_projects`;
-        authHeader = `Basic ${credential.accessToken}`;
-        const headers = {
-          headers: {
-            Authorization: authHeader,
-            Accept: "application/json",
-          },
-        };
 
-        await axios
-          .get(url, headers)
-          .then((response) => {
-            if (response.status === 200) {
-              if (first) {
-                this.projects = response.data.projects.map((project) => ({
-                  ...project,
-                  credential_index: i,
-                }));
-              } else {
-                this.projects.push(
-                  response.data.projects.map((project) => ({
-                    ...project,
-                    credential_index: i,
-                  }))
-                );
-              }
-            }
-            this.projectLoading = false;
-          })
-          .catch((error) => {
-            this.projectLoading = false;
-            this.snackBar.enabled = true;
-            this.snackBar.message = error.message
-              ? error.message
-              : this.$tc("message.api_error", 1);
-            if (
-              credential.type === "oauth" &&
-              dayjs(credential.lastRefreshed) < dayjs().subtract(4, "minute") &&
-              [401, 403].includes(error.status)
-            ) {
-              this.$root.$emit("update-auth", []);
-            }
-          });
+      try {
+        this.projects = await testrailIntegrationHelper.fetchProjects(
+          this.credentials
+        );
+
+        this.projectLoading = false;
+      } catch (error) {
+        this.projectLoading = false;
+        this.snackBar.enabled = true;
+        let errorMessage = error.message;
+
+        if (errorMessage) {
+          if (errorMessage === "Token expired") {
+            this.$root.$emit("update-auth", []);
+          }
+
+          this.snackBar.message = errorMessage;
+        } else {
+          this.snackBar.message = this.$tc("message.api_error", 1);
+        }
       }
     },
     async handleSelectProject(item) {

@@ -1,4 +1,6 @@
 import { IPC_HANDLERS, IPC_FUNCTIONS } from "@/modules/constants";
+import axios from "axios";
+import dayjs from "dayjs";
 
 export default {
   saveCredentials(credentials, data) {
@@ -33,6 +35,7 @@ export default {
 
     return credentials;
   },
+
   formatData(data) {
     return {
       accessToken: data.accessToken,
@@ -45,5 +48,67 @@ export default {
       },
       url: data.url,
     };
+  },
+
+  formatHeaders(credentialUrl, accessToken) {
+    const authHeader = `Basic ${accessToken}`;
+    const url = `https://${credentialUrl}/index.php?/api/v2/get_projects`;
+
+    return {
+      url,
+      headers: {
+        headers: {
+          Authorization: authHeader,
+          Accept: "application/json",
+        },
+      },
+    };
+  },
+
+  async fetchProjects(credentials) {
+    let projects = [];
+    let first = true;
+
+    for (const [i, credential] of Object.entries(credentials)) {
+      let { url, headers } = this.formatHeaders(
+        credential[0].url,
+        credential[0].accessToken
+      );
+
+      return axios
+        .get(url, headers)
+        .then((response) => {
+          if (response.status === 200) {
+            if (first) {
+              projects = response.data.projects.map((project) => ({
+                ...project,
+                credential_index: i,
+              }));
+
+              first = false;
+            } else {
+              projects.push(
+                response.data.projects.map((project) => ({
+                  ...project,
+                  credential_index: i,
+                }))
+              );
+            }
+          }
+
+          return projects;
+        })
+        .catch((error) => {
+          if (
+            credential.type === "oauth" &&
+            dayjs(credential.lastRefreshed) < dayjs().subtract(4, "minute") &&
+            [401, 403].includes(error.status)
+          ) {
+            throw new Error("Token expired");
+          } else {
+            throw new Error(error);
+          }
+        });
+    }
   },
 };
