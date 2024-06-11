@@ -54,12 +54,13 @@ export default {
     credentialUrl,
     accessToken,
     type = "get_projects",
-    projectId = null
+    projectOrRunId = null
   ) {
     const authHeader = `Basic ${accessToken}`;
     const urls = {
       get_projects: `https://${credentialUrl}/index.php?/api/v2/get_projects`,
-      get_runs: `https://${credentialUrl}/index.php?/api/v2/get_runs/${projectId}`,
+      get_runs: `https://${credentialUrl}/index.php?/api/v2/get_runs/${projectOrRunId}`,
+      get_tests: `https://${credentialUrl}/index.php?/api/v2/get_tests/${projectOrRunId}`,
     };
 
     return {
@@ -137,6 +138,27 @@ export default {
         }));
 
         return runs;
+      }
+    });
+  },
+
+  async fetchTests(credential, runId, credentialIndex) {
+    const { url, headers } = this.formatHeaders(
+      credential.url,
+      credential.accessToken,
+      "get_tests",
+      runId
+    );
+    let tests = [];
+
+    return axios.get(url, headers).then((response) => {
+      if (response.status === 200) {
+        tests = response.data.tests.map((test) => ({
+          ...test,
+          credential_index: credentialIndex,
+        }));
+
+        return tests;
       }
     });
   },

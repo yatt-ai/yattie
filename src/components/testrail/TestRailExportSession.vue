@@ -438,33 +438,23 @@ export default {
     async handleSelectRun(item) {
       this.resetResults("test");
       const credential = this.credentials[item.credential_index];
-      const url = `https://${credential.url}/index.php?/api/v2/get_tests/${item.id}`;
-      const authHeader = `Basic ${credential.accessToken}`;
-      const headers = {
-        headers: {
-          Authorization: authHeader,
-          Accept: "application/json",
-        },
-      };
 
-      await axios
-        .get(url, headers)
-        .then((response) => {
-          if (response.status === 200) {
-            this.tests = response.data.tests.map((test) => ({
-              ...test,
-              credential_index: item.credential_index,
-            }));
-          }
-          this.testLoading = false;
-        })
-        .catch((error) => {
-          this.testLoading = false;
-          this.snackBar.enabled = true;
-          this.snackBar.message = error.message
-            ? error.message
-            : this.$tc("message.api_error", 1);
-        });
+      try {
+        this.tests = await testrailIntegrationHelper.fetchTests(
+          credential,
+          item.id,
+          item.credential_index
+        );
+
+        this.testLoading = false;
+      } catch (error) {
+        this.testLoading = false;
+        this.snackBar.enabled = true;
+        this.snackBar.message = error.message
+          ? error.message
+          : this.$tc("message.api_error", 1);
+      }
+
       this.selectedItem = item;
       // TODO - rename "selectedItem" with what it actually is
     },

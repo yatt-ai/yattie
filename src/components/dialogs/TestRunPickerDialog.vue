@@ -63,11 +63,7 @@
                     <div
                       v-for="item in searchProjectsList"
                       :key="item.id"
-                      :class="
-                        selectedItem && item.id === selectedItem.id
-                          ? 'issue-item active'
-                          : 'issue-item'
-                      "
+                      class="issue-item"
                       @click="handleSelectProject(item)"
                     >
                       <v-icon class="issue-icon">mdi-flag</v-icon>
@@ -102,18 +98,53 @@
                     <div
                       v-for="item in searchRunsList"
                       :key="item.id"
-                      :class="
-                        selectedItem && item.id === selectedItem.id
-                          ? 'issue-item active'
-                          : 'issue-item'
-                      "
-                      @click="handleSelectProject(item)"
+                      class="issue-item"
+                      @click="handleSelectRun(item)"
                     >
                       <v-icon class="issue-icon">mdi-flag</v-icon>
                       <div class="issue-desc">
                         <span
                           class="issue-summary subtitle-1"
                           v-text="item.name"
+                        ></span>
+                        <span class="issue-key caption" v-text="item.id"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </v-col>
+            </v-row>
+            <v-row v-if="selectedProject && selectedRun">
+              <v-col cols="12">
+                <div class="loading-wrapper" v-if="testsLoading">
+                  <v-progress-circular
+                    :size="70"
+                    :width="7"
+                    color="primary"
+                    indeterminate
+                  ></v-progress-circular>
+                </div>
+                <div class="issue-wrapper" v-else>
+                  <div class="issue-list">
+                    <span class="issue-header"
+                      >{{ searchTestsList.length }}
+                      {{ $tc("caption.tests", 1) }}</span
+                    >
+                    <div
+                      v-for="item in searchTestsList"
+                      :key="item.id"
+                      :class="
+                        selectedTests && selectedTests.has(item.id)
+                          ? 'issue-item active'
+                          : 'issue-item'
+                      "
+                      @click="handleSelectTest(item)"
+                    >
+                      <v-icon class="issue-icon">mdi-flag</v-icon>
+                      <div class="issue-desc">
+                        <span
+                          class="issue-summary subtitle-1"
+                          v-text="item.title"
                         ></span>
                         <span class="issue-key caption" v-text="item.id"></span>
                       </div>
@@ -179,7 +210,9 @@ export default {
       runs: [],
       runsLoading: true,
       selectedRun: null,
-      selectedItem: null,
+      tests: [],
+      testsLoading: true,
+      selectedTests: new Set(),
     };
   },
   watch: {},
@@ -220,18 +253,45 @@ export default {
       }
     },
     searchRunsList() {
-      return this.runs;
-      // eslint-disable-next-line no-unreachable
-      if (this.projects.length && this.search && this.search !== "") {
-        return this.projects.filter((item) => {
+      if (this.runs.length && this.search && this.search !== "") {
+        return this.runs.filter((item) => {
           return (
             item.name.toUpperCase().includes(this.search.toUpperCase()) ||
+            item.description
+              ?.toUpperCase()
+              .includes(this.search.toUpperCase()) ||
             item.id.toString().includes(this.search)
           );
         });
-        // eslint-disable-next-line no-unreachable
       } else {
-        return this.projects;
+        return this.runs;
+      }
+    },
+    searchTestsList() {
+      if (this.tests.length && this.search && this.search !== "") {
+        return this.tests.filter((item) => {
+          return (
+            item.title.toUpperCase().includes(this.search.toUpperCase()) ||
+            item.custom_expected
+              ?.toUpperCase()
+              .includes(this.search.toUpperCase()) ||
+            item.custom_goals
+              ?.toUpperCase()
+              .includes(this.search.toUpperCase()) ||
+            item.custom_mission
+              ?.toUpperCase()
+              .includes(this.search.toUpperCase()) ||
+            item.custom_preconds
+              ?.toUpperCase()
+              .includes(this.search.toUpperCase()) ||
+            item.custom_steps
+              ?.toUpperCase()
+              .includes(this.search.toUpperCase()) ||
+            item.id.toString().includes(this.search)
+          );
+        });
+      } else {
+        return this.tests;
       }
     },
   },
@@ -275,7 +335,33 @@ export default {
         console.log(error);
         this.$root.$emit("set-snackbar", error.message);
       }
-      // this.selectedProject = item;
+    },
+    async handleSelectRun(item) {
+      this.selectedRun = item;
+
+      try {
+        this.tests = await testrailIntegrationHelper.fetchTests(
+          this.credentials[item.credential_index][0],
+          item.id,
+          item.credential_index
+        );
+
+        this.testsLoading = false;
+      } catch (error) {
+        console.log(error);
+        this.$root.$emit("set-snackbar", error.message);
+      }
+    },
+    async handleSelectTest(item) {
+      if (this.selectedTests.has(item.id)) {
+        this.selectedTests.delete(item.id);
+      } else {
+        this.selectedTests.add(item.id);
+      }
+
+      this.$forceUpdate();
+
+      return true;
     },
   },
   mounted() {},
