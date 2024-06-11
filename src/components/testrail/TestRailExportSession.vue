@@ -418,33 +418,22 @@ export default {
     async handleSelectProject(item) {
       this.resetResults("run");
       const credential = this.credentials[item.credential_index];
-      const url = `https://${credential.url}/index.php?/api/v2/get_runs/${item.id}`;
-      const authHeader = `Basic ${credential.accessToken}`;
-      const headers = {
-        headers: {
-          Authorization: authHeader,
-          Accept: "application/json",
-        },
-      };
 
-      await axios
-        .get(url, headers)
-        .then((response) => {
-          if (response.status === 200) {
-            this.runs = response.data.runs.map((run) => ({
-              ...run,
-              credential_index: item.credential_index,
-            }));
-          }
-          this.runLoading = false;
-        })
-        .catch((error) => {
-          this.runLoading = false;
-          this.snackBar.enabled = true;
-          this.snackBar.message = error.message
-            ? error.message
-            : this.$tc("message.api_error", 1);
-        });
+      try {
+        this.runs = await testrailIntegrationHelper.fetchRuns(
+          credential,
+          item.id,
+          item.credential_index
+        );
+
+        this.runLoading = false;
+      } catch (error) {
+        this.runLoading = false;
+        this.snackBar.enabled = true;
+        this.snackBar.message = error.message
+          ? error.message
+          : this.$tc("message.api_error", 1);
+      }
     },
     async handleSelectRun(item) {
       this.resetResults("test");

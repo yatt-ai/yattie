@@ -83,6 +83,45 @@
                 </div>
               </v-col>
             </v-row>
+            <v-row v-if="selectedProject && !selectedRun">
+              <v-col cols="12">
+                <div class="loading-wrapper" v-if="runsLoading">
+                  <v-progress-circular
+                    :size="70"
+                    :width="7"
+                    color="primary"
+                    indeterminate
+                  ></v-progress-circular>
+                </div>
+                <div class="issue-wrapper" v-else>
+                  <div class="issue-list">
+                    <span class="issue-header"
+                      >{{ searchRunsList.length }}
+                      {{ $tc("caption.runs", 1) }}</span
+                    >
+                    <div
+                      v-for="item in searchRunsList"
+                      :key="item.id"
+                      :class="
+                        selectedItem && item.id === selectedItem.id
+                          ? 'issue-item active'
+                          : 'issue-item'
+                      "
+                      @click="handleSelectProject(item)"
+                    >
+                      <v-icon class="issue-icon">mdi-flag</v-icon>
+                      <div class="issue-desc">
+                        <span
+                          class="issue-summary subtitle-1"
+                          v-text="item.name"
+                        ></span>
+                        <span class="issue-key caption" v-text="item.id"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </v-col>
+            </v-row>
           </div>
           <div class="footer">
             <v-btn
@@ -136,8 +175,11 @@ export default {
       search: "",
       projects: [],
       projectsLoading: true,
-      selectedItem: null,
       selectedProject: null,
+      runs: [],
+      runsLoading: true,
+      selectedRun: null,
+      selectedItem: null,
     };
   },
   watch: {},
@@ -177,6 +219,21 @@ export default {
         return this.projects;
       }
     },
+    searchRunsList() {
+      return this.runs;
+      // eslint-disable-next-line no-unreachable
+      if (this.projects.length && this.search && this.search !== "") {
+        return this.projects.filter((item) => {
+          return (
+            item.name.toUpperCase().includes(this.search.toUpperCase()) ||
+            item.id.toString().includes(this.search)
+          );
+        });
+        // eslint-disable-next-line no-unreachable
+      } else {
+        return this.projects;
+      }
+    },
   },
   methods: {
     handleClose() {
@@ -203,9 +260,22 @@ export default {
     hideTestRunPickerDialog() {
       this.testRunPickerDialog = false;
     },
-    handleSelectProject(item) {
-      // Todo: fix this
-      this.selectedItem = item;
+    async handleSelectProject(item) {
+      this.selectedProject = item;
+
+      try {
+        this.runs = await testrailIntegrationHelper.fetchRuns(
+          this.credentials[item.credential_index][0],
+          item.id,
+          item.credential_index
+        );
+
+        this.runsLoading = false;
+      } catch (error) {
+        console.log(error);
+        this.$root.$emit("set-snackbar", error.message);
+      }
+      // this.selectedProject = item;
     },
   },
   mounted() {},

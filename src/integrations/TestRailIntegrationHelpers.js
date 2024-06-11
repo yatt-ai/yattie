@@ -50,12 +50,20 @@ export default {
     };
   },
 
-  formatHeaders(credentialUrl, accessToken) {
+  formatHeaders(
+    credentialUrl,
+    accessToken,
+    type = "get_projects",
+    projectId = null
+  ) {
     const authHeader = `Basic ${accessToken}`;
-    const url = `https://${credentialUrl}/index.php?/api/v2/get_projects`;
+    const urls = {
+      get_projects: `https://${credentialUrl}/index.php?/api/v2/get_projects`,
+      get_runs: `https://${credentialUrl}/index.php?/api/v2/get_runs/${projectId}`,
+    };
 
     return {
-      url,
+      url: urls[type],
       headers: {
         headers: {
           Authorization: authHeader,
@@ -110,5 +118,26 @@ export default {
           }
         });
     }
+  },
+
+  async fetchRuns(credential, projectId, credentialIndex) {
+    const { url, headers } = this.formatHeaders(
+      credential.url,
+      credential.accessToken,
+      "get_runs",
+      projectId
+    );
+    let runs = [];
+
+    return axios.get(url, headers).then((response) => {
+      if (response.status === 200) {
+        runs = response.data.runs.map((run) => ({
+          ...run,
+          credential_index: credentialIndex,
+        }));
+
+        return runs;
+      }
+    });
   },
 };
