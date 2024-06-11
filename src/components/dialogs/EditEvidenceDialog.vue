@@ -475,7 +475,7 @@ export default {
       if (this.$isElectron) {
         this.items = await this.$storageService.getItems();
       } else {
-        this.items = structuredClone(this.$store.state.session.items);
+        this.items = structuredClone(this.$store.state.current.execution.items);
       }
     },
     updateEditItem(value) {

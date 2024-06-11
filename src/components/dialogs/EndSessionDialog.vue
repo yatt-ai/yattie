@@ -3,7 +3,7 @@
     <v-sheet outlined rounded>
       <v-card :style="{ backgroundColor: currentTheme.background }">
         <CheckTaskWrapper
-          :tasks="$store.state.session.postSessionTasks"
+          :tasks="$store.state.current.execution.postSessionTasks"
           @taskToggle="handleTaskCheck"
         />
         <div class="footer">

@@ -320,8 +320,8 @@ export default {
           this.$store.commit("restoreState", state);
 
           const currentPath = this.$router.history.current.path;
-          if (currentPath !== state.session.path) {
-            await this.$router.push({ path: state.session.path });
+          if (currentPath !== state.current.execution.path) {
+            await this.$router.push({ path: state.current.execution.path });
           }
         }
       } else {

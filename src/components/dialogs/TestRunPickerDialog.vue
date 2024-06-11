@@ -134,7 +134,7 @@
                       v-for="item in searchTestsList"
                       :key="item.id"
                       :class="
-                        selectedTests && selectedTests.has(item.id)
+                        selectedTestsIds && selectedTestsIds.has(item.id)
                           ? 'issue-item active'
                           : 'issue-item'
                       "
@@ -212,7 +212,7 @@ export default {
       selectedRun: null,
       tests: [],
       testsLoading: true,
-      selectedTests: new Set(),
+      selectedTestsIds: new Set(),
     };
   },
   watch: {},
@@ -298,8 +298,22 @@ export default {
   methods: {
     handleClose() {
       this.hideTestRunPickerDialog();
+      this.resetDialog();
     },
-    handleSelect() {},
+    handleSelect() {
+      this.hideTestRunPickerDialog();
+      this.$root.$emit(
+        "set-snackbar",
+        `Selected ${this.selectedTestsIds.size} tests`
+      );
+
+      let selectedTests = this.tests.filter((test) =>
+        this.selectedTestsIds.has(test.id)
+      );
+
+      this.$store.commit("updateSessionPlan", selectedTests);
+      this.resetDialog();
+    },
     handleScriptedTestSession() {
       this.showTestRunPickerDialog();
     },
@@ -319,6 +333,18 @@ export default {
     },
     hideTestRunPickerDialog() {
       this.testRunPickerDialog = false;
+    },
+    resetDialog() {
+      this.search = "";
+      this.projects = [];
+      this.projectsLoading = true;
+      this.selectedProject = null;
+      this.runs = [];
+      this.runsLoading = true;
+      this.selectedRun = null;
+      this.tests = [];
+      this.testsLoading = true;
+      this.selectedTestsIds = new Set();
     },
     async handleSelectProject(item) {
       this.selectedProject = item;
@@ -353,15 +379,13 @@ export default {
       }
     },
     async handleSelectTest(item) {
-      if (this.selectedTests.has(item.id)) {
-        this.selectedTests.delete(item.id);
+      if (this.selectedTestsIds.has(item.id)) {
+        this.selectedTestsIds.delete(item.id);
       } else {
-        this.selectedTests.add(item.id);
+        this.selectedTestsIds.add(item.id);
       }
 
       this.$forceUpdate();
-
-      return true;
     },
   },
   mounted() {},

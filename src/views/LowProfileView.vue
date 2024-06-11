@@ -110,9 +110,9 @@ export default {
     },
     maximize() {
       const data = {
-        status: this.$store.state.session.status,
-        timer: this.$store.state.session.timer,
-        duration: this.$store.state.case.duration,
+        status: this.$store.state.current.execution.status,
+        timer: this.$store.state.current.execution.timer,
+        duration: this.$store.state.current.case.duration,
         sourceId: this.sourceId,
       };
       window.ipc.invoke(IPC_HANDLERS.WINDOW, {

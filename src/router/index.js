@@ -194,7 +194,7 @@ router.beforeEach((to, from, next) => {
   if (
     from.matched.length > 0 &&
     !to.path.includes("settings") &&
-    store.state.session.sessionID
+    store.state.current.execution.sessionID
   ) {
     store.commit("setSessionPath", to.path);
   }

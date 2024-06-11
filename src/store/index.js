@@ -21,48 +21,53 @@ const vuexLocalStorage = new VuexPersist({
 
 const store = new Vuex.Store({
   state: {
-    case: {
-      caseID: null,
-      title: "",
-      charter: {
-        content: "",
-        text: "",
-      },
-      preconditions: {
-        content: "",
-        text: "",
-      },
-      duration: 0,
-      mindmap: {
-        nodes: DEFAULT_CHARTER_MAP_NODES,
-        connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
-      },
-    },
-    session: {
-      sessionID: null,
-      status: SESSION_STATUSES.PENDING,
-      timer: 0,
-      started: "",
-      ended: "",
-      quickTest: false,
-      path: "",
-      remote: false,
-      preSessionTasks: [],
-      postSessionTasks: [],
+    plan: {
       items: [],
-      notes: {
-        content: "",
-        text: "",
+    },
+    current: {
+      case: {
+        caseID: null,
+        title: "",
+        charter: {
+          content: "",
+          text: "",
+        },
+        preconditions: {
+          content: "",
+          text: "",
+        },
+        duration: 0,
+        mindmap: {
+          nodes: DEFAULT_CHARTER_MAP_NODES,
+          connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
+        },
       },
-      nodes: [],
-      connections: [],
+      execution: {
+        executionID: null,
+        status: SESSION_STATUSES.PENDING,
+        timer: 0,
+        started: "",
+        ended: "",
+        quickTest: false,
+        path: "",
+        remote: false,
+        preSessionTasks: [],
+        postSessionTasks: [],
+        items: [],
+        notes: {
+          content: "",
+          text: "",
+        },
+        nodes: [],
+        connections: [],
+      },
     },
     savedTimer: 0,
   },
   mutations: {
     replaceAttachmentUrl(state, { attachmentID, url }) {
       console.log("replaceAttachmentUrl");
-      const uploadedAttachment = state.session.items.find(
+      const uploadedAttachment = state.current.execution.items.find(
         (item) => item.attachmentID === attachmentID
       );
       console.log({ uploadedAttachment });
@@ -70,70 +75,70 @@ const store = new Vuex.Store({
       uploadedAttachment.uploaded = true;
     },
     setSessionIDFromBackend(state, payload) {
-      state.session.sessionID = payload;
+      state.current.execution.executionID = payload;
     },
     setCaseIDFromBackend(state, payload) {
-      state.case.caseID = payload;
+      state.current.case.caseID = payload;
     },
     setCaseID(state, payload) {
-      state.case.caseID = payload;
+      state.current.case.caseID = payload;
       this._vm.$storageService.updateState(state);
     },
     setCaseTitle(state, payload) {
-      state.case.title = payload;
+      state.current.case.title = payload;
       this._vm.$storageService.updateState(state);
     },
     setCaseCharter(state, payload) {
-      state.case.charter.content = payload.content;
-      state.case.charter.text = payload.text;
+      state.current.case.charter.content = payload.content;
+      state.current.case.charter.text = payload.text;
       this._vm.$storageService.updateState(state);
     },
     setCasePrecondition(state, payload) {
-      state.case.preconditions.content = payload.content;
-      state.case.preconditions.text = payload.text;
+      state.current.case.preconditions.content = payload.content;
+      state.current.case.preconditions.text = payload.text;
       this._vm.$storageService.updateState(state);
     },
     setCaseDuration(state, payload) {
-      state.case.duration = payload;
+      state.current.case.duration = payload;
       this._vm.$storageService.updateState(state);
     },
     setCaseMindmap(state, payload) {
-      state.case.mindmap.nodes = payload.nodes;
-      state.case.mindmap.connections = payload.connections;
+      state.current.case.mindmap.nodes = payload.nodes;
+      state.current.case.mindmap.connections = payload.connections;
       this._vm.$storageService.updateState(state);
     },
     setSessionID(state, payload) {
-      state.session.sessionID = payload;
+      state.current.execution.executionID = payload;
       this._vm.$storageService.updateState(state);
     },
     setSessionStarted(state, payload) {
-      state.session.started = payload;
+      state.current.execution.started = payload;
       this._vm.$storageService.updateState(state);
     },
     setSessionEnded(state, payload) {
-      state.session.ended = payload;
+      state.current.execution.ended = payload;
       this._vm.$storageService.updateState(state);
     },
     setSessionQuickTest(state, payload) {
-      state.session.quickTest = payload;
+      state.current.execution.quickTest = payload;
       this._vm.$storageService.updateState(state);
     },
     setSessionPath(state, payload) {
-      state.session.path = payload;
+      state.current.execution.path = payload;
       this._vm.$storageService.updateState(state);
     },
     setSessionRemote(state, payload) {
-      state.session.remote = payload;
+      state.current.execution.remote = payload;
       this._vm.$storageService.updateState(state);
     },
     setPreSessionTasks(state, payload) {
-      state.session.preSessionTasks = payload;
+      state.current.execution.preSessionTasks = payload;
     },
     setPostSessionTasks(state, payload) {
-      state.session.postSessionTasks = payload;
+      state.current.execution.postSessionTasks = payload;
     },
     setSessionItems(state, payload) {
-      state.session.items = payload;
+      state.current.execution.items = payload;
 
       if (Vue.prototype.$isElectron) {
         this._vm.$storageService.updateItems(payload);
@@ -142,22 +147,22 @@ const store = new Vuex.Store({
       }
     },
     setSessionNodes(state, payload) {
-      state.session.nodes = payload;
+      state.current.execution.nodes = payload;
       if (Vue.prototype.$isElectron)
         this._vm.$storageService.updateNodes(payload);
       else this._vm.$storageService.updateState(state);
     },
     setSessionConnections(state, payload) {
-      state.session.connections = payload;
+      state.current.execution.connections = payload;
       if (Vue.prototype.$isElectron)
         this._vm.$storageService.updateConnections(payload);
       else this._vm.$storageService.updateState(state);
     },
     setSessionItemsFromExternalWindow(state, payload) {
-      state.session.items = payload;
+      state.current.execution.items = payload;
     },
     addSessionItem(state, payload) {
-      state.session.items.push(payload);
+      state.current.execution.items.push(payload);
       if (Vue.prototype.$isElectron) {
         this._vm.$storageService.addItem(payload);
       } else {
@@ -165,25 +170,27 @@ const store = new Vuex.Store({
       }
     },
     updateSessionItem(state, payload) {
-      const currentItemIndex = state.session.items.findIndex(
+      const currentItemIndex = state.current.execution.items.findIndex(
         (item) => item.stepID === payload.stepID
       );
       if (currentItemIndex !== -1) {
-        state.session.items[currentItemIndex] = payload;
+        state.current.execution.items[currentItemIndex] = payload;
       }
       this._vm.$storageService.updateItem(payload);
     },
-
+    updateSessionPlan(state, payload) {
+      state.plan.items.push(...payload);
+    },
     deleteSessionItems(state, ids) {
-      state.session.items = ids.reduce((acc, currentId) => {
+      state.current.execution.items = ids.reduce((acc, currentId) => {
         return acc.filter((item) => item.stepID !== currentId);
-      }, state.session.items);
+      }, state.current.execution.items);
       this._vm.$storageService.deleteItems(ids);
     },
 
     setSessionNotes(state, payload) {
-      state.session.notes.content = payload.content;
-      state.session.notes.text = payload.text;
+      state.current.execution.notes.content = payload.content;
+      state.current.execution.notes.text = payload.text;
       if (!this.$isElectron) {
         this._vm.$storageService.updateState(state);
       }
@@ -191,24 +198,30 @@ const store = new Vuex.Store({
 
     updateSession(state, payload) {
       let isStatusChanged = false;
-      if (state.session.status !== payload.status) {
-        state.session.status = payload.status;
+      if (state.current.execution.status !== payload.status) {
+        state.current.execution.status = payload.status;
         isStatusChanged = true;
       }
-      if (state.session.timer !== payload.timer) {
-        state.session.timer = payload.timer;
+      if (state.current.execution.timer !== payload.timer) {
+        state.current.execution.timer = payload.timer;
       }
-      if (state.case.duration !== payload.duration) {
-        state.case.duration = payload.duration;
+      if (state.current.case.duration !== payload.duration) {
+        state.current.case.duration = payload.duration;
       }
-      if (state.session.ended !== payload.ended && payload.ended) {
-        state.session.ended = payload.ended;
+      if (state.current.execution.ended !== payload.ended && payload.ended) {
+        state.current.execution.ended = payload.ended;
       }
-      if (state.session.quickTest !== payload.quickTest && payload.quickTest) {
-        state.session.quickTest = payload.quickTest;
+      if (
+        state.current.execution.quickTest !== payload.quickTest &&
+        payload.quickTest
+      ) {
+        state.current.execution.quickTest = payload.quickTest;
       }
-      if (state.session.sessionID !== payload.sessionID && payload.sessionID) {
-        state.session.sessionID = payload.sessionID;
+      if (
+        state.current.execution.executionID !== payload.sessionID &&
+        payload.sessionID
+      ) {
+        state.current.execution.executionID = payload.sessionID;
       }
 
       if (
@@ -223,87 +236,88 @@ const store = new Vuex.Store({
     },
 
     clearState(state) {
-      state.case.caseID = null;
-      state.case.title = "";
-      state.case.charter = {
+      state.current.case.caseID = null;
+      state.current.case.title = "";
+      state.current.case.charter = {
         content: "",
         text: "",
       };
-      state.case.preconditions = {
+      state.current.case.preconditions = {
         content: "",
         text: "",
       };
-      state.case.duration = 0;
-      state.case.mindmap = {
+      state.current.case.duration = 0;
+      state.current.case.mindmap = {
         nodes: DEFAULT_CHARTER_MAP_NODES,
         connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
       };
 
-      state.session.sessionID = null;
-      state.session.status = SESSION_STATUSES.PENDING;
-      state.session.timer = 0;
-      state.session.started = "";
-      state.session.ended = "";
-      state.session.quickTest = false;
-      state.session.remote = false;
-      state.session.items = [];
+      state.current.execution.executionID = null;
+      state.current.execution.status = SESSION_STATUSES.PENDING;
+      state.current.execution.timer = 0;
+      state.current.execution.started = "";
+      state.current.execution.ended = "";
+      state.current.execution.quickTest = false;
+      state.current.execution.remote = false;
+      state.current.execution.items = [];
 
-      state.session.notes = {
+      state.current.execution.notes = {
         content: "",
         text: "",
       };
-      state.session.nodes = [];
-      state.session.connections = [];
+      state.current.execution.nodes = [];
+      state.current.execution.connections = [];
+      state.plan.items = [];
       this._vm.$storageService.updateState(state);
     },
 
     startQuickTest(state) {
-      state.case.caseID = null;
-      state.case.title = "";
-      state.case.charter = {
+      state.current.case.caseID = null;
+      state.current.case.title = "";
+      state.current.case.charter = {
         content: "",
         text: "",
       };
-      state.case.preconditions = {
+      state.current.case.preconditions = {
         content: "",
         text: "",
       };
-      state.case.duration = 0;
-      state.case.mindmap = {
+      state.current.case.duration = 0;
+      state.current.case.mindmap = {
         nodes: DEFAULT_CHARTER_MAP_NODES,
         connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
       };
 
-      state.session.sessionID = null;
-      state.session.path = "/main/workspace";
-      state.session.status = SESSION_STATUSES.PENDING;
-      state.session.timer = 0;
-      state.session.started = "";
-      state.session.ended = "";
-      state.session.quickTest = true;
-      state.session.remote = false;
-      state.session.items = [];
-      state.session.notes = {
+      state.current.execution.executionID = null;
+      state.current.execution.path = "/main/workspace";
+      state.current.execution.status = SESSION_STATUSES.PENDING;
+      state.current.execution.timer = 0;
+      state.current.execution.started = "";
+      state.current.execution.ended = "";
+      state.current.execution.quickTest = true;
+      state.current.execution.remote = false;
+      state.current.execution.items = [];
+      state.current.execution.notes = {
         content: "",
         text: "",
       };
-      state.session.nodes = [];
-      state.session.connections = [];
+      state.current.execution.nodes = [];
+      state.current.execution.connections = [];
       this._vm.$storageService.updateState(state);
     },
 
     resetState(state) {
-      state.session.status = SESSION_STATUSES.PENDING;
-      state.session.timer = 0;
+      state.current.execution.status = SESSION_STATUSES.PENDING;
+      state.current.execution.timer = 0;
 
-      state.session.started = "";
-      state.session.ended = "";
+      state.current.execution.started = "";
+      state.current.execution.ended = "";
       this._vm.$storageService.updateState(state);
     },
 
     restoreState(state, payload) {
-      state.case = {
-        ...state.case,
+      state.current.case = {
+        ...state.current.case,
         ...payload?.case,
         charter: {
           content: payload?.case?.charter?.content || "",
@@ -321,8 +335,8 @@ const store = new Vuex.Store({
         },
       };
 
-      state.session = {
-        ...state.session,
+      state.current.execution = {
+        ...state.current.execution,
         ...payload?.session,
         remote: payload?.session?.remote || false,
         notes: {
@@ -335,42 +349,42 @@ const store = new Vuex.Store({
     },
 
     togglePreSessionTask(state, { taskId, checked }) {
-      const taskIndex = state.session.preSessionTasks.findIndex(
+      const taskIndex = state.current.execution.preSessionTasks.findIndex(
         (task) => task.id === taskId
       );
       if (taskIndex !== -1) {
-        state.session.preSessionTasks[taskIndex].checked = checked;
+        state.current.execution.preSessionTasks[taskIndex].checked = checked;
       }
     },
 
     togglePostSessionTask(state, { taskId, checked }) {
-      const taskIndex = state.session.postSessionTasks.findIndex(
+      const taskIndex = state.current.execution.postSessionTasks.findIndex(
         (task) => task.id === taskId
       );
       if (taskIndex !== -1) {
-        state.session.postSessionTasks[taskIndex].checked = checked;
+        state.current.execution.postSessionTasks[taskIndex].checked = checked;
       }
     },
   },
   actions: {},
   getters: {
     sessionItems(state) {
-      return state.session.items;
+      return state.current.execution.items;
     },
     sessionNodes(state) {
-      return state.session.nodes;
+      return state.current.execution.nodes;
     },
     sessionConnections(state) {
-      return state.session.connections;
+      return state.current.execution.connections;
     },
     requiredPreSessionTasksChecked(state) {
-      const uncheckedTasks = state.session.preSessionTasks.filter(
+      const uncheckedTasks = state.current.execution.preSessionTasks.filter(
         (task) => !task.checked && task.required
       );
       return uncheckedTasks.length === 0;
     },
     requiredPostSessionTasksChecked(state) {
-      const uncheckedTasks = state.session.postSessionTasks.filter(
+      const uncheckedTasks = state.current.execution.postSessionTasks.filter(
         (task) => !task.checked && task.required
       );
       return uncheckedTasks.length === 0;

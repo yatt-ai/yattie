@@ -56,7 +56,7 @@ export default {
     // Take signed attachment URLs and upload them
     returnResponse.steps.map(async (step) => {
       if (step.uploadURL) {
-        const match = state.session.items.find(
+        const match = state.current.execution.items.find(
           (item) => item.stepID === step.external_id
         );
         if (match?.filePath) {

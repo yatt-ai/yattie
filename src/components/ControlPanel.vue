@@ -21,7 +21,7 @@
       <v-row class="text-center" v-if="status === 'pending'">
         <v-col cols="12" class="">
           <v-btn
-            v-if="$store.state.session.quickTest"
+            v-if="$store.state.current.execution.quickTest"
             id="btn_new_quick_test"
             class="text-capitalize font-weight-regular"
             fill
@@ -897,7 +897,7 @@ export default {
         });
       }
     },
-    "$store.state.session.status": {
+    "$store.state.current.execution.status": {
       deep: true,
       handler(newValue) {
         this.status = newValue;
@@ -912,13 +912,13 @@ export default {
         }
       },
     },
-    "$store.state.session.timer": {
+    "$store.state.current.execution.timer": {
       deep: true,
       handler(newValue) {
         this.timer = newValue;
       },
     },
-    "$store.state.case.duration": {
+    "$store.state.current.case.duration": {
       deep: true,
       handler(newValue) {
         this.duration = newValue;
@@ -1036,12 +1036,12 @@ export default {
       sourceId: this.srcId,
       audioDevices: [],
       loaded: false,
-      status: this.$store.state.session.status,
+      status: this.$store.state.current.execution.status,
       recordVideoStarted: false,
       recordAudioStarted: false,
       interval: null,
-      timer: this.$store.state.session.timer,
-      duration: this.$store.state.case.duration,
+      timer: this.$store.state.current.execution.timer,
+      duration: this.$store.state.current.case.duration,
       isDuration: false,
       started: "",
       ended: "",
@@ -1071,22 +1071,24 @@ export default {
     });
 
     if (
-      this.$store.state.session.status === SESSION_STATUSES.START ||
-      this.$store.state.session.status === SESSION_STATUSES.PROCEED ||
-      this.$store.state.session.status === SESSION_STATUSES.RESUME
+      this.$store.state.current.execution.status === SESSION_STATUSES.START ||
+      this.$store.state.current.execution.status === SESSION_STATUSES.PROCEED ||
+      this.$store.state.current.execution.status === SESSION_STATUSES.RESUME
     ) {
-      this.status = this.$store.state.session.status;
-      this.timer = this.$store.state.session.timer;
-      this.duration = this.$store.state.case.duration;
-      if (this.$store.state.session.status === SESSION_STATUSES.START) {
+      this.status = this.$store.state.current.execution.status;
+      this.timer = this.$store.state.current.execution.timer;
+      this.duration = this.$store.state.current.case.duration;
+      if (
+        this.$store.state.current.execution.status === SESSION_STATUSES.START
+      ) {
         this.startSession(this.sourceId);
       }
       this.startInterval();
     }
 
     if (
-      this.$store.state.session.quickTest &&
-      this.$store.state.session.status === SESSION_STATUSES.PENDING
+      this.$store.state.current.execution.quickTest &&
+      this.$store.state.current.execution.status === SESSION_STATUSES.PENDING
     ) {
       this.showSourcePickerDialog();
     }
@@ -1247,8 +1249,8 @@ export default {
       }
       this.sourcePickerDialog = false;
 
-      this.timer = this.$store.state.session.timer;
-      this.duration = this.$store.state.case.duration;
+      this.timer = this.$store.state.current.execution.timer;
+      this.duration = this.$store.state.current.case.duration;
       if (this.duration > 0) {
         this.isDuration = true;
       }
@@ -1265,20 +1267,20 @@ export default {
         this.changeSessionStatus(SESSION_STATUSES.START);
       }
 
-      if (!this.$store.state.session.sessionID) {
+      if (!this.$store.state.current.execution.sessionID) {
         const data = {
           case: {
-            title: this.$store.state.case.title,
-            charter: this.$store.state.case.charter,
-            preconditions: this.$store.state.case.preconditions,
-            duration: this.$store.state.case.duration,
+            title: this.$store.state.current.case.title,
+            charter: this.$store.state.current.case.charter,
+            preconditions: this.$store.state.current.case.preconditions,
+            duration: this.$store.state.current.case.duration,
           },
           session: {
-            status: this.$store.state.session.status,
-            timer: this.$store.state.session.timer,
-            started: this.$store.state.session.started,
-            ended: this.$store.state.session.ended,
-            quickTest: this.$store.state.session.quickTest,
+            status: this.$store.state.current.execution.status,
+            timer: this.$store.state.current.execution.timer,
+            started: this.$store.state.current.execution.started,
+            ended: this.$store.state.current.execution.ended,
+            quickTest: this.$store.state.current.execution.quickTest,
             path: this.$route.path,
           },
         };
@@ -1312,7 +1314,7 @@ export default {
             this.showSourcePickerDialog();
           } else {
             this.status = SESSION_STATUSES.START;
-            this.timer = this.$store.state.session.timer;
+            this.timer = this.$store.state.current.execution.timer;
             console.log("start interval-3");
             this.startInterval();
           }
@@ -1322,7 +1324,7 @@ export default {
           await this.setMediaStream();
         }
         this.status = SESSION_STATUSES.START;
-        this.timer = this.$store.state.session.timer;
+        this.timer = this.$store.state.current.execution.timer;
         console.log("start interval-3");
         this.startInterval();
       }
@@ -1362,7 +1364,7 @@ export default {
     },
     resume() {
       this.pauseSession();
-      this.timer = this.$store.state.session.timer;
+      this.timer = this.$store.state.current.execution.timer;
       this.updateStoreSession();
       const currentPath = this.$router.history.current.path;
       if (currentPath !== "/main/workspace") {
@@ -1873,20 +1875,20 @@ export default {
       this.newSessionDialog = false;
       const data = {
         case: {
-          caseID: this.$store.state.case.caseID,
-          title: this.$store.state.case.title,
-          charter: this.$store.state.case.charter,
-          mindmap: this.$store.state.case.mindmap,
-          preconditions: this.$store.state.case.preconditions,
-          duration: this.$store.state.case.duration,
+          caseID: this.$store.state.current.case.caseID,
+          title: this.$store.state.current.case.title,
+          charter: this.$store.state.current.case.charter,
+          mindmap: this.$store.state.current.case.mindmap,
+          preconditions: this.$store.state.current.case.preconditions,
+          duration: this.$store.state.current.case.duration,
         },
         session: {
-          sessionID: this.$store.state.session.sessionID,
-          status: this.$store.state.session.status,
-          timer: this.$store.state.session.timer,
-          started: this.$store.state.session.started,
-          ended: this.$store.state.session.ended,
-          quickTest: this.$store.state.session.quickTest,
+          sessionID: this.$store.state.current.execution.sessionID,
+          status: this.$store.state.current.execution.status,
+          timer: this.$store.state.current.execution.timer,
+          started: this.$store.state.current.execution.started,
+          ended: this.$store.state.current.execution.ended,
+          quickTest: this.$store.state.current.execution.quickTest,
           path: this.$route.path,
         },
       };
@@ -1925,7 +1927,7 @@ export default {
       this.changeSessionStatus(SESSION_STATUSES.PENDING);
       this.timer = 0;
       this.isDuration = false;
-      this.duration = this.$store.state.case.duration;
+      this.duration = this.$store.state.current.case.duration;
 
       // Clear dialogs
       this.sourcePickerDialog = false;
@@ -1941,17 +1943,17 @@ export default {
 
       const data = {
         case: {
-          title: this.$store.state.case.title,
-          charter: this.$store.state.case.charter,
-          preconditions: this.$store.state.case.preconditions,
-          duration: this.$store.state.case.duration,
+          title: this.$store.state.current.case.title,
+          charter: this.$store.state.current.case.charter,
+          preconditions: this.$store.state.current.case.preconditions,
+          duration: this.$store.state.current.case.duration,
         },
         session: {
-          status: this.$store.state.session.status,
-          timer: this.$store.state.session.timer,
-          started: this.$store.state.session.started,
-          ended: this.$store.state.session.ended,
-          quickTest: this.$store.state.session.quickTest,
+          status: this.$store.state.current.execution.status,
+          timer: this.$store.state.current.execution.timer,
+          started: this.$store.state.current.execution.started,
+          ended: this.$store.state.current.execution.ended,
+          quickTest: this.$store.state.current.execution.quickTest,
           path: this.$route.path,
         },
       };

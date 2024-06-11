@@ -416,23 +416,23 @@ module.exports.createNewSession = (state) => {
   const sessionDataPath = path.join(
     configDir,
     "sessions",
-    state.session.sessionID,
+    state.current.execution.sessionID,
     "sessionData.json"
   );
 
   metaDb.set("sessionDataPath", sessionDataPath);
   dataDb = new JSONdb(sessionDataPath, jsonDbConfig);
-  //dataDb.set("caseID", state.case.caseID);
-  //dataDb.set("sessionID", state.session.sessionID);
+  //dataDb.set("caseID", state.current.case.caseID);
+  //dataDb.set("sessionID", state.current.execution.sessionID);
   //delete state.id;
-  let session = state.session;
+  let session = state.current.execution;
   session.items = [];
   session.notes = {
     content: "",
     text: "",
   };
   dataDb.set("session", session);
-  dataDb.set("case", state.case);
+  dataDb.set("case", state.current.case);
   dataDb.set("version", currentVersion);
 };
 
@@ -490,8 +490,8 @@ module.exports.updateState = (state) => {
       session = session || {};
     }
 
-    dataDb.set("case", { ...cas, ...state.case });
-    dataDb.set("session", { ...session, ...state.session });
+    dataDb.set("case", { ...cas, ...state.current.case });
+    dataDb.set("session", { ...session, ...state.current.execution });
   }
 };
 

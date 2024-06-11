@@ -61,9 +61,9 @@ module.exports.exportItems = async (ids) => {
 };
 
 module.exports.createNewSession = async (state) => {
-  state.session.sessionID = uuidv4();
-  state.case.caseID = uuidv4();
-  const dataFolder = path.join(configDir, "sessions", state.session.sessionID);
+  state.current.execution.sessionID = uuidv4();
+  state.current.case.caseID = uuidv4();
+  const dataFolder = path.join(configDir, "sessions", state.current.execution.sessionID);
   if (!fs.existsSync(dataFolder)) {
     fs.mkdirSync(dataFolder, { recursive: true });
   }
@@ -170,8 +170,8 @@ module.exports.openSession = async () => {
 
     // TODO - Should we restore state here or in Main and Default?
 
-    persistenceUtility.updateItems(state.session.items);
-    // delete state.sessions;
+    persistenceUtility.updateItems(state.current.execution.items);
+    // delete state.current.executions;
 
     return Promise.resolve({
       status: STATUSES.SUCCESS,
