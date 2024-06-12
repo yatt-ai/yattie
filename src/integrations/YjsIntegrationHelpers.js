@@ -37,12 +37,16 @@ export default {
     if (credential && !this.doc) {
       this.connectToRoom(credential.user.id);
     }
-
+    const yarray = this.doc.getArray("stateArray");
     if (!this.doc.getArray("stateArray").get(0)) {
       this.doc.getArray("stateArray").insert(0, [state]);
     } else {
       this.doc.getArray("stateArray").insert(0, [state]);
     }
+
+    yarray.observe((event) => {
+      event.currentTarget.doc.share.get("stateArray").get(0);
+    });
 
     this.doc.on("update", () => {
       // Send the update to the server
