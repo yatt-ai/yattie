@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 
 import HomeView from "../views/HomeView.vue";
 import MainView from "../views/MainView.vue";
+import ScriptedTestRunView from "../views/ScriptedTestRunView.vue";
 import ResultView from "../views/ResultView.vue";
 import PrintView from "../views/PrintView.vue";
 import LowProfileView from "../views/LowProfileView.vue";
@@ -104,6 +105,11 @@ const routes = [
     name: "main",
     component: MainView,
     children: [{ path: "workspace" }, { path: "workspace/:execID" }],
+  },
+  {
+    path: "/run/scripted",
+    name: "scriptedRun",
+    component: ScriptedTestRunView,
   },
   {
     path: "/settings",

@@ -311,8 +311,9 @@ export default {
         this.selectedTestsIds.has(test.id)
       );
 
-      this.$store.commit("updateSessionPlan", selectedTests);
+      this.$store.commit("startSessionPlan", selectedTests);
       this.resetDialog();
+      this.$router.push("/run/scripted");
     },
     handleScriptedTestSession() {
       this.showTestRunPickerDialog();

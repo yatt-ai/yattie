@@ -178,8 +178,9 @@ const store = new Vuex.Store({
       }
       this._vm.$storageService.updateItem(payload);
     },
-    updateSessionPlan(state, payload) {
-      state.plan.items.push(...payload);
+    startSessionPlan(state, payload) {
+      // this._vm.$storageService.startQuickTest(payload);
+      state.plan.items = payload;
     },
     deleteSessionItems(state, ids) {
       state.current.execution.items = ids.reduce((acc, currentId) => {
