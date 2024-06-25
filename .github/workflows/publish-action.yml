@@ -30,7 +30,7 @@ jobs:
       run: npm run publish
 
   publish_on_x64_mac:
-    runs-on: macos-latest
+    runs-on: macos-13
     strategy:
       matrix:
         os: [macos-latest]
@@ -72,7 +72,7 @@ jobs:
         echo "###########";
 
   publish_on_arm64_mac:
-    runs-on: flyci-macos-large-latest-m2 
+    runs-on: macos-latest 
     strategy:
       matrix:
         os: [macos-latest]

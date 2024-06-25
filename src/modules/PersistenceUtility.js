@@ -238,7 +238,12 @@ const applyMigrations = (type, newVersion, data) => {
     }
 
     // Read migration files
-    let migrationFiles = fs.readdirSync("./src/modules/migrations/");
+
+    const isDevelopment = process.env.NODE_ENV !== "production";
+    let migrationFilesPath = isDevelopment
+      ? path.resolve(__dirname, "./src/modules/migrations/")
+      : path.resolve(process.resourcesPath, "./migrations/");
+    let migrationFiles = fs.readdirSync(migrationFilesPath);
     let migrationVersions = migrationFiles.map((fileName) => {
       let temp = fileName.substring(1, fileName.length - 3).split(".");
       return temp.map((num) => parseInt(num));
