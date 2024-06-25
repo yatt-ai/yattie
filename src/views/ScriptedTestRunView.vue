@@ -94,20 +94,66 @@
         </v-tab-item>
       </v-tabs-items>
       <v-container style="background: red; width: 20%">
-        <h1>Steps</h1>
+        <h1>Test {{ currentTestIndex + 1 }} of {{ selectedTestsCounts }}</h1>
         <v-row>
-          <v-col v-for="step in steps" :key="step.id">
+          <v-col>
             <v-card>
-              <v-card-title>{{ step.content }}</v-card-title>
-              <v-card-text>
-                <p><b>Expected Result: </b> {{ step.expected }}</p>
-                <p v-if="step.additional_info && step.additional_info !== ''">
-                  <b>Addition Info: </b> {{ step.additional_info }}
-                </p>
-              </v-card-text>
+              <v-card-title
+                >Test {{ currentTest.id }}:
+                {{ currentTest.title }}</v-card-title
+              >
+              <v-card-subtitle>{{
+                currentTest.custom_expected
+              }}</v-card-subtitle>
             </v-card>
           </v-col>
         </v-row>
+        <v-row
+          v-if="
+            currentTest.custom_steps_separated &&
+            currentTest.custom_steps_separated.length > 0
+          "
+        >
+          <h2>Test Steps</h2>
+          <v-col
+            v-for="(step, index) in currentTest.custom_steps_separated"
+            :key="step.id"
+          >
+            <v-card>
+              <v-card-title>{{ index + 1 }}. {{ step.content }}</v-card-title>
+              <v-card-subtitle>
+                <p>{{ step.expected }}</p>
+                <p v-if="step.additional_info && step.additional_info !== ''">
+                  {{ step.additional_info }}
+                </p>
+              </v-card-subtitle>
+            </v-card>
+          </v-col>
+        </v-row>
+        <v-row v-else>
+          <v-col>
+            <v-card>
+              <v-card-title>No steps found</v-card-title>
+            </v-card>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-select
+              v-model="selectedStatus"
+              :items="testStatuses"
+              label="Test Status"
+            ></v-select>
+          </v-col>
+        </v-row>
+        <v-card-actions>
+          <v-btn
+            color="primary"
+            @click="loadNextTest"
+            :disabled="!selectedStatus"
+            >Submit Test</v-btn
+          >
+        </v-card-actions>
       </v-container>
     </div>
     <div class="footer">
@@ -174,7 +220,12 @@ export default {
       showTaskError: false,
       showMenu: false,
       resetConfirmDialog: false,
-      steps: [], // Todo: figure best way to handle this
+      selectedTests: [],
+      selectedTestsCounts: null,
+      currentTestIndex: 0, // This is for like "Test `currentTest` of `selectedTestsCounts`"
+      currentTest: null,
+      testStatuses: ["Passed", "Blocked", "Untested", "Retest", "Failed"],
+      selectedStatus: null,
     };
   },
   created() {
@@ -182,8 +233,10 @@ export default {
   },
   mounted() {
     console.log("Mounted");
-    console.log(this.$store.state.plan);
     this.steps = this.$store.state.plan.items[0].custom_steps_separated;
+    this.selectedTests = this.$store.state.plan.items;
+    this.selectedTestsCounts = this.selectedTests.length;
+    this.currentTest = this.selectedTests[0];
     this.setInitialPreSession();
     this.setInitialPostSession();
     this.$root.$on("update-selected", this.updateSelected);
@@ -293,6 +346,12 @@ export default {
       setTimeout(() => {
         this.$refs.resetConfirmDialog?.$refs.confirmBtn.$el.focus();
       }, 100);
+    },
+    loadNextTest() {
+      this.currentTestIndex++;
+      this.currentTest = this.selectedTests[this.currentTestIndex];
+      this.selectedTests[this.currentTestIndex].status = this.selectedStatus;
+      this.selectedStatus = null;
     },
   },
 };
