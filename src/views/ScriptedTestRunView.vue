@@ -30,7 +30,7 @@
           :height="26"
           hide-slider
         >
-          <v-tab class="test-tab" to="/main" exact>
+          <v-tab class="test-tab" to="/run/scripted" exact>
             {{ $tc("caption.test", 1) }}
           </v-tab>
           <v-tab
@@ -76,85 +76,92 @@
     <v-divider style="z-index: 100" />
     <div class="content">
       <h1>Scripted Tests</h1>
-      <v-tabs-items v-model="activeTab" style="width: 80%">
-        <v-tab-item value="/main" :transition="false">
-          <TestWrapper />
-          <CheckTaskWrapper
-            v-if="showCheckList"
-            :tasks="$store.state.current.execution.preSessionTasks"
-            @taskToggle="handleTaskCheck"
-          />
-        </v-tab-item>
-        <v-tab-item value="/main/workspace" :transition="false">
-          <WorkspaceWrapper
-            :items="items"
-            :selectedItems="selected"
-            event-type="dblclick"
-          />
-        </v-tab-item>
-      </v-tabs-items>
-      <v-container style="background: red; width: 20%">
-        <h1>Test {{ currentTestIndex + 1 }} of {{ selectedTestsCounts }}</h1>
-        <v-row>
-          <v-col>
-            <v-card>
-              <v-card-title
-                >Test {{ currentTest.id }}:
-                {{ currentTest.title }}</v-card-title
-              >
-              <v-card-subtitle>{{
-                currentTest.custom_expected
-              }}</v-card-subtitle>
-            </v-card>
-          </v-col>
-        </v-row>
-        <v-row
-          v-if="
-            currentTest.custom_steps_separated &&
-            currentTest.custom_steps_separated.length > 0
-          "
-        >
-          <h2>Test Steps</h2>
-          <v-col
-            v-for="(step, index) in currentTest.custom_steps_separated"
-            :key="step.id"
+      <v-row>
+        <v-col cols="9">
+          <v-tabs-items v-model="activeTab">
+            <v-tab-item value="/run/scripted" :transition="false">
+              <TestWrapper />
+              <CheckTaskWrapper
+                v-if="showCheckList"
+                :tasks="$store.state.current.execution.preSessionTasks"
+                @taskToggle="handleTaskCheck"
+              />
+            </v-tab-item>
+            <v-tab-item value="/main/workspace" :transition="false">
+              <WorkspaceWrapper
+                :items="items"
+                :selectedItems="selected"
+                event-type="dblclick"
+              />
+            </v-tab-item>
+          </v-tabs-items>
+        </v-col>
+        <v-col cols="3">
+          <h1>Test {{ currentTestIndex + 1 }} of {{ selectedTestsCounts }}</h1>
+          <h2>Test {{ currentTest.id }}: {{ currentTest.title }}</h2>
+          <p>
+            {{
+              currentTest.custom_expected?.split(" ").length > 20
+                ? `${currentTest.custom_expected
+                    .split(" ")
+                    .slice(0, 20)
+                    .join(" ")}...`
+                : currentTest.custom_expected
+            }}
+          </p>
+          <div
+            v-if="
+              currentTest.custom_steps_separated &&
+              currentTest.custom_steps_separated.length > 0
+            "
           >
-            <v-card>
-              <v-card-title>{{ index + 1 }}. {{ step.content }}</v-card-title>
-              <v-card-subtitle>
-                <p>{{ step.expected }}</p>
-                <p v-if="step.additional_info && step.additional_info !== ''">
-                  {{ step.additional_info }}
-                </p>
-              </v-card-subtitle>
-            </v-card>
-          </v-col>
-        </v-row>
-        <v-row v-else>
-          <v-col>
-            <v-card>
-              <v-card-title>No steps found</v-card-title>
-            </v-card>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-select
-              v-model="selectedStatus"
-              :items="testStatuses"
-              label="Test Status"
-            ></v-select>
-          </v-col>
-        </v-row>
-        <v-card-actions>
-          <v-btn
-            color="primary"
-            @click="loadNextTest"
-            :disabled="!selectedStatus"
-            >Submit Test</v-btn
-          >
-        </v-card-actions>
-      </v-container>
+            <div
+              v-if="
+                currentTest.custom_steps_separated &&
+                currentTest.custom_steps_separated.length > 0
+              "
+            >
+              <h2>Test Steps</h2>
+              <v-list subheader three-line>
+                <template
+                  v-for="(step, index) in currentTest.custom_steps_separated"
+                >
+                  <v-list-item :key="index">
+                    <v-list-item-content>
+                      <v-list-item-title>{{ step.content }}</v-list-item-title>
+                      <v-list-item-subtitle
+                        >{{ step.expected }}
+                        {{
+                          step.additional_info && step.additional_info !== ""
+                            ? step.additional_info
+                            : ""
+                        }}</v-list-item-subtitle
+                      >
+                    </v-list-item-content>
+                  </v-list-item>
+                </template>
+              </v-list>
+            </div>
+          </div>
+          <v-row>
+            <v-col>
+              <v-select
+                v-model="selectedStatus"
+                :items="testStatuses"
+                label="Test Status"
+              ></v-select>
+            </v-col>
+          </v-row>
+          <v-card-actions>
+            <v-btn
+              color="primary"
+              @click="loadNextTest"
+              :disabled="!selectedStatus"
+              >Submit Test</v-btn
+            >
+          </v-card-actions>
+        </v-col>
+      </v-row>
     </div>
     <div class="footer">
       <ControlPanel

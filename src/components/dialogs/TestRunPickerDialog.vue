@@ -312,6 +312,7 @@ export default {
       );
 
       this.$store.commit("startSessionPlan", selectedTests);
+      // Prepare state for the test
       this.resetDialog();
       this.$router.push("/run/scripted");
     },
