@@ -316,7 +316,7 @@ export default {
 .issue-wrapper .issue-list .issue-item.active .issue-icon,
 .issue-wrapper .issue-list .issue-item.active .issue-summary,
 .issue-wrapper .issue-list .issue-item.active .issue-key {
-  color: #6d28d9;
+  color: #0a26c3;
 }
 
 .issue-wrapper .issue-list .issue-item .issue-desc {

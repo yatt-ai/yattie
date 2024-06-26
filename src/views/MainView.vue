@@ -1,5 +1,5 @@
 <template>
-  <v-container class="wrapper pa-0" fluid>
+  <v-container class="wrapper" fluid>
     <div
       class="top"
       v-if="this.status === 'pending' || $store.state.session.quickTest"
@@ -18,6 +18,9 @@
       </v-btn>
     </div>
     <div class="header">
+      <div class="logo mb-4">
+        <LogoWrapper :height="34" :width="120" />
+      </div>
       <div class="tabs">
         <v-tabs
           class="tabs"
@@ -73,7 +76,7 @@
     </div>
     <v-divider style="z-index: 100" />
     <div class="content">
-      <v-tabs-items v-model="activeTab">
+      <v-tabs-items v-model="activeTab" style="height: 100%">
         <v-tab-item value="/main" :transition="false">
           <TestWrapper />
           <CheckTaskWrapper
@@ -130,10 +133,12 @@ import MenuPopover from "@/components/MenuPopover.vue";
 import { SESSION_STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
 import ResetConfirmDialog from "@/components/dialogs/ResetConfirmDialog.vue";
+import LogoWrapper from "@/components/LogoWrapper.vue";
 
 export default {
   name: "MainView",
   components: {
+    LogoWrapper,
     ResetConfirmDialog,
     VContainer,
     VBtn,
@@ -281,6 +286,7 @@ export default {
   flex-direction: column;
   height: 100vh;
   width: 100%;
+  background: #f2f4f7;
   overflow-y: auto;
   border-left: 1px solid rgba(0, 0, 0, 0.12);
   border-right: 1px solid rgba(0, 0, 0, 0.12);
@@ -292,6 +298,10 @@ export default {
   justify-content: center;
   column-gap: 15px;
   padding: 15px;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
+  border-radius: 15px;
+  margin-bottom: 10px;
 }
 .header .tabs {
   flex-grow: 1;
@@ -333,8 +343,8 @@ export default {
   font-weight: 500;
 }
 .v-tab.v-tab--active {
-  background: #6d28d9;
-  border: 1px solid #6d28d9;
+  background: #0a26c3;
+  border: 1px solid #586af3;
   color: #fff;
 }
 .v-tab.test-tab {
@@ -347,8 +357,8 @@ export default {
 }
 .theme--light.v-tabs .v-tabs-bar .v-tab--disabled,
 .theme--light.v-tabs .v-tabs-bar .v-tab:not(.v-tab--active) {
-  color: #6d28d9;
-  border: 1px solid #6d28d9;
+  color: #0a26c3;
+  border: 1px solid #596def;
 }
 .theme--dark.v-tabs .v-tabs-bar .v-tab--disabled,
 .theme--dark.v-tabs .v-tabs-bar .v-tab:not(.v-tab--active) {

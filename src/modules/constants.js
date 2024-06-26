@@ -164,7 +164,7 @@ export const FILE_TYPES = {
 export const TEXT_TYPES = {
   Comment: {
     icon: "fa-solid fa-comment",
-    fill: "#6D28D9",
+    fill: "#0C2FF3",
   },
   Problem: {
     icon: "fa-solid fa-triangle-exclamation",

@@ -312,7 +312,7 @@ export default {
   font-size: 13px;
   font-style: normal;
   font-weight: 500;
-  color: #6d28d9;
+  color: #0a26c3;
 }
 
 .loading-wrapper {

@@ -13,7 +13,7 @@ export default new Vuetify({
     themes: {
       dark: {
         default: "#6B7280",
-        primary: "#6D28D9",
+        primary: "#0C2FF3",
         secondary: "#FFFFFF",
         black: "#000000",
         white: "#FFFFFF",
@@ -27,7 +27,7 @@ export default new Vuetify({
       },
       light: {
         default: "#6B7280",
-        primary: "#6D28D9",
+        primary: "#0C2FF3",
         secondary: "#111827",
         black: "#000000",
         white: "#FFFFFF",

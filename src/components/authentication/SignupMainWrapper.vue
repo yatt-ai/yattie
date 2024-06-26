@@ -330,7 +330,7 @@ export default {
 }
 .btn_skip {
   background-color: #ede9fe !important;
-  color: #6d28d9;
+  color: #0a26c3;
   font-size: 13px;
   font-style: normal;
   font-weight: 500;
@@ -373,7 +373,7 @@ export default {
   font-size: 13px;
   font-style: normal;
   font-weight: 500;
-  color: #6d28d9;
+  color: #0a26c3;
 }
 .terms-alert {
   background-color: #f3f4f6;
