@@ -190,6 +190,7 @@ const store = new Vuex.Store({
     },
 
     updateSession(state, payload) {
+      console.log("state", state);
       let isStatusChanged = false;
       if (state.session.status !== payload.status) {
         state.session.status = payload.status;

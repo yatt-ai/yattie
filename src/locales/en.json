@@ -16,6 +16,7 @@
     "key_capture": "Press your new hotkey to update",
     "split_credentials": "Your credentials are split into a separate file than your configuration. If you would like to share a custom server OAuth configuration, you can click ",
     "image_deleted": "Successfully delete the image.",
+    "theme": "Appearance",
     "here": "here",
     "new_session": "New session",
     "end_session": "End session",

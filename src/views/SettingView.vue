@@ -27,7 +27,7 @@
         </v-tabs>
       </v-col>
       <v-col cols class="content">
-        <v-tabs-items v-model="activeTab" style="height: 100%">
+        <v-tabs-items v-model="activeTab" class="active-tab">
           <v-tab-item
             v-for="tab of tabs"
             :key="tab.id"
@@ -213,12 +213,14 @@ export default {
   background-color: #ffffff;
   box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
   border-radius: 15px;
-  height: 100%;
+  height: 80%;
 }
 .active-tab {
   background-color: #ffffff;
   box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
   border-radius: 15px;
+  width: 70%;
+  height: 100%;
 }
 .settings-component {
   background-color: #ffffff;
@@ -228,7 +230,8 @@ export default {
 }
 .content {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: center;
   width: 100%;
   height: 100%;
   overflow-y: auto;

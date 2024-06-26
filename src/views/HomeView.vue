@@ -42,11 +42,12 @@
         </div>
         <div class="new-section">
           <v-btn
-            class="my-4 text-capitalize"
+            class="my-4 text-capitalize secondary-btn"
             fill
             block
-            small
-            color="primary"
+            plain
+            medium
+            color="secondary"
             v-shortkey="quickTestHotkey"
             @shortkey="handleQuickTest()"
             @click="handleQuickTest()"
@@ -56,11 +57,11 @@
         </div>
         <div class="open-section">
           <v-btn
-            class="text-capitalize"
-            fill
+            class="text-capitalize secondary-btn"
             block
-            small
-            color="primary"
+            plain
+            medium
+            color="secondary"
             v-shortkey="newExploratoryHotkey"
             @shortkey="newSession"
             to="main"
@@ -70,9 +71,9 @@
           <v-btn
             block
             plain
-            color="primary"
-            small
-            class="mt-4 text-capitalize open-btn"
+            color="secondary"
+            medium
+            class="mt-4 text-capitalize secondary-btn"
             v-shortkey="openExploratoryHotkey"
             @shortkey="openSession"
             @click="openSession"
@@ -84,7 +85,7 @@
           <v-btn
             class="text-capitalize"
             fill
-            small
+            medium
             block
             color="primary"
             to="authentication/signin"
@@ -219,6 +220,7 @@
                 <img
                   :src="require('../assets/icon/qtest.svg')"
                   width="40"
+                  class="integration-image"
                   v-bind="attrs"
                   v-on="on"
                 />
@@ -397,7 +399,10 @@ export default {
   box-shadow: -10px 12px 34px 0px rgba(48, 98, 254, 0.15);
   border-radius: 15px;
 }
-
+.integration-image {
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+}
 .new-section {
   width: 100%;
   padding: 0;
@@ -418,6 +423,12 @@ export default {
 }
 .open-section .open-btn {
   background: #ede9fe;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+.secondary-btn {
+  background: #f2f4f7;
+  font-weight: 700;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
   border-radius: 4px;
 }
