@@ -218,7 +218,7 @@ export const DEFAULT_CHARTER_MAP_NODES = [
   {
     id: "5e274797-4db7-4fe8-a983-8b8abf8771c5",
     text: "System Under Test",
-    url: "https://features.yattie.ai",
+    url: "https://features.testfiesta.com",
     fx: -210.9125181819311,
     fy: -583.1010883631283,
   },
@@ -241,7 +241,7 @@ export const DEFAULT_MAP_NODES = [
   {
     id: "5e274797-4db7-4fe8-a983-8b8abf8771c5",
     content: "Mind Map",
-    url: "https://features.yattie.ai",
+    url: "https://features.testfiesta.com",
     fx: -210.9125181819311,
     fy: -583.1010883631283,
     status: "Passed",
@@ -252,7 +252,7 @@ export const DEFAULT_MAP_NODES = [
     fx: 99.1983655368465,
     fy: -582.6407249084972,
     status: "Failed",
-    url: "https://features.yattie.ai",
+    url: "https://features.testfiesta.com",
   },
   {
     id: "4763495c-62b7-4525-9083-2d40045b6550",
@@ -260,7 +260,7 @@ export const DEFAULT_MAP_NODES = [
     fx: 199.1983655368465,
     fy: -382.6407249084972,
     status: "In Progress",
-    url: "https://features.yattie.ai",
+    url: "https://features.testfiesta.com",
   },
 ];
 

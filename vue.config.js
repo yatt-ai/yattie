@@ -30,7 +30,7 @@ module.exports = {
       ],
       builderOptions: {
         productName: "Pinata",
-        appId: "ai.yatt.yattie",
+        appId: "ai.testfiesta.pinata",
         directories: {
           output: "release",
           buildResources: "public",
@@ -75,7 +75,7 @@ module.exports = {
             {
               provider: "github",
               owner: "dacoaster",
-              repo: "YATTIE",
+              repo: "PINATA",
               releaseType: "prerelease",
             },
           ],
@@ -94,7 +94,7 @@ module.exports = {
             {
               provider: "github",
               owner: "dacoaster",
-              repo: "YATTIE",
+              repo: "PINATA",
               releaseType: "prerelease",
             },
           ],
@@ -107,7 +107,7 @@ module.exports = {
             {
               provider: "github",
               owner: "dacoaster",
-              repo: "YATTIE",
+              repo: "PINATA",
               releaseType: "prerelease",
             },
           ],

@@ -15,7 +15,7 @@ Vue.use(Vuex);
 const isElectronApp = navigator.userAgent.includes("Electron");
 
 const vuexLocalStorage = new VuexPersist({
-  key: "yattie-state",
+  key: "pinata-state",
   storage: window.localStorage,
 });
 

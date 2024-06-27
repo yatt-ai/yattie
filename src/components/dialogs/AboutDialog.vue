@@ -13,7 +13,7 @@
           class="dialog-title"
           :style="{ color: currentTheme.secondary }"
         >
-          {{ $tc("caption.about_yattie", 1) }}
+          {{ $tc("caption.about_pinata", 1) }}
         </v-card-title>
         <v-divider></v-divider>
         <v-container class="about-wrapper">

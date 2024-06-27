@@ -59,7 +59,9 @@
           v-for="(credentialList, credentialType) in credentials"
           :key="credentialType"
         >
-          <div v-if="credentialList.length > 0 && credentialType !== 'yatt'">
+          <div
+            v-if="credentialList.length > 0 && credentialType !== 'testfiesta'"
+          >
             <v-subheader
               class="text-uppercase font-weight-medium"
               style="height: 32px"
@@ -158,7 +160,7 @@ export default {
           }
         }
       }
-      return "Yattie";
+      return "Pinata";
     },
     profileAvatar() {
       for (const cList of Object.values(this.credentials)) {
@@ -176,12 +178,12 @@ export default {
   methods: {
     async openAccountLink(credentialType, credential) {
       console.log(this.credentials, Object.values(this.credentials));
-      if (credentialType === "yatt") {
-        const yattUrl = "https://app.yatt.ai/";
+      if (credentialType === "testfiesta") {
+        const testfiestaUrl = "https://app.testfiesta.com/";
         if (this.$isElectron) {
-          await this.$electronService.openExternalLink(yattUrl);
+          await this.$electronService.openExternalLink(testfiestaUrl);
         } else {
-          window.open(yattUrl, "_blank");
+          window.open(testfiestaUrl, "_blank");
         }
         this.showMenu = false;
       } else if (credentialType === "jira") {

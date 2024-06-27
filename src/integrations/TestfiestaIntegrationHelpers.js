@@ -23,19 +23,19 @@ export default {
     return authHeader;
   },
   async saveSession(credentials) {
-    if (!credentials?.yatt || credentials?.yatt.length < 1) {
-      const url = `${process.env.VUE_APP_YATT_API_URL}/app/signup/token`;
+    if (!credentials?.testfiesta || credentials?.testfiesta.length < 1) {
+      const url = `${process.env.VUE_APP_TESTFIESTA_API_URL}/app/signup/token`;
       const newCredentialsResponse = await axios.get(url);
       this.saveCredentials(credentials, newCredentialsResponse.data);
     }
 
     // Pull case and session data
-    const url = `${process.env.VUE_APP_YATT_API_URL}/yattie/executions`;
+    const url = `${process.env.VUE_APP_TESTFIESTA_API_URL}/pinata/executions`;
     const state = await window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
       func: IPC_FUNCTIONS.GET_STATE,
     });
 
-    const credential = credentials?.yatt[0];
+    const credential = credentials?.testfiesta[0];
     const options = {
       headers: this.getHeaders(credential),
     };
@@ -91,19 +91,19 @@ export default {
       credentials = {};
     }
 
-    if (credentials.yatt && credentials.yatt.length > 0) {
+    if (credentials.testfiesta && credentials.testfiesta.length > 0) {
       let matched = false;
-      for (const [index, credential] of credentials.yatt.entries()) {
+      for (const [index, credential] of credentials.testfiesta.entries()) {
         if (credential.user.id === formattedData.user.id) {
-          credentials.yatt[index] = formattedData;
+          credentials.testfiesta[index] = formattedData;
           matched = true;
         }
       }
       if (!matched) {
-        credentials.yatt.push(formattedData);
+        credentials.testfiesta.push(formattedData);
       }
     } else {
-      credentials.yatt = [formattedData];
+      credentials.testfiesta = [formattedData];
     }
 
     window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {

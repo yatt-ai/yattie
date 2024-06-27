@@ -788,7 +788,7 @@
 import { VBtn, VCol, VContainer, VIcon, VRow } from "vuetify/lib/components";
 import uuidv4 from "uuid";
 
-import yattIntegrationHelper from "../integrations/YattIntegrationHelpers";
+import testfiestaIntegrationHelper from "../integrations/TestfiestaIntegrationHelpers";
 
 import SourcePickerDialog from "./dialogs/SourcePickerDialog.vue";
 import ShareSessionDialog from "./dialogs/ShareSessionDialog.vue";
@@ -1176,7 +1176,7 @@ export default {
       }
     },
     async showShareSessionDialog() {
-      let savedSession = await yattIntegrationHelper.saveSession(
+      let savedSession = await testfiestaIntegrationHelper.saveSession(
         this.credentials
       );
       if (savedSession?.error) {
