@@ -17,8 +17,8 @@ export default class RestApiService extends StorageInterface {
 
   async updateState(state) {
     const data = {
-      case: state.case,
-      session: state.session,
+      case: state.current.case,
+      session: state.current.execution,
     };
     const credential = state.auth.credentials?.yatt[0];
 
@@ -38,7 +38,7 @@ export default class RestApiService extends StorageInterface {
     if (returnResponse?.steps) {
       returnResponse.steps.map(async (step) => {
         if (step.uploadURL) {
-          const match = state.session.items.find(
+          const match = state.current.execution.items.find(
             (item) => item.stepID === step.external_id
           );
           if (match?.filePath) {
@@ -166,7 +166,7 @@ export default class RestApiService extends StorageInterface {
   }
 
   async getItemById(id) {
-    const itemInStore = store.state.session.items.find(
+    const itemInStore = store.state.current.execution.items.find(
       (item) => item.stepID === id
     );
     return itemInStore;

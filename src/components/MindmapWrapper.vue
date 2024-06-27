@@ -212,7 +212,7 @@ export default {
       connections: "sessionConnections",
     }),
     status() {
-      return this.$store.state.session.status;
+      return this.$store.state.current.execution.status;
     },
     current() {
       return dayjs().format("MM-DD-YYYY");
@@ -240,7 +240,7 @@ export default {
         } else {
           const data = {
             ...item,
-            timer_mark: this.$store.state.session.timer,
+            timer_mark: this.$store.state.current.execution.timer,
           };
           this.evidenceData = data;
           this.addEvidenceDialog = true;

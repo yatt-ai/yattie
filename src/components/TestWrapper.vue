@@ -151,7 +151,9 @@
               v-model="duration"
               @change="handleDuration()"
               hide-details="true"
-              :disabled="this.$store.state.session.status !== 'pending'"
+              :disabled="
+                this.$store.state.current.execution.status !== 'pending'
+              "
             />
             <span class="timer-box-wrapper-label">
               {{ $tc("caption.minute", 1) }}
@@ -252,12 +254,12 @@ export default {
   },
   data() {
     return {
-      title: this.$store.state.case.title,
+      title: this.$store.state.current.case.title,
       previousTitle: "",
       titleLoading: false,
       charter: {
-        content: this.$store.state.case.charter.content,
-        text: this.$store.state.case.charter.text,
+        content: this.$store.state.current.case.charter.content,
+        text: this.$store.state.current.case.charter.text,
       },
       previousCharter: {
         content: "",
@@ -269,8 +271,8 @@ export default {
         connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
       },
       preconditions: {
-        content: this.$store.state.case.preconditions.content,
-        text: this.$store.state.case.preconditions.text,
+        content: this.$store.state.current.case.preconditions.content,
+        text: this.$store.state.current.case.preconditions.text,
       },
       previousPreconditions: {
         content: "",
@@ -326,27 +328,27 @@ export default {
     },
   },
   watch: {
-    "$store.state.case.title": {
+    "$store.state.current.case.title": {
       deep: true,
       handler(newValue) {
         this.title = newValue;
       },
     },
-    "$store.state.case.charter": {
+    "$store.state.current.case.charter": {
       deep: true,
       handler(newValue) {
         this.charter.content = newValue.content;
         this.charter.text = newValue.text;
       },
     },
-    "$store.state.case.preconditions": {
+    "$store.state.current.case.preconditions": {
       deep: true,
       handler(newValue) {
         this.preconditions.content = newValue.content;
         this.preconditions.text = newValue.text;
       },
     },
-    "$store.state.case.mindmap": {
+    "$store.state.current.case.mindmap": {
       deep: true,
       handler(newValue) {
         this.mindmap.nodes = newValue.nodes;
@@ -366,7 +368,7 @@ export default {
     this.$root.$on("reset-duration", () => {
       this.duration = "";
     });
-    this.duration = this.formatDuration(this.$store.state.case.duration);
+    this.duration = this.formatDuration(this.$store.state.current.case.duration);
   },
   methods: {
     actualUpdateTitle(title) {

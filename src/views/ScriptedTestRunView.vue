@@ -2,7 +2,9 @@
   <v-container class="wrapper pa-0" fluid>
     <div
       class="top"
-      v-if="this.status === 'pending' || $store.state.current.execution.quickTest"
+      v-if="
+        this.status === 'pending' || $store.state.current.execution.quickTest
+      "
     >
       <v-btn
         class="text-capitalize pa-0 back-btn"
@@ -28,7 +30,7 @@
           :height="26"
           hide-slider
         >
-          <v-tab class="test-tab" to="/main" exact>
+          <v-tab class="test-tab" to="/run/scripted" exact>
             {{ $tc("caption.test", 1) }}
           </v-tab>
           <v-tab
@@ -73,23 +75,93 @@
     </div>
     <v-divider style="z-index: 100" />
     <div class="content">
-      <v-tabs-items v-model="activeTab">
-        <v-tab-item value="/main" :transition="false">
-          <TestWrapper />
-          <CheckTaskWrapper
-            v-if="showCheckList"
-            :tasks="$store.state.current.execution.preSessionTasks"
-            @taskToggle="handleTaskCheck"
-          />
-        </v-tab-item>
-        <v-tab-item value="/main/workspace" :transition="false">
-          <WorkspaceWrapper
-            :items="items"
-            :selectedItems="selected"
-            event-type="dblclick"
-          />
-        </v-tab-item>
-      </v-tabs-items>
+      <h1>Scripted Tests</h1>
+      <v-row>
+        <v-col cols="9">
+          <v-tabs-items v-model="activeTab">
+            <v-tab-item value="/run/scripted" :transition="false">
+              <TestWrapper />
+              <CheckTaskWrapper
+                v-if="showCheckList"
+                :tasks="$store.state.current.execution.preSessionTasks"
+                @taskToggle="handleTaskCheck"
+              />
+            </v-tab-item>
+            <v-tab-item value="/main/workspace" :transition="false">
+              <WorkspaceWrapper
+                :items="items"
+                :selectedItems="selected"
+                event-type="dblclick"
+              />
+            </v-tab-item>
+          </v-tabs-items>
+        </v-col>
+        <v-col cols="3">
+          <h1>Test {{ currentTestIndex + 1 }} of {{ selectedTestsCounts }}</h1>
+          <h2>Test {{ currentTest.id }}: {{ currentTest.title }}</h2>
+          <p>
+            {{
+              currentTest.custom_expected?.split(" ").length > 20
+                ? `${currentTest.custom_expected
+                    .split(" ")
+                    .slice(0, 20)
+                    .join(" ")}...`
+                : currentTest.custom_expected
+            }}
+          </p>
+          <div
+            v-if="
+              currentTest.custom_steps_separated &&
+              currentTest.custom_steps_separated.length > 0
+            "
+          >
+            <div
+              v-if="
+                currentTest.custom_steps_separated &&
+                currentTest.custom_steps_separated.length > 0
+              "
+            >
+              <h2>Test Steps</h2>
+              <v-list subheader three-line>
+                <template
+                  v-for="(step, index) in currentTest.custom_steps_separated"
+                >
+                  <v-list-item :key="index">
+                    <v-list-item-content>
+                      <v-list-item-title>{{ step.content }}</v-list-item-title>
+                      <v-list-item-subtitle
+                        >{{ step.expected }}
+                        {{
+                          step.additional_info && step.additional_info !== ""
+                            ? step.additional_info
+                            : ""
+                        }}</v-list-item-subtitle
+                      >
+                    </v-list-item-content>
+                  </v-list-item>
+                </template>
+              </v-list>
+            </div>
+          </div>
+          <v-row>
+            <v-col>
+              <v-select
+                v-model="selectedStatus"
+                :items="testStatuses"
+                label="Test Status"
+              ></v-select>
+            </v-col>
+          </v-row>
+          <v-card-actions>
+            <v-btn
+              color="primary"
+              @click="loadNextTest"
+              :disabled="!selectedStatus"
+              >Submit Test</v-btn
+            >
+          </v-card-actions>
+        </v-col>
+      </v-row>
     </div>
     <div class="footer">
       <ControlPanel
@@ -132,7 +204,7 @@ import { mapGetters } from "vuex";
 import ResetConfirmDialog from "@/components/dialogs/ResetConfirmDialog.vue";
 
 export default {
-  name: "MainView",
+  name: "ScriptedTestRunView",
   components: {
     ResetConfirmDialog,
     VContainer,
@@ -155,12 +227,21 @@ export default {
       showTaskError: false,
       showMenu: false,
       resetConfirmDialog: false,
+      selectedTests: [],
+      selectedTestsCounts: null,
+      currentTestIndex: 0,
+      currentTest: null,
+      testStatuses: ["Passed", "Blocked", "Untested", "Retest", "Failed"],
+      selectedStatus: null,
     };
   },
   created() {
     this.fetchItems();
   },
   mounted() {
+    this.selectedTests = this.$store.state.plan.items;
+    this.selectedTestsCounts = this.selectedTests.length;
+    this.currentTest = this.selectedTests[0];
     this.setInitialPreSession();
     this.setInitialPostSession();
     this.$root.$on("update-selected", this.updateSelected);
@@ -200,8 +281,8 @@ export default {
     },
     showCheckList() {
       return (
-        this.$store.state.current.execution.status === SESSION_STATUSES.PENDING &&
-        this.checklistPresessionStatus
+        this.$store.state.current.execution.status ===
+          SESSION_STATUSES.PENDING && this.checklistPresessionStatus
       );
     },
   },
@@ -235,10 +316,11 @@ export default {
       }
     },
     async getCurrentExecution() {
+      console.log({ state: this.$store.state });
       let currentPath = this.$route.path;
       const executionId = currentPath.split("/").pop();
 
-      if (executionId !== "" && executionId !== "workspace") {
+      if (executionId !== "" && executionId !== "scripted") {
         const currentExecution = await this.$storageService.getState(
           executionId
         );
@@ -247,7 +329,7 @@ export default {
         this.$store.commit("setSessionItems", data.items);
         this.$store.commit("setSessionNodes", data.nodes);
         this.$store.commit("setSessionConnections", data.connections);
-        await this.$router.push({ path: "/main/workspace" });
+        await this.$router.push({ path: "/run/scripted" });
       }
     },
     addItem(newItem) {
@@ -270,6 +352,12 @@ export default {
       setTimeout(() => {
         this.$refs.resetConfirmDialog?.$refs.confirmBtn.$el.focus();
       }, 100);
+    },
+    loadNextTest() {
+      this.currentTestIndex++;
+      this.currentTest = this.selectedTests[this.currentTestIndex];
+      this.selectedTests[this.currentTestIndex].status = this.selectedStatus;
+      this.selectedStatus = null;
     },
   },
 };

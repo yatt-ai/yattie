@@ -10,8 +10,8 @@
         </div>
         <div class="mt-2 date-text">
           <v-icon>mdi-calendar-minus-outline</v-icon>
-          <span v-if="$store.state.session.started">{{
-            $store.state.session.started
+          <span v-if="$store.state.current.execution.started">{{
+            $store.state.current.execution.started
           }}</span>
           <span v-else>{{ current }}</span>
         </div>
@@ -884,7 +884,7 @@
             >
               <div class="duration-text">
                 <v-icon>mdi-clock-outline</v-icon>
-                <span>{{ formatTime($store.state.session.timer) }}</span>
+                <span>{{ formatTime($store.state.current.execution.timer) }}</span>
               </div>
             </v-timeline-item>
           </v-timeline>
@@ -1042,7 +1042,7 @@ export default {
       items: "sessionItems",
     }),
     status() {
-      return this.$store.state.session.status;
+      return this.$store.state.current.execution.status;
     },
     current() {
       return dayjs().format("MM-DD-YYYY");
@@ -1110,7 +1110,7 @@ export default {
         } else {
           const data = {
             ...item,
-            timer_mark: this.$store.state.session.timer,
+            timer_mark: this.$store.state.current.execution.timer,
           };
           this.evidenceData = data;
           this.addEvidenceDialog = true;
@@ -1196,7 +1196,7 @@ export default {
         } else {
           const data = {
             ...item,
-            timer_mark: this.$store.state.session.timer,
+            timer_mark: this.$store.state.current.execution.timer,
           };
           this.evidenceData = data;
           this.addEvidenceDialog = true;

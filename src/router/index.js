@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 
 import HomeView from "../views/HomeView.vue";
 import MainView from "../views/MainView.vue";
+import ScriptedTestRunView from "../views/ScriptedTestRunView.vue";
 import ResultView from "../views/ResultView.vue";
 import PrintView from "../views/PrintView.vue";
 import LowProfileView from "../views/LowProfileView.vue";
@@ -106,6 +107,11 @@ const routes = [
     children: [{ path: "workspace" }, { path: "workspace/:execID" }],
   },
   {
+    path: "/run/scripted",
+    name: "scriptedRun",
+    component: ScriptedTestRunView,
+  },
+  {
     path: "/settings",
     component: SettingView,
     children: [
@@ -194,7 +200,7 @@ router.beforeEach((to, from, next) => {
   if (
     from.matched.length > 0 &&
     !to.path.includes("settings") &&
-    store.state.session.sessionID
+    store.state.current.execution.sessionID
   ) {
     store.commit("setSessionPath", to.path);
   }

@@ -166,13 +166,13 @@ export default {
     async exportSession(type) {
       const { logo } = await this.$storageService.getConfig();
       const data = {
-        title: this.$store.state.case.title,
-        charter: this.$store.state.case.charter,
-        preconditions: this.$store.state.case.preconditions,
-        duration: this.$store.state.case.duration,
-        timer: this.$store.state.session.timer,
-        started: this.$store.state.session.started,
-        ended: this.$store.state.session.ended,
+        title: this.$store.state.current.case.title,
+        charter: this.$store.state.current.case.charter,
+        preconditions: this.$store.state.current.case.preconditions,
+        duration: this.$store.state.current.case.duration,
+        timer: this.$store.state.current.execution.timer,
+        started: this.$store.state.current.execution.started,
+        ended: this.$store.state.current.execution.ended,
         reportLogo: logo && logo.enabled,
         logoPath: logo && logo.path,
         type: type,

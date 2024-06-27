@@ -2,7 +2,7 @@
   <v-container class="wrapper">
     <div class="content">
       <v-tiptap
-        :value="$store.state.session.notes.content"
+        :value="$store.state.current.execution.notes.content"
         :placeholder="$t('message.insert_note')"
         ref="notes"
         :toolbar="[
@@ -659,7 +659,7 @@ export default {
   },
   computed: {
     status() {
-      return this.$store.state.session.status;
+      return this.$store.state.current.execution.status;
     },
     currentTheme() {
       if (this.$vuetify.theme.dark) {

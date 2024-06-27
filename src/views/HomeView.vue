@@ -27,6 +27,10 @@
           {{ $tc("caption.quick_test", 1) }}
         </v-btn>
       </div>
+      <TestRunPickerDialog
+        :isAuthenticated="isAuthenticated"
+        :isLoggedInToTestrail="loggedInServices.testrail"
+      />
       <div class="open-section">
         <v-btn
           class="text-capitalize"
@@ -245,6 +249,8 @@ import MenuPopover from "../components/MenuPopover.vue";
 
 import { STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
+import TestRunPickerDialog from "@/components/dialogs/TestRunPickerDialog.vue";
+
 export default {
   name: "HomeView",
   components: {
@@ -252,6 +258,7 @@ export default {
     VBtn,
     LogoWrapper,
     MenuPopover,
+    TestRunPickerDialog,
   },
   data() {
     return {};
@@ -313,8 +320,8 @@ export default {
           this.$store.commit("restoreState", state);
 
           const currentPath = this.$router.history.current.path;
-          if (currentPath !== state.session.path) {
-            await this.$router.push({ path: state.session.path });
+          if (currentPath !== state.current.execution.path) {
+            await this.$router.push({ path: state.current.execution.path });
           }
         }
       } else {
@@ -340,6 +347,7 @@ export default {
   justify-content: flex-start;
   max-width: 320px;
 }
+
 .header {
   width: 100%;
   flex-grow: 0;
@@ -349,6 +357,7 @@ export default {
   column-gap: 15px;
   padding: 10px 0;
 }
+
 .content {
   flex-grow: 1;
   display: flex;
@@ -357,29 +366,35 @@ export default {
   width: 100%;
   padding-top: 50px;
 }
+
 .new-section {
   width: 100%;
   padding: 0;
 }
+
 .open-section {
   width: 100%;
   padding: 20px 0;
   border-top: 1px solid #e5e7eb;
 }
+
 .theme--dark .open-section {
   border-color: rgba(255, 255, 255, 0.15);
 }
+
 .open-section.social {
   display: flex;
   align-items: center;
   column-gap: 10px;
   padding: 10px 0;
 }
+
 .open-section .open-btn {
   background: #ede9fe;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
   border-radius: 4px;
 }
+
 .social-btn {
   flex: 1;
   background-color: transparent !important;
@@ -388,13 +403,16 @@ export default {
   box-shadow: none;
   position: relative;
 }
+
 .social-btn::before:hover,
 .social-btn:hover {
   background-color: transparent !important;
 }
+
 .social-btn.inactive .overlay {
   display: block;
 }
+
 .social-btn .overlay {
   position: absolute;
   display: block;
@@ -404,6 +422,7 @@ export default {
   bottom: 0;
   background-color: rgba(255, 255, 255, 0.8);
 }
+
 .theme--dark .overlay {
   background-color: rgba(31, 41, 55, 0.8);
 }
