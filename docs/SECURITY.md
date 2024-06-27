@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-If there are any vulnerabilities in **YATTIE**, don't hesitate to _report them_.
+If there are any vulnerabilities in **Pinata**, don't hesitate to _report them_.
 
 1. Use any of the [private contact addresses](https://github.com/dacoaster/yattie#support).
 2. Describe the vulnerability.

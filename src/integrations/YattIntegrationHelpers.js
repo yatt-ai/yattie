@@ -40,7 +40,7 @@ export default {
       headers: this.getHeaders(credential),
     };
 
-    // Post to YATT
+    // Post to TestFiesta
     let returnResponse = {
       link: "",
     };

@@ -29,7 +29,7 @@ module.exports = {
         "src/modules/ServerUtility.js",
       ],
       builderOptions: {
-        productName: "YATTIE",
+        productName: "Pinata",
         appId: "ai.yatt.yattie",
         directories: {
           output: "release",
@@ -62,7 +62,7 @@ module.exports = {
             {
               provider: "github",
               owner: "dacoaster",
-              repo: "YATTIE",
+              repo: "YETTIE",
               releaseType: "prerelease",
             },
           ],

@@ -487,7 +487,7 @@ export default {
           if (finalResponse?.data?.yatt) {
             finalResponse.data.yatt.oauthTokenIds = [tokenId];
           } else {
-            // If we don't get any YATT data back, then we must have used an
+            // If we don't get any TestFiesta data back, then we must have used an
             //   API key for access, so just update our current creds with the
             //   new oauth token ID and pass them along to be saved.
             let tempCredentials = this.credentials;

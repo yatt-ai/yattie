@@ -1,5 +1,5 @@
 {
-  "name": "yattie",
+  "name": "Pinata",
   "version": "0.11.0",
   "engines": {
     "npm": ">=8.0.0 <9.0.0",
@@ -7,7 +7,7 @@
   },
   "keywords": [],
   "author": {
-    "name": "YATT, Inc",
+    "name": "TestFiesta, Inc",
     "email": "contact@yatt.ai"
   },
   "license": "GPL-3.0-only",
