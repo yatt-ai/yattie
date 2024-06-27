@@ -229,7 +229,7 @@ export default {
       resetConfirmDialog: false,
       selectedTests: [],
       selectedTestsCounts: null,
-      currentTestIndex: 0, // This is for like "Test `currentTest` of `selectedTestsCounts`"
+      currentTestIndex: 0,
       currentTest: null,
       testStatuses: ["Passed", "Blocked", "Untested", "Retest", "Failed"],
       selectedStatus: null,
@@ -239,8 +239,6 @@ export default {
     this.fetchItems();
   },
   mounted() {
-    console.log("Mounted");
-    this.steps = this.$store.state.plan.items[0].custom_steps_separated;
     this.selectedTests = this.$store.state.plan.items;
     this.selectedTestsCounts = this.selectedTests.length;
     this.currentTest = this.selectedTests[0];
@@ -318,10 +316,11 @@ export default {
       }
     },
     async getCurrentExecution() {
+      console.log({ state: this.$store.state });
       let currentPath = this.$route.path;
       const executionId = currentPath.split("/").pop();
 
-      if (executionId !== "" && executionId !== "workspace") {
+      if (executionId !== "" && executionId !== "scripted") {
         const currentExecution = await this.$storageService.getState(
           executionId
         );
@@ -330,7 +329,7 @@ export default {
         this.$store.commit("setSessionItems", data.items);
         this.$store.commit("setSessionNodes", data.nodes);
         this.$store.commit("setSessionConnections", data.connections);
-        await this.$router.push({ path: "/main/workspace" });
+        await this.$router.push({ path: "/run/scripted" });
       }
     },
     addItem(newItem) {

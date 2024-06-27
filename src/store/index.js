@@ -179,7 +179,6 @@ const store = new Vuex.Store({
       this._vm.$storageService.updateItem(payload);
     },
     startSessionPlan(state, payload) {
-      // this._vm.$storageService.startQuickTest(payload);
       state.plan.items = payload;
     },
     deleteSessionItems(state, ids) {
@@ -272,7 +271,7 @@ const store = new Vuex.Store({
       this._vm.$storageService.updateState(state);
     },
 
-    startQuickTest(state) {
+    startQuickTest(state, payload = null) {
       state.current.case.caseID = null;
       state.current.case.title = "";
       state.current.case.charter = {
@@ -290,7 +289,7 @@ const store = new Vuex.Store({
       };
 
       state.current.execution.executionID = null;
-      state.current.execution.path = "/main/workspace";
+      state.current.execution.path = payload ? payload : "/main/workspace";
       state.current.execution.status = SESSION_STATUSES.PENDING;
       state.current.execution.timer = 0;
       state.current.execution.started = "";

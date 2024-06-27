@@ -311,8 +311,8 @@ export default {
         this.selectedTestsIds.has(test.id)
       );
 
+      this.$store.commit("startQuickTest", "/run/scripted");
       this.$store.commit("startSessionPlan", selectedTests);
-      // Prepare state for the test
       this.resetDialog();
       this.$router.push("/run/scripted");
     },
