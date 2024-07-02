@@ -23,18 +23,6 @@
       </div>
       <v-row>
         <v-col cols="12">
-          <!--<v-btn
-            class="mb-4 outline-btn yatt"
-            block
-            outlined
-            color="white"
-            @click.prevent="signinYatt"
-          >
-            <img :src="require('../../assets/icon/yattie1.png')" />
-            <div class="btn-text" :style="{ color: currentTheme.secondary }">
-              {{ $tc("caption.signin_yatt", 1) }}
-            </div>
-          </v-btn>-->
           <v-btn
             class="mb-4 outline-btn jira"
             block
@@ -195,8 +183,8 @@ export default {
 
       this.$router.back();
     },
-    signinYatt() {
-      this.$router.push({ path: "/authentication/signinYatt" });
+    signinTestfiesta() {
+      this.$router.push({ path: "/authentication/signinTestfiesta" });
     },
     signinJira() {
       this.$router.push({ path: "/authentication/signinJira" });
@@ -312,7 +300,7 @@ export default {
   font-size: 13px;
   font-style: normal;
   font-weight: 500;
-  color: #6d28d9;
+  color: #0a26c3;
 }
 
 .loading-wrapper {

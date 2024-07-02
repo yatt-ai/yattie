@@ -20,9 +20,9 @@
       </div>
       <v-row>
         <v-col cols="12">
-          <v-btn class="mb-4 outline-btn yattie" block outlined color="white">
-            <img :src="require('../../assets/icon/yattie.png')" />
-            <div class="btn-text">{{ $tc("caption.signup_yattie", 1) }}</div>
+          <v-btn class="mb-4 outline-btn pinata" block outlined color="white">
+            <img :src="require('../../assets/icon/pinata.png')" />
+            <div class="btn-text">{{ $tc("caption.signup_pinata", 1) }}</div>
           </v-btn>
           <v-btn
             class="mb-4 outline-btn jira"
@@ -87,7 +87,7 @@
             fill
             small
             block
-            to="/authentication/signupYattie"
+            to="/authentication/signupPinata"
           >
             {{ $tc("caption.sign_up", 1) }}
           </v-btn>
@@ -330,7 +330,7 @@ export default {
 }
 .btn_skip {
   background-color: #ede9fe !important;
-  color: #6d28d9;
+  color: #0a26c3;
   font-size: 13px;
   font-style: normal;
   font-weight: 500;
@@ -373,7 +373,7 @@ export default {
   font-size: 13px;
   font-style: normal;
   font-weight: 500;
-  color: #6d28d9;
+  color: #0a26c3;
 }
 .terms-alert {
   background-color: #f3f4f6;

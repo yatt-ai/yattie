@@ -560,7 +560,7 @@ export default {
       refreshToken: data.refreshToken,
       clientId: data.clientId,
       clientSecret: data.clientSecret,
-      yattOauthTokenId: data.yattOauthTokenId,
+      testfiestaOauthTokenId: data.testfiestaOauthTokenId,
       expiresAt: data.expiresAt,
       type: data.type,
       loggedInAt: data.loggedInAt,

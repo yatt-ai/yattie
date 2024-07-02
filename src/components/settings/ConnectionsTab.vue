@@ -159,7 +159,7 @@
           class="subtitle-1 mb-4"
           :style="{ color: currentTheme.secondary }"
         >
-          {{ $tc("caption.yatt", 1) }}
+          {{ $tc("caption.testfiesta", 1) }}
         </p>
         <p class="body-1" :style="{ color: currentTheme.default }">
           {{ $tc("caption.add_color", 1) }}

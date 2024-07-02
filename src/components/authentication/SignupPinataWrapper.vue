@@ -94,7 +94,7 @@
 
 <script>
 export default {
-  name: "SignupYattieWrapper",
+  name: "SignupPinataWrapper",
   components: {},
   props: {},
   data() {

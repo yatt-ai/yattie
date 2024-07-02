@@ -1,7 +1,7 @@
 {
-  "name": "yattie-oauth-backend",
+  "name": "pinata-oauth-backend",
   "version": "0.1.0",
-  "description": "Express backend for YATTIE OAuth",
+  "description": "Express backend for Pinata OAuth",
   "main": "server.js",
   "scripts": {
     "server": "node server.js",

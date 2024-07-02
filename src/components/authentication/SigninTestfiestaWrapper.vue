@@ -6,7 +6,7 @@
         {{ $tc("caption.back", 1) }}
       </v-btn>
       <div class="subtitle-1 signup-title text-center">
-        <span>{{ $tc("caption.signin_yatt", 1) }}</span>
+        <span>{{ $tc("caption.signin_testfiesta", 1) }}</span>
       </div>
     </div>
     <div class="content mt-2">
@@ -14,8 +14,8 @@
         <v-row>
           <v-col cols="12" class="d-flex justify-center pa-0">
             <img
-              :src="require('../../assets/icon/yatt.png')"
-              alt="yatt"
+              :src="require('../../assets/icon/testfiesta.png')"
+              alt="testfiesta"
               width="60"
             />
           </v-col>
@@ -85,11 +85,11 @@
 <script>
 import axios from "axios";
 import dayjs from "dayjs";
-import yattIntegrationHelper from "../../integrations/YattIntegrationHelpers";
+import testfiestaIntegrationHelper from "../../integrations/TestfiestaIntegrationHelpers";
 import { mapGetters } from "vuex";
 
 export default {
-  name: "SigninYattWrapper",
+  name: "SigninTestfiestaWrapper",
   props: {
     prevRoute: {
       type: Object,
@@ -141,7 +141,7 @@ export default {
       if (isValid) {
         this.loading = true;
         this.$root.$emit("overlay", true);
-        const url = `${process.env.YATT_API_URL}/app/signin`;
+        const url = `${process.env.TESTFIESTA_API_URL}/app/signin`;
         await axios
           .post(url, {
             email: this.username,
@@ -149,15 +149,15 @@ export default {
           })
           .then((response) => {
             const date = dayjs().format("YYYY-MM-DD HH:mm:ss");
-            const yattData = {
+            const testfiestaData = {
               ...response.data,
               type: "bearer",
               loggedInAt: date,
             };
 
-            this.credentials = yattIntegrationHelper.saveCredentials(
+            this.credentials = testfiestaIntegrationHelper.saveCredentials(
               this.credentials,
-              yattData
+              testfiestaData
             );
 
             this.snackBar.enabled = true;

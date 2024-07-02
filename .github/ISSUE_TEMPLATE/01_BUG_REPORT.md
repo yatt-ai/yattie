@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Create a report to help YATTIE to improve
+about: Create a report to help Pinata to improve
 title: "bug: "
 labels: "bug"
 assignees: ""
@@ -12,7 +12,7 @@ assignees: ""
 
 <!-- Windows, Linux, or Mac -->
 
-**YATTIE version:**
+**Pinata version:**
 
 <!-- Please specify commit or tag version. -->
 

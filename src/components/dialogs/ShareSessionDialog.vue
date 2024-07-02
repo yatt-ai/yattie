@@ -9,12 +9,11 @@
     <v-sheet rounded :style="{ backgroundColor: currentTheme.background }">
       <v-card :style="{ backgroundColor: currentTheme.background }">
         <v-card-title
-          v-if="credentials?.yatt"
+          v-if="credentials?.testfiesta"
           class="text"
           :style="{ color: currentTheme.secondary }"
         >
-          Share {{ credentials?.yatt[0]?.user?.name }}'s session
-          <!--span>Not {{ credentials.yatt[0].user.name }}? TODO</span-->
+          Share {{ credentials?.testfiesta[0]?.user?.name }}'s session
         </v-card-title>
         <v-card-text class="text" :style="{ color: currentTheme.secondary }">
           <v-text-field

@@ -60,7 +60,7 @@ export default {
   font-weight: 500;
   font-size: 14px;
   line-height: 20px;
-  color: #6d28d9;
+  color: #0a26c3;
   text-decoration: none;
 }
 .border-bottom {

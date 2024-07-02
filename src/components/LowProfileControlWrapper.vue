@@ -324,10 +324,10 @@ export default {
   text-align: center;
 }
 .icon-btn:hover {
-  background: #391670;
+  background: #0c0fd3;
 }
 .icon-divider {
-  background: #6d28d9;
+  background: #0c2ff3;
   margin-left: 3px;
   margin-right: 3px;
 }

@@ -113,7 +113,7 @@ export const migrationStruct = {
       },
     },
     credentials: {
-      yatt: "credentials.yatt",
+      testfiesta: "credentials.testfiesta",
       jira: "credentials.jira",
       testrail: "credentials.testrail",
       version: "",

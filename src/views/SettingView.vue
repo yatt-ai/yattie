@@ -1,11 +1,13 @@
 <template>
   <v-container
     fluid
-    :style="{ 'min-height': $isElectron ? '100vh' : '800px' }"
-    class="d-flex"
+    :style="{
+      'min-height': $isElectron ? '100vh' : '800px',
+    }"
+    class="settings-wrapper"
   >
-    <v-row>
-      <v-col cols="auto" class="pa-0">
+    <v-row style="height: 100vh">
+      <v-col cols="auto" style="height: 100%">
         <v-tabs
           class="settings-menu"
           color="primary"
@@ -24,12 +26,12 @@
           </v-tab>
         </v-tabs>
       </v-col>
-      <v-divider vertical></v-divider>
-      <v-col cols class="content pa-0">
-        <v-tabs-items v-model="activeTab">
+      <v-col cols class="content">
+        <v-tabs-items v-model="activeTab" class="active-tab">
           <v-tab-item
             v-for="tab of tabs"
             :key="tab.id"
+            class="settings-component"
             v-bind="$isElectron ? { value: tab.route } : {}"
             :transition="false"
           >
@@ -65,9 +67,15 @@ import ReportsTab from "@/components/settings/ReportsTab.vue";
 import AddonsTab from "@/components/settings/AddonsTab.vue";
 import HotkeysTab from "@/components/settings/HotkeysTab.vue";
 import TagsTab from "@/components/settings/TagsTab.vue";
+import LogoWrapper from "@/components/LogoWrapper.vue";
+import { VContainer, VBtn } from "vuetify/lib/components";
+import { mapGetters } from "vuex";
 export default {
   name: "SettingView",
   components: {
+    LogoWrapper,
+    VBtn,
+    VContainer,
     GeneralTab,
     ConnectionsTab,
     TemplateTab,
@@ -76,8 +84,12 @@ export default {
     AddonsTab,
     HotkeysTab,
     TagsTab,
+    MenuPopover: () => import("@/components/MenuPopover.vue"),
   },
   computed: {
+    ...mapGetters({
+      isAuthenticated: "auth/isAuthenticated",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -197,11 +209,47 @@ export default {
 </script>
 
 <style scoped>
+.settings-menu {
+  background-color: #ffffff;
+  box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
+  border-radius: 15px;
+  height: 80%;
+}
+.active-tab {
+  background-color: #ffffff;
+  box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
+  border-radius: 15px;
+  width: 70%;
+  height: 100%;
+}
+.settings-component {
+  background-color: #ffffff;
+  box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
+  border-radius: 15px;
+  height: 100%;
+}
 .content {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: center;
   width: 100%;
+  height: 100%;
   overflow-y: auto;
+}
+.settings-wrapper {
+  background-color: #f2f4f7;
+}
+.header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 15px;
+  padding: 15px;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
+  border-radius: 15px;
+  margin-bottom: 15px;
 }
 .v-tab {
   font-size: 14px;
@@ -211,5 +259,9 @@ export default {
   text-transform: capitalize;
   padding: 10px 35px;
   justify-content: flex-start;
+}
+.v-tab--active {
+  background-color: aliceblue;
+  color: #0c2ff3;
 }
 </style>

@@ -23,7 +23,7 @@ describe("SigninWrapper.vue", () => {
     ).toBe(2);
   });
 
-  test('trigger the click event of "signin with yattie" button', () => {
+  test('trigger the click event of "signin with pinata" button', () => {
     const wrapper = mount(SigninWrapper, {
       mocks: {
         $t: () => {},
@@ -36,7 +36,7 @@ describe("SigninWrapper.vue", () => {
     });
 
     const event = jest.fn();
-    const button = wrapper.find("button.yattie");
+    const button = wrapper.find("button.pinata");
 
     button.vm.$on("click", event);
     button.trigger("click");

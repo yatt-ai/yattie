@@ -2,12 +2,12 @@ import axios from "axios";
 import dayjs from "dayjs";
 import StorageInterface from "../storageInterface";
 import store from "@/store";
-import YattIntegrationHelpers from "@/integrations/YattIntegrationHelpers";
+import TestfiestaIntegrationHelpers from "@/integrations/TestfiestaIntegrationHelpers";
 
 export default class RestApiService extends StorageInterface {
   async getState(executionId) {
-    const credential = store.state.auth.credentials?.yatt[0];
-    const headers = await YattIntegrationHelpers.getHeaders(credential);
+    const credential = store.state.auth.credentials?.testfiesta[0];
+    const headers = await TestfiestaIntegrationHelpers.getHeaders(credential);
     const { data } = await axios.get(
       `http://localhost:5000/v1/pinata/executions/${executionId}`,
       headers
@@ -20,12 +20,12 @@ export default class RestApiService extends StorageInterface {
       case: state.case,
       session: state.session,
     };
-    const credential = state.auth.credentials?.yatt[0];
+    const credential = state.auth.credentials?.testfiesta[0];
 
     let returnResponse = {
       link: "",
     };
-    const headers = await YattIntegrationHelpers.getHeaders(credential);
+    const headers = await TestfiestaIntegrationHelpers.getHeaders(credential);
     await axios
       .patch(`http://localhost:5000/v1/pinata/executions`, data, headers)
       .then((postedSession) => {
@@ -87,8 +87,8 @@ export default class RestApiService extends StorageInterface {
   }
 
   async getAttachment(attachmentId) {
-    const credential = store.state.auth.credentials?.yatt[0];
-    const headers = await YattIntegrationHelpers.getHeaders(credential);
+    const credential = store.state.auth.credentials?.testfiesta[0];
+    const headers = await TestfiestaIntegrationHelpers.getHeaders(credential);
     const response = await axios.get(
       `http://localhost:5000/v1/attachments/${attachmentId}/object`,
       headers
@@ -97,8 +97,8 @@ export default class RestApiService extends StorageInterface {
   }
 
   async updateConfig(config) {
-    const credential = store.state.auth.credentials?.yatt[0];
-    const headers = await YattIntegrationHelpers.getHeaders(credential);
+    const credential = store.state.auth.credentials?.testfiesta[0];
+    const headers = await TestfiestaIntegrationHelpers.getHeaders(credential);
     const response = await axios.put(
       `http://localhost:5000/v1/app/org/f352ae63-11fc-4dbe-bab1-72561aa25fca/config/5e0f71ff-987d-4240-85eb-df6adf568c31`,
       config,
@@ -120,7 +120,7 @@ export default class RestApiService extends StorageInterface {
         break;
       }
     }
-    data = store.state.auth.credentials?.yatt[0];
+    data = store.state.auth.credentials?.testfiesta[0];
     if (accessToken) {
       data.type = "cookie";
     } else {
@@ -131,7 +131,7 @@ export default class RestApiService extends StorageInterface {
       data.type = "bearer";
     }
     return {
-      yatt: [
+      testfiesta: [
         {
           accessToken: data.accessToken,
           expiresAt: data.expiresAt,

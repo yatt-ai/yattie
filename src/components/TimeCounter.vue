@@ -103,7 +103,7 @@ export default {
 }
 .time-wrapper .time .time-value {
   font-size: 16px;
-  color: #6d28d9;
+  color: #0a26c3;
 }
 .time-wrapper .time .time-value.proceed {
   color: #ff6000;
