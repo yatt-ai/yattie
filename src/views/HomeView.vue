@@ -64,7 +64,7 @@
             color="secondary"
             v-shortkey="newExploratoryHotkey"
             @shortkey="newSession"
-            to="main"
+            @click="newSession"
           >
             {{ $tc("caption.new_exploratory_session", 1) }}
           </v-btn>
@@ -74,11 +74,8 @@
             color="secondary"
             medium
             class="mt-4 text-capitalize secondary-btn"
-            v-shortkey="openExploratoryHotkey"
-            @shortkey="openSession"
-            @click="openSession"
           >
-            {{ $tc("caption.open_exploratory_session", 1) }}
+            {{ $tc("caption.scripted_test_session", 1) }}
           </v-btn>
         </div>
         <div class="open-section">
@@ -93,176 +90,240 @@
             {{ $tc("caption.sign_in_with", 1) }}..
           </v-btn>
         </div>
-        <div class="open-section social">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <button class="social-btn">
+        <div class="integration-section">
+          <strong style="font-size: 1.2em">
+            {{ $tc("caption.integrations", 1) }}
+          </strong>
+          <div class="open-section social">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <div class="social-integration" v-if="loggedInServices.jira">
+                  <button class="social-btn">
+                    <img
+                      :src="require('../assets/icon/jira.svg')"
+                      width="40"
+                      height="40"
+                      class="social-logo"
+                      v-bind="attrs"
+                      v-on="on"
+                    />
+                    <div
+                      class="overlay"
+                      v-if="!loggedInServices.jira"
+                      v-on="on"
+                    ></div>
+                  </button>
+                  <strong>Jira Software</strong>
+                </div>
+              </template>
+              <span>
+                {{
+                  loggedInServices.jira
+                    ? $tc("caption.logged_in_jira", 1)
+                    : $tc("caption.not_logged_in_jira", 1)
+                }}
+              </span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <div
+                  class="social-integration"
+                  v-if="loggedInServices.testrail"
+                >
+                  <button class="social-btn">
+                    <img
+                      :src="require('../assets/icon/testrail.svg')"
+                      width="40"
+                      height="40"
+                      class="social-logo"
+                      v-bind="attrs"
+                      v-on="on"
+                    />
+                    <div
+                      class="overlay"
+                      v-if="!loggedInServices.testrail"
+                      v-on="on"
+                    ></div>
+                  </button>
+                  <strong>TestRail</strong>
+                </div>
+              </template>
+              <span>
+                {{
+                  loggedInServices.testrail
+                    ? $tc("caption.logged_in_testrail", 1)
+                    : $tc("caption.not_logged_in_testrail", 1)
+                }}
+              </span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <div class="social-integration" v-if="loggedInServices.xray">
+                  <button class="social-btn">
+                    <img
+                      :src="require('../assets/icon/xray-logo.png')"
+                      class="social-logo"
+                      width="40"
+                      height="40"
+                      v-bind="attrs"
+                      v-on="on"
+                    />
+                    <div
+                      class="overlay"
+                      v-if="!loggedInServices.xray"
+                      v-on="on"
+                    ></div>
+                  </button>
+                  <strong>Xray</strong>
+                </div>
+              </template>
+              <span>
+                {{
+                  loggedInServices.xray
+                    ? $tc("caption.logged_in_xray", 1)
+                    : $tc("caption.not_logged_in_xray", 1)
+                }}
+              </span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <div
+                  class="social-integration"
+                  v-if="loggedInServices.zephyrSquad"
+                >
+                  <button class="social-btn">
+                    <img
+                      :src="require('../assets/icon/zephyr-squad.png')"
+                      class="social-logo"
+                      width="40"
+                      height="40"
+                      v-bind="attrs"
+                      v-on="on"
+                    />
+                    <div
+                      class="overlay"
+                      v-if="!loggedInServices.zephyrSquad"
+                      v-on="on"
+                    ></div>
+                  </button>
+                  <strong>Zephyr Squad</strong>
+                </div>
+              </template>
+              <span>
+                {{
+                  loggedInServices.zephyrSquad
+                    ? $tc("caption.logged_in_zephyr_squad", 1)
+                    : $tc("caption.not_logged_in_zephyr_squad", 1)
+                }}
+              </span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <div
+                  class="social-integration"
+                  v-if="loggedInServices.zephyrScale"
+                >
+                  <button class="social-btn">
+                    <img
+                      :src="require('../assets/icon/zephyr-scale.png')"
+                      class="social-logo"
+                      width="40"
+                      height="40"
+                      v-bind="attrs"
+                      v-on="on"
+                    />
+                    <div
+                      class="overlay"
+                      v-if="!loggedInServices.zephyrScale"
+                      v-on="on"
+                    ></div>
+                  </button>
+                  <strong>Zephyr Scale</strong>
+                </div>
+              </template>
+              <span>
+                {{
+                  loggedInServices.zephyrScale
+                    ? $tc("caption.logged_in_zephyr_scale", 1)
+                    : $tc("caption.not_logged_in_zephyr_scale", 1)
+                }}
+              </span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <div class="social-integration" v-if="loggedInServices.qtest">
+                  <button class="social-btn">
+                    <img
+                      :src="require('../assets/icon/qtest.svg')"
+                      width="40"
+                      height="40"
+                      class="integration-image social-logo"
+                      v-bind="attrs"
+                      v-on="on"
+                    />
+                    <div
+                      class="overlay"
+                      v-if="!loggedInServices.qtest"
+                      v-on="on"
+                    ></div>
+                  </button>
+                  <strong>QTest</strong>
+                </div>
+              </template>
+              <span>
+                {{
+                  loggedInServices.qtest
+                    ? $tc("caption.logged_in_qtest", 1)
+                    : $tc("caption.not_logged_in_qtest", 1)
+                }}
+              </span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <div
+                  class="social-integration"
+                  v-if="loggedInServices.practitest"
+                >
+                  <button class="social-btn">
+                    <img
+                      :src="require('../assets/icon/practitest.svg')"
+                      width="40"
+                      height="40"
+                      class="social-logo"
+                      v-bind="attrs"
+                      v-on="on"
+                    />
+                    <div
+                      class="overlay"
+                      v-if="!loggedInServices.practitest"
+                      v-on="on"
+                    ></div>
+                  </button>
+                  <strong>PractiTest</strong>
+                </div>
+              </template>
+              <span>
+                {{
+                  loggedInServices.practitest
+                    ? $tc("caption.logged_in_practitest", 1)
+                    : $tc("caption.not_logged_in_practitest", 1)
+                }}
+              </span>
+            </v-tooltip>
+            <div class="social-integration">
+              <button
+                class="social-btn"
+                @click="$router.push('authentication/signin')"
+              >
                 <img
-                  :src="require('../assets/icon/jira.svg')"
+                  :src="require('../assets/icon/plus-integration.svg')"
                   width="40"
-                  v-bind="attrs"
-                  v-on="on"
+                  height="40"
                 />
-                <div
-                  class="overlay"
-                  v-if="!loggedInServices.jira"
-                  v-on="on"
-                ></div>
               </button>
-            </template>
-            <span>
-              {{
-                loggedInServices.jira
-                  ? $tc("caption.logged_in_jira", 1)
-                  : $tc("caption.not_logged_in_jira", 1)
-              }}
-            </span>
-          </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <button class="social-btn">
-                <img
-                  :src="require('../assets/icon/testrail.svg')"
-                  width="50"
-                  v-bind="attrs"
-                  v-on="on"
-                />
-                <div
-                  class="overlay"
-                  v-if="!loggedInServices.testrail"
-                  v-on="on"
-                ></div>
-              </button>
-            </template>
-            <span>
-              {{
-                loggedInServices.testrail
-                  ? $tc("caption.logged_in_testrail", 1)
-                  : $tc("caption.not_logged_in_testrail", 1)
-              }}
-            </span>
-          </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <button class="social-btn">
-                <img
-                  :src="require('../assets/icon/xray-logo.png')"
-                  width="15"
-                  v-bind="attrs"
-                  v-on="on"
-                />
-                <div
-                  class="overlay"
-                  v-if="!loggedInServices.xray"
-                  v-on="on"
-                ></div>
-              </button>
-            </template>
-            <span>
-              {{
-                loggedInServices.xray
-                  ? $tc("caption.logged_in_xray", 1)
-                  : $tc("caption.not_logged_in_xray", 1)
-              }}
-            </span>
-          </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <button class="social-btn">
-                <img
-                  :src="require('../assets/icon/zephyr-squad.png')"
-                  width="30"
-                  v-bind="attrs"
-                  v-on="on"
-                />
-                <div
-                  class="overlay"
-                  v-if="!loggedInServices.zephyrSquad"
-                  v-on="on"
-                ></div>
-              </button>
-            </template>
-            <span>
-              {{
-                loggedInServices.zephyrSquad
-                  ? $tc("caption.logged_in_zephyr_squad", 1)
-                  : $tc("caption.not_logged_in_zephyr_squad", 1)
-              }}
-            </span>
-          </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <button class="social-btn">
-                <img
-                  :src="require('../assets/icon/zephyr-scale.png')"
-                  width="30"
-                  v-bind="attrs"
-                  v-on="on"
-                />
-                <div
-                  class="overlay"
-                  v-if="!loggedInServices.zephyrScale"
-                  v-on="on"
-                ></div>
-              </button>
-            </template>
-            <span>
-              {{
-                loggedInServices.zephyrScale
-                  ? $tc("caption.logged_in_zephyr_scale", 1)
-                  : $tc("caption.not_logged_in_zephyr_scale", 1)
-              }}
-            </span>
-          </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <button class="social-btn">
-                <img
-                  :src="require('../assets/icon/qtest.svg')"
-                  width="40"
-                  class="integration-image"
-                  v-bind="attrs"
-                  v-on="on"
-                />
-                <div
-                  class="overlay"
-                  v-if="!loggedInServices.qtest"
-                  v-on="on"
-                ></div>
-              </button>
-            </template>
-            <span>
-              {{
-                loggedInServices.qtest
-                  ? $tc("caption.logged_in_qtest", 1)
-                  : $tc("caption.not_logged_in_qtest", 1)
-              }}
-            </span>
-          </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <button class="social-btn">
-                <img
-                  :src="require('../assets/icon/practitest.svg')"
-                  width="50"
-                  v-bind="attrs"
-                  v-on="on"
-                />
-                <div
-                  class="overlay"
-                  v-if="!loggedInServices.practitest"
-                  v-on="on"
-                ></div>
-              </button>
-            </template>
-            <span>
-              {{
-                loggedInServices.practitest
-                  ? $tc("caption.logged_in_practitest", 1)
-                  : $tc("caption.not_logged_in_practitest", 1)
-              }}
-            </span>
-          </v-tooltip>
+              <strong>Add Integration</strong>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -326,8 +387,9 @@ export default {
       this.$store.commit("config/setFullConfig", config);
     },
     async newSession() {
+      console.log("newSession");
       this.$store.commit("clearState");
-      await this.$store.commit("setSessionQuickTest", false);
+      this.$store.commit("setSessionQuickTest", false);
       if (this.$router.history.current.path === "/") {
         await this.$router.push("/main");
       }
@@ -351,9 +413,13 @@ export default {
         // todo Add web version handler
       }
     },
-    handleQuickTest() {
-      this.$store.commit("startQuickTest");
-      this.$router.push("/main/workspace");
+    async handleQuickTest() {
+      console.log("quickTest");
+      this.$store.commit("clearState");
+      this.$store.commit("setSessionQuickTest", true);
+      // if (this.$router.history.current.path === "/") {
+      await this.$router.push("/main");
+      // }
     },
   },
 };
@@ -396,6 +462,7 @@ export default {
   justify-content: center;
   background-color: #ffffff;
   padding: 25px;
+  min-width: 400px;
   box-shadow: -10px 12px 34px 0px rgba(48, 98, 254, 0.15);
   border-radius: 15px;
 }
@@ -417,9 +484,12 @@ export default {
 }
 .open-section.social {
   display: flex;
+  flex-direction: row;
+  justify-content: center;
   align-items: center;
   column-gap: 10px;
   padding: 10px 0;
+  border-top: 0px solid #e5e7eb;
 }
 .open-section .open-btn {
   background: #ede9fe;
@@ -432,6 +502,12 @@ export default {
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
   border-radius: 4px;
 }
+.integration-section {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
 .social-btn {
   flex: 1;
   background-color: transparent !important;
@@ -439,6 +515,18 @@ export default {
   outline: 0;
   box-shadow: none;
   position: relative;
+}
+.social-integration {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.social-logo {
+  border-radius: 50%;
+  border: 2px solid #ebebeb;
+  padding: 3px;
 }
 .social-btn::before:hover,
 .social-btn:hover {

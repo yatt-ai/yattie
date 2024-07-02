@@ -74,7 +74,7 @@ body {
 
 .v-timeline::before {
   left: calc(16px - 1px) !important;
-  background: #0C2FF3 !important;
+  background: #0c2ff3 !important;
   -webkit-print-color-adjust: exact !important;
 }
 
@@ -101,6 +101,10 @@ body {
   font-weight: 500;
   color: #111827;
   line-height: 1.5rem;
+}
+
+.title-text {
+  font-size: 30px;
 }
 
 .date-text {

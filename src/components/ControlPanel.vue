@@ -18,38 +18,6 @@
       />
     </div>
     <div className="nml-ctrl-wrapper" v-if="viewMode === 'normal'">
-      <v-row class="text-center" v-if="status === 'pending'">
-        <v-col cols="12" class="">
-          <v-btn
-            v-if="$store.state.session.quickTest"
-            id="btn_new_quick_test"
-            class="text-capitalize font-weight-regular"
-            fill
-            small
-            block
-            :color="currentTheme.primary"
-            :style="{ color: currentTheme.white }"
-            :height="30"
-            @click="showSourcePickerDialog()"
-          >
-            {{ $tc("caption.start_quick_test", 1) }}
-          </v-btn>
-          <v-btn
-            v-else
-            id="btn_new_session"
-            class="text-capitalize font-weight-regular"
-            fill
-            small
-            block
-            :color="currentTheme.primary"
-            :style="{ color: currentTheme.white }"
-            :height="30"
-            @click="startNewSession()"
-          >
-            {{ $tc("caption.start_session", 1) }}
-          </v-btn>
-        </v-col>
-      </v-row>
       <v-row class="mb-1" v-if="selected.length > 0">
         <v-col cols="6" class="pa-1">
           <v-btn
@@ -1066,6 +1034,8 @@ export default {
     this.$root.$on("close-sourcepickerdialog", this.hideSourcePickerDialog);
     this.$root.$on("close-sharesessiondialog", this.hideShareSessionDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
+    this.$root.$on("start-quick-test", this.showSourcePickerDialog);
+    this.$root.$on("start-new-exploratory-session", this.startNewSession);
     this.$root.$on("close-summarydialog", () => {
       this.summaryDialog = false;
     });
@@ -1082,13 +1052,6 @@ export default {
         this.startSession(this.sourceId);
       }
       this.startInterval();
-    }
-
-    if (
-      this.$store.state.session.quickTest &&
-      this.$store.state.session.status === SESSION_STATUSES.PENDING
-    ) {
-      this.showSourcePickerDialog();
     }
   },
   beforeDestroy() {
@@ -1432,7 +1395,6 @@ export default {
             // todo add web implementation
             const { status, message, item } =
               await this.$electronService.createImage(imgURI);
-
             if (status === STATUSES.ERROR) {
               this.$root.$emit("set-snackbar", message);
               console.log(message);
