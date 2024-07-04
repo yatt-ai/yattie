@@ -54,13 +54,16 @@ export default {
     credentialUrl,
     accessToken,
     type = "get_projects",
-    projectOrRunId = null
+    projectOrRunOrTestId = null
   ) {
     const authHeader = `Basic ${accessToken}`;
+    const url_base = `https://${credentialUrl}/index.php?/api/v2`;
     const urls = {
-      get_projects: `https://${credentialUrl}/index.php?/api/v2/get_projects`,
-      get_runs: `https://${credentialUrl}/index.php?/api/v2/get_runs/${projectOrRunId}`,
-      get_tests: `https://${credentialUrl}/index.php?/api/v2/get_tests/${projectOrRunId}`,
+      get_projects: `${url_base}/get_projects`,
+      get_runs: `${url_base}/get_runs/${projectOrRunOrTestId}`,
+      get_tests: `${url_base}/get_tests/${projectOrRunOrTestId}`,
+      get_statuses: `${url_base}/get_statuses`,
+      add_result: `${url_base}/add_result/${projectOrRunOrTestId}`,
     };
 
     return {
@@ -161,5 +164,42 @@ export default {
         return tests;
       }
     });
+  },
+
+  async getTestStatuses(credential) {
+    const { url, headers } = this.formatHeaders(
+      credential.url,
+      credential.accessToken,
+      "get_statuses"
+    );
+
+    return axios.get(url, headers).then((response) => {
+      if (response.status === 200) {
+        return response.data;
+      }
+    });
+  },
+
+  async addResultToTest(credential, testId, statusId) {
+    const { url, headers } = this.formatHeaders(
+      credential.url,
+      credential.accessToken,
+      "add_result",
+      testId
+    );
+
+    const data = {
+      status_id: statusId,
+    };
+
+    axios.post(url, data, headers).then((response) => {
+      if (response.status === 200) {
+        console.log({ response });
+
+        return "Hello World!";
+      }
+    });
+
+    return { url, headers };
   },
 };

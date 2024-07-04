@@ -148,6 +148,9 @@
               <v-select
                 v-model="selectedStatus"
                 :items="testStatuses"
+                :item-text="(item) => item.label"
+                :item-value="(item) => item.id"
+                :item-disabled="(item) => item.name === 'untested'"
                 label="Test Status"
               ></v-select>
             </v-col>
@@ -202,6 +205,7 @@ import MenuPopover from "@/components/MenuPopover.vue";
 import { SESSION_STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
 import ResetConfirmDialog from "@/components/dialogs/ResetConfirmDialog.vue";
+import testrailIntegrationHelper from "../integrations/TestRailIntegrationHelpers";
 
 export default {
   name: "ScriptedTestRunView",
@@ -231,17 +235,20 @@ export default {
       selectedTestsCounts: null,
       currentTestIndex: 0,
       currentTest: null,
-      testStatuses: ["Passed", "Blocked", "Untested", "Retest", "Failed"],
+      testStatuses: [],
       selectedStatus: null,
     };
   },
   created() {
     this.fetchItems();
   },
-  mounted() {
+  async mounted() {
     this.selectedTests = this.$store.state.plan.items;
     this.selectedTestsCounts = this.selectedTests.length;
     this.currentTest = this.selectedTests[0];
+    this.testStatuses = await testrailIntegrationHelper.getTestStatuses(
+      this.credentials.testrail[0]
+    );
     this.setInitialPreSession();
     this.setInitialPostSession();
     this.$root.$on("update-selected", this.updateSelected);
@@ -353,11 +360,27 @@ export default {
         this.$refs.resetConfirmDialog?.$refs.confirmBtn.$el.focus();
       }, 100);
     },
-    loadNextTest() {
+    async loadNextTest() {
       this.currentTestIndex++;
       this.currentTest = this.selectedTests[this.currentTestIndex];
       this.selectedTests[this.currentTestIndex].status = this.selectedStatus;
       this.selectedStatus = null;
+
+      // Update status on testrail
+      const sample = await testrailIntegrationHelper.addResultToTest(
+        this.credentials.testrail[0],
+        this.currentTest.id
+      );
+
+      const example = await testrailIntegrationHelper.getTestStatuses(
+        this.credentials.testrail[0]
+      );
+
+      console.log({ sample, currentTest: this.currentTest, example });
+
+      // Reset state
+
+      // Die dumb ass
     },
   },
 };
