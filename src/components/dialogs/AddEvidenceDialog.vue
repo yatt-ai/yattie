@@ -644,8 +644,10 @@ export default {
       };
       let tempItems = structuredClone(this.items);
       for (let i = 0; i < this.nodes.length; i++) {
-        tempItems[i].fx = this.nodes[i].fx;
-        tempItems[i].fy = this.nodes[i].fy;
+        if (tempItems[i]) {
+          tempItems[i].fx = this.nodes[i].fx;
+          tempItems[i].fy = this.nodes[i].fy;
+        }
       }
       const updatedItems = [...tempItems];
       let updatedNodes = [];

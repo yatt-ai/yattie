@@ -180,7 +180,7 @@ export default {
     });
   },
 
-  async addResultToTest(credential, testId, statusId) {
+  async addResultToTest(credential, testId, statusId, comment, elapsed) {
     const { url, headers } = this.formatHeaders(
       credential.url,
       credential.accessToken,
@@ -190,16 +190,14 @@ export default {
 
     const data = {
       status_id: statusId,
+      comment,
+      elapsed: `${elapsed}s`,
     };
 
     axios.post(url, data, headers).then((response) => {
       if (response.status === 200) {
-        console.log({ response });
-
-        return "Hello World!";
+        return response;
       }
     });
-
-    return { url, headers };
   },
 };

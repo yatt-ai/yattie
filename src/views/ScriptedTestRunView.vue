@@ -323,7 +323,6 @@ export default {
       }
     },
     async getCurrentExecution() {
-      console.log({ state: this.$store.state });
       let currentPath = this.$route.path;
       const executionId = currentPath.split("/").pop();
 
@@ -361,24 +360,26 @@ export default {
       }, 100);
     },
     async loadNextTest() {
-      this.currentTestIndex++;
-      this.currentTest = this.selectedTests[this.currentTestIndex];
-      this.selectedTests[this.currentTestIndex].status = this.selectedStatus;
-      this.selectedStatus = null;
-
       // Update status on testrail
-      const sample = await testrailIntegrationHelper.addResultToTest(
+      await testrailIntegrationHelper.addResultToTest(
         this.credentials.testrail[0],
-        this.currentTest.id
+        this.currentTest.id,
+        this.selectedStatus,
+        this.$store.state.current.case.charter.text,
+        this.$store.state.current.execution.timer
       );
 
-      const example = await testrailIntegrationHelper.getTestStatuses(
-        this.credentials.testrail[0]
-      );
+      this.currentTestIndex++;
 
-      console.log({ sample, currentTest: this.currentTest, example });
+      if (this.currentTestIndex >= this.selectedTestsCounts) {
+        console.log("All tests completed");
+      } else {
+        this.currentTest = this.selectedTests[this.currentTestIndex];
+        this.selectedTests[this.currentTestIndex].status = this.selectedStatus;
+        this.selectedStatus = null;
+      }
 
-      // Reset state
+      this.$store.commit("startQuickTest", "/run/scripted");
 
       // Die dumb ass
     },
