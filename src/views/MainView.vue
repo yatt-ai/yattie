@@ -62,7 +62,7 @@
         :class="
           activeTab === `/main` && this.quickTest
             ? 'content w-400'
-            : 'content w-50'
+            : 'content w-60'
         "
       >
         <v-tabs-items v-model="activeTab" style="height: 100%">
@@ -318,8 +318,8 @@ export default {
   width: 400px;
   margin-top: 200px;
 }
-.w-50 {
-  width: 50%;
+.w-60 {
+  width: 60%;
 }
 .v-tabs {
   width: auto !important;

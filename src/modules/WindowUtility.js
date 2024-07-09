@@ -15,8 +15,8 @@ module.exports.setDevMode = async ({ enabled }) => {
 
 module.exports.getMainWindow = () => {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1440,
+    height: 900,
     minWidth: 800,
     minHeight: 600,
     center: true,

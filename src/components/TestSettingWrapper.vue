@@ -224,7 +224,7 @@
 
 <script>
 import { VContainer, VRow, VCol, VTextField } from "vuetify/lib/components";
-import MindmapEditor from "./MindmapEditor.vue";
+import MindmapEditor from "./NewMindmapEditor.vue";
 import { debounce } from "lodash";
 
 import {

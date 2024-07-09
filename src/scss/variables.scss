@@ -170,6 +170,19 @@ body {
   background-color: #fff;
 }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.mindmap-control-btn {
+  position: relative;
+  color: #6b7280;
+  padding: 10px;
+  border-radius: 10px;
+  line-height: 0;
+  background-color: #fff;
+  box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
+}
 // .v-input--selection-controls__input {
 //   width: 16px;
 //   height: 16px;
