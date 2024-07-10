@@ -145,12 +145,12 @@ export default {
   },
   methods: {
     async openAccountLink(credentialType, credential) {
-      if (credentialType === "yatt") {
-        const yattUrl = "https://app.yatt.ai/";
+      if (credentialType === "testfiesta") {
+        const testfiestaUrl = "https://app.testfiesta.com/";
         if (this.$isElectron) {
-          await this.$electronService.openExternalLink(yattUrl);
+          await this.$electronService.openExternalLink(testfiestaUrl);
         } else {
-          window.open(yattUrl, "_blank");
+          window.open(testfiestaUrl, "_blank");
         }
       } else if (credentialType === "jira") {
         const jiraUrl = credential.orgs[0].url;

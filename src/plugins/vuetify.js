@@ -13,8 +13,9 @@ export default new Vuetify({
     themes: {
       dark: {
         default: "#6B7280",
-        primary: "#6D28D9",
+        primary: "#0C2FF3",
         secondary: "#FFFFFF",
+        third: "#F2F4F7",
         black: "#000000",
         white: "#FFFFFF",
         danger: colors.red.accent3,
@@ -27,8 +28,9 @@ export default new Vuetify({
       },
       light: {
         default: "#6B7280",
-        primary: "#6D28D9",
+        primary: "#0C2FF3",
         secondary: "#111827",
+        third: "#F2F4F7",
         black: "#000000",
         white: "#FFFFFF",
         danger: colors.red.accent3,
