@@ -1,72 +1,131 @@
 <template>
-  <div class="wrapper">
-    <svg class="mindmap-svg" ref="mountPoint"></svg>
-    <div class="mindmap-btn-wrapper">
-      <div
-        class="mindmap-control-btn mx-1 cursor-pointer"
-        onClick="alert('compass')"
-      >
-        <img
-          :src="require('../assets/icon/compass.svg')"
-          width="24"
-          height="24"
-        />
-      </div>
-      <div class="mindmap-control-btn mx-1 mt-4">
-        <div class="zoom-control">
-          <div class="cursor-pointer" onClick="alert('zoom in')">
-            <img
-              :src="require('../assets/icon/zoom-in.svg')"
-              width="24"
-              height="24"
-            />
+  <div>
+    <div class="wrapper">
+      <svg class="mindmap-svg" ref="mountPoint"></svg>
+
+      <div class="mindmap-control-btn-wrapper">
+        <div>
+          <div
+            class="detail-bar mindmap-control-btn control-btns mx-1 mt-2 cursor-pointer"
+            v-if="isDetail"
+          >
+            <ColorPicker :colorType="'shape'" />
+            <v-divider vertical></v-divider>
+            <ShapePad />
           </div>
-          <div class="cursor-pointer" onClick="alert('zoom out')">
-            <img
-              :src="require('../assets/icon/zoom-out.svg')"
-              width="24"
-              height="24"
-            />
+          <div
+            class="mindmap-control-btn control-btns mx-1 mt-2 cursor-pointer"
+          >
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <div class="mindmap-ctrl-btn" v-on="on">
+                  <img
+                    :src="require('../assets/icon/edit.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.marker", 1) }}</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <div
+                  class="mindmap-ctrl-btn"
+                  v-on="on"
+                  @click="handleSelect('shape')"
+                >
+                  <img
+                    :src="require('../assets/icon/shape.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.shapes", 1) }}</span>
+            </v-tooltip>
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <div class="mindmap-ctrl-btn" v-on="on">
+                  <img
+                    :src="require('../assets/icon/link.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.connector", 1) }}</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <div class="mindmap-ctrl-btn" v-on="on">
+                  <img
+                    :src="require('../assets/icon/text.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.text", 1) }}</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <div class="mindmap-ctrl-btn" v-on="on">
+                  <img
+                    :src="require('../assets/icon/upload.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.upload_evidence", 1) }}</span>
+            </v-tooltip>
           </div>
         </div>
       </div>
-    </div>
-    <div class="mindmap-control-btn-wrapper">
-      <div class="mindmap-control-btn control-btns mx-1 cursor-pointer">
-        <div class="mx-2">
-          <img
-            :src="require('../assets/icon/edit.svg')"
-            width="24"
-            height="24"
-          />
-        </div>
-        <div class="mx-2">
-          <img
-            :src="require('../assets/icon/rect.svg')"
-            width="24"
-            height="24"
-          />
-        </div>
-        <div class="mx-2">
-          <img
-            :src="require('../assets/icon/link.svg')"
-            width="24"
-            height="24"
-          />
-        </div>
-        <div class="mx-2">
-          <img
-            :src="require('../assets/icon/text.svg')"
-            width="24"
-            height="24"
-          />
-        </div>
-        <div class="mx-2">
-          <img
-            :src="require('../assets/icon/upload.svg')"
-            width="24"
-            height="24"
-          />
+
+      <div class="mindmap-btn-wrapper">
+        <v-tooltip right>
+          <template v-slot:activator="{ on }">
+            <div class="mindmap-control-btn mx-1 cursor-pointer" v-on="on">
+              <img
+                :src="require('../assets/icon/compass.svg')"
+                width="24"
+                height="24"
+              />
+            </div>
+          </template>
+          <span>{{ $tc("caption.compass", 1) }}</span>
+        </v-tooltip>
+
+        <div class="mindmap-control-btn mx-1 mt-4">
+          <div class="zoom-control">
+            <v-tooltip right>
+              <template v-slot:activator="{ on }">
+                <div class="cursor-pointer" @click="zoomInOut(1.25)" v-on="on">
+                  <img
+                    :src="require('../assets/icon/zoom-in.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.zoom_in", 1) }}</span>
+            </v-tooltip>
+            <v-tooltip right>
+              <template v-slot:activator="{ on }">
+                <div class="cursor-pointer" @click="zoomInOut(0.8)" v-on="on">
+                  <img
+                    :src="require('../assets/icon/zoom-out.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.zoom_out", 1) }}</span>
+            </v-tooltip>
+          </div>
         </div>
       </div>
     </div>
@@ -87,6 +146,8 @@ import {
 } from "d3";
 import { v4 as uuidv4 } from "uuid";
 import NewNode from "./NewNode.vue";
+import ColorPicker from "./mindmap/ColorPicker.vue";
+import ShapePad from "./mindmap/ShapePad.vue";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import vuetify from "@/plugins/vuetify";
 import i18n from "@/i18n";
@@ -108,6 +169,10 @@ import "../modules/mindmap/sass/mindmap.sass";
 
 export default {
   name: "MindmapEditor",
+  components: {
+    ColorPicker,
+    ShapePad,
+  },
   props: {
     nodesData: {
       type: Array,
@@ -139,6 +204,8 @@ export default {
       editable: this.edit,
       selectedNodes: [],
       title: "",
+      isDetail: false,
+      detailType: "",
     };
   },
   created() {
@@ -153,8 +220,8 @@ export default {
       .force("collide", forceCollide().radius(100));
   },
   mounted() {
-    this.nodes = [...this.nodesData];
-    this.connections = [...this.connectionsData];
+    this.nodes = structuredClone(this.nodesData);
+    this.connections = structuredClone(this.connectionsData);
     this.renderMap();
   },
   updated() {
@@ -290,6 +357,20 @@ export default {
       this.renderMap();
     },
     /**
+     * Zoom in and out the mind map using D3
+     */
+    zoomInOut(scale) {
+      let svg = select(this.$refs.mountPoint);
+      svg.transition().call(d3PanZoom(svg).scaleBy, scale);
+    },
+
+    // resetZoom() {
+    //   d3.select('svg')
+    //     .transition()
+    //     .call(zoom.scaleTo, 1);
+    // },
+
+    /**
      * * add new nodes
      */
     addNewNode(target, content, status) {
@@ -371,6 +452,11 @@ export default {
       this.renderMap();
       d3Connector(svg, this.clicked[0]);
     },
+
+    handleSelect(type) {
+      this.isDetail = !this.isDetail;
+      this.detailType = type;
+    },
   },
 };
 </script>
@@ -390,6 +476,11 @@ export default {
   position: absolute;
   bottom: 10px;
   right: 10px;
+}
+.mindmap-ctrl-btn {
+  background-color: #f9fafb;
+  margin-left: 8px;
+  margin-right: 8px;
 }
 .mindmap-control-btn-wrapper {
   width: 100%;
@@ -412,5 +503,18 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 10px;
+}
+.detail-bar {
+  animation: pop-in 0.5s;
+}
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 </style>

@@ -164,14 +164,44 @@ body {
   font-size: 13px;
 }
 
+.flex {
+  display: flex;
+}
 .control-btn {
   border: 1px solid #d1d5db;
   color: #6b7280;
   background-color: #fff;
 }
-
 .cursor-pointer {
   cursor: pointer;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.gap-xs {
+  gap: 5px;
+}
+
+.gap-sm {
+  gap: 10px;
+}
+
+.gap-md {
+  gap: 15px;
+}
+
+.gap-xl {
+  gap: 20px;
+}
+
+.gap-xxl {
+  gap: 30px;
 }
 
 .mindmap-control-btn {

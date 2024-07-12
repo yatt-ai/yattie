@@ -125,6 +125,12 @@ const defaultConfig = {
   cache: {
     retentionPeriod: 7,
   },
+  colors: {
+    shapeColor: "#1976D2FF",
+    markerColor: "#1976D2FF",
+    connectorColor: "#000000FF",
+    textColor: "#000000FF",
+  },
 };
 
 module.exports.initializeSession = () => {
