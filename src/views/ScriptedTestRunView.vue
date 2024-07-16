@@ -98,27 +98,28 @@
         </v-col>
         <v-col cols="3">
           <h1>Test {{ currentTestIndex + 1 }} of {{ selectedTestsCounts }}</h1>
-          <h2>Test {{ currentTest.id }}: {{ currentTest.title }}</h2>
+          <h2>Test {{ currentTest?.id }}: {{ currentTest?.title }}</h2>
           <p>
             {{
-              currentTest.custom_expected?.split(" ").length > 20
-                ? `${currentTest.custom_expected
+              currentTest?.custom_preconds?.split(" ").length > 20
+                ? `${currentTest?.custom_preconds
                     .split(" ")
                     .slice(0, 20)
                     .join(" ")}...`
-                : currentTest.custom_expected
+                : currentTest?.custom_preconds
             }}
           </p>
           <div
             v-if="
-              currentTest.custom_steps_separated &&
-              currentTest.custom_steps_separated.length > 0
+              (currentTest?.custom_steps_separated &&
+                currentTest?.custom_steps_separated.length > 0) ||
+              (currentTest?.custom_steps && currentTest?.custom_steps !== '')
             "
           >
             <div
               v-if="
-                currentTest.custom_steps_separated &&
-                currentTest.custom_steps_separated.length > 0
+                currentTest?.custom_steps_separated &&
+                currentTest?.custom_steps_separated.length > 0
               "
             >
               <h2>Test Steps</h2>
@@ -142,14 +143,28 @@
                 </template>
               </v-list>
             </div>
+            <div v-else>
+              <h2>Test Steps</h2>
+              <p>{{ currentTest?.custom_steps }}</p>
+            </div>
           </div>
+          <p>
+            {{
+              currentTest?.custom_expected?.split(" ").length > 20
+                ? `${currentTest?.custom_expected
+                    .split(" ")
+                    .slice(0, 20)
+                    .join(" ")}...`
+                : currentTest?.custom_expected
+            }}
+          </p>
           <v-row>
             <v-col>
               <v-select
                 v-model="selectedStatus"
                 :items="testStatuses"
                 :item-text="(item) => item.label"
-                :item-value="(item) => item.id"
+                :item-value="(item) => item?.id"
                 :item-disabled="(item) => item.name === 'untested'"
                 label="Test Status"
               ></v-select>
@@ -363,7 +378,7 @@ export default {
       // Update status on testrail
       await testrailIntegrationHelper.addResultToTest(
         this.credentials.testrail[0],
-        this.currentTest.id,
+        this.currentTest?.id,
         this.selectedStatus,
         this.$store.state.current.case.charter.text,
         this.$store.state.current.execution.timer
