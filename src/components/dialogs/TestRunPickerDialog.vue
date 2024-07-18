@@ -311,10 +311,10 @@ export default {
         this.selectedTestsIds.has(test.id)
       );
 
-      this.$store.commit("startQuickTest", "/run/scripted");
+      this.$store.commit("startQuickTest", "/run/scripted/workspace");
       this.$store.commit("startSessionPlan", selectedTests);
       this.resetDialog();
-      this.$router.push("/run/scripted");
+      this.$router.push("/run/scripted/workspace");
     },
     handleScriptedTestSession() {
       this.showTestRunPickerDialog();

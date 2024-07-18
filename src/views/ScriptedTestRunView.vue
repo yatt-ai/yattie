@@ -36,7 +36,7 @@
           <v-tab
             class="workspace-tab"
             :disabled="this.status === 'pending'"
-            to="/main/workspace"
+            to="/run/scripted/workspace"
           >
             {{ $tc("caption.workspace", 1) }}
           </v-tab>
@@ -87,7 +87,7 @@
                 @taskToggle="handleTaskCheck"
               />
             </v-tab-item>
-            <v-tab-item value="/main/workspace" :transition="false">
+            <v-tab-item value="/run/scripted/workspace" :transition="false">
               <WorkspaceWrapper
                 :items="items"
                 :selectedItems="selected"

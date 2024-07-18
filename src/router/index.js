@@ -110,6 +110,7 @@ const routes = [
     path: "/run/scripted",
     name: "scriptedRun",
     component: ScriptedTestRunView,
+    children: [{ path: "workspace" }, { path: "workspace/:execID" }],
   },
   {
     path: "/settings",
