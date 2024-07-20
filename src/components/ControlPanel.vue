@@ -788,7 +788,7 @@
 import { VBtn, VCol, VContainer, VIcon, VRow } from "vuetify/lib/components";
 import uuidv4 from "uuid";
 
-import yattIntegrationHelper from "../integrations/YattIntegrationHelpers";
+import testfiestaIntegrationHelper from "../integrations/TestfiestaIntegrationHelpers";
 
 import SourcePickerDialog from "./dialogs/SourcePickerDialog.vue";
 import ShareSessionDialog from "./dialogs/ShareSessionDialog.vue";
@@ -1066,6 +1066,8 @@ export default {
     this.$root.$on("close-sourcepickerdialog", this.hideSourcePickerDialog);
     this.$root.$on("close-sharesessiondialog", this.hideShareSessionDialog);
     this.$root.$on("close-notedialog", this.hideNoteDialog);
+    this.$root.$on("start-quick-test", this.showSourcePickerDialog);
+    this.$root.$on("start-new-exploratory-session", this.startNewSession);
     this.$root.$on("close-summarydialog", () => {
       this.summaryDialog = false;
     });
@@ -1178,7 +1180,7 @@ export default {
       }
     },
     async showShareSessionDialog() {
-      let savedSession = await yattIntegrationHelper.saveSession(
+      let savedSession = await testfiestaIntegrationHelper.saveSession(
         this.credentials
       );
       if (savedSession?.error) {
@@ -1434,7 +1436,6 @@ export default {
             // todo add web implementation
             const { status, message, item } =
               await this.$electronService.createImage(imgURI);
-
             if (status === STATUSES.ERROR) {
               this.$root.$emit("set-snackbar", message);
               console.log(message);

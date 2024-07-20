@@ -77,7 +77,7 @@ app.on("activate", () => {
 app.on("ready", async () => {
   // Changing the User-Agent is required for JIRA token integration to work.
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
-    details.requestHeaders["User-Agent"] = "YATTIE";
+    details.requestHeaders["User-Agent"] = "PINATA";
     callback({ cancel: false, requestHeaders: details.requestHeaders });
   });
   if (isDevelopment && !process.env.IS_TEST) {

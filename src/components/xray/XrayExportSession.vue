@@ -556,11 +556,11 @@ export default {
 }
 
 .issue-wrapper .issue-list .issue-item.active .issue-icon {
-  color: #6d28d9;
+  color: #0a26c3;
 }
 
 .issue-wrapper .issue-list .issue-item.active .issue-desc .issue-summary {
-  color: #6d28d9 !important;
+  color: #0a26c3 !important;
 }
 
 .issue-wrapper .issue-list .issue-item .issue-desc {

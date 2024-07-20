@@ -9,10 +9,10 @@
             v-shortkey="titleHotkey"
             @shortkey="$hotkeyHelpers.focusField($refs, 'titleTextField')"
           >
-            {{ $tc("caption.title", 1) }}
+            {{ $tc("caption.session_name", 1) }}
           </div>
           <v-text-field
-            :placeholder="$t('message.enter_brief_charter_name')"
+            :placeholder="$tc('caption.session_name', 1)"
             autofocus
             outlined
             dense
@@ -28,6 +28,7 @@
             "
             :value="title"
             ref="titleTextField"
+            style="width: 50%"
             @input="updateTitle"
             @click:append="handleAISuggestion('title', $event)"
           >
@@ -50,6 +51,64 @@
           >
             {{ $tc("caption.charter", 1) }}
           </div>
+          <div v-if="!isMindmap">
+            <v-card v-if="charterLoading" class="loading-wrapper" outlined flat>
+              <v-progress-circular
+                :color="currentTheme.primary"
+                size="70"
+                absolute
+                indeterminate
+              ></v-progress-circular>
+            </v-card>
+            <v-tiptap
+              v-else
+              :value="charter.content"
+              :placeholder="$t('message.describe_test_charter')"
+              ref="charter"
+              :toolbar="[
+                'headings',
+                '|',
+                'bold',
+                'italic',
+                'underline',
+                '|',
+                'color',
+                '|',
+                'bulletList',
+                'orderedList',
+                '|',
+                'link',
+                'emoji',
+                'blockquote',
+                '|',
+                '#aiAssist',
+              ]"
+              @input="updateCharter"
+            >
+              <template #aiAssist="">
+                <v-btn
+                  v-if="isAiAssistEnabled"
+                  icon
+                  small
+                  :title="$tc('caption.ai_assist', 1)"
+                  @click="handleAISuggestion('charter', $event)"
+                >
+                  <v-icon>{{
+                    previousCharter?.content
+                      ? "mdi-robot-off-outline"
+                      : "mdi-robot-outline"
+                  }}</v-icon>
+                </v-btn>
+              </template>
+            </v-tiptap>
+          </div>
+          <div class="mindmap-wrapper" v-else>
+            <mindmap-editor
+              :nodesData="mindmap.nodes"
+              :connectionsData="mindmap.connections"
+              :edit="true"
+              :auto-save="true"
+              @submit-mindmap="handleMindmap"
           <v-tabs
             class="charter-tab"
             hide-slider
@@ -155,9 +214,6 @@
                 this.$store.state.current.execution.status !== 'pending'
               "
             />
-            <span class="timer-box-wrapper-label">
-              {{ $tc("caption.minute", 1) }}
-            </span>
           </div>
         </div>
         <div class="mt-4 pre-cond">
@@ -224,6 +280,47 @@
             </template>
           </v-tiptap>
         </div>
+        <div class="mt-4 timelimit">
+          <div
+            class="subtitle-2 label-text"
+            :style="{ color: currentTheme.secondary }"
+            v-shortkey="timeLimitHotkey"
+            @shortkey="$hotkeyHelpers.focusField($refs, 'timeLimitTextField')"
+          >
+            {{ $tc("caption.time_limit", 1) }}
+          </div>
+          <div class="timer-box-wrapper">
+            <v-text-field
+              ref="timeLimitTextField"
+              placeholder="00:00"
+              v-mask="'##:##'"
+              outlined
+              dense
+              v-model="duration"
+              @change="handleDuration()"
+              hide-details="true"
+              :disabled="this.$store.state.session.status !== 'pending'"
+            />
+            <span class="timer-box-wrapper-label">
+              {{ $tc("caption.minute", 1) }}
+            </span>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="label-text" :style="{ color: currentTheme.secondary }">
+            {{ $tc("caption.privacy", 1) }}
+          </div>
+          <v-select
+            :items="privacy_modes"
+            color="secondary"
+            style="width: 50%"
+            v-model="privacy"
+            :placeholder="$tc('caption.comment_type')"
+            solo
+            dense
+            hide-details="true"
+          />
+        </div>
       </v-col>
     </v-row>
   </v-container>
@@ -231,7 +328,7 @@
 
 <script>
 import { VContainer, VRow, VCol, VTextField } from "vuetify/lib/components";
-import MindmapEditor from "./MindmapEditor.vue";
+import MindmapEditor from "./NewMindmapEditor.vue";
 import { debounce } from "lodash";
 
 import {
@@ -244,13 +341,19 @@ import openAIIntegrationHelper from "../integrations/OpenAIIntegrationHelpers";
 import { mapGetters } from "vuex";
 
 export default {
-  name: "TestWrapper",
+  name: "TestSettingWrapper",
   components: {
     VContainer,
     VRow,
     VCol,
     VTextField,
     MindmapEditor,
+  },
+  props: {
+    isMindmap: {
+      type: Boolean,
+      default: () => false,
+    },
   },
   data() {
     return {
@@ -280,6 +383,8 @@ export default {
       },
       preconditionsLoading: false,
       duration: "",
+      privacy: "Private",
+      privacy_modes: ["Private", "Public"],
     };
   },
   computed: {

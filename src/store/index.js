@@ -15,7 +15,7 @@ Vue.use(Vuex);
 const isElectronApp = navigator.userAgent.includes("Electron");
 
 const vuexLocalStorage = new VuexPersist({
-  key: "yattie-state",
+  key: "pinata-state",
   storage: window.localStorage,
 });
 
@@ -252,7 +252,7 @@ const store = new Vuex.Store({
         connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
       };
 
-      state.current.execution.executionID = null;
+      state.current.execution.executionID = "";
       state.current.execution.status = SESSION_STATUSES.PENDING;
       state.current.execution.timer = 0;
       state.current.execution.started = "";
@@ -288,7 +288,7 @@ const store = new Vuex.Store({
         connections: DEFAULT_CHARTER_MAP_CONNECTIONS,
       };
 
-      state.current.execution.executionID = null;
+      state.current.execution.executionID = "";
       state.current.execution.path = payload ? payload : "/main/workspace";
       state.current.execution.status = SESSION_STATUSES.PENDING;
       state.current.execution.timer = 0;
@@ -368,6 +368,9 @@ const store = new Vuex.Store({
   },
   actions: {},
   getters: {
+    fullSession(state) {
+      return state.session;
+    },
     sessionItems(state) {
       return state.current.execution.items;
     },
@@ -376,6 +379,9 @@ const store = new Vuex.Store({
     },
     sessionConnections(state) {
       return state.current.execution.connections;
+    },
+    sessionQuickTest(state) {
+      return state.session.quickTest;
     },
     requiredPreSessionTasksChecked(state) {
       const uncheckedTasks = state.current.execution.preSessionTasks.filter(

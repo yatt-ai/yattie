@@ -10,9 +10,9 @@ import LowProfileView from "../views/LowProfileView.vue";
 
 import AuthenticationView from "../views/AuthenticationView.vue";
 import SignupMainWrapper from "@/components/authentication/SignupMainWrapper";
-import SignupYattieWrapper from "@/components/authentication/SignupYattieWrapper";
+import SignupPinataWrapper from "@/components/authentication/SignupPinataWrapper";
 import SigninWrapper from "@/components/authentication/SigninWrapper";
-import SigninYattWrapper from "@/components/authentication/SigninYattWrapper";
+import SigninTestfiestaWrapper from "@/components/authentication/SigninTestfiestaWrapper";
 import SigninJiraWrapper from "@/components/authentication/SigninJiraWrapper";
 import SigninTestRailWrapper from "@/components/authentication/SigninTestRailWrapper";
 import SigninXrayWrapper from "@/components/authentication/SigninXrayWrapper";
@@ -51,9 +51,9 @@ const routes = [
         props: true,
       },
       {
-        path: "signupYattie",
-        name: "signupYattie",
-        component: SignupYattieWrapper,
+        path: "signupPinata",
+        name: "signupPinata",
+        component: SignupPinataWrapper,
         props: true,
       },
       {
@@ -63,9 +63,9 @@ const routes = [
         props: true,
       },
       {
-        path: "signinYatt",
-        name: "signinYatt",
-        component: SigninYattWrapper,
+        path: "signinTestfiesta",
+        name: "signinTestfiesta",
+        component: SigninTestfiestaWrapper,
         props: true,
       },
       {

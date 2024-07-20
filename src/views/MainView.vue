@@ -1,23 +1,9 @@
 <template>
-  <v-container class="wrapper pa-0" fluid>
-    <div
-      class="top"
-      v-if="this.status === 'pending' || $store.state.current.execution.quickTest"
-    >
-      <v-btn
-        class="text-capitalize pa-0 back-btn"
-        plain
-        rounded
-        solid
-        v-shortkey="backHotkey"
-        @shortkey="handleResetConfirmDialog"
-        @click="handleResetConfirmDialog"
-      >
-        <v-icon class="ma-0">mdi-chevron-left</v-icon>
-        {{ $tc("caption.back", 1) }}
-      </v-btn>
-    </div>
+  <v-container class="wrapper" fluid>
     <div class="header">
+      <div class="logo mb-4">
+        <LogoWrapper :height="34" :width="120" />
+      </div>
       <div class="tabs">
         <v-tabs
           class="tabs"
@@ -71,25 +57,41 @@
         </div>
       </div>
     </div>
-    <v-divider style="z-index: 100" />
-    <div class="content">
-      <v-tabs-items v-model="activeTab">
-        <v-tab-item value="/main" :transition="false">
-          <TestWrapper />
-          <CheckTaskWrapper
-            v-if="showCheckList"
-            :tasks="$store.state.current.execution.preSessionTasks"
-            @taskToggle="handleTaskCheck"
-          />
-        </v-tab-item>
-        <v-tab-item value="/main/workspace" :transition="false">
-          <WorkspaceWrapper
-            :items="items"
-            :selectedItems="selected"
-            event-type="dblclick"
-          />
-        </v-tab-item>
-      </v-tabs-items>
+    <div class="content-container">
+      <div
+        :class="
+          activeTab === `/main` && this.quickTest
+            ? 'content w-400'
+            : 'content w-60'
+        "
+      >
+        <v-tabs-items v-model="activeTab" style="height: 100%">
+          <v-tab-item
+            value="/main"
+            :transition="false"
+            v-if="this.$store.state.current.execution.status == 'pending'"
+          >
+            <QuickTestWrapper v-if="this.quickTest" />
+            <ExploratoryTestWrapper v-else />
+            <CheckTaskWrapper
+              v-if="showCheckList"
+              :tasks="$store.state.current.execution.preSessionTasks"
+              @taskToggle="handleTaskCheck"
+            />
+          </v-tab-item>
+          <v-tab-item
+            value="/main/workspace"
+            :transition="false"
+            style="height: 65vh"
+          >
+            <WorkspaceWrapper
+              :items="items"
+              :selectedItems="selected"
+              event-type="dblclick"
+            />
+          </v-tab-item>
+        </v-tabs-items>
+      </div>
     </div>
     <div class="footer">
       <ControlPanel
@@ -101,13 +103,6 @@
       />
       <TimeCounter v-if="$store.state.current.execution.status !== 'pending'" />
     </div>
-    <ResetConfirmDialog
-      v-model="resetConfirmDialog"
-      ref="resetConfirmDialog"
-      :text="$t('message.confirm_back')"
-      @confirm="back"
-      @cancel="resetConfirmDialog = false"
-    />
   </v-container>
 </template>
 
@@ -120,7 +115,8 @@ import {
   VTabItem,
   VBtn,
 } from "vuetify/lib/components";
-import TestWrapper from "../components/TestWrapper.vue";
+import ExploratoryTestWrapper from "../components/ExploratoryTestWrapper.vue";
+import QuickTestWrapper from "@/components/QuickTestWrapper.vue";
 import WorkspaceWrapper from "../components/WorkspaceWrapper.vue";
 import ControlPanel from "../components/ControlPanel.vue";
 import TimeCounter from "../components/TimeCounter.vue";
@@ -129,19 +125,20 @@ import MenuPopover from "@/components/MenuPopover.vue";
 
 import { SESSION_STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
-import ResetConfirmDialog from "@/components/dialogs/ResetConfirmDialog.vue";
+import LogoWrapper from "@/components/LogoWrapper.vue";
 
 export default {
   name: "MainView",
   components: {
-    ResetConfirmDialog,
+    LogoWrapper,
     VContainer,
     VBtn,
     VTabs,
     VTab,
     VTabsItems,
     VTabItem,
-    TestWrapper,
+    QuickTestWrapper,
+    ExploratoryTestWrapper,
     WorkspaceWrapper,
     ControlPanel,
     TimeCounter,
@@ -154,7 +151,6 @@ export default {
       selected: [],
       showTaskError: false,
       showMenu: false,
-      resetConfirmDialog: false,
     };
   },
   created() {
@@ -172,9 +168,9 @@ export default {
     if (this.$isElectron) {
       this.$electronService.onDataChange(this.fetchItems);
       this.$electronService.onMetaChange(this.fetchItems);
-    }
-    this.getCurrentExecution();
+    } else this.getCurrentExecution();
   },
+
   computed: {
     ...mapGetters({
       items: "sessionItems",
@@ -184,6 +180,7 @@ export default {
       checklistPostsessionTasks: "config/checklistPostsessionTasks",
       isAuthenticated: "auth/isAuthenticated",
       credentials: "auth/credentials",
+      quickTest: "sessionQuickTest",
     }),
     presessionValid() {
       if (!this.checklistPresessionStatus) {
@@ -191,9 +188,6 @@ export default {
       } else {
         return this.$store.getters.requiredPreSessionTasksChecked;
       }
-    },
-    backHotkey() {
-      return this.$hotkeyHelpers.findBinding("workspace.back", this.hotkeys);
     },
     status() {
       return this.$store.state.current.execution.status;
@@ -260,17 +254,6 @@ export default {
     updateSelected(value) {
       this.selected = value;
     },
-    async back() {
-      this.$store.commit("clearState");
-      await this.$storageService.resetData();
-      await this.$router.push("/");
-    },
-    handleResetConfirmDialog() {
-      this.resetConfirmDialog = true;
-      setTimeout(() => {
-        this.$refs.resetConfirmDialog?.$refs.confirmBtn.$el.focus();
-      }, 100);
-    },
   },
 };
 </script>
@@ -281,6 +264,7 @@ export default {
   flex-direction: column;
   height: 100vh;
   width: 100%;
+  background: #f2f4f7;
   overflow-y: auto;
   border-left: 1px solid rgba(0, 0, 0, 0.12);
   border-right: 1px solid rgba(0, 0, 0, 0.12);
@@ -292,6 +276,10 @@ export default {
   justify-content: center;
   column-gap: 15px;
   padding: 15px;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
+  border-radius: 15px;
+  margin-bottom: 10px;
 }
 .header .tabs {
   flex-grow: 1;
@@ -305,10 +293,18 @@ export default {
   justify-content: center;
   align-items: center;
 }
+.content-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
 .content {
-  flex-grow: 1;
   overflow: auto;
-  padding: 0 5px;
+  min-width: 400px;
+  box-shadow: -10px 12px 34px 0px rgba(48, 98, 254, 0.15);
+  border-radius: 15px;
 }
 .footer {
   width: 100%;
@@ -317,6 +313,13 @@ export default {
   justify-content: center;
   align-items: center;
   padding: 0;
+}
+.w-400 {
+  width: 400px;
+  margin-top: 200px;
+}
+.w-60 {
+  width: 60%;
 }
 .v-tabs {
   width: auto !important;
@@ -333,8 +336,8 @@ export default {
   font-weight: 500;
 }
 .v-tab.v-tab--active {
-  background: #6d28d9;
-  border: 1px solid #6d28d9;
+  background: #0a26c3;
+  border: 1px solid #586af3;
   color: #fff;
 }
 .v-tab.test-tab {
@@ -347,8 +350,8 @@ export default {
 }
 .theme--light.v-tabs .v-tabs-bar .v-tab--disabled,
 .theme--light.v-tabs .v-tabs-bar .v-tab:not(.v-tab--active) {
-  color: #6d28d9;
-  border: 1px solid #6d28d9;
+  color: #0a26c3;
+  border: 1px solid #596def;
 }
 .theme--dark.v-tabs .v-tabs-bar .v-tab--disabled,
 .theme--dark.v-tabs .v-tabs-bar .v-tab:not(.v-tab--active) {

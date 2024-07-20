@@ -1,5 +1,5 @@
 <template>
-  <v-container class="workspace">
+  <v-container class="workspace" fluid>
     <div class="tab-bar">
       <v-tabs :height="26" centered hide-slider>
         <v-tab
@@ -120,7 +120,7 @@ export default {
 .workspace .theme--light.v-tabs .v-tabs-bar .v-tab--active,
 .workspace .theme--light.v-tabs .v-tabs-bar .v-tab:not(.v-tab--disabled) {
   font-weight: bold;
-  border: 1px solid #6d28d9;
+  border: 1px solid #0a26c3;
 }
 .workspace .theme--light.v-tabs .v-tabs-bar .v-tab--disabled,
 .workspace .theme--light.v-tabs .v-tabs-bar .v-tab:not(.v-tab--active) {
