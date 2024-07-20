@@ -2,11 +2,11 @@
   <div class="open-section">
     <div v-if="isAuthenticated && isLoggedInToTestrail">
       <v-btn
-        class="my-4 text-capitalize"
-        fill
+        class="text-capitalize secondary-btn"
         block
-        small
-        color="primary"
+        plain
+        medium
+        color="secondary"
         v-shortkey="scriptedTestSessionHotkey"
         @shortkey="handleScriptedTestSession()"
         @click="handleScriptedTestSession()"
@@ -511,5 +511,12 @@ export default {
 .issue-desc .issue-key {
   font-size: 12px;
   color: rgba(0, 0, 0, 0.6);
+}
+
+.secondary-btn {
+  background: #f2f4f7;
+  font-weight: 700;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
 }
 </style>
