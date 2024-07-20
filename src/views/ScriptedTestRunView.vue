@@ -210,7 +210,7 @@ import {
   VTabItem,
   VBtn,
 } from "vuetify/lib/components";
-import TestWrapper from "../components/TestWrapper.vue";
+import TestWrapper from "../components/TestSettingWrapper.vue";
 import WorkspaceWrapper from "../components/WorkspaceWrapper.vue";
 import ControlPanel from "../components/ControlPanel.vue";
 import TimeCounter from "../components/TimeCounter.vue";

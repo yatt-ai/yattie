@@ -884,7 +884,9 @@
             >
               <div class="duration-text">
                 <v-icon>mdi-clock-outline</v-icon>
-                <span>{{ formatTime($store.state.current.execution.timer) }}</span>
+                <span>{{
+                  formatTime($store.state.current.execution.timer)
+                }}</span>
               </div>
             </v-timeline-item>
           </v-timeline>

@@ -109,6 +109,8 @@
               :edit="true"
               :auto-save="true"
               @submit-mindmap="handleMindmap"
+            />
+          </div>
           <v-tabs
             class="charter-tab"
             hide-slider
@@ -473,7 +475,9 @@ export default {
     this.$root.$on("reset-duration", () => {
       this.duration = "";
     });
-    this.duration = this.formatDuration(this.$store.state.current.case.duration);
+    this.duration = this.formatDuration(
+      this.$store.state.current.case.duration
+    );
   },
   methods: {
     actualUpdateTitle(title) {

@@ -194,8 +194,8 @@ export default {
     },
     showCheckList() {
       return (
-        this.$store.state.current.execution.status === SESSION_STATUSES.PENDING &&
-        this.checklistPresessionStatus
+        this.$store.state.current.execution.status ===
+          SESSION_STATUSES.PENDING && this.checklistPresessionStatus
       );
     },
   },
