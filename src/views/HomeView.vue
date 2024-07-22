@@ -55,10 +55,6 @@
             {{ $tc("caption.quick_test", 1) }}
           </v-btn>
         </div>
-        <TestRunPickerDialog
-          :isAuthenticated="isAuthenticated"
-          :isLoggedInToTestrail="loggedInServices.testrail"
-        />
         <div class="open-section">
           <v-btn
             class="text-capitalize secondary-btn"
@@ -72,15 +68,10 @@
           >
             {{ $tc("caption.new_exploratory_session", 1) }}
           </v-btn>
-          <v-btn
-            block
-            plain
-            color="secondary"
-            medium
-            class="mt-4 text-capitalize secondary-btn"
-          >
-            {{ $tc("caption.scripted_test_session", 1) }}
-          </v-btn>
+          <TestRunPickerDialog
+            :isAuthenticated="isAuthenticated"
+            :isLoggedInToTestrail="loggedInServices.testrail"
+          />
         </div>
         <div class="open-section">
           <v-btn

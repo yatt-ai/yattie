@@ -1,12 +1,12 @@
 <template>
-  <div class="open-section">
+  <div>
     <div v-if="isAuthenticated && isLoggedInToTestrail">
       <v-btn
-        class="text-capitalize secondary-btn"
         block
         plain
-        medium
         color="secondary"
+        medium
+        class="mt-4 text-capitalize secondary-btn"
         v-shortkey="scriptedTestSessionHotkey"
         @shortkey="handleScriptedTestSession()"
         @click="handleScriptedTestSession()"
