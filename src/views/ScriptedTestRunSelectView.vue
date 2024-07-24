@@ -42,51 +42,98 @@
           {{ $tc("caption.back", 1) }}
         </v-btn>
         <h1>Scripted Tests</h1>
-        <div>
-          <label>TCM tool</label>
-          <v-select
-            label="Select TCM tool"
-            :items="tcmTools"
-            :item-text="(item) => item[0].toUpperCase() + item.slice(1)"
-            v-model="tcmTool"
-            :disabled="defaultTcmTool"
-          ></v-select>
+        <div class="form-group">
+          <div>
+            <label>TCM tool</label>
+            <v-select
+              placeholder="Select TCM tool"
+              :items="tcmTools"
+              :item-text="(item) => item[0].toUpperCase() + item.slice(1)"
+              v-model="tcmTool"
+              :disabled="defaultTcmTool"
+            ></v-select>
+          </div>
+          <div>
+            <label>Project</label>
+            <v-select
+              placeholder="Select Project"
+              :disabled="!tcmTool || defaultProject"
+              v-model="selectedProject"
+              :items="projects"
+              :item-text="(item) => item.name"
+              :item-value="(item) => item.id"
+            ></v-select>
+          </div>
+          <div>
+            <label>Test Run</label>
+            <v-select
+              placeholder="Select test run"
+              :disabled="!selectedProject || defaultRun"
+              v-model="selectedRun"
+              :items="runs"
+              :item-text="(item) => item.name"
+              :item-value="(item) => item.id"
+              @change="selectTestRun"
+            ></v-select>
+          </div>
         </div>
-        <div>
-          <label>Project</label>
-          <v-select
-            label="Select Project"
-            :disabled="!tcmTool || defaultProject"
-            v-model="selectedProject"
-            :items="projects"
-            :item-text="(item) => item.name"
-            :item-value="(item) => item.id"
-          ></v-select>
-        </div>
-        <div>
-          <label>Test Run</label>
-          <v-select
-            label="Select test run"
-            :disabled="!selectedProject || defaultRun"
-            v-model="selectedRun"
-            :items="runs"
-            :item-text="(item) => item.name"
-            :item-value="(item) => item.id"
-          ></v-select>
-        </div>
-        <!--        Todo: Implement search component-->
-        <div style="max-width: 50%">
+        <template>
+          <v-data-table
+            :headers="headers"
+            :items="tests"
+            :items-per-page="5"
+            class="elevation-1"
+          >
+            <template v-slot:[`item.name`]="{ item }">
+              {{ item.title }}
+            </template>
+
+            <template v-slot:[`item.assigned_to`]="{ item }">
+              <!--              <v-avatar size="32">-->
+              <!--                <v-img :src="item.avatar"></v-img>-->
+              <!--              </v-avatar>-->
+              {{ item.assignedto_id }}
+            </template>
+
+            <template v-slot:[`item.priority`]="{ item }">
+              <!--              <v-chip-->
+              <!--                :color="getPriorityColor(item.priority)"-->
+              <!--                text-color="white"-->
+              <!--                small-->
+              <!--              >-->
+              <!--                {{ item.priority }}-->
+              <!--              </v-chip>-->
+              <v-chip color="red" text-color="white" small>
+                {{ item.priority_id }}
+              </v-chip>
+            </template>
+
+            <template v-slot:[`item.status`]="{ item }">
+              <!--              <v-chip-->
+              <!--                :color="getStatusColor(item.status)"-->
+              <!--                text-color="white"-->
+              <!--                small-->
+              <!--              >-->
+              <!--                {{ item.status }}-->
+              <!--              </v-chip>-->
+              <v-chip color="red" text-color="white" small>
+                {{ item.status_id }}
+              </v-chip>
+            </template>
+          </v-data-table>
+        </template>
+        <div class="form-group">
           <div>
             <label>Session name</label>
             <v-text-field
-              label="Session name"
+              placeholder="Session name"
               v-model="sessionName"
             ></v-text-field>
           </div>
           <div>
             <label>Privacy</label>
             <v-select
-              label="Select Privacy"
+              placeholder="Select Privacy"
               :items="privacy_modes"
               v-model="privacy"
             ></v-select>
@@ -104,10 +151,13 @@
               <v-icon>mdi-link</v-icon> Copy
             </v-btn>
           </div>
-        </div>
-        <div>
-          <label>Time limit (Optional)</label>
-          <v-text-field placeholder="00:00" v-model="timeLimit"></v-text-field>
+          <div>
+            <label>Time limit (Optional)</label>
+            <v-text-field
+              placeholder="00:00"
+              v-model="timeLimit"
+            ></v-text-field>
+          </div>
         </div>
         <div>
           <v-btn
@@ -149,6 +199,13 @@ export default {
       runs: [],
       selectedRun: null,
       defaultRun: false,
+      headers: [
+        { text: "ID", value: "id" },
+        { text: "Name", value: "name" },
+        { text: "Assigned to", value: "assigned_to" },
+        { text: "Priority", value: "priority" },
+        { text: "Status", value: "status" },
+      ],
       tests: [],
       selectedTest: new Set(),
       sessionName: "",
@@ -236,6 +293,18 @@ export default {
         this.defaultRun = true;
       }
     },
+    async getTestRailTests() {
+      this.tests = await testrailIntegrationHelper.fetchTests(
+        this.credentials["testrail"][0],
+        this.selectedRun,
+        "testrail"
+      );
+    },
+    selectTestRun(value) {
+      this.selectedRun = value;
+      this.getTestRailTests();
+      console.log(this.tests);
+    },
     startSession() {
       // Do validations (if neccessary)
       this.$store.commit("startQuickTest", "/run/scripted/workspace");
@@ -263,9 +332,7 @@ export default {
 
 <style scoped>
 .wrapper {
-  height: 100vh;
   width: 100%;
-  overflow-y: hidden;
   display: flex;
   flex-direction: column;
   background: #f2f4f7;
@@ -310,5 +377,9 @@ export default {
   font-weight: 500;
   line-height: 20px;
   width: 10px;
+}
+
+.form-group {
+  max-width: 50%;
 }
 </style>
