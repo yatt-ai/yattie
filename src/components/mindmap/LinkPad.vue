@@ -6,11 +6,11 @@
           <img
             width="24"
             height="24"
-            :src="require('../../assets/icon/rectangle.svg')"
+            :src="require('../../assets/icon/edit.svg')"
           />
         </div>
       </template>
-      <span>{{ $tc("caption.rectangle", 1) }}</span>
+      <span>{{ $tc("caption.marker", 1) }}</span>
     </v-tooltip>
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
@@ -38,7 +38,7 @@
     </v-tooltip>
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
-        <div @click="handleShape('downward-triangle')" v-on="on">
+        <div @click="handleShape('diamond')" v-on="on">
           <img
             width="24"
             height="24"
@@ -50,7 +50,7 @@
     </v-tooltip>
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
-        <div @click="handleShape('diamond')" v-on="on">
+        <div @click="handleShape('pentagon')" v-on="on">
           <img
             width="24"
             height="24"
@@ -65,7 +65,7 @@
 
 <script>
 export default {
-  name: "ShapePad",
+  name: "LinkPad",
   props: {
     shape: {
       type: String,
@@ -74,7 +74,7 @@ export default {
   },
   methods: {
     handleShape(shape) {
-      this.$root.$emit("update:shape", shape);
+      this.$emit("update:shape", shape);
     },
   },
 };

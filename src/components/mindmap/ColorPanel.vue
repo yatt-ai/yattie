@@ -88,6 +88,7 @@ export default {
     handleConfig() {
       this.colors = this.configToChange.colors;
       this.$storageService.updateConfig(this.configToChange);
+      this.$root.$emit("update-color-panel", this.color);
     },
   },
 };

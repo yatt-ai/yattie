@@ -6,19 +6,19 @@
           <img
             width="24"
             height="24"
-            :src="require('../../assets/icon/rectangle.svg')"
+            :src="require('../../assets/icon/edit.svg')"
           />
         </div>
       </template>
-      <span>{{ $tc("caption.rectangle", 1) }}</span>
+      <span>{{ $tc("caption.marker", 1) }}</span>
     </v-tooltip>
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
-        <div @click="handleShape('ellipse')" v-on="on">
+        <div @click="handleShape('highlight')" v-on="on">
           <img
             width="24"
             height="24"
-            :src="require('../../assets/icon/ellipse.svg')"
+            :src="require('../../assets/icon/highlight.svg')"
           />
         </div>
       </template>
@@ -30,7 +30,7 @@
           <img
             width="24"
             height="24"
-            :src="require('../../assets/icon/triangle.svg')"
+            :src="require('../../assets/icon/thin.svg')"
           />
         </div>
       </template>
@@ -38,34 +38,22 @@
     </v-tooltip>
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
-        <div @click="handleShape('downward-triangle')" v-on="on">
-          <img
-            width="24"
-            height="24"
-            :src="require('../../assets/icon/downward-triangle.svg')"
-          />
-        </div>
-      </template>
-      <span>{{ $tc("caption.downward-triangle", 1) }}</span>
-    </v-tooltip>
-    <v-tooltip bottom>
-      <template v-slot:activator="{ on }">
         <div @click="handleShape('diamond')" v-on="on">
           <img
             width="24"
             height="24"
-            :src="require('../../assets/icon/diamond.svg')"
+            :src="require('../../assets/icon/thick.svg')"
           />
         </div>
       </template>
-      <span>{{ $tc("caption.diamond", 1) }}</span>
+      <span>{{ $tc("caption.downward-triangle", 1) }}</span>
     </v-tooltip>
   </div>
 </template>
 
 <script>
 export default {
-  name: "ShapePad",
+  name: "MarkerPad",
   props: {
     shape: {
       type: String,
@@ -74,7 +62,7 @@ export default {
   },
   methods: {
     handleShape(shape) {
-      this.$root.$emit("update:shape", shape);
+      this.$emit("update:shape", shape);
     },
   },
 };

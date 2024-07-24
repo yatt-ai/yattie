@@ -217,14 +217,14 @@ export const VIDEO_RESOLUTION = [
 export const DEFAULT_CHARTER_MAP_NODES = [
   {
     id: "5e274797-4db7-4fe8-a983-8b8abf8771c5",
-    text: "System Under Test",
+    content: "System Under Test",
     url: "https://features.testfiesta.com",
     fx: -210.9125181819311,
     fy: -583.1010883631283,
   },
   {
     id: "4763495c-62b7-4625-9083-2d40045b6550",
-    text: "Feature #1",
+    content: "Feature #1",
     fx: 99.1983655368465,
     fy: -582.6407249084972,
   },

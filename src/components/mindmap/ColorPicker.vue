@@ -1,9 +1,14 @@
 <template>
   <div>
-    <div class="color-picker" @click="handleOpenColorPicker" />
+    <div
+      class="color-picker"
+      @click="handleOpenColorPicker"
+      :style="{ backgroundColor: color }"
+    />
     <ColorPickerDialog
       v-model="isOpen"
       @close="isOpen = false"
+      :colorType="colorType"
       @save="handleSave"
     />
   </div>
@@ -27,6 +32,9 @@ export default {
     colorType: function (newValue) {
       this.type = newValue;
     },
+    color: function (newValue) {
+      this.color = newValue;
+    },
   },
   created() {
     this.colors = this.config?.colors;
@@ -40,9 +48,10 @@ export default {
     return {
       type: this.colorType,
       colors: this.config?.colors,
+      fillType: "fill",
       configToChange: null,
       isOpen: false,
-      color: this.config?.colors[this.type + "Color"] || "#1976D2FF",
+      color: this.config?.colors[this.type + "Color"] || "#101828",
     };
   },
   methods: {
@@ -51,7 +60,9 @@ export default {
     },
     handleSave(data) {
       this.isOpen = false;
-      console.log(data);
+      this.color = data.color;
+      this.fillType = data.type;
+      this.$root.$emit("update-color", data);
     },
   },
 };

@@ -104,6 +104,10 @@ const defaultConfig = {
       changeSource: ["ctrl", "o"],
       createIssue: ["ctrl", "i"],
       back: ["ctrl", "b"],
+      copy: ["alt", "c"],
+      paste: ["alt", "v"],
+      edit: ["alt", "e"],
+      delete: ["del"],
     }, // Dialogs on workspace use general.save and general.cancel
     evidence: {
       name: ["ctrl", "n"],
@@ -126,10 +130,10 @@ const defaultConfig = {
     retentionPeriod: 7,
   },
   colors: {
-    shapeColor: "#1976D2FF",
-    markerColor: "#1976D2FF",
-    connectorColor: "#000000FF",
-    textColor: "#000000FF",
+    shapeColor: "#101828",
+    markerColor: "#101828",
+    connectorColor: "#101828",
+    textColor: "#101828",
   },
 };
 

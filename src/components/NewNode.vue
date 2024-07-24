@@ -1,12 +1,91 @@
 <template>
   <div>
     <div
+      v-if="
+        node.shape === 'rectangle' || node.shape === 'ellipse' || !node.shape
+      "
       class="node-wrapper"
       :class="{ selected: node.selected }"
-      style="border: 1px solid #d0d5dd"
+      :style="{
+        backgroundColor: node.color ? node.color : '#e2e7fe',
+        minWidth: node.shape === 'rectangle' ? '200px' : '100px',
+        borderRadius: node.shape === 'ellipse' ? '100%' : '12px',
+      }"
       @click="handleClick"
+      @contextmenu.prevent="showContextMenu($event, node)"
     >
       <div class="node-content">{{ node.content }}</div>
+    </div>
+    <div v-else>
+      <svg width="100" height="100">
+        <polygon
+          v-if="node.shape === 'triangle'"
+          points="50,0 100,100 0,100"
+          class="node-wrapper"
+          :class="{ selected: node.selected }"
+          :style="{
+            fill: node.color ? node.color : '#e2e7fe',
+          }"
+          @click="handleClick"
+          @contextmenu.prevent="showContextMenu($event, node)"
+        />
+
+        <text
+          v-if="node.shape === 'triangle'"
+          x="50"
+          y="75"
+          text-anchor="middle"
+          fill="black"
+          font-size="13"
+          font-weight="600"
+        >
+          {{ node.content }}
+        </text>
+        <polygon
+          v-if="node.shape === 'downward-triangle'"
+          class="node-wrapper"
+          :class="{ selected: node.selected }"
+          :style="{
+            fill: node.color ? node.color : '#e2e7fe',
+          }"
+          @click="handleClick"
+          @contextmenu.prevent="showContextMenu($event, node)"
+          points="50,100 100,0 0,0"
+        />
+        <text
+          v-if="node.shape === 'downward-triangle'"
+          x="50"
+          y="25"
+          text-anchor="middle"
+          fill="black"
+          font-size="13"
+          font-weight="600"
+        >
+          {{ node.content }}
+        </text>
+        <polygon
+          v-if="node.shape === 'diamond'"
+          class="node-wrapper"
+          :class="{ selected: node.selected }"
+          :style="{
+            fill: node.color ? node.color : '#e2e7fe',
+          }"
+          @click="handleClick"
+          @contextmenu.prevent="showContextMenu($event, node)"
+          points="50,0 100,50 50,100 0,50"
+        />
+        <text
+          v-if="node.shape === 'diamond'"
+          x="50"
+          y="50"
+          text-anchor="middle"
+          fill="black"
+          font-size="13"
+          font-weight="600"
+        >
+          {{ node.content }}
+        </text>
+      </svg>
     </div>
   </div>
 </template>
@@ -35,6 +114,9 @@ export default {
     onClick: {
       type: Function,
     },
+    onContextmenu: {
+      type: Function,
+    },
     onConnect: {
       type: Function,
     },
@@ -54,11 +136,13 @@ export default {
       nodeEditDialog: false,
       content: "",
       status: "",
+      shape: "rectangle",
       BorderColorByStatus: {
         Passed: "green",
         Failed: "red",
         "In Progress": "yellow",
       },
+      targetRow: {},
     };
   },
   methods: {
@@ -93,7 +177,13 @@ export default {
       this.content = this.node.content;
       this.status = this.node.status;
       if (!e.altKey) this.nodeEditDialog = true;
-      this.onClick(e.altKey);
+      this.onClick(e.altKey, e.clientX, e.clientY);
+    },
+    handleContextMenu(e) {
+      alert("Context menu");
+      e.preventDefault();
+      e.stopPropagation();
+      this.onContextmenu();
     },
     handleFileUpload(e) {
       e.stopPropagation();
@@ -109,6 +199,16 @@ export default {
     updateNode() {
       alert("Update");
     },
+    showContextMenu(event, node) {
+      event.preventDefault();
+      this.showMenu = true;
+      this.targetRow = node;
+      this.onContextmenu(event.clientX, event.clientY);
+    },
+
+    closeContextMenu() {
+      this.showMenu = false;
+    },
   },
 };
 </script>
@@ -116,10 +216,11 @@ export default {
 <style>
 .node-wrapper {
   cursor: pointer;
-  background-color: #e2e7fe;
+  border: 1px solid #d0d5dd;
+  stroke: #d0d5dd;
   border-radius: 12px;
-  min-width: 150px;
-  min-height: 75px;
+  min-width: 100px;
+  min-height: 100px;
   padding: 8px;
   transition: background-color 0.2s;
   display: flex;
@@ -134,7 +235,8 @@ export default {
 }
 
 .selected {
-  background: #3df1e7 !important;
+  background: #b2b7ee !important;
+  fill: #b2b7ee !important;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -145,7 +247,7 @@ export default {
 }
 
 .node-content {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   align-items: center;
   text-align: center;

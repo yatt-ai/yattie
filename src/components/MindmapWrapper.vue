@@ -191,7 +191,6 @@ export default {
   mounted() {
     this.$root.$on("render-mindmap", this.renderMindmap);
     this.$root.$on("handle-mindmap", this.handleMindmap);
-    console.log("Mounted");
     this.emojiMenu = {};
     this.itemLists = structuredClone(this.items);
     let newMap = { ...this.emojiMenu };

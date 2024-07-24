@@ -153,7 +153,7 @@
                 block
                 :color="currentTheme.primary"
                 :style="{ color: currentTheme.white }"
-                v-shortkey="closeHotkey"
+                v-shortkey="saveHotkey"
                 @shortkey="handleSave(activeColor, active)"
                 @click="handleSave(activeColor, active)"
               >
@@ -169,6 +169,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import ColorPanel from "../mindmap/ColorPanel.vue";
 
 export default {
@@ -216,10 +217,22 @@ export default {
       ],
     };
   },
+  mounted() {
+    this.$root.$on("update-color-panel", this.handleUpdateColor);
+  },
   computed: {
+    ...mapGetters({
+      config: "config/fullConfig",
+    }),
     closeHotkey() {
       return this.$hotkeyHelpers.findBinding(
         "general.cancel",
+        this.$store.getters["config/hotkeys"]
+      );
+    },
+    saveHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "general.save",
         this.$store.getters["config/hotkeys"]
       );
     },
@@ -242,6 +255,13 @@ export default {
       this.active = type;
     },
     handleSetColorActive(color) {
+      this.activeColor = color;
+    },
+    handleUpdateColor(color) {
+      let index = this.colors1.indexOf(this.activeColor);
+      if (index !== -1) this.colors1[index] = color;
+      index = this.colors2.indexOf(this.activeColor);
+      if (index !== -1) this.colors2[index] = color;
       this.activeColor = color;
     },
   },
