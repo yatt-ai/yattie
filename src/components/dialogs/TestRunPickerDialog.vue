@@ -1,6 +1,18 @@
 <template>
   <div>
     <div v-if="isAuthenticated && isLoggedInToTestrail">
+      <!--      <v-btn-->
+      <!--        block-->
+      <!--        plain-->
+      <!--        color="secondary"-->
+      <!--        medium-->
+      <!--        class="mt-4 text-capitalize secondary-btn"-->
+      <!--        v-shortkey="scriptedTestSessionHotkey"-->
+      <!--        @shortkey="handleScriptedTestSession()"-->
+      <!--        @click="handleScriptedTestSession()"-->
+      <!--      >-->
+      <!--        {{ $tc("caption.scripted_test_session", 1) }}-->
+      <!--      </v-btn>-->
       <v-btn
         block
         plain
@@ -9,7 +21,7 @@
         class="mt-4 text-capitalize secondary-btn"
         v-shortkey="scriptedTestSessionHotkey"
         @shortkey="handleScriptedTestSession()"
-        @click="handleScriptedTestSession()"
+        @click="handleScriptedTestSessionRedirect()"
       >
         {{ $tc("caption.scripted_test_session", 1) }}
       </v-btn>
@@ -318,6 +330,9 @@ export default {
     },
     handleScriptedTestSession() {
       this.showTestRunPickerDialog();
+    },
+    handleScriptedTestSessionRedirect() {
+      this.$router.push("/start/scripted");
     },
     async showTestRunPickerDialog() {
       try {

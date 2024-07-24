@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 
 import HomeView from "../views/HomeView.vue";
+import ScriptedTestRunSelectView from "../views/ScriptedTestRunSelectView.vue";
 import MainView from "../views/MainView.vue";
 import ScriptedTestRunView from "../views/ScriptedTestRunView.vue";
 import ResultView from "../views/ResultView.vue";
@@ -111,6 +112,11 @@ const routes = [
     name: "scriptedRun",
     component: ScriptedTestRunView,
     children: [{ path: "workspace" }, { path: "workspace/:execID" }],
+  },
+  {
+    path: "/start/scripted",
+    name: "scriptedRunTests",
+    component: ScriptedTestRunSelectView,
   },
   {
     path: "/settings",
