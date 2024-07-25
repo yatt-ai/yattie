@@ -3,7 +3,7 @@
     <div
       class="color-picker"
       @click="handleOpenColorPicker"
-      :style="{ backgroundColor: color }"
+      :style="{ backgroundColor: currentColor }"
     />
     <ColorPickerDialog
       v-model="isOpen"
@@ -26,6 +26,10 @@ export default {
     colorType: {
       type: String,
       default: () => "marker",
+    },
+    currentColor: {
+      type: String,
+      default: () => "",
     },
   },
   watch: {

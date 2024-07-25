@@ -42,9 +42,19 @@
         </v-list>
       </v-menu>
       <div class="mindmap-detail-bar" v-if="selectedNodes.length > 0">
-        <!-- <NodeDetailPad v-if="isDetail" /> -->
+        <div>
+          <div class="control-btns mx-1 mt-2 cursor-pointer">
+            <NodeDetailPad
+              :currentColor="currentNode.color ? currentNode.color : '#e2e7fe'"
+              :currentShape="
+                currentNode.shape ? currentNode.shape : 'rectangle'
+              "
+              :currentStatus="currentNode.status ? currentNode.status : ''"
+            />
+          </div>
+        </div>
       </div>
-      <div class="mindmap-control-btn-wrapper" v-if="selectedNodes.length > 0">
+      <div class="mindmap-control-btn-wrapper">
         <div>
           <div
             class="detail-bar mindmap-control-btn control-btns mx-1 mt-2 cursor-pointer"
@@ -223,7 +233,7 @@ import ShapePad from "./mindmap/ShapePad.vue";
 import MarkerPad from "./mindmap/MarkerPad.vue";
 import TextPad from "./mindmap/TextPad.vue";
 import LinkPad from "./mindmap/LinkPad.vue";
-// import NodeDetailPad from "./mindmap/NodeDetailPad.vue";
+import NodeDetailPad from "./mindmap/NodeDetailPad.vue";
 import NodeEditDialog from "./dialogs/NodeEditDialog.vue";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import vuetify from "@/plugins/vuetify";
@@ -253,7 +263,7 @@ export default {
     MarkerPad,
     TextPad,
     LinkPad,
-    // NodeDetailPad,
+    NodeDetailPad,
     NodeEditDialog,
   },
   props: {
@@ -280,7 +290,6 @@ export default {
   },
   watch: {
     nodesData: function (newValue) {
-      console.log(newValue);
       this.nodes = newValue;
     },
     selectedNodes: function (newValue) {
@@ -310,6 +319,7 @@ export default {
       color: "#e2e7fe",
       menuX: 0,
       menuY: 0,
+      currentNode: null,
       targetNode: null,
       contextMenuActions: [
         {
@@ -368,6 +378,7 @@ export default {
   mounted() {
     this.$root.$on("update-color", this.handleUpdateColor);
     this.$root.$on("update:shape", this.handleUpdateShape);
+    this.$root.$on("update:status", this.handleUpdateStatus);
     this.nodes = structuredClone(this.nodesData);
     this.connections = structuredClone(this.connectionsData);
     this.renderMap();
@@ -394,6 +405,10 @@ export default {
 
       this.nodes.forEach((node) => render(node));
     },
+    /**
+     * Get the color of the node and update the color
+     */
+
     handleUpdateColor(data) {
       let currentNode = this.selectedNodes[0];
       if (currentNode) {
@@ -402,6 +417,9 @@ export default {
         this.renderMap();
       }
     },
+    /**
+     * Get the shape of the node and update the shape
+     */
     handleUpdateShape(shape) {
       let currentNode = this.selectedNodes[0];
       if (currentNode) {
@@ -413,6 +431,16 @@ export default {
           currentNode.width = 100;
           currentNode.height = 100;
         }
+        this.renderMap();
+      }
+    },
+    /**
+     * Get the status of the node and update the status
+     */
+    handleUpdateStatus(status) {
+      let currentNode = this.selectedNodes[0];
+      if (currentNode) {
+        currentNode.status = status;
         this.renderMap();
       }
     },
@@ -481,8 +509,8 @@ export default {
                 onSave: (content, status) => self.onSave(content, status),
                 onRemove: () => self.removeNode(node),
                 onConnect: () => self.connectNode(svg, node),
-                onClick: (isAltKeyPressed, x, y) =>
-                  self.clickNode(isAltKeyPressed, x, y, node),
+                onClick: (isAltKeyPressed) =>
+                  self.clickNode(isAltKeyPressed, node),
                 onContextmenu: (x, y) => self.contextmenuNode(node, x, y),
               },
               vuetify,
@@ -629,8 +657,8 @@ export default {
     /**
      * click on node
      */
-    clickNode(isAltKeyPressed, x, y, node) {
-      console.log(x, y, node);
+    clickNode(isAltKeyPressed, node) {
+      this.currentNode = node;
       // Toggle the selection of the clicked node
       this.clicks++;
       if (this.clicks === 1) {
@@ -738,11 +766,14 @@ export default {
   left: 10px;
 }
 .mindmap-detail-bar {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 10px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 10px;
 }
 .control-btns {
   display: flex !important;

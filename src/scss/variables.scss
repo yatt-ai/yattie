@@ -385,6 +385,10 @@ body {
   border-radius: 50%;
 }
 
+.v-text-field__details {
+  display: none;
+}
+
 .theme--light {
   .v-tabs > .v-tabs-bar .v-tab:not(.v-tab--active),
   .v-tabs > .v-tabs-bar .v-tab:not(.v-tab--active) > .v-icon,
