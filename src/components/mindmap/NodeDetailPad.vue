@@ -54,15 +54,23 @@
       <v-divider vertical />
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
-          <div class="mindmap-ctrl-btn" v-on="on">
-            <img
-              :src="require('../../assets/icon/upload.svg')"
-              width="24"
-              height="24"
-            />
-          </div>
+          <!-- <div class="mindmap-ctrl-btn" v-on="on">
+            <v-btn icon color="#6b7280" @click="handleFileUpload"> -->
+          <v-file-input
+            v-on="on"
+            type="file"
+            hidden
+            v-model="attachment"
+            truncate-length="15"
+            style="padding-top: 0px; margin-top: 0px"
+            hide-input
+            prepend-icon="mdi-upload"
+            @change="handleFileUpload"
+          />
+          <!-- </v-btn>
+          </div> -->
         </template>
-        <span>{{ $tc("caption.upload_evidence", 1) }}</span>
+        <span>{{ $tc("caption.upload_attachment", 1) }}</span>
       </v-tooltip>
     </div>
     <div
@@ -77,6 +85,7 @@
         chips
         small-chips
         label="Tags"
+        @change="handleTags"
         multiple
         solo
         prepend-icon="mdi-database-search"
@@ -104,6 +113,9 @@ export default {
       shape: "rectangle",
       tags: ["Tag1", "Tag2"],
       openTags: false,
+      id: "",
+      attachment: null,
+      attachments: [],
       allTags: [
         "Tag1",
         "Tag2",
@@ -124,6 +136,9 @@ export default {
   mounted() {
     this.status = this.currentStatus;
     this.shape = this.currentShape;
+    this.tags = this.currentTags;
+    this.id = this.currentId;
+    this.attachments = this.currentAttachments;
   },
   watch: {
     currentStatus: function (newValue) {
@@ -131,6 +146,12 @@ export default {
     },
     currentShape: function (newValue) {
       this.shape = newValue;
+    },
+    currentTags: function (newValue) {
+      this.tags = newValue;
+    },
+    currentAttachments: function (newValue) {
+      this.attachments = newValue;
     },
   },
   props: {
@@ -146,6 +167,18 @@ export default {
       type: String,
       default: () => "Passed",
     },
+    currentId: {
+      type: String,
+      default: () => "",
+    },
+    currentTags: {
+      type: Array,
+      default: () => [],
+    },
+    currentAttachments: {
+      type: Array,
+      default: () => [],
+    },
   },
   methods: {
     handleShape() {
@@ -153,6 +186,13 @@ export default {
     },
     handleStatus() {
       this.$root.$emit("update:status", this.status);
+    },
+    handleTags() {
+      this.$root.$emit("update:tags", this.tags);
+    },
+    handleFileUpload() {
+      this.attachments.push(this.attachment);
+      this.$root.$emit("update:attachments", this.attachments);
     },
   },
 };

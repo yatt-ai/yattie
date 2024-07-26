@@ -50,6 +50,11 @@
                 currentNode.shape ? currentNode.shape : 'rectangle'
               "
               :currentStatus="currentNode.status ? currentNode.status : ''"
+              :currentTags="currentNode.tags ? currentNode.tags : []"
+              :currentId="currentNode.id ? currentNode.id : ''"
+              :currentAttachments="
+                currentNode.attachments ? currentNode.attachments : []
+              "
             />
           </div>
         </div>
@@ -379,6 +384,8 @@ export default {
     this.$root.$on("update-color", this.handleUpdateColor);
     this.$root.$on("update:shape", this.handleUpdateShape);
     this.$root.$on("update:status", this.handleUpdateStatus);
+    this.$root.$on("update:tags", this.handleUpdateTags);
+    this.$root.$on("update:attachments", this.handleUpdateAttachments);
     this.nodes = structuredClone(this.nodesData);
     this.connections = structuredClone(this.connectionsData);
     this.renderMap();
@@ -444,6 +451,31 @@ export default {
         this.renderMap();
       }
     },
+
+    /**
+     * Get the tags of the node and update the tags
+     */
+    handleUpdateTags(tags) {
+      let currentNode = this.selectedNodes[0];
+      if (currentNode) {
+        currentNode.tags = tags;
+        this.renderMap();
+      }
+    },
+
+    /**
+     * Get the attachments of the node and update the attachments
+     */
+    handleUpdateAttachments(attachments) {
+      let currentNode = this.selectedNodes[0];
+      console.log(attachments);
+      if (currentNode) {
+        currentNode.attachments = attachments;
+        console.log(this.nodes);
+        this.renderMap();
+      }
+    },
+
     /**
      * Add new class to nodes, attach drag behevior,
      * and start simulation.

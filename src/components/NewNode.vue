@@ -87,6 +87,34 @@
         </text>
       </svg>
     </div>
+    <div v-if="attachments.length > 0">
+      <div class="node-attachments">
+        <v-chip
+          v-for="(attachment, index) in attachments.slice(0, 2)"
+          :key="index"
+          x-small
+          class="ma-2 node-attachment"
+          close
+          color="orange"
+          label
+          outlined
+          @click:close="deleteAttachment(attachment)"
+        >
+          {{ truncateName(attachment.name) }}
+        </v-chip>
+
+        <v-chip
+          v-if="attachments.length > 2"
+          x-small
+          class="ma-2"
+          color="orange"
+          label
+          outlined
+        >
+          + {{ attachments.length - 2 }} more
+        </v-chip>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -209,6 +237,17 @@ export default {
     closeContextMenu() {
       this.showMenu = false;
     },
+    truncateName(name) {
+      return name.length > 7 ? name.substring(0, 7) + "..." : name;
+    },
+
+    deleteAttachment(attachment) {
+      this.attachments = this.attachments.filter(
+        (item) => item.name !== attachment.name
+      );
+      console.log(this.attachments);
+      this.$root.$emit("update:attachments", this.attachments);
+    },
   },
 };
 </script>
@@ -255,14 +294,12 @@ export default {
 
 .node-attachments {
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
 }
 
-.node-attachments img {
-  width: 24px;
-  height: 24px;
-  border-radius: 2px;
-  gap: 2px;
+.node-attachment {
+  margin: 5px 0px 0px 3px !important;
 }
 
 .vue-tags-input {
