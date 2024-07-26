@@ -381,7 +381,7 @@ const store = new Vuex.Store({
       return state.current.execution.connections;
     },
     sessionQuickTest(state) {
-      return state.session.quickTest;
+      return state.current.execution.quickTest;
     },
     requiredPreSessionTasksChecked(state) {
       const uncheckedTasks = state.current.execution.preSessionTasks.filter(
