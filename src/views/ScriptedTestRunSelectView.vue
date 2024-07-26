@@ -51,6 +51,7 @@
               :item-text="(item) => item[0].toUpperCase() + item.slice(1)"
               v-model="tcmTool"
               :disabled="defaultTcmTool"
+              @change="selectTcmTool"
             ></v-select>
           </div>
           <div>
@@ -62,6 +63,7 @@
               :items="projects"
               :item-text="(item) => item.name"
               :item-value="(item) => item.id"
+              @change="selectProject"
             ></v-select>
           </div>
           <div>
@@ -78,49 +80,65 @@
           </div>
         </div>
         <template>
-          <v-data-table
-            :headers="headers"
-            :items="tests"
-            :items-per-page="5"
-            class="elevation-1"
-          >
-            <template v-slot:[`item.name`]="{ item }">
-              {{ item.title }}
-            </template>
+          <v-card class="mb-4">
+            <v-card-title>
+              <v-text-field
+                v-model="search"
+                prepend-inner-icon="mdi-magnify"
+                placeholder="Search"
+                single-line
+                hide-details
+              ></v-text-field>
+              <v-btn
+                class="my-4 text-capitalize secondary-btn"
+                fill
+                plain
+                medium
+                color="secondary"
+                >Filter</v-btn
+              >
+              <v-spacer></v-spacer>
+              <LogoWrapper :height="34" :width="120" />
+            </v-card-title>
+            <v-data-table
+              :headers="headers"
+              :items="searchTestsList"
+              :items-per-page="5"
+              class="elevation-1"
+              v-model="selectedTests"
+              show-select
+              item-key="id"
+              selection-color="#0C2FF3"
+            >
+              <template v-slot:[`item.name`]="{ item }">
+                {{ item.title }}
+              </template>
 
-            <template v-slot:[`item.assigned_to`]="{ item }">
-              <!--              <v-avatar size="32">-->
-              <!--                <v-img :src="item.avatar"></v-img>-->
-              <!--              </v-avatar>-->
-              {{ item.assignedto_id }}
-            </template>
+              <template v-slot:[`item.assigned_to`]="{ item }">
+                {{ item.assignedto_id }}
+              </template>
 
-            <template v-slot:[`item.priority`]="{ item }">
-              <!--              <v-chip-->
-              <!--                :color="getPriorityColor(item.priority)"-->
-              <!--                text-color="white"-->
-              <!--                small-->
-              <!--              >-->
-              <!--                {{ item.priority }}-->
-              <!--              </v-chip>-->
-              <v-chip color="red" text-color="white" small>
-                {{ item.priority_id }}
-              </v-chip>
-            </template>
+              <template v-slot:[`item.priority`]="{ item }">
+                <v-chip
+                  color="white"
+                  :text-color="getPriorityColor(item.priority_id)"
+                  small
+                >
+                  {{ getPriorityFromPriorityId(item.priority_id) }}
+                </v-chip>
+              </template>
 
-            <template v-slot:[`item.status`]="{ item }">
-              <!--              <v-chip-->
-              <!--                :color="getStatusColor(item.status)"-->
-              <!--                text-color="white"-->
-              <!--                small-->
-              <!--              >-->
-              <!--                {{ item.status }}-->
-              <!--              </v-chip>-->
-              <v-chip color="red" text-color="white" small>
-                {{ item.status_id }}
-              </v-chip>
-            </template>
-          </v-data-table>
+              <template v-slot:[`item.status`]="{ item }">
+                <v-chip
+                  :color="getStatusColor(item.status_id)"
+                  text-color="white"
+                  small
+                >
+                  {{ getStatusText(item.status_id) }}
+                </v-chip>
+              </template>
+            </v-data-table>
+          </v-card>
         </template>
         <div class="form-group">
           <div>
@@ -146,10 +164,21 @@
           </div>
           <div>
             <label>Invitation link</label>
-            <v-text-field append-icon="mdi-link"></v-text-field>
-            <v-btn class="text-capitalize" plain>
-              <v-icon>mdi-link</v-icon> Copy
-            </v-btn>
+            <v-text-field
+              v-model="invitationLink"
+              outlined
+              readonly
+              dense
+              hide-details
+              class="invitation-link"
+            >
+              <template v-slot:append>
+                <v-btn text small @click="copyToClipboard" class="copy-button">
+                  <v-icon left small>mdi-content-copy</v-icon>
+                  Copy
+                </v-btn>
+              </template>
+            </v-text-field>
           </div>
           <div>
             <label>Time limit (Optional)</label>
@@ -161,10 +190,13 @@
         </div>
         <div>
           <v-btn
-            class="text-capitalize"
+            class="text-capitalize submit-btn"
             color="primary"
             block
             @click="startSession"
+            :disabled="
+              !selectedTests.length || !sessionName || !privacy || !invitation
+            "
           >
             Start Session
           </v-btn>
@@ -207,12 +239,15 @@ export default {
         { text: "Status", value: "status" },
       ],
       tests: [],
-      selectedTest: new Set(),
+      selectedTests: [],
       sessionName: "",
       privacy_modes: ["Private", "Public"],
       privacy: "Public",
       invitation: "general",
-      timeLimit: 0,
+      timeLimit: null,
+      statuses: [],
+      search: "",
+      invitationLink: "https://pinata.com/sdflksdfnsldfvbnsfd...",
     };
   },
   computed: {
@@ -238,6 +273,33 @@ export default {
         "home.openExploratorySession",
         this.hotkeys
       );
+    },
+    searchTestsList() {
+      if (this.tests.length && this.search && this.search !== "") {
+        return this.tests.filter((item) => {
+          return (
+            item.title.toUpperCase().includes(this.search.toUpperCase()) ||
+            item.custom_expected
+              ?.toUpperCase()
+              .includes(this.search.toUpperCase()) ||
+            item.custom_goals
+              ?.toUpperCase()
+              .includes(this.search.toUpperCase()) ||
+            item.custom_mission
+              ?.toUpperCase()
+              .includes(this.search.toUpperCase()) ||
+            item.custom_preconds
+              ?.toUpperCase()
+              .includes(this.search.toUpperCase()) ||
+            item.custom_steps
+              ?.toUpperCase()
+              .includes(this.search.toUpperCase()) ||
+            item.id.toString().includes(this.search)
+          );
+        });
+      } else {
+        return this.tests;
+      }
     },
   },
   mounted() {
@@ -267,8 +329,14 @@ export default {
 
         if (this.tcmTool === "testrail") {
           this.getTestRailProjects();
+          this.getTestRailStatuses();
         }
       }
+    },
+    async getTestRailStatuses() {
+      this.statuses = await testrailIntegrationHelper.getTestStatuses(
+        this.credentials["testrail"][0]
+      );
     },
     async getTestRailProjects() {
       this.projects = await testrailIntegrationHelper.fetchProjects(
@@ -300,13 +368,62 @@ export default {
         "testrail"
       );
     },
-    selectTestRun(value) {
-      this.selectedRun = value;
+    selectTcmTool() {
+      if (this.tcmTool === "testrail") {
+        this.getTestRailProjects();
+      }
+    },
+    selectProject() {
+      if (this.tcmTool === "testrail") {
+        this.getTestRailTestRuns();
+      }
+    },
+    selectTestRun() {
       this.getTestRailTests();
-      console.log(this.tests);
+    },
+    getPriorityFromPriorityId(priorityId) {
+      switch (priorityId) {
+        case 1:
+          return "Low";
+        case 2:
+          return "Medium";
+        default:
+          return "High";
+      }
+    },
+    getPriorityColor(priorityId) {
+      switch (priorityId) {
+        case 4:
+          return "red";
+        case 3:
+          return "orange";
+        case 2:
+          return "yellow";
+        default:
+          return "green";
+      }
+    },
+    getStatusColor(statusId) {
+      let status = this.statuses.find((status) => status.id === statusId);
+
+      return `#${status.color_bright}`;
+    },
+    getStatusText(statusId) {
+      let status = this.statuses.find((status) => status.id === statusId);
+
+      return status.label;
+    },
+    copyToClipboard() {
+      navigator.clipboard
+        .writeText(this.invitationLink)
+        .then(() => {
+          console.log("Link copied to clipboard successfully!");
+        })
+        .catch((err) => {
+          console.error("Failed to copy: ", err);
+        });
     },
     startSession() {
-      // Do validations (if neccessary)
       this.$store.commit("startQuickTest", "/run/scripted/workspace");
       this.$store.commit("startSessionPlan", this.selectedTests);
       this.$router.push("/run/scripted/workspace");
@@ -381,5 +498,22 @@ export default {
 
 .form-group {
   max-width: 50%;
+}
+
+.secondary-btn {
+  background: #f2f4f7;
+  font-weight: 700;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.invitation-link ::v-deep .v-input__slot {
+  padding-right: 8px !important;
+}
+.invitation-link ::v-deep .v-text-field__slot input {
+  text-overflow: ellipsis;
+}
+.copy-button {
+  text-transform: none !important;
 }
 </style>
