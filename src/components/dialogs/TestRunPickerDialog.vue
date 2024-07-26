@@ -8,7 +8,7 @@
         medium
         class="mt-4 text-capitalize secondary-btn"
         v-shortkey="scriptedTestSessionHotkey"
-        @shortkey="handleScriptedTestSession()"
+        @shortkey="handleScriptedTestSessionRedirect()"
         @click="handleScriptedTestSessionRedirect()"
       >
         {{ $tc("caption.scripted_test_session", 1) }}
@@ -48,7 +48,11 @@ export default {
       );
     },
   },
-  methods: {},
+  methods: {
+    handleScriptedTestSessionRedirect() {
+      this.$router.push("/start/scripted");
+    },
+  },
   mounted() {},
 };
 </script>
