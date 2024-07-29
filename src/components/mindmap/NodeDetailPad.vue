@@ -192,7 +192,7 @@ export default {
     },
     handleFileUpload() {
       this.attachments.push(this.attachment);
-      this.$root.$emit("update:attachments", this.attachments);
+      this.$root.$emit("update:attachments", this.currentId, this.attachments);
     },
   },
 };

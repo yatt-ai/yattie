@@ -9,17 +9,206 @@
       <div v-else class="center">
         {{ $tc("message.empty_workspace") }}
       </div>
-      <div
-        v-if="status !== 'pending' && status !== 'pause' && status !== 'end'"
+
+      <v-menu
+        v-model="showMenu"
+        :position-x="menuX"
+        :position-y="menuY"
+        absolute
       >
-        <v-btn
-          plain
-          :style="{ color: currentTheme.secondary }"
-          class="text-capitalize"
-          @click="uploadEvidence"
-        >
-          {{ $tc("caption.upload_evidence", 1) }}
-        </v-btn>
+        <v-list density="compact">
+          <v-list-item
+            v-for="(action, i) in contextMenuActions"
+            :key="i"
+            :value="action"
+            @click="handleActionClick(action)"
+            color="primary"
+            class="context-menu-item"
+            v-shortkey="action.key"
+            @shortkey="handleActionClick(action)"
+            :style="{ borderRadius: '4px', cursor: 'pointer' }"
+          >
+            <!-- <template v-slot:prepend> -->
+            <!-- <span @click="handleActionClick(action)" class="text-caption">{{
+                action.label
+              }}</span> -->
+            <!-- </template> -->
+            <!-- <img
+              :src="require('../assets/icon/' + action.icon + '.svg')"
+              width="24"
+              height="24"
+            /> -->
+            <strong>
+              <v-list-item-title
+                v-text="action.label"
+                class="ml-2 mr-8"
+              ></v-list-item-title>
+            </strong>
+            <v-list-item-title v-text="action.hotkey"></v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+      <div class="mindmap-detail-bar" v-if="selectedNodes.length > 0">
+        <div>
+          <div class="control-btns mx-1 mt-2 cursor-pointer">
+            <NodeDetailPad
+              :currentColor="currentNode.color ? currentNode.color : '#e2e7fe'"
+              :currentShape="
+                currentNode.shape ? currentNode.shape : 'rectangle'
+              "
+              :currentStatus="currentNode.status ? currentNode.status : ''"
+              :currentTags="currentNode.tags ? currentNode.tags : []"
+              :currentId="currentNode.id ? currentNode.id : ''"
+              :currentAttachments="
+                currentNode.attachments ? currentNode.attachments : []
+              "
+            />
+          </div>
+        </div>
+      </div>
+      <div class="mindmap-control-btn-wrapper">
+        <div>
+          <div
+            class="detail-bar mindmap-control-btn control-btns mx-1 mt-2 cursor-pointer"
+            v-if="isDetail"
+          >
+            <ColorPicker :colorType="'shape'" />
+            <v-divider vertical></v-divider>
+            <ShapePad v-if="detailType === 'shape'" />
+            <MarkerPad v-if="detailType === 'marker'" />
+            <TextPad v-if="detailType === 'text'" />
+            <LinkPad v-if="detailType === 'link'" />
+          </div>
+          <div
+            class="mindmap-control-btn control-btns mx-1 mt-2 cursor-pointer"
+          >
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <div
+                  class="mindmap-ctrl-btn"
+                  v-on="on"
+                  @click="handleSelect('marker')"
+                >
+                  <img
+                    :src="require('../assets/icon/edit.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.marker", 1) }}</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <div
+                  class="mindmap-ctrl-btn"
+                  v-on="on"
+                  @click="handleSelect('shape')"
+                >
+                  <img
+                    :src="require('../assets/icon/shape.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.shapes", 1) }}</span>
+            </v-tooltip>
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <div
+                  class="mindmap-ctrl-btn"
+                  v-on="on"
+                  @click="handleSelect('link')"
+                >
+                  <img
+                    :src="require('../assets/icon/link.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.connector", 1) }}</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <div
+                  class="mindmap-ctrl-btn"
+                  v-on="on"
+                  @click="handleSelect('text')"
+                >
+                  <img
+                    :src="require('../assets/icon/text.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.text", 1) }}</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <div class="mindmap-ctrl-btn" v-on="on" @click="uploadEvidence">
+                  <img
+                    :src="require('../assets/icon/upload.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.upload_evidence", 1) }}</span>
+            </v-tooltip>
+          </div>
+        </div>
+      </div>
+
+      <div class="mindmap-btn-wrapper">
+        <v-tooltip right>
+          <template v-slot:activator="{ on }">
+            <div
+              class="mindmap-control-btn mx-1 cursor-pointer"
+              v-on="on"
+              @click="resetZoom()"
+            >
+              <img
+                :src="require('../assets/icon/compass.svg')"
+                width="24"
+                height="24"
+              />
+            </div>
+          </template>
+          <span>{{ $tc("caption.compass", 1) }}</span>
+        </v-tooltip>
+
+        <div class="mindmap-control-btn mx-1 mt-4">
+          <div class="zoom-control">
+            <v-tooltip right>
+              <template v-slot:activator="{ on }">
+                <div class="cursor-pointer" @click="zoomInOut(1.25)" v-on="on">
+                  <img
+                    :src="require('../assets/icon/zoom-in.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.zoom_in", 1) }}</span>
+            </v-tooltip>
+            <v-tooltip right>
+              <template v-slot:activator="{ on }">
+                <div class="cursor-pointer" @click="zoomInOut(0.8)" v-on="on">
+                  <img
+                    :src="require('../assets/icon/zoom-out.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.zoom_out", 1) }}</span>
+            </v-tooltip>
+          </div>
+        </div>
       </div>
     </div>
     <AddEvidenceDialog
@@ -51,11 +240,18 @@ import {
   forceManyBody,
   forceSimulation,
   select,
-  // event,
+  event,
   zoom,
   zoomIdentity,
 } from "d3";
-import NewNodeComponent from "./NewNodeComponent.vue";
+import { v4 as uuidv4 } from "uuid";
+import NewNode from "./NewNode.vue";
+import ColorPicker from "./mindmap/ColorPicker.vue";
+import ShapePad from "./mindmap/ShapePad.vue";
+import MarkerPad from "./mindmap/MarkerPad.vue";
+import TextPad from "./mindmap/TextPad.vue";
+import LinkPad from "./mindmap/LinkPad.vue";
+import NodeDetailPad from "./mindmap/NodeDetailPad.vue";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import vuetify from "@/plugins/vuetify";
 import i18n from "@/i18n";
@@ -68,26 +264,31 @@ import {
   d3Nodes,
   d3Drag,
   d3PanZoom,
-  onNextTick,
+  onTick,
   d3Connector,
   d3Selection,
 } from "../modules/mindmap/utils/d3";
+import AddEvidenceDialog from "./dialogs/AddEvidenceDialog.vue";
+import EditEvidenceDialog from "./dialogs/EditEvidenceDialog.vue";
+// import { createImageForWeb } from "@/helpers/WebHelpers";
 import { getViewBox } from "../modules/mindmap/utils/dimensions";
 import "../modules/mindmap/sass/mindmap.sass";
 import domtoimage from "dom-to-image-more";
 import dayjs from "dayjs";
-import { STATUSES, TEXT_TYPES, FILE_TYPES } from "@/modules/constants";
-import AddEvidenceDialog from "@/components/dialogs/AddEvidenceDialog.vue";
-import EditEvidenceDialog from "@/components/dialogs/EditEvidenceDialog.vue";
-import WaveSurfer from "wavesurfer.js";
+import { STATUSES, FILE_TYPES } from "@/modules/constants";
 import { mapGetters } from "vuex";
-import { createImageForWeb } from "@/helpers/WebHelpers";
 
 export default {
   name: "MindmapWrapper",
   components: {
-    EditEvidenceDialog,
+    ColorPicker,
+    ShapePad,
+    MarkerPad,
+    TextPad,
+    LinkPad,
+    NodeDetailPad,
     AddEvidenceDialog,
+    EditEvidenceDialog,
   },
   props: {
     edit: {
@@ -104,40 +305,22 @@ export default {
     },
   },
   watch: {
-    items: {
+    sessionNodes: {
       async handler() {
-        this.itemLists = structuredClone(this.items);
-        let newMap = { ...this.emojiMenu };
-        this.itemLists.map(async (item) => {
-          newMap[`menu-${item.stepID}`] = false;
-        });
-
-        this.emojiMenu = newMap;
-      },
-
-      immediate: true,
-    },
-    nodes: {
-      async handler() {
-        this.nodesData = structuredClone(this.nodes);
-        this.connectionsData = structuredClone(this.connections);
+        this.nodes = structuredClone(this.sessionNodes);
+        this.connections = structuredClone(this.sessionConnections);
         await this.renderMap();
       },
     },
-    connections: {
+    sessionConnections: {
       async handler() {
-        this.nodesData = structuredClone(this.nodes);
-        this.connectionsData = structuredClone(this.connections);
+        this.nodes = structuredClone(this.sessionNodes);
+        this.connections = structuredClone(this.sessionConnections);
         await this.renderMap();
       },
     },
-    selectedNodes: {
-      async handler() {
-        this.$root.$emit("update-selected-nodes", this.selectedNodes);
-      },
-    },
-    eventType: function (newValue) {
-      this.eventName = newValue;
+    selectedNodes: function (newValue) {
+      if (newValue.length === 0) this.isDetail = false;
     },
     triggerSave: function (newValue) {
       if (newValue) {
@@ -147,70 +330,69 @@ export default {
   },
   data() {
     return {
-      itemLists: [],
-      selected: [],
-      activeSession: {},
+      simulation: null,
+      nodes: [],
+      connections: [],
       itemToEdit: null,
-      tags: "",
-      eventName: this.eventType,
-      textTypes: TEXT_TYPES,
-      isDragging: false,
-      itemDragging: false,
-      emojiMenu: {},
-      selectedId: null,
-      addEvidenceDialog: false,
       evidenceData: null,
       editEvidenceDialog: false,
+      addEvidenceDialog: false,
       posterUrl: null,
       mindmapURL: null,
-      clicks: 0,
-      timer: null,
-      simulation: null,
       clicked: [],
       editable: this.edit,
       selectedNodes: [],
-      nodesData: [],
-      connectionsData: [],
       title: "",
+      isDetail: false,
+      detailType: "",
+      clicks: 0,
+      timer: null,
+      nodeDialog: false,
+      content: "",
+      status: "",
+      shape: "rectangle",
+      color: "#e2e7fe",
+      menuX: 0,
+      menuY: 0,
+      currentNode: null,
+      targetNode: null,
+      contextMenuActions: [
+        {
+          label: "Copy",
+          action: "copy",
+          hotkey: "Alt+C",
+          icon: "delete",
+        },
+        {
+          label: "Paste",
+          action: "paste",
+          hotkey: "Alt+V",
+          icon: "delete",
+        },
+        {
+          label: "Edit",
+          action: "edit",
+          hotkey: "Alt+E",
+          icon: "pencil",
+        },
+        {
+          label: "Delete",
+          action: "delete",
+          hotkey: "Delete",
+          icon: "delete",
+        },
+      ],
+      showMenu: false,
     };
-  },
-  created() {
-    // Create force simulation to position nodes that have
-    // no coordinate, and add it to the component state
-
-    this.simulation = forceSimulation()
-      .force(
-        "link",
-        forceLink().id((node) => node.id)
-      )
-      .force("charge", forceManyBody())
-      .force("collide", forceCollide().radius(100));
-    this.nodesData = structuredClone(this.nodes);
-    this.connectionsData = structuredClone(this.connections);
-  },
-  mounted() {
-    this.$root.$on("render-mindmap", this.renderMindmap);
-    this.$root.$on("handle-mindmap", this.handleMindmap);
-    this.emojiMenu = {};
-    this.itemLists = structuredClone(this.items);
-    let newMap = { ...this.emojiMenu };
-    this.itemLists.map(async (item) => {
-      newMap[`menu-${item.stepID}`] = false;
-    });
-    this.renderMap();
-  },
-  updated() {
-    zoom().transform(select(this.$refs.mindmapWrapper), zoomIdentity);
-
-    this.renderMap();
   },
   computed: {
     ...mapGetters({
-      items: "sessionItems",
-      nodes: "sessionNodes",
-      connections: "sessionConnections",
+      sessionItems: "sessionItems",
+      sessionNodes: "sessionNodes",
+      sessionConnections: "sessionConnections",
+      hotkeys: "config/hotkeys",
     }),
-    status() {
+    currentStatus() {
       return this.$store.state.session.status;
     },
     current() {
@@ -223,6 +405,48 @@ export default {
         return this.$vuetify.theme.themes.light;
       }
     },
+    deleteHotkey() {
+      return this.$hotkeyHelpers.findBinding("workspace.delete", this.hotkeys);
+    },
+    copyHotkey() {
+      return this.$hotkeyHelpers.findBinding("workspace.copy", this.hotkeys);
+    },
+    pasteHotkey() {
+      return this.$hotkeyHelpers.findBinding("workspace.paste", this.hotkeys);
+    },
+  },
+  created() {
+    // Create force simulation to position nodes that have
+    // no coordinate, and add it to the component state
+    this.simulation = forceSimulation()
+      .force(
+        "link",
+        forceLink().id((node) => node.id)
+      )
+      .force("charge", forceManyBody())
+      .force("collide", forceCollide().radius(100));
+  },
+  mounted() {
+    this.$root.$on("update-color", this.handleUpdateColor);
+    this.$root.$on("update:shape", this.handleUpdateShape);
+    this.$root.$on("update:status", this.handleUpdateStatus);
+    this.$root.$on("update:tags", this.handleUpdateTags);
+    this.$root.$on("update:attachments", this.handleUpdateAttachments);
+    this.$root.$on("render-mindmap", this.renderMap);
+    this.nodes = structuredClone(this.sessionNodes);
+    this.connections = structuredClone(this.sessionConnections);
+    this.renderMap();
+    this.contextMenuActions.map((action) => {
+      action.key = this.$hotkeyHelpers.findBinding(
+        "workspace." + action.action,
+        this.hotkeys
+      );
+    });
+  },
+  updated() {
+    zoom().transform(select(this.$refs.mindmapWrapper), zoomIdentity);
+
+    this.renderMap();
   },
   methods: {
     getType(type) {
@@ -247,150 +471,88 @@ export default {
       }
     },
 
-    checkedItem(id) {
-      return this.selected.includes(id);
-    },
-    handleSelected($event, id) {
-      if ($event.target.checked && !this.selected.includes(id)) {
-        this.selected.push(id);
-      } else {
-        this.selected = this.selected.filter((n) => n != id);
-      }
-      this.$root.$emit("update-selected", this.selected);
-    },
-    handleChange() {
-      this.saveData();
-    },
-    handleItemClick(id) {
-      // setTimeout(function () {
-      this.handleActivateEditSession(id);
-      // }, 200);
-    },
-    handleFollowUp($event, id) {
-      this.itemLists = this.itemLists.map((item) => {
-        let temp = structuredClone(item);
-        if (temp.stepID === id) {
-          temp.followUp = $event.target.checked;
-        }
-        return temp;
-      });
-      this.saveData();
-    },
-    async handleActivateEditSession(id) {
-      this.itemToEdit = await this.$storageService.getItemById(id);
-      this.editEvidenceDialog = true;
-    },
-
-    handleSelectedItem(id) {
-      this.selectedId = id;
-    },
-    async saveData() {
-      await this.$store.commit("setSessionItems", this.itemLists);
-    },
-    generatePoster(audioFilePath) {
-      return new Promise((resolve, reject) => {
-        const waveSurfer = WaveSurfer.create({
-          container: document.createElement("div"),
-          waveColor: "#6B7280",
-          progressColor: "hsla(200, 100%, 30%, 0.5)",
-          cursorColor: "#000",
-          barWidth: 3,
-        });
-
-        waveSurfer.load(audioFilePath);
-
-        waveSurfer.on("ready", () => {
-          const peaks = waveSurfer.backend.getPeaks(512);
-          if (!peaks) {
-            reject("No peaks data available.");
-            waveSurfer.destroy();
-            return;
-          }
-
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d");
-          canvas.width = 512;
-          canvas.height = 128;
-
-          context.fillStyle = "#8e8e8e";
-          peaks.forEach((peak, index) => {
-            const h = peak * canvas.height;
-            context.fillRect(index, canvas.height / 2 - h / 2, 1, h);
-          });
-
-          const dataURL = canvas.toDataURL("image/png");
-          resolve(dataURL);
-
-          waveSurfer.destroy();
-        });
-
-        waveSurfer.on("error", (error) => {
-          console.error("Error with WaveSurfer:", error);
-          reject(error);
-        });
-      });
-    },
-    generateMindmapData() {
-      this.itemLists.map((item) => {
-        let node = { ...item, id: item.stepID };
-        this.nodes.push(node);
-      });
-    },
-
     prepareNodes() {
-      const render = async (node) => {
+      const render = (node) => {
         node.selected =
           this.selectedNodes.find((ele) => ele.id === node.id) !== undefined;
-        node.connectClicked =
-          this.clicked.find((ele) => ele.id === node.id) !== undefined;
         node.width = node.width ?? 200;
-        node.height = node.height ?? 270;
-
-        if (node.fileType === "audio/mp3") {
-          if (!this.$isElectron) {
-            let imageUrl = await this.generatePoster(node.filePath);
-            let posterResult = createImageForWeb(imageUrl);
-            node.poster = posterResult.item.filePath;
-          }
-        }
+        node.height = node.height ?? 100;
       };
-      this.nodesData.forEach((node) => render(node));
+
+      this.nodes.forEach((node) => render(node));
     },
     /**
-     * Add new class to nodes, attach drag behevior,
-     * and start simulation.
+     * Get the color of the node and update the color
      */
 
-    updateNodes() {
-      let updatedNodes, tempItems;
-      updatedNodes = structuredClone(this.nodesData);
-      tempItems = structuredClone(this.itemLists);
-      for (let i = 0; i < tempItems.length; i++) {
-        let node = updatedNodes.find((ele) => ele.id === tempItems[i].id);
-        if (node) {
-          tempItems[i].fx = node.fx;
-          tempItems[i].fy = node.fy;
-          tempItems[i].x = node.x;
-          tempItems[i].y = node.y;
-        }
+    handleUpdateColor(data) {
+      let currentNode = this.selectedNodes[0];
+      if (currentNode) {
+        currentNode.color = data.color;
+        currentNode.fillType = data.type;
+        this.renderMap();
       }
-      this.$store.commit("setSessionItems", tempItems);
-      this.$store.commit("setSessionNodes", updatedNodes);
+    },
+    /**
+     * Get the shape of the node and update the shape
+     */
+    handleUpdateShape(shape) {
+      let currentNode = this.selectedNodes[0];
+      if (currentNode) {
+        currentNode.shape = shape;
+        if (shape === "rectangle") {
+          currentNode.width = 200;
+          currentNode.height = 100;
+        } else {
+          currentNode.width = 100;
+          currentNode.height = 100;
+        }
+        this.renderMap();
+      }
+    },
+    /**
+     * Get the status of the node and update the status
+     */
+    handleUpdateStatus(status) {
+      let currentNode = this.selectedNodes[0];
+      if (currentNode) {
+        currentNode.status = status;
+        this.renderMap();
+      }
     },
 
-    updateConnections() {
-      let updatedConnections = structuredClone(this.connectionsData);
-      this.$store.commit("setSessionConnections", updatedConnections);
+    /**
+     * Get the tags of the node and update the tags
+     */
+    handleUpdateTags(tags) {
+      let currentNode = this.selectedNodes[0];
+      if (currentNode) {
+        currentNode.tags = tags;
+        this.renderMap();
+      }
     },
 
+    /**
+     * Get the attachments of the node and update the attachments
+     */
+    handleUpdateAttachments(nodeId, attachments) {
+      let currentNode = this.nodes.find((item) => item.id === nodeId);
+      if (currentNode) {
+        currentNode.attachments = attachments;
+        this.renderMap();
+      }
+    },
+
+    /**
+     * Add new class to nodes, attach `drag` behevior,
+     * and start simulation.
+     */
     prepareEditor(svg, conns, nodes, labels) {
       nodes
         .attr("class", "mindmap-node mindmap-node--editable")
         .attr("id", (d) => d.id);
-      let dragging = false;
-      nodes.call(
-        d3Drag(this.simulation, svg, nodes, true, dragging, this.updateNodes)
-      );
+
+      nodes.call(d3Drag(this.simulation, svg, nodes));
       // Tick the simulation 100 times
       for (let i = 0; i < 100; i += 1) {
         this.simulation.tick();
@@ -399,21 +561,13 @@ export default {
       setTimeout(() => {
         this.simulation
           .alphaTarget(0.5)
-          .on("tick", () => onNextTick(conns, nodes, labels));
-      }, 200);
-    },
-
-    renderMindmap() {
-      this.selectedNodes = [];
-      this.selectedNodes.push(this.nodesData[this.nodesData.length - 1]);
-      setTimeout(() => {
-        this.renderMap();
+          .on("tick", () => onTick(conns, nodes, labels));
       }, 200);
     },
     /**
-     * Render mind map unsing D3
+     * Render mind map using D3
      */
-    async renderMap() {
+    renderMap() {
       this.simulation = forceSimulation()
         .force(
           "link",
@@ -422,16 +576,20 @@ export default {
         .force("charge", forceManyBody())
         .force("collide", forceCollide().radius(200));
 
-      let svg = select(this.$refs.mindmapWrapper);
+      let svg = select(this.$refs.mindmapWrapper).on("click", () => {
+        // Check if the left mouse button is clicked
+        event.preventDefault();
+        this.selectedNodes = [];
+        this.renderMap();
+      });
       svg.selectAll("*").remove();
 
       this.prepareNodes();
-
       // Bind data to SVG elements and set all the properties to render them
-      const labels = d3Labels(svg, this.connectionsData);
-      const connections = d3Connections(svg, this.connectionsData, labels);
-      const nodes = d3Nodes(svg, this.nodesData);
+      const labels = d3Labels(svg, this.connections);
+      const connections = d3Connections(svg, this.connections, labels);
 
+      const nodes = d3Nodes(svg, this.nodes);
       // Bind vue component to the node
       const self = this;
       nodes.each(function (node) {
@@ -441,37 +599,42 @@ export default {
           i18n,
           store,
           render: (h) =>
-            h(NewNodeComponent, {
+            h(NewNode, {
               props: {
                 node,
                 editable: self.editable,
-                onEdit: (id) => self.handleItemClick(id),
+                onAdd: (content, status) =>
+                  self.addNewNode(node, content, status),
                 onSave: (content, status) => self.onSave(content, status),
                 onRemove: () => self.removeNode(node),
                 onConnect: () => self.connectNode(svg, node),
                 onClick: (isAltKeyPressed) =>
                   self.clickNode(isAltKeyPressed, node),
-                onTagsChanged: (newTags) => self.changeTags(newTags, node),
-                onAttach: (files) => {
-                  node.attachments = files;
-                },
+                onContextmenu: (x, y) => self.contextmenuNode(node, x, y),
               },
               vuetify,
               i18n,
               store,
             }),
+          mounted() {
+            this.$nextTick(() => {
+              const width = this.$el.offsetWidth;
+              const height = this.$el.offsetHeight;
+              node.width = width; // Store the computed size in your node's data
+              node.height = height; // Store the computed size in your node's data
+              container.attr("width", width).attr("height", height);
+            });
+            // TODO: need a function to resize the node
+          },
         });
 
         vueComponent.$mount();
 
         container.node().appendChild(vueComponent.$el);
       });
-      d3Selection(svg, this.nodesData, this.onSelectedByDrag);
+      d3Selection(svg, this.nodes, this.onSelectedByDrag);
       // Bind nodes and connections to the simulation
-      this.simulation
-        .nodes(this.nodesData)
-        .force("link")
-        .links(this.connectionsData);
+      this.simulation.nodes(this.nodes).force("link").links(this.connections);
 
       if (this.editable) {
         this.prepareEditor(svg, connections, nodes, labels);
@@ -484,51 +647,114 @@ export default {
 
       this.simulation
         .alphaTarget(0.5)
-        .on("tick", () => onNextTick(connections, nodes, labels));
+        .on("tick", () => onTick(connections, nodes, labels));
 
       svg
         .attr("viewBox", getViewBox(nodes.data()))
         .call(d3PanZoom(svg))
-        .on("dblclick.zoom", null);
-    },
-
-    onSave(content, status) {
-      this.selectedNodes.forEach((node) => {
-        if (content) {
-          node.content = content;
-        }
-        if (status) {
-          node.status = status;
-        }
-      });
+        .on("dbClick.zoom", null);
     },
 
     onSelectedByDrag(selectedNodes) {
       this.selectedNodes = [...selectedNodes];
-      this.clicked = [];
+      // this.renderMap();
+    },
+    /**
+     * Zoom in and out the mind map using D3
+     */
+    zoomInOut(scale) {
+      let svg = select(this.$refs.mindmapWrapper);
+      svg.transition().call(d3PanZoom(svg).scaleBy, scale);
+    },
+
+    resetZoom() {
+      let svg = select(this.$refs.mindmapWrapper);
+      svg.transition().call(d3PanZoom(svg).scaleTo, 1);
+    },
+
+    handleActionClick(action) {
+      if (action.action === "copy") {
+        this.copyNode(this.targetNode);
+      } else if (action.action === "paste") {
+        this.pasteNode(this.targetNode);
+      } else if (action.action === "edit") {
+        this.handleOpenEditModal(this.targetNode);
+      } else if (action.action === "delete") {
+        if (this.showMenu) this.removeNode(this.targetNode);
+        else this.removeNode();
+      }
+    },
+
+    /**
+     * * add new nodes
+     */
+    addNewNode(target, content, status) {
+      const nodeId = uuidv4();
+      let random_offset;
+      do {
+        random_offset = Math.floor(Math.random() * 400) - 200;
+      } while (random_offset >= -100 && random_offset <= 100);
+      this.nodes.push({
+        id: nodeId,
+        content: content,
+        status: status,
+        fx: target.fx + random_offset,
+        fy: target.fy + random_offset,
+      });
+      this.connections.push({
+        source: target.id,
+        target: nodeId,
+      });
       this.renderMap();
+      if (this.autoSave) {
+        this.handleMindmap();
+      }
     },
     /**
      * remove a node
      * todo: before remove nodes check all link
      */
     removeNode(node) {
-      this.nodesData = this.nodesData.filter((item) => item.id !== node.id);
-      this.connectionsData = this.connectionsData.filter(
+      if (!node && this.selectedNodes.length === 0) return;
+      if (!node) node = this.selectedNodes[0];
+
+      this.nodes = this.nodes.filter((item) => item.id !== node.id);
+      this.connections = this.connections.filter(
         (item) => item.source.id !== node.id && item.target.id !== node.id
       );
-      this.updateNodes();
-      this.updateConnections();
       this.renderMap();
       if (this.autoSave) {
         this.handleMindmap();
       }
     },
 
+    copyNode(node) {
+      this.content = node.content;
+      this.status = node.status;
+      this.shape = node.shape;
+      this.color = node.color;
+    },
+
+    pasteNode(node) {
+      this.addNewNode(node, this.content, this.status, this.shape, this.color);
+    },
+
+    async handleOpenEditModal(node) {
+      this.content = node.content;
+      this.status = node.status;
+      this.nodeDialog = true;
+    },
+    async handleOpenAddModal() {
+      this.content = "";
+      this.status = "";
+      this.nodeDialog = true;
+    },
+
     /**
      * click on node
      */
     clickNode(isAltKeyPressed, node) {
+      this.currentNode = node;
       // Toggle the selection of the clicked node
       this.clicks++;
       if (this.clicks === 1) {
@@ -539,7 +765,7 @@ export default {
         }, 300);
       } else {
         clearTimeout(this.timer);
-        this.handleActivateEditSession(node.id);
+        this.handleOpenEditModal(node);
         this.clicks = 0;
         this.renderMap();
       }
@@ -556,34 +782,22 @@ export default {
         this.selectedNodes = [node];
       }
     },
-    /**
-     * Change the tages of node
-     */
-    changeTags(newTags, node) {
-      node.tags = newTags;
-      let tempItems = structuredClone(this.itemLists);
-      tempItems.forEach((item) => {
-        if (item.id === node.id) item.tags = newTags;
-      });
-      let updatedNodes = structuredClone(this.nodesData);
-      updatedNodes.forEach((item) => {
-        if (item.id === node.id) item.tags = newTags;
-      });
-      this.itemLists = tempItems;
-      this.$store.commit("setSessionNodes", updatedNodes);
-      this.saveData();
 
-      this.renderMap();
+    contextmenuNode(node, x, y) {
+      this.menuX = x;
+      this.menuY = y;
+      this.showMenu = true;
+      this.targetNode = node;
     },
-
     /**
      * link on node
      */
     connectNode(svg, node) {
       this.clicked.push(node);
+
       if (this.clicked.length === 2) {
         // check if the previous connection exists
-        const previousConnection = this.connectionsData.find(
+        const previousConnection = this.connections.find(
           ({ source, target }) =>
             (source.id === this.clicked[0].id &&
               target.id === this.clicked[1].id) ||
@@ -591,20 +805,31 @@ export default {
               target.id === this.clicked[0].id)
         );
         if (!previousConnection) {
-          this.connectionsData.push({
+          this.connections.push({
             source: this.clicked[0].id,
             target: this.clicked[1].id,
           });
         }
         this.clicked = [];
-        this.updateConnections();
       }
       this.renderMap();
       d3Connector(svg, this.clicked[0]);
     },
-
+    handleAddNewNode(content, status) {
+      this.addNewNode(this.selectedNodes[0], content, status);
+    },
+    handleSelect(type) {
+      if (this.detailType !== type) {
+        this.detailType = type;
+        this.isDetail = true;
+      } else {
+        this.isDetail = false;
+        this.detailType = "";
+      }
+      if (type === "upload") this.isDetail = false;
+    },
     async handleMindmap() {
-      var svgElement = document.querySelector(`.mindmap-wrapper-svg`);
+      var svgElement = document.querySelector(`.mindmap-svg`);
       var mainDom = document.createElement("div");
       // var importedNode = document.importNode(svgElement.cloneNode(true), true);
       mainDom.append(svgElement.cloneNode(true));
@@ -616,7 +841,14 @@ export default {
         height: rect.height * quality,
         width: rect.width * quality,
       });
-      this.mindmapURL = imageUrl;
+      let new_nodes = structuredClone(this.nodes);
+      let new_connections = structuredClone(this.connections);
+
+      this.$emit("submit-mindmap", {
+        nodes: new_nodes,
+        connections: new_connections,
+        imgURI: imageUrl,
+      });
       mainDom.remove();
     },
   },
@@ -631,9 +863,18 @@ export default {
   justify-content: center;
   overflow: hidden;
   width: 100%;
+  height: 65vh;
+  background-image: url("../assets/mindmap-workspace.png");
+  background-repeat: no-repeat;
+  background-size: cover;
   /* height: 100vh; */
   /* background: linear-gradient(90deg, #1d8bdd 20%, #6d61b1 80%); */
   position: relative;
+}
+
+.mindmap-wrapper-svg {
+  width: 100%;
+  height: 80%;
 }
 
 .center {
@@ -643,5 +884,70 @@ export default {
   font-style: normal;
   font-weight: 700;
   font-size: 16px;
+}
+
+.mindmap-btn-wrapper {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+.mindmap-ctrl-btn {
+  background-color: #f9fafb;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+.mindmap-control-btn-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+.mindmap-detail-bar {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.control-btns {
+  display: flex !important;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.zoom-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.context-menu-item {
+  cursor: pointer;
+}
+
+.context-menu-item:hover {
+  background-color: #f0f0f0;
+}
+.detail-bar,
+.mindmap-detail-bar,
+.mindmap-control-btn-wrapper {
+  animation: pop-in 0.5s;
+}
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 </style>

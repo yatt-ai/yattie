@@ -1745,8 +1745,10 @@ export default {
       }
       updatedItems.push(newItem);
       updatedItems.forEach((item) => {
-        item.id = item.stepID;
-        updatedNodes.push({ ...item, content: item.comment.text });
+        if (item.fileType === "text/plain") {
+          item.id = item.stepID;
+          updatedNodes.push({ ...item, content: item.comment.text });
+        }
       });
 
       if (this.nodes.length > 0) {

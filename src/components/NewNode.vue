@@ -245,8 +245,7 @@ export default {
       this.attachments = this.attachments.filter(
         (item) => item.name !== attachment.name
       );
-      console.log(this.attachments);
-      this.$root.$emit("update:attachments", this.attachments);
+      this.$root.$emit("update:attachments", this.node.id, this.attachments);
     },
   },
 };

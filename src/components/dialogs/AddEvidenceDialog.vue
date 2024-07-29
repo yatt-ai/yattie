@@ -404,7 +404,6 @@ export default {
     ...mapGetters({
       items: "sessionItems",
       nodes: "sessionNodes",
-      connections: "sessionConnections",
       hotkeys: "config/hotkeys",
       config: "config/fullConfig",
       credentials: "auth/credentials",
@@ -608,7 +607,6 @@ export default {
       }
     },
     async handleSaveAndClose() {
-      console.log("Evidence Save");
       this.triggerSaveEvent = !this.triggerSaveEvent;
     },
     handleName() {
@@ -642,62 +640,10 @@ export default {
         createdAt: Date.now(),
         uploaded: false,
       };
-      let tempItems = structuredClone(this.items);
-      for (let i = 0; i < this.nodes.length; i++) {
-        tempItems[i].fx = this.nodes[i].fx;
-        tempItems[i].fy = this.nodes[i].fy;
-      }
-      const updatedItems = [...tempItems];
-      let updatedNodes = [];
-      let updatedConnections = [...this.connections];
-      if (this.nodes.length == 0) {
-        newItem.fx = Math.floor(Math.random() * 1001) - 500;
-        newItem.fy = Math.floor(Math.random() * 1001) - 500;
-      } else {
-        let random_offset_x, random_offset_y;
-        do {
-          random_offset_x = Math.floor(Math.random() * 800) - 400;
-          random_offset_y = Math.floor(Math.random() * 800) - 400;
-        } while (
-          (random_offset_x >= -200 && random_offset_x <= -100) ||
-          (random_offset_x >= 100 && random_offset_x <= 200)
-        );
-        newItem.fx = this.nodes[this.nodes.length - 1].fx + random_offset_x;
-        newItem.fy = this.nodes[this.nodes.length - 1].fy + random_offset_y;
-      }
-
+      const updatedItems = [...this.items];
       updatedItems.push(newItem);
-      tempItems = updatedItems
-        .slice()
-        .filter((item) => item?.comment?.type !== "Summary");
-
-      tempItems.forEach((item) => {
-        item.id = item.stepID;
-        updatedNodes.push({ ...item, content: item.comment.text });
-      });
-
-      if (this.nodes.length > 0) {
-        if (this.selectedNodes.length) {
-          this.selectedNodes.forEach((node) => {
-            updatedConnections.push({
-              source: node.stepID,
-              target: newItem.stepID,
-            });
-          });
-        } else {
-          updatedConnections.push({
-            source: this.nodes[this.nodes.length - 1].stepID,
-            target: newItem.stepID,
-          });
-        }
-      }
       await this.$store.commit("setSessionItems", [...updatedItems]);
-      await this.$store.commit("setSessionNodes", [...updatedNodes]);
-      await this.$store.commit("setSessionConnections", [
-        ...updatedConnections,
-      ]);
       this.$emit("close");
-      this.$root.$emit("render-mindmap");
     },
     handleClear() {
       this.comment = {

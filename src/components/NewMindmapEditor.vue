@@ -258,6 +258,7 @@ import {
 } from "../modules/mindmap/utils/d3";
 import { getViewBox } from "../modules/mindmap/utils/dimensions";
 import "../modules/mindmap/sass/mindmap.sass";
+import domtoimage from "dom-to-image-more";
 import { mapGetters } from "vuex";
 
 export default {
@@ -299,6 +300,11 @@ export default {
     },
     selectedNodes: function (newValue) {
       if (newValue.length === 0) this.isDetail = false;
+    },
+    triggerSave: function (newValue) {
+      if (newValue) {
+        this.handleMindmap(true);
+      }
     },
     connectionsData: function (newValue) {
       this.connections = newValue;
@@ -466,12 +472,10 @@ export default {
     /**
      * Get the attachments of the node and update the attachments
      */
-    handleUpdateAttachments(attachments) {
-      let currentNode = this.selectedNodes[0];
-      console.log(attachments);
+    handleUpdateAttachments(nodeId, attachments) {
+      let currentNode = this.nodes.find((item) => item.id === nodeId);
       if (currentNode) {
         currentNode.attachments = attachments;
-        console.log(this.nodes);
         this.renderMap();
       }
     },
@@ -639,6 +643,9 @@ export default {
         target: nodeId,
       });
       this.renderMap();
+      if (this.autoSave) {
+        this.handleMindmap();
+      }
     },
     /**
      * remove a node
@@ -763,6 +770,29 @@ export default {
         this.detailType = "";
       }
       if (type === "upload") this.isDetail = false;
+    },
+    async handleMindmap() {
+      var svgElement = document.querySelector(`.mindmap-svg`);
+      var mainDom = document.createElement("div");
+      // var importedNode = document.importNode(svgElement.cloneNode(true), true);
+      mainDom.append(svgElement.cloneNode(true));
+      document.getElementsByTagName("BODY")[0].append(mainDom);
+      const quality = 2;
+      const rect = svgElement.getBoundingClientRect();
+      const imageUrl = await domtoimage.toPng(mainDom, {
+        bgcolor: "#FAFAFA",
+        height: rect.height * quality,
+        width: rect.width * quality,
+      });
+      let new_nodes = structuredClone(this.nodes);
+      let new_connections = structuredClone(this.connections);
+
+      this.$emit("submit-mindmap", {
+        nodes: new_nodes,
+        connections: new_connections,
+        imgURI: imageUrl,
+      });
+      mainDom.remove();
     },
   },
 };
