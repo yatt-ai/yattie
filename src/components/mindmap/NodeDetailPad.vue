@@ -95,6 +95,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import ColorPicker from "./ColorPicker.vue";
 
 export default {
@@ -111,23 +112,13 @@ export default {
       ],
       status: "Passed",
       shape: "rectangle",
-      tags: ["Tag1", "Tag2"],
+      tags: [],
+      tag: "",
       openTags: false,
       id: "",
       attachment: null,
       attachments: [],
-      allTags: [
-        "Tag1",
-        "Tag2",
-        "Tag3",
-        "Tag4",
-        "Tag5",
-        "Tag6",
-        "Tag7",
-        "Tag8",
-        "Tag9",
-        "Tag10",
-      ],
+      allTags: [],
     };
   },
   components: {
@@ -139,6 +130,27 @@ export default {
     this.tags = this.currentTags;
     this.id = this.currentId;
     this.attachments = this.currentAttachments;
+    this.getAllTags();
+  },
+  computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+      config: "config/fullConfig",
+      sessionItems: "sessionItems",
+      defaultTags: "config/defaultTags",
+    }),
+    filteredTags() {
+      return this.allTags
+        .filter((item) => {
+          return item.toLowerCase().includes(this.tag.toLowerCase());
+        })
+        .map((item) => {
+          return { text: item };
+        });
+    },
+    tagsHotkey() {
+      return this.$hotkeyHelpers.findBinding("evidence.tags", this.hotkeys);
+    },
   },
   watch: {
     currentStatus: function (newValue) {
@@ -152,6 +164,9 @@ export default {
     },
     currentAttachments: function (newValue) {
       this.attachments = newValue;
+    },
+    openTags: function () {
+      this.getAllTags();
     },
   },
   props: {
@@ -190,9 +205,28 @@ export default {
     handleTags() {
       this.$root.$emit("update:tags", this.tags);
     },
+    handleTags1(newTags) {
+      console.log("handle-tags", newTags);
+    },
     handleFileUpload() {
       this.attachments.push(this.attachment);
       this.$root.$emit("update:attachments", this.currentId, this.attachments);
+    },
+    getAllTags() {
+      const defaultTagTexts = this.defaultTags
+        .filter((tag) => tag.text !== "")
+        .map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      this.allTags = [...new Set([...defaultTagTexts, ...sessionTagTexts])];
+      console.log("all-tags", this.allTags);
     },
   },
 };

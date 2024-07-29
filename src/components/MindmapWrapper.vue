@@ -432,7 +432,7 @@ export default {
     this.$root.$on("update:status", this.handleUpdateStatus);
     this.$root.$on("update:tags", this.handleUpdateTags);
     this.$root.$on("update:attachments", this.handleUpdateAttachments);
-    this.$root.$on("render-mindmap", this.renderMap);
+    this.$root.$on("render-mindmap", this.renderMindmap);
     this.nodes = structuredClone(this.sessionNodes);
     this.connections = structuredClone(this.sessionConnections);
     this.renderMap();
@@ -564,6 +564,16 @@ export default {
           .on("tick", () => onTick(conns, nodes, labels));
       }, 200);
     },
+
+    renderMindmap() {
+      this.selectedNodes = [];
+      this.nodes = structuredClone(this.sessionNodes);
+      this.connections = structuredClone(this.sessionConnections);
+      setTimeout(() => {
+        this.renderMap();
+      }, 200);
+    },
+
     /**
      * Render mind map using D3
      */
@@ -750,6 +760,11 @@ export default {
       this.nodeDialog = true;
     },
 
+    async handleActivateEditSession(id) {
+      this.itemToEdit = await this.$storageService.getItemById(id);
+      console.log(this.itemToEdit);
+      this.editEvidenceDialog = true;
+    },
     /**
      * click on node
      */
@@ -765,7 +780,7 @@ export default {
         }, 300);
       } else {
         clearTimeout(this.timer);
-        this.handleOpenEditModal(node);
+        this.handleActivateEditSession(node.id);
         this.clicks = 0;
         this.renderMap();
       }
