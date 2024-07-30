@@ -49,21 +49,17 @@
         </v-list>
       </v-menu>
       <div class="mindmap-detail-bar" v-if="selectedNodes.length > 0">
-        <div>
-          <div class="control-btns mx-1 mt-2 cursor-pointer">
-            <NodeDetailPad
-              :currentColor="currentNode.color ? currentNode.color : '#e2e7fe'"
-              :currentShape="
-                currentNode.shape ? currentNode.shape : 'rectangle'
-              "
-              :currentStatus="currentNode.status ? currentNode.status : ''"
-              :currentTags="currentNode.tags ? currentNode.tags : []"
-              :currentId="currentNode.id ? currentNode.id : ''"
-              :currentAttachments="
-                currentNode.attachments ? currentNode.attachments : []
-              "
-            />
-          </div>
+        <div class="control-btns mx-1 mt-2 cursor-pointer">
+          <NodeDetailPad
+            :currentColor="currentNode.color ? currentNode.color : '#e2e7fe'"
+            :currentShape="currentNode.shape ? currentNode.shape : 'rectangle'"
+            :currentStatus="currentNode.status ? currentNode.status : ''"
+            :currentTags="currentNode.tags ? currentNode.tags : []"
+            :currentId="currentNode.id ? currentNode.id : ''"
+            :currentAttachments="
+              currentNode.attachments ? currentNode.attachments : []
+            "
+          />
         </div>
       </div>
       <div class="mindmap-control-btn-wrapper">
@@ -527,6 +523,13 @@ export default {
     handleUpdateTags(tags) {
       let currentNode = this.selectedNodes[0];
       if (currentNode) {
+        let items = structuredClone(this.sessionItems);
+        items.forEach((item) => {
+          if (item.id === currentNode.id) {
+            item.tags = tags;
+          }
+        });
+        this.$store.commit("setSessionItems", items);
         currentNode.tags = tags;
         this.renderMap();
       }
@@ -688,7 +691,7 @@ export default {
       } else if (action.action === "paste") {
         this.pasteNode(this.targetNode);
       } else if (action.action === "edit") {
-        this.handleOpenEditModal(this.targetNode);
+        this.handleActivateEditSession(this.targetNode.id);
       } else if (action.action === "delete") {
         if (this.showMenu) this.removeNode(this.targetNode);
         else this.removeNode();
@@ -747,17 +750,6 @@ export default {
 
     pasteNode(node) {
       this.addNewNode(node, this.content, this.status, this.shape, this.color);
-    },
-
-    async handleOpenEditModal(node) {
-      this.content = node.content;
-      this.status = node.status;
-      this.nodeDialog = true;
-    },
-    async handleOpenAddModal() {
-      this.content = "";
-      this.status = "";
-      this.nodeDialog = true;
     },
 
     async handleActivateEditSession(id) {

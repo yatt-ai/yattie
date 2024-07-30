@@ -564,9 +564,6 @@ export default {
 
       await this.$store.commit("setSessionItems", [...updatedItems]);
       await this.$store.commit("setSessionNodes", [...updatedNodes]);
-      console.log("updated-nodes", updatedNodes);
-      console.log("updated-items", updatedItems);
-      console.log("updated-connections", this.sessionConnections);
       this.$emit("close");
       this.$root.$emit("render-mindmap");
     },

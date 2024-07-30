@@ -73,23 +73,25 @@
         <span>{{ $tc("caption.upload_attachment", 1) }}</span>
       </v-tooltip>
     </div>
+
     <div
       class="mindmap-control-btn mt-2"
       style="width: 350px; padding: 3px"
       v-if="openTags"
+      v-shortkey="tagsHotkey"
+      @shortkey="$hotkeyHelpers.focusField($refs, 'tags')"
     >
-      <v-autocomplete
-        v-model="tags"
-        :items="allTags"
-        dense
-        chips
-        small-chips
-        label="Tags"
-        @change="handleTags"
-        multiple
-        solo
-        prepend-icon="mdi-database-search"
-      ></v-autocomplete>
+      <vue-tags-input
+        ref="tags"
+        class="input-box"
+        v-model="tag"
+        :tags="tags"
+        :autocomplete-items="filteredTags"
+        :max-tags="10"
+        :maxlength="20"
+        @tags-changed="handleTags"
+        :placeholder="$t('message.insert_tag')"
+      />
     </div>
   </div>
 </template>
@@ -97,6 +99,7 @@
 <script>
 import { mapGetters } from "vuex";
 import ColorPicker from "./ColorPicker.vue";
+import VueTagsInput from "@johmun/vue-tags-input";
 
 export default {
   name: "NodeDetailPad",
@@ -123,6 +126,7 @@ export default {
   },
   components: {
     ColorPicker,
+    VueTagsInput,
   },
   mounted() {
     this.status = this.currentStatus;
@@ -137,6 +141,7 @@ export default {
       hotkeys: "config/hotkeys",
       config: "config/fullConfig",
       sessionItems: "sessionItems",
+      sessionNodes: "sessionNodes",
       defaultTags: "config/defaultTags",
     }),
     filteredTags() {
@@ -202,11 +207,8 @@ export default {
     handleStatus() {
       this.$root.$emit("update:status", this.status);
     },
-    handleTags() {
-      this.$root.$emit("update:tags", this.tags);
-    },
-    handleTags1(newTags) {
-      console.log("handle-tags", newTags);
+    handleTags(newTags) {
+      this.$root.$emit("update:tags", newTags);
     },
     handleFileUpload() {
       this.attachments.push(this.attachment);
@@ -216,18 +218,38 @@ export default {
       const defaultTagTexts = this.defaultTags
         .filter((tag) => tag.text !== "")
         .map((tag) => tag.text);
-      let sessionTagTexts = [];
+      let sessionItemsTagTexts = [],
+        sessionNodesTagTexts = [];
       if (this.sessionItems.length > 0) {
         this.sessionItems.forEach((item) => {
           if (item.tags && item.tags.length > 0) {
             const tagTexts = item.tags.map((tag) => tag.text);
-            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+            sessionItemsTagTexts = sessionItemsTagTexts.concat(tagTexts);
           }
         });
       }
-      this.allTags = [...new Set([...defaultTagTexts, ...sessionTagTexts])];
-      console.log("all-tags", this.allTags);
+      if (this.sessionNodes.length > 0) {
+        this.sessionNodes.forEach((node) => {
+          if (node.tags && node.tags.length > 0) {
+            const tagTexts = node.tags.map((tag) => tag.text);
+            sessionNodesTagTexts = sessionNodesTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      this.allTags = [
+        ...new Set([
+          ...defaultTagTexts,
+          ...sessionItemsTagTexts,
+          ...sessionNodesTagTexts,
+        ]),
+      ];
     },
   },
 };
 </script>
+
+<style>
+::deep(.mindmap-control-btn) {
+  line-height: 1 !important;
+}
+</style>
