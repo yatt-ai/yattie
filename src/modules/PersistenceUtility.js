@@ -242,7 +242,7 @@ const applyMigrations = (type, newVersion, data) => {
 
     const isDevelopment = process.env.NODE_ENV !== "production";
     let migrationFilesPath = isDevelopment
-      ? path.resolve(__dirname, "./src/modules/migrations/")
+      ? path.resolve(__dirname, "../src/modules/migrations/")
       : path.resolve(process.resourcesPath, "./migrations/");
     let migrationFiles = fs.readdirSync(migrationFilesPath);
     let migrationVersions = migrationFiles.map((fileName) => {

@@ -305,7 +305,7 @@ module.exports.exportSession = async (params) => {
 };
 
 const deleteFolder = function (folderPath) {
-  if (fs.existsSync(folderPath)) {
+  if (fs.existsSync(folderPath) && fs.lstatSync(curPath).isDirectory()) {
     fs.readdirSync(folderPath).forEach((file, index) => {
       const curPath = path.join(folderPath, file);
       if (fs.lstatSync(curPath).isDirectory()) {
