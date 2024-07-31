@@ -3,7 +3,7 @@
     <div
       class="color-picker"
       @click="handleOpenColorPicker"
-      :style="{ backgroundColor: currentColor }"
+      :style="{ backgroundColor: color }"
     />
     <ColorPickerDialog
       v-model="isOpen"
@@ -29,14 +29,14 @@ export default {
     },
     currentColor: {
       type: String,
-      default: () => "",
+      default: () => "#e2e7fe",
     },
   },
   watch: {
     colorType: function (newValue) {
       this.type = newValue;
     },
-    color: function (newValue) {
+    currentColor: function (newValue) {
       this.color = newValue;
     },
   },
@@ -55,8 +55,11 @@ export default {
       fillType: "fill",
       configToChange: null,
       isOpen: false,
-      color: this.config?.colors[this.type + "Color"] || "#101828",
+      color: this.currentColor,
     };
+  },
+  mounted() {
+    this.color = this.currentColor;
   },
   methods: {
     handleOpenColorPicker() {
@@ -67,6 +70,9 @@ export default {
       this.color = data.color;
       this.fillType = data.type;
       this.$root.$emit("update-color", data);
+    },
+    handleUpdateColor(data) {
+      this.color = data.color;
     },
   },
 };

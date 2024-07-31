@@ -39,16 +39,17 @@
       </v-select>
       <v-divider vertical />
       <v-select
-        :items="statusTypes"
+        :items="commentTypes"
         style="width: 135px; height: 30px"
         color="secondary"
-        v-model="status"
+        v-model="commentType"
         :placeholder="$tc('caption.comment_type')"
         solo
         dense
         hide-details="true"
-        @change="handleStatus"
+        @change="handleCommentType"
       ></v-select>
+
       <v-divider vertical />
       <v-btn class="btn" small @click="openTags = !openTags"> + Add Tag</v-btn>
       <v-divider vertical />
@@ -100,12 +101,15 @@
 import { mapGetters } from "vuex";
 import ColorPicker from "./ColorPicker.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
+import { TEXT_TYPES } from "@/modules/constants";
 
 export default {
   name: "NodeDetailPad",
   data() {
     return {
-      statusTypes: ["Passed", "Failed", "In Progress"],
+      commentTypes: Object.keys(TEXT_TYPES).filter(
+        (item) => item !== "Summary"
+      ),
       shapeTypes: [
         "rectangle",
         "ellipse",
@@ -113,7 +117,7 @@ export default {
         "downward-triangle",
         "diamond",
       ],
-      status: "Passed",
+      commentType: "Passed",
       shape: "rectangle",
       tags: [],
       tag: "",
@@ -129,7 +133,7 @@ export default {
     VueTagsInput,
   },
   mounted() {
-    this.status = this.currentStatus;
+    this.commentType = this.currentCommentType;
     this.shape = this.currentShape;
     this.tags = this.currentTags;
     this.id = this.currentId;
@@ -158,8 +162,8 @@ export default {
     },
   },
   watch: {
-    currentStatus: function (newValue) {
-      this.status = newValue;
+    currentCommentType: function (newValue) {
+      this.commentType = newValue;
     },
     currentShape: function (newValue) {
       this.shape = newValue;
@@ -183,7 +187,7 @@ export default {
       type: String,
       default: () => "",
     },
-    currentStatus: {
+    currentCommentType: {
       type: String,
       default: () => "Passed",
     },
@@ -204,8 +208,8 @@ export default {
     handleShape() {
       this.$root.$emit("update:shape", this.shape);
     },
-    handleStatus() {
-      this.$root.$emit("update:status", this.status);
+    handleCommentType() {
+      this.$root.$emit("update:commentType", this.commentType);
     },
     handleTags(newTags) {
       this.$root.$emit("update:tags", newTags);

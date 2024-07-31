@@ -49,7 +49,9 @@
               :currentShape="
                 currentNode.shape ? currentNode.shape : 'rectangle'
               "
-              :currentStatus="currentNode.status ? currentNode.status : ''"
+              :currentCommentType="
+                currentNode.comment.type ? currentNode.comment.type : ''
+              "
               :currentTags="currentNode.tags ? currentNode.tags : []"
               :currentId="currentNode.id ? currentNode.id : ''"
               :currentAttachments="
@@ -75,7 +77,7 @@
           <div
             class="mindmap-control-btn control-btns mx-1 mt-2 cursor-pointer"
           >
-            <v-tooltip bottom>
+            <!-- <v-tooltip bottom>
               <template v-slot:activator="{ on }">
                 <div
                   class="mindmap-ctrl-btn"
@@ -90,7 +92,7 @@
                 </div>
               </template>
               <span>{{ $tc("caption.marker", 1) }}</span>
-            </v-tooltip>
+            </v-tooltip> -->
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
                 <div
@@ -124,7 +126,7 @@
               </template>
               <span>{{ $tc("caption.connector", 1) }}</span>
             </v-tooltip>
-            <v-tooltip bottom>
+            <!-- <v-tooltip bottom>
               <template v-slot:activator="{ on }">
                 <div
                   class="mindmap-ctrl-btn"
@@ -139,7 +141,7 @@
                 </div>
               </template>
               <span>{{ $tc("caption.text", 1) }}</span>
-            </v-tooltip>
+            </v-tooltip> -->
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
                 <div
@@ -175,7 +177,7 @@
               />
             </div>
           </template>
-          <span>{{ $tc("caption.compass", 1) }}</span>
+          <span>{{ $tc("caption.zoom_in_to_flow", 1) }}</span>
         </v-tooltip>
 
         <div class="mindmap-control-btn mx-1 mt-4">
@@ -389,7 +391,7 @@ export default {
   mounted() {
     this.$root.$on("update-color", this.handleUpdateColor);
     this.$root.$on("update:shape", this.handleUpdateShape);
-    this.$root.$on("update:status", this.handleUpdateStatus);
+    this.$root.$on("update:commentType", this.handleUpdateCommentType);
     this.$root.$on("update:tags", this.handleUpdateTags);
     this.$root.$on("update:attachments", this.handleUpdateAttachments);
     this.nodes = structuredClone(this.nodesData);
@@ -450,10 +452,10 @@ export default {
     /**
      * Get the status of the node and update the status
      */
-    handleUpdateStatus(status) {
+    handleUpdateCommentType(status) {
       let currentNode = this.selectedNodes[0];
       if (currentNode) {
-        currentNode.status = status;
+        currentNode.comment.type = status;
         this.renderMap();
       }
     },

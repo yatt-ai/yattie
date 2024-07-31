@@ -53,7 +53,9 @@
           <NodeDetailPad
             :currentColor="currentNode.color ? currentNode.color : '#e2e7fe'"
             :currentShape="currentNode.shape ? currentNode.shape : 'rectangle'"
-            :currentStatus="currentNode.status ? currentNode.status : ''"
+            :currentCommentType="
+              currentNode.comment.type ? currentNode.comment.type : ''
+            "
             :currentTags="currentNode.tags ? currentNode.tags : []"
             :currentId="currentNode.id ? currentNode.id : ''"
             :currentAttachments="
@@ -75,10 +77,11 @@
             <TextPad v-if="detailType === 'text'" />
             <LinkPad v-if="detailType === 'link'" />
           </div>
-          <div
-            class="mindmap-control-btn control-btns mx-1 mt-2 cursor-pointer"
-          >
-            <v-tooltip bottom>
+          <div class="flex justify-center">
+            <div
+              class="mindmap-control-btn control-btns mx-1 mt-2 cursor-pointer fit-content"
+            >
+              <!-- <v-tooltip bottom>
               <template v-slot:activator="{ on }">
                 <div
                   class="mindmap-ctrl-btn"
@@ -93,41 +96,41 @@
                 </div>
               </template>
               <span>{{ $tc("caption.marker", 1) }}</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <div
-                  class="mindmap-ctrl-btn"
-                  v-on="on"
-                  @click="handleSelect('shape')"
-                >
-                  <img
-                    :src="require('../assets/icon/shape.svg')"
-                    width="24"
-                    height="24"
-                  />
-                </div>
-              </template>
-              <span>{{ $tc("caption.shapes", 1) }}</span>
-            </v-tooltip>
+            </v-tooltip> -->
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <div
+                    class="mindmap-ctrl-btn"
+                    v-on="on"
+                    @click="handleSelect('shape')"
+                  >
+                    <img
+                      :src="require('../assets/icon/shape.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </div>
+                </template>
+                <span>{{ $tc("caption.shapes", 1) }}</span>
+              </v-tooltip>
 
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <div
-                  class="mindmap-ctrl-btn"
-                  v-on="on"
-                  @click="handleSelect('link')"
-                >
-                  <img
-                    :src="require('../assets/icon/link.svg')"
-                    width="24"
-                    height="24"
-                  />
-                </div>
-              </template>
-              <span>{{ $tc("caption.connector", 1) }}</span>
-            </v-tooltip>
-            <v-tooltip bottom>
+              <!-- <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <div
+                    class="mindmap-ctrl-btn"
+                    v-on="on"
+                    @click="handleSelect('link')"
+                  >
+                    <img
+                      :src="require('../assets/icon/link.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </div>
+                </template>
+                <span>{{ $tc("caption.connector", 1) }}</span>
+              </v-tooltip> -->
+              <!-- <v-tooltip bottom>
               <template v-slot:activator="{ on }">
                 <div
                   class="mindmap-ctrl-btn"
@@ -142,19 +145,24 @@
                 </div>
               </template>
               <span>{{ $tc("caption.text", 1) }}</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <div class="mindmap-ctrl-btn" v-on="on" @click="uploadEvidence">
-                  <img
-                    :src="require('../assets/icon/upload.svg')"
-                    width="24"
-                    height="24"
-                  />
-                </div>
-              </template>
-              <span>{{ $tc("caption.upload_evidence", 1) }}</span>
-            </v-tooltip>
+            </v-tooltip> -->
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <div
+                    class="mindmap-ctrl-btn"
+                    v-on="on"
+                    @click="uploadEvidence"
+                  >
+                    <img
+                      :src="require('../assets/icon/upload.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </div>
+                </template>
+                <span>{{ $tc("caption.upload_evidence", 1) }}</span>
+              </v-tooltip>
+            </div>
           </div>
         </div>
       </div>
@@ -174,7 +182,7 @@
               />
             </div>
           </template>
-          <span>{{ $tc("caption.compass", 1) }}</span>
+          <span>{{ $tc("caption.zoom_in_to_flow", 1) }}</span>
         </v-tooltip>
 
         <div class="mindmap-control-btn mx-1 mt-4">
@@ -345,7 +353,7 @@ export default {
       timer: null,
       nodeDialog: false,
       content: "",
-      status: "",
+      commentType: "",
       shape: "rectangle",
       color: "#e2e7fe",
       menuX: 0,
@@ -425,7 +433,7 @@ export default {
   mounted() {
     this.$root.$on("update-color", this.handleUpdateColor);
     this.$root.$on("update:shape", this.handleUpdateShape);
-    this.$root.$on("update:status", this.handleUpdateStatus);
+    this.$root.$on("update:commentType", this.handleUpdateCommentType);
     this.$root.$on("update:tags", this.handleUpdateTags);
     this.$root.$on("update:attachments", this.handleUpdateAttachments);
     this.$root.$on("render-mindmap", this.renderMindmap);
@@ -484,8 +492,17 @@ export default {
     handleUpdateColor(data) {
       let currentNode = this.selectedNodes[0];
       if (currentNode) {
+        let items = structuredClone(this.sessionItems);
+        items.forEach((item) => {
+          if (item.id === currentNode.id) {
+            item.color = data.color;
+            item.fillType = data.type;
+          }
+        });
+        this.$store.commit("setSessionItems", items);
         currentNode.color = data.color;
         currentNode.fillType = data.type;
+        this.updateNodes();
         this.renderMap();
       }
     },
@@ -495,6 +512,20 @@ export default {
     handleUpdateShape(shape) {
       let currentNode = this.selectedNodes[0];
       if (currentNode) {
+        let items = structuredClone(this.sessionItems);
+        items.forEach((item) => {
+          if (item.id === currentNode.id) {
+            item.shape = shape;
+            if (shape === "rectangle") {
+              item.width = 200;
+              item.height = 100;
+            } else {
+              item.width = 100;
+              item.height = 100;
+            }
+          }
+        });
+        this.$store.commit("setSessionItems", items);
         currentNode.shape = shape;
         if (shape === "rectangle") {
           currentNode.width = 200;
@@ -503,16 +534,25 @@ export default {
           currentNode.width = 100;
           currentNode.height = 100;
         }
+        this.updateNodes();
         this.renderMap();
       }
     },
     /**
      * Get the status of the node and update the status
      */
-    handleUpdateStatus(status) {
+    handleUpdateCommentType(commentType) {
       let currentNode = this.selectedNodes[0];
       if (currentNode) {
-        currentNode.status = status;
+        let items = structuredClone(this.sessionItems);
+        items.forEach((item) => {
+          if (item.id === currentNode.id) {
+            item.comment.type = commentType;
+          }
+        });
+        this.$store.commit("setSessionItems", items);
+        currentNode.comment.type = commentType;
+        this.updateNodes();
         this.renderMap();
       }
     },
@@ -531,6 +571,7 @@ export default {
         });
         this.$store.commit("setSessionItems", items);
         currentNode.tags = tags;
+        this.updateNodes();
         this.renderMap();
       }
     },
@@ -541,7 +582,15 @@ export default {
     handleUpdateAttachments(nodeId, attachments) {
       let currentNode = this.nodes.find((item) => item.id === nodeId);
       if (currentNode) {
+        let items = structuredClone(this.sessionItems);
+        items.forEach((item) => {
+          if (item.id === currentNode.id) {
+            item.attachments = attachments;
+          }
+        });
+        this.$store.commit("setSessionItems", items);
         currentNode.attachments = attachments;
+        this.updateNodes();
         this.renderMap();
       }
     },
@@ -701,7 +750,7 @@ export default {
     /**
      * * add new nodes
      */
-    addNewNode(target, content, status) {
+    addNewNode(target, content, commentType) {
       const nodeId = uuidv4();
       let random_offset;
       do {
@@ -710,7 +759,9 @@ export default {
       this.nodes.push({
         id: nodeId,
         content: content,
-        status: status,
+        comment: {
+          type: commentType,
+        },
         fx: target.fx + random_offset,
         fy: target.fy + random_offset,
       });
@@ -743,13 +794,19 @@ export default {
 
     copyNode(node) {
       this.content = node.content;
-      this.status = node.status;
+      this.commentType = node.comment.type;
       this.shape = node.shape;
       this.color = node.color;
     },
 
     pasteNode(node) {
-      this.addNewNode(node, this.content, this.status, this.shape, this.color);
+      this.addNewNode(
+        node,
+        this.content,
+        this.commentType,
+        this.shape,
+        this.color
+      );
     },
 
     async handleActivateEditSession(id) {
@@ -822,8 +879,22 @@ export default {
       this.renderMap();
       d3Connector(svg, this.clicked[0]);
     },
-    handleAddNewNode(content, status) {
-      this.addNewNode(this.selectedNodes[0], content, status);
+
+    updateNodes() {
+      let updatedNodes, tempItems;
+      updatedNodes = structuredClone(this.nodes);
+      tempItems = structuredClone(this.sessionItems);
+      for (let i = 0; i < tempItems.length; i++) {
+        let node = updatedNodes.find((ele) => ele.id === tempItems[i].id);
+        if (node) {
+          tempItems[i].fx = node.fx;
+          tempItems[i].fy = node.fy;
+          tempItems[i].x = node.x;
+          tempItems[i].y = node.y;
+        }
+      }
+      this.$store.commit("setSessionItems", tempItems);
+      this.$store.commit("setSessionNodes", updatedNodes);
     },
     handleSelect(type) {
       if (this.detailType !== type) {

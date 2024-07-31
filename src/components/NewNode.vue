@@ -7,7 +7,7 @@
       class="node-wrapper"
       :class="{ selected: node.selected }"
       :style="{
-        backgroundColor: node.color ? node.color : '#e2e7fe',
+        backgroundColor: node.selected ? selectedColor : baseColor,
         minWidth: node.shape === 'rectangle' ? '200px' : '100px',
         borderRadius: node.shape === 'ellipse' ? '100%' : '12px',
       }"
@@ -24,7 +24,7 @@
           class="node-wrapper"
           :class="{ selected: node.selected }"
           :style="{
-            fill: node.color ? node.color : '#e2e7fe',
+            fill: node.selected ? selectedColor : baseColor,
           }"
           @click="handleClick"
           @contextmenu.prevent="showContextMenu($event, node)"
@@ -46,7 +46,7 @@
           class="node-wrapper"
           :class="{ selected: node.selected }"
           :style="{
-            fill: node.color ? node.color : '#e2e7fe',
+            fill: node.selected ? selectedColor : baseColor,
           }"
           @click="handleClick"
           @contextmenu.prevent="showContextMenu($event, node)"
@@ -68,7 +68,7 @@
           class="node-wrapper"
           :class="{ selected: node.selected }"
           :style="{
-            fill: node.color ? node.color : '#e2e7fe',
+            fill: node.selected ? selectedColor : baseColor,
           }"
           @click="handleClick"
           @contextmenu.prevent="showContextMenu($event, node)"
@@ -119,6 +119,7 @@
 </template>
 
 <script>
+import tinycolor from "tinycolor2";
 export default {
   name: "NewNode",
   props: {
@@ -172,6 +173,17 @@ export default {
       },
       targetRow: {},
     };
+  },
+  computed: {
+    baseColor() {
+      let base = tinycolor(this.node.color ? this.node.color : "#e2e7fe");
+      if (this.node.fillType === "transparent") base.setAlpha(0.5);
+      else if (this.node.fillType === "nofill") base = tinycolor("transparent");
+      return base;
+    },
+    selectedColor() {
+      return tinycolor(this.baseColor).darken(15).toString();
+    },
   },
   methods: {
     handleClickTagsInput(e) {
@@ -273,8 +285,8 @@ export default {
 }
 
 .selected {
-  background: #b2b7ee !important;
-  fill: #b2b7ee !important;
+  /* background: #b2b7ee !important; */
+  /* fill: #b2b7ee !important; */
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
 }
 

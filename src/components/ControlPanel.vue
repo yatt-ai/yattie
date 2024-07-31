@@ -1722,6 +1722,7 @@ export default {
         emoji: data.emoji,
         followUp: data.followUp,
         timer_mark: this.timer,
+        color: "#e2e7fe",
         createdAt: Date.now(),
       };
       const updatedItems = [...this.items];
