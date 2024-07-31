@@ -18,38 +18,38 @@
       />
     </div>
     <div className="nml-ctrl-wrapper" v-if="viewMode === 'normal'">
-      <v-row class="text-center" v-if="status === 'pending'">
-        <v-col cols="12" class="">
-          <v-btn
-            v-if="$store.state.current.execution.quickTest"
-            id="btn_new_quick_test"
-            class="text-capitalize font-weight-regular"
-            fill
-            small
-            block
-            :color="currentTheme.primary"
-            :style="{ color: currentTheme.white }"
-            :height="30"
-            @click="showSourcePickerDialog()"
-          >
-            {{ $tc("caption.start_quick_test", 1) }}
-          </v-btn>
-          <v-btn
-            v-else
-            id="btn_new_session"
-            class="text-capitalize font-weight-regular"
-            fill
-            small
-            block
-            :color="currentTheme.primary"
-            :style="{ color: currentTheme.white }"
-            :height="30"
-            @click="startNewSession()"
-          >
-            {{ $tc("caption.start_session", 1) }}
-          </v-btn>
-        </v-col>
-      </v-row>
+      <!--      <v-row class="text-center" v-if="status === 'pending'">-->
+      <!--        <v-col cols="12" class="">-->
+      <!--          <v-btn-->
+      <!--            v-if="$store.state.current.execution.quickTest"-->
+      <!--            id="btn_new_quick_test"-->
+      <!--            class="text-capitalize font-weight-regular"-->
+      <!--            fill-->
+      <!--            small-->
+      <!--            block-->
+      <!--            :color="currentTheme.primary"-->
+      <!--            :style="{ color: currentTheme.white }"-->
+      <!--            :height="30"-->
+      <!--            @click="showSourcePickerDialog()"-->
+      <!--          >-->
+      <!--            {{ $tc("caption.start_quick_test", 1) }}-->
+      <!--          </v-btn>-->
+      <!--          <v-btn-->
+      <!--            v-else-->
+      <!--            id="btn_new_session"-->
+      <!--            class="text-capitalize font-weight-regular"-->
+      <!--            fill-->
+      <!--            small-->
+      <!--            block-->
+      <!--            :color="currentTheme.primary"-->
+      <!--            :style="{ color: currentTheme.white }"-->
+      <!--            :height="30"-->
+      <!--            @click="startNewSession()"-->
+      <!--          >-->
+      <!--            {{ $tc("caption.start_session", 1) }}-->
+      <!--          </v-btn>-->
+      <!--        </v-col>-->
+      <!--      </v-row>-->
       <v-row class="mb-1" v-if="selected.length > 0">
         <v-col cols="6" class="pa-1">
           <v-btn
@@ -1950,11 +1950,11 @@ export default {
           duration: this.$store.state.current.case.duration,
         },
         session: {
-          status: this.$store.state.current.execution.status,
-          timer: this.$store.state.current.execution.timer,
-          started: this.$store.state.current.execution.started,
-          ended: this.$store.state.current.execution.ended,
-          quickTest: this.$store.state.current.execution.quickTest,
+          status: this.$store.state.current?.execution.status,
+          timer: this.$store.state.current?.execution.timer,
+          started: this.$store.state.current?.execution.started,
+          ended: this.$store.state.current?.execution.ended,
+          quickTest: this.$store.state.current?.execution.quickTest,
           path: this.$route.path,
         },
       };

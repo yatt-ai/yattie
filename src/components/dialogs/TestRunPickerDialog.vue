@@ -1,19 +1,18 @@
 <template>
   <div>
-    <div v-if="isAuthenticated && isLoggedInToTestrail">
-      <v-btn
-        block
-        plain
-        color="secondary"
-        medium
-        class="mt-4 text-capitalize secondary-btn"
-        v-shortkey="scriptedTestSessionHotkey"
-        @shortkey="handleScriptedTestSessionRedirect()"
-        @click="handleScriptedTestSessionRedirect()"
-      >
-        {{ $tc("caption.scripted_test_session", 1) }}
-      </v-btn>
-    </div>
+    <v-btn
+      block
+      plain
+      color="secondary"
+      medium
+      class="mt-4 text-capitalize secondary-btn"
+      v-shortkey="scriptedTestSessionHotkey"
+      @shortkey="handleScriptedTestSessionRedirect()"
+      @click="handleScriptedTestSessionRedirect()"
+      :disabled="!isAuthenticated || !isLoggedInToTestrail"
+    >
+      {{ $tc("caption.scripted_test_session", 1) }}
+    </v-btn>
   </div>
 </template>
 

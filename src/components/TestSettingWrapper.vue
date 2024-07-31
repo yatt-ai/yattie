@@ -111,87 +111,87 @@
               @submit-mindmap="handleMindmap"
             />
           </div>
-          <v-tabs
-            class="charter-tab"
-            hide-slider
-            :background-color="currentTheme.primary"
-            :color="currentTheme.white"
-            :height="32"
-          >
-            <v-tab ripple class="text-capitalize">
-              {{ $tc("caption.editor", 1) }}
-            </v-tab>
-            <v-tab ripple class="text-capitalize">
-              {{ $tc("caption.mind_map", 1) }}
-            </v-tab>
-            <v-tab-item :transition="false">
-              <v-card
-                v-if="charterLoading"
-                class="loading-wrapper"
-                outlined
-                flat
-              >
-                <v-progress-circular
-                  :color="currentTheme.primary"
-                  size="70"
-                  absolute
-                  indeterminate
-                ></v-progress-circular>
-              </v-card>
-              <v-tiptap
-                v-else
-                :value="charter.content"
-                :placeholder="$t('message.describe_test_charter')"
-                ref="charter"
-                :toolbar="[
-                  'headings',
-                  '|',
-                  'bold',
-                  'italic',
-                  'underline',
-                  '|',
-                  'color',
-                  '|',
-                  'bulletList',
-                  'orderedList',
-                  '|',
-                  'link',
-                  'emoji',
-                  'blockquote',
-                  '|',
-                  '#aiAssist',
-                ]"
-                @input="updateCharter"
-              >
-                <template #aiAssist="">
-                  <v-btn
-                    v-if="isAiAssistEnabled"
-                    icon
-                    small
-                    :title="$tc('caption.ai_assist', 1)"
-                    @click="handleAISuggestion('charter', $event)"
-                  >
-                    <v-icon>{{
-                      previousCharter?.content
-                        ? "mdi-robot-off-outline"
-                        : "mdi-robot-outline"
-                    }}</v-icon>
-                  </v-btn>
-                </template>
-              </v-tiptap>
-            </v-tab-item>
-            <v-tab-item :transition="false">
-              <div class="mindmap-wrapper">
-                <mindmap-editor
-                  :nodesData="mindmap.nodes"
-                  :connectionsData="mindmap.connections"
-                  :edit="true"
-                  :auto-save="true"
-                  @submit-mindmap="handleMindmap"
-                />
-              </div>
-            </v-tab-item>
-          </v-tabs>
+          <!--          <v-tabs-->
+          <!--            class="charter-tab"-->
+          <!--            hide-slider-->
+          <!--            :background-color="currentTheme.primary"-->
+          <!--            :color="currentTheme.white"-->
+          <!--            :height="32"-->
+          <!--          >-->
+          <!--            <v-tab ripple class="text-capitalize">-->
+          <!--              {{ $tc("caption.editor", 1) }}-->
+          <!--            </v-tab>-->
+          <!--            <v-tab ripple class="text-capitalize">-->
+          <!--              {{ $tc("caption.mind_map", 1) }}-->
+          <!--            </v-tab>-->
+          <!--            <v-tab-item :transition="false">-->
+          <!--              <v-card-->
+          <!--                v-if="charterLoading"-->
+          <!--                class="loading-wrapper"-->
+          <!--                outlined-->
+          <!--                flat-->
+          <!--              >-->
+          <!--                <v-progress-circular-->
+          <!--                  :color="currentTheme.primary"-->
+          <!--                  size="70"-->
+          <!--                  absolute-->
+          <!--                  indeterminate-->
+          <!--                ></v-progress-circular>-->
+          <!--              </v-card>-->
+          <!--              <v-tiptap-->
+          <!--                v-else-->
+          <!--                :value="charter.content"-->
+          <!--                :placeholder="$t('message.describe_test_charter')"-->
+          <!--                ref="charter"-->
+          <!--                :toolbar="[-->
+          <!--                  'headings',-->
+          <!--                  '|',-->
+          <!--                  'bold',-->
+          <!--                  'italic',-->
+          <!--                  'underline',-->
+          <!--                  '|',-->
+          <!--                  'color',-->
+          <!--                  '|',-->
+          <!--                  'bulletList',-->
+          <!--                  'orderedList',-->
+          <!--                  '|',-->
+          <!--                  'link',-->
+          <!--                  'emoji',-->
+          <!--                  'blockquote',-->
+          <!--                  '|',-->
+          <!--                  '#aiAssist',-->
+          <!--                ]"-->
+          <!--                @input="updateCharter"-->
+          <!--              >-->
+          <!--                <template #aiAssist="">-->
+          <!--                  <v-btn-->
+          <!--                    v-if="isAiAssistEnabled"-->
+          <!--                    icon-->
+          <!--                    small-->
+          <!--                    :title="$tc('caption.ai_assist', 1)"-->
+          <!--                    @click="handleAISuggestion('charter', $event)"-->
+          <!--                  >-->
+          <!--                    <v-icon>{{-->
+          <!--                      previousCharter?.content-->
+          <!--                        ? "mdi-robot-off-outline"-->
+          <!--                        : "mdi-robot-outline"-->
+          <!--                    }}</v-icon>-->
+          <!--                  </v-btn>-->
+          <!--                </template>-->
+          <!--              </v-tiptap>-->
+          <!--            </v-tab-item>-->
+          <!--            <v-tab-item :transition="false">-->
+          <!--              <div class="mindmap-wrapper">-->
+          <!--                <mindmap-editor-->
+          <!--                  :nodesData="mindmap.nodes"-->
+          <!--                  :connectionsData="mindmap.connections"-->
+          <!--                  :edit="true"-->
+          <!--                  :auto-save="true"-->
+          <!--                  @submit-mindmap="handleMindmap"-->
+          <!--                />-->
+          <!--              </div>-->
+          <!--            </v-tab-item>-->
+          <!--          </v-tabs>-->
         </div>
         <div class="mt-4 timelimit">
           <div
@@ -301,7 +301,9 @@
               v-model="duration"
               @change="handleDuration()"
               hide-details="true"
-              :disabled="this.$store.state.session.status !== 'pending'"
+              :disabled="
+                this.$store.state.current.execution.status !== 'pending'
+              "
             />
             <span class="timer-box-wrapper-label">
               {{ $tc("caption.minute", 1) }}
