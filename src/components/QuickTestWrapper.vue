@@ -1,0 +1,210 @@
+<template>
+  <v-container class="quick_test_wrapper">
+    <div class="top">
+      <v-btn
+        class="text-capitalize pa-0 back-btn"
+        plain
+        rounded
+        solid
+        v-shortkey="backHotkey"
+        @shortkey="handleResetConfirmDialog"
+        @click="handleResetConfirmDialog"
+      >
+        <v-icon class="ma-0">mdi-chevron-left</v-icon>
+        {{ $tc("caption.back", 1) }}
+      </v-btn>
+    </div>
+    <v-row class="text-left">
+      <v-col cols="12">
+        <div class="title">
+          <div
+            class="title-text mb-4"
+            :style="{ color: currentTheme.secondary }"
+            v-shortkey="titleHotkey"
+            @shortkey="$hotkeyHelpers.focusField($refs, 'titleTextField')"
+          >
+            {{ $tc("caption.quick_test", 1) }}
+          </div>
+          <div
+            class="label-text mb-4"
+            :style="{ color: currentTheme.secondary }"
+          >
+            {{ $tc("caption.session_name", 1) }}
+          </div>
+          <v-text-field
+            :placeholder="$t('message.enter_brief_charter_name')"
+            autofocus
+            outlined
+            dense
+            :height="35"
+            :color="currentTheme.secondary"
+            :append-icon="
+              isAiAssistEnabled
+                ? previousTitle
+                  ? 'mdi-robot-off-outline'
+                  : 'mdi-robot-outline'
+                : ''
+            "
+            :value="newSessionName"
+            ref="titleTextField"
+          >
+            <template v-slot:progress>
+              <v-progress-linear
+                :color="currentTheme.primary"
+                absolute
+                height="5"
+                indeterminate
+              ></v-progress-linear>
+            </template>
+          </v-text-field>
+        </div>
+      </v-col>
+      <v-col cols="12">
+        <div class="label-text mb-4" :style="{ color: currentTheme.secondary }">
+          {{ $tc("caption.privacy", 1) }}
+        </div>
+        <v-select
+          :items="privacy_modes"
+          color="secondary"
+          v-model="privacy"
+          :placeholder="$tc('caption.comment_type')"
+          solo
+          dense
+          hide-details="true"
+        ></v-select>
+      </v-col>
+      <v-col cols="12" class="">
+        <v-btn
+          id="btn_new_quick_test"
+          class="text-capitalize font-weight-regular"
+          fill
+          small
+          block
+          :color="currentTheme.primary"
+          :style="{ color: currentTheme.white }"
+          :height="30"
+          @click="startQuickTest"
+        >
+          {{ $tc("caption.start_quick_test", 1) }}
+        </v-btn>
+      </v-col>
+    </v-row>
+    <ResetConfirmDialog
+      v-model="resetConfirmDialog"
+      ref="resetConfirmDialog"
+      :text="$t('message.confirm_back')"
+      @confirm="back"
+      @cancel="resetConfirmDialog = false"
+    />
+  </v-container>
+</template>
+
+<script>
+import { VContainer, VRow, VCol, VTextField } from "vuetify/lib/components";
+
+import { mapGetters } from "vuex";
+import ResetConfirmDialog from "./dialogs/ResetConfirmDialog.vue";
+
+export default {
+  name: "QuickTestWrapper",
+  components: {
+    VContainer,
+    VRow,
+    VCol,
+    VTextField,
+    ResetConfirmDialog,
+  },
+  data() {
+    return {
+      privacy: "Private",
+      privacy_modes: ["Private", "Public"],
+      resetConfirmDialog: false,
+    };
+  },
+  computed: {
+    ...mapGetters({
+      isAiAssistEnabled: "config/isAiAssistEnabled",
+      hotkeys: "config/hotkeys",
+      config: "config/fullConfig",
+      credentials: "auth/credentials",
+    }),
+    titleHotkey() {
+      return this.$hotkeyHelpers.findBinding(
+        "sessionPlanning.title",
+        this.hotkeys
+      );
+    },
+    backHotkey() {
+      return this.$hotkeyHelpers.findBinding("workspace.back", this.hotkeys);
+    },
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
+    newSessionName() {
+      const currentDateTime = new Date();
+      const sessionName = `Quick test ${currentDateTime.toLocaleDateString(
+        "en-US",
+        { month: "2-digit", day: "2-digit", year: "2-digit" }
+      )}-${currentDateTime.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })}`;
+      this.$store.commit("setCaseTitle", sessionName);
+      return sessionName;
+    },
+  },
+  watch: {},
+
+  methods: {
+    startQuickTest() {
+      this.$root.$emit("start-quick-test");
+    },
+    async back() {
+      await this.$router.push("/");
+      await this.$storageService.resetData();
+      this.$store.commit("clearState");
+    },
+    handleResetConfirmDialog() {
+      this.resetConfirmDialog = true;
+      setTimeout(() => {
+        this.$refs.resetConfirmDialog?.$refs.confirmBtn.$el.focus();
+      }, 100);
+    },
+  },
+};
+</script>
+
+<style>
+.v-icon.mdi.theme--light.mdi-robot-off-outline {
+  color: rgba(255, 0, 0, 0.6) !important;
+}
+.v-icon.mdi.theme--dark.mdi-robot-off-outline {
+  color: rgba(255, 0, 0, 1) !important;
+}
+.loading-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 250px;
+}
+</style>
+<style scoped>
+.quick_test_wrapper {
+  /* width: 400px; */
+}
+.timer-box-wrapper {
+  display: flex;
+  column-gap: 10px;
+  align-items: center;
+  max-width: 10em;
+}
+.timer-box-wrapper-label {
+  color: #666;
+}
+</style>

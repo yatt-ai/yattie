@@ -14,7 +14,7 @@ const { STATUSES, FILE_TYPES } = require("./constants");
 
 module.exports.exportItems = async (ids) => {
   const fileName =
-    "yattie-export-" + dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".zip";
+    "pinata-export-" + dayjs().format("YYYY-MM-DD_HH-mm-ss-ms") + ".zip";
 
   const { filePath } = await dialog.showSaveDialog({
     title: "Save Items",
@@ -192,8 +192,8 @@ module.exports.exportSession = async (params) => {
   // show save dialog
   const fileName =
     params.type === "pdf"
-      ? "yattie-session-" + timestamp + ".pdf"
-      : "yattie-session-" + timestamp + ".zip";
+      ? "pinata-session-" + timestamp + ".pdf"
+      : "pinata-session-" + timestamp + ".zip";
   const options = {
     title: params.type === "pdf" ? "Save Pdf" : "Save Items",
     defaultPath: fileName,
@@ -236,7 +236,7 @@ module.exports.exportSession = async (params) => {
       pdfWin.webContents
         .printToPDF({})
         .then((data) => {
-          const pdfName = "yattie-session-" + timestamp + "-report.pdf";
+          const pdfName = "pinata-session-" + timestamp + "-report.pdf";
           const pdfPath = path.join(configDir, "sessions", id, pdfName);
           if (params.type === "pdf") {
             fs.writeFile(filePath, data, (error) => {
@@ -305,7 +305,7 @@ module.exports.exportSession = async (params) => {
 };
 
 const deleteFolder = function (folderPath) {
-  if (fs.existsSync(folderPath)) {
+  if (fs.existsSync(folderPath) && fs.lstatSync(curPath).isDirectory()) {
     fs.readdirSync(folderPath).forEach((file, index) => {
       const curPath = path.join(folderPath, file);
       if (fs.lstatSync(curPath).isDirectory()) {

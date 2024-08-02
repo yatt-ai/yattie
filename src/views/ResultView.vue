@@ -44,7 +44,7 @@
 
 <script>
 import SearchWrapper from "../components/SearchWrapper.vue";
-import TestWrapper from "../components/TestWrapper.vue";
+import TestWrapper from "../components/ExploratoryTestWrapper.vue";
 import WorkspaceWrapper from "../components/WorkspaceWrapper.vue";
 import ControlPanel from "../components/ControlPanel.vue";
 import ExportPanel from "../components/ExportPanel.vue";

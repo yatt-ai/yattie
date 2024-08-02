@@ -1,5 +1,5 @@
 {
-  "name": "yattie",
+  "name": "Pinata",
   "version": "0.11.0",
   "engines": {
     "npm": ">=8.0.0 <9.0.0",
@@ -7,8 +7,8 @@
   },
   "keywords": [],
   "author": {
-    "name": "YATT, Inc",
-    "email": "contact@yatt.ai"
+    "name": "TestFiesta, Inc",
+    "email": "contact@testfiesta.com"
   },
   "license": "GPL-3.0-only",
   "scripts": {
@@ -52,6 +52,7 @@
     "simple-json-db": "^2.0.0",
     "sinon": "^15.0.0",
     "systeminformation": "^5.22.1",
+    "tinycolor2": "^1.6.0",
     "tui-image-editor": "^3.15.3",
     "uuid": "3.3.3",
     "v-emoji-picker": "^2.3.3",

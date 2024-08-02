@@ -12,6 +12,26 @@
     >
       <v-icon dark> mdi-cog </v-icon>
     </v-btn>
+    <div class="flex flex-row justify-center mr-5">
+      <v-btn
+        id="btn__setting"
+        class="mx-1"
+        fab
+        outlined
+        small
+        color="default"
+        @click="openSettingWindow"
+      >
+        <img
+          :src="require('../assets/icon/setting.svg')"
+          width="24"
+          height="24"
+        />
+      </v-btn>
+      <v-btn id="btn__bell" class="mx-1" fab outlined small color="default">
+        <img :src="require('../assets/icon/bell.svg')" width="24" height="24" />
+      </v-btn>
+    </div>
     <v-menu
       v-model="showMenu"
       :close-on-content-click="false"
@@ -21,9 +41,17 @@
       offset-y
     >
       <template v-slot:activator="{ on, attrs }">
-        <v-btn icon small v-bind="attrs" v-on="on"
-          ><img :src="profileAvatar" width="32" alt="avatar"
-        /></v-btn>
+        <div class="flex flex-row justify-center">
+          <v-btn icon small v-bind="attrs" v-on="on">
+            <img
+              style="border-radius: 15px"
+              :src="profileAvatar"
+              width="32"
+              alt="avatar"
+            />
+          </v-btn>
+          <strong class="ml-2">{{ profileName }}</strong>
+        </div>
       </template>
 
       <v-card>
@@ -31,7 +59,9 @@
           v-for="(credentialList, credentialType) in credentials"
           :key="credentialType"
         >
-          <div v-if="credentialList.length > 0 && credentialType !== 'yatt'">
+          <div
+            v-if="credentialList.length > 0 && credentialType !== 'testfiesta'"
+          >
             <v-subheader
               class="text-uppercase font-weight-medium"
               style="height: 32px"
@@ -101,12 +131,14 @@
 </template>
 <script>
 import uuidv4 from "uuid";
+import { VBtn } from "vuetify/lib/components";
 import { mapGetters } from "vuex";
 import SettingsDialog from "@/components/dialogs/SettingsDialog.vue";
 
 export default {
   name: "MenuPopover",
   components: {
+    VBtn,
     SettingsDialog,
   },
   props: {},
@@ -120,6 +152,16 @@ export default {
     ...mapGetters({
       credentials: "auth/credentials",
     }),
+    profileName() {
+      for (const cList of Object.values(this.credentials)) {
+        if (cList.length > 0) {
+          if (cList[0].user.name) {
+            return cList[0].user.name;
+          }
+        }
+      }
+      return "Pinata";
+    },
     profileAvatar() {
       for (const cList of Object.values(this.credentials)) {
         if (cList.length > 0) {
@@ -135,12 +177,13 @@ export default {
   },
   methods: {
     async openAccountLink(credentialType, credential) {
-      if (credentialType === "yatt") {
-        const yattUrl = "https://app.yatt.ai/";
+      console.log(this.credentials, Object.values(this.credentials));
+      if (credentialType === "testfiesta") {
+        const testfiestaUrl = "https://app.testfiesta.com/";
         if (this.$isElectron) {
-          await this.$electronService.openExternalLink(yattUrl);
+          await this.$electronService.openExternalLink(testfiestaUrl);
         } else {
-          window.open(yattUrl, "_blank");
+          window.open(testfiestaUrl, "_blank");
         }
         this.showMenu = false;
       } else if (credentialType === "jira") {
@@ -173,6 +216,9 @@ export default {
     },
     openSettingsDialog() {
       this.settingsDialog = true;
+    },
+    openSettingWindow() {
+      this.$electronService.openSettingWindow();
     },
   },
 };

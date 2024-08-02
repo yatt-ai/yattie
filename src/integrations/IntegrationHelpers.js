@@ -51,23 +51,24 @@ export default {
                 updatedCredential.status > 399 &&
                 updatedCredential.status < 500
               ) {
-                if (credential.yattOauthTokenId) {
+                if (credential.testfiestaOauthTokenId) {
                   updatedCredential = null;
                   failedAuth.push({
                     credentialProvider,
                     credential,
                   });
 
-                  // Remove the id from yatt.oauthTokenIds
-                  let yattCreds = [];
-                  const currentCreds = newCredentials.yatt || credentials.yatt;
+                  // Remove the id from testfiesta.oauthTokenIds
+                  let testfiestaCreds = [];
+                  const currentCreds =
+                    newCredentials.testfiesta || credentials.testfiesta;
                   for (const cred of currentCreds) {
                     cred.oauthTokenIds = cred.oauthTokenIds.filter(
-                      (id) => id !== credential.yattOauthTokenId
+                      (id) => id !== credential.testfiestaOauthTokenId
                     );
-                    yattCreds.push(cred);
+                    testfiestaCreds.push(cred);
                   }
-                  newCredentials.yatt = yattCreds;
+                  newCredentials.testfiesta = testfiestaCreds;
                 }
               }
               updated = true;
@@ -110,8 +111,8 @@ export default {
     }
     return true;
   },
-  getYattCredentialForOauthToken(credentials, token) {
-    for (const credential of credentials?.yatt) {
+  getTestFiestaCredentialForOauthToken(credentials, token) {
+    for (const credential of credentials?.testfiesta) {
       if (credential.oauthTokenIds.includes(token)) {
         return credential.accessToken;
       }
@@ -122,15 +123,15 @@ export default {
     let tokenURL;
     if (provider === "jira") {
       if (!credential.url) {
-        tokenURL = `${process.env.VUE_APP_YATT_API_URL}/app/oauth/jira/token/${credential.yattOauthTokenId}`;
-        let yattToken = this.getYattCredentialForOauthToken(
+        tokenURL = `${process.env.VUE_APP_TESTFIESTA_API_URL}/app/oauth/jira/token/${credential.testfiestaOauthTokenId}`;
+        let testfiestaToken = this.getTestFiestaCredentialForOauthToken(
           credentials,
-          credential.yattOauthTokenId
+          credential.testfiestaOauthTokenId
         );
 
         let header = {
           headers: {
-            Authorization: `Bearer ${yattToken}`,
+            Authorization: `Bearer ${testfiestaToken}`,
             Accept: "application/json",
           },
         };

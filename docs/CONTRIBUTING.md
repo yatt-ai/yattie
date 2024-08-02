@@ -10,10 +10,11 @@ To set up a development environment, please follow these steps:
 1. Clone the repo
 
    ```sh
-   git clone https://github.com/dacoaster/yattie
+   git clone https://github.com/dacoaster/pinata
    ```
 
 2. Install the deps
+
    ```sh
    yarn install
    ```
@@ -23,12 +24,11 @@ To set up a development environment, please follow these steps:
    yarn dev
    ```
 
-
 ## Issues and feature requests
 
-You've found a bug in the source code or a mistake in the documentation? You can help us by [submitting an issue on GitHub](https://github.com/dacoaster/yattie/issues). Before you create an issue, make sure to search the issue archive -- your issue may have already been addressed!
+You've found a bug in the source code or a mistake in the documentation? You can help us by [submitting an issue on GitHub](https://github.com/dacoaster/pinata/issues). Before you create an issue, make sure to search the issue archive -- your issue may have already been addressed!
 
-Or maybe you'd like a new feature? You can check out current feature requests, vote for your favorites, or add your own at [the feature request page](https://features.yattie.ai).
+Or maybe you'd like a new feature? You can check out current feature requests, vote for your favorites, or add your own at [the feature request page](https://features.testfiesta.com).
 
 Please try to create bug reports that are:
 
@@ -42,10 +42,10 @@ Please try to create bug reports that are:
 ### How to submit a Pull Request
 
 1. Search our repository for open or closed
-   [Pull Requests](https://github.com/dacoaster/yattie/pulls)
+   [Pull Requests](https://github.com/dacoaster/pinata/pulls)
    that relate to your submission. You don't want to duplicate effort.
 2. Fork the project
 3. Create your feature branch (`git checkout -b feat/amazing_feature`)
-4. Commit your changes (`git commit -m 'feat: add amazing_feature'`) YATTIE tries to use [conventional commits](https://www.conventionalcommits.org), so please follow the specification in your commit messages.
+4. Commit your changes (`git commit -m 'feat: add amazing_feature'`) Pinata tries to use [conventional commits](https://www.conventionalcommits.org), so please follow the specification in your commit messages.
 5. Push to the branch (`git push origin feat/amazing_feature`)
-6. [Open a Pull Request](https://github.com/dacoaster/yattie/compare?expand=1)
+6. [Open a Pull Request](https://github.com/dacoaster/pinata/compare?expand=1)
