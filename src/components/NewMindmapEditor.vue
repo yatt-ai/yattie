@@ -74,90 +74,92 @@
             <TextPad v-if="detailType === 'text'" />
             <LinkPad v-if="detailType === 'link'" />
           </div>
-          <div
-            class="mindmap-control-btn control-btns mx-1 mt-2 cursor-pointer"
-          >
-            <!-- <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <div
-                  class="mindmap-ctrl-btn"
-                  v-on="on"
-                  @click="handleSelect('marker')"
-                >
-                  <img
-                    :src="require('../assets/icon/edit.svg')"
-                    width="24"
-                    height="24"
-                  />
-                </div>
-              </template>
-              <span>{{ $tc("caption.marker", 1) }}</span>
-            </v-tooltip> -->
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <div
-                  class="mindmap-ctrl-btn"
-                  v-on="on"
-                  @click="handleSelect('shape')"
-                >
-                  <img
-                    :src="require('../assets/icon/shape.svg')"
-                    width="24"
-                    height="24"
-                  />
-                </div>
-              </template>
-              <span>{{ $tc("caption.shapes", 1) }}</span>
-            </v-tooltip>
-
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <div
-                  class="mindmap-ctrl-btn"
-                  v-on="on"
-                  @click="handleSelect('link')"
-                >
-                  <img
-                    :src="require('../assets/icon/link.svg')"
-                    width="24"
-                    height="24"
-                  />
-                </div>
-              </template>
-              <span>{{ $tc("caption.connector", 1) }}</span>
-            </v-tooltip>
-            <!-- <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <div
-                  class="mindmap-ctrl-btn"
-                  v-on="on"
-                  @click="handleSelect('text')"
-                >
-                  <img
-                    :src="require('../assets/icon/text.svg')"
-                    width="24"
-                    height="24"
-                  />
-                </div>
-              </template>
-              <span>{{ $tc("caption.text", 1) }}</span>
-            </v-tooltip> -->
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <div
-                  class="mindmap-ctrl-btn"
-                  v-on="on"
-                  @click="handleOpenAddModal()"
-                >
-                  <img
-                    :src="require('../assets/icon/upload.svg')"
-                    width="24"
-                    height="24"
-                  />
-                </div>
-              </template>
-              <span>{{ $tc("caption.upload_evidence", 1) }}</span>
-            </v-tooltip>
+          <div class="flex justify-center">
+            <div
+              class="mindmap-control-btn control-btns mx-1 mt-2 cursor-pointer fit-content"
+            >
+              <!-- <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <div
+                    class="mindmap-ctrl-btn"
+                    v-on="on"
+                    @click="handleSelect('marker')"
+                  >
+                    <img
+                      :src="require('../assets/icon/edit.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </div>
+                </template>
+                <span>{{ $tc("caption.marker", 1) }}</span>
+              </v-tooltip> -->
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <div
+                    class="mindmap-ctrl-btn"
+                    v-on="on"
+                    @click="handleSelect('shape')"
+                  >
+                    <img
+                      :src="require('../assets/icon/shape.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </div>
+                </template>
+                <span>{{ $tc("caption.shapes", 1) }}</span>
+              </v-tooltip>
+              <!-- 
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <div
+                    class="mindmap-ctrl-btn"
+                    v-on="on"
+                    @click="handleSelect('link')"
+                  >
+                    <img
+                      :src="require('../assets/icon/link.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </div>
+                </template>
+                <span>{{ $tc("caption.connector", 1) }}</span>
+              </v-tooltip> -->
+              <!-- <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <div
+                    class="mindmap-ctrl-btn"
+                    v-on="on"
+                    @click="handleSelect('text')"
+                  >
+                    <img
+                      :src="require('../assets/icon/text.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </div>
+                </template>
+                <span>{{ $tc("caption.text", 1) }}</span>
+              </v-tooltip> -->
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <div
+                    class="mindmap-ctrl-btn"
+                    v-on="on"
+                    @click="handleOpenAddModal()"
+                  >
+                    <img
+                      :src="require('../assets/icon/upload.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </div>
+                </template>
+                <span>{{ $tc("caption.upload_evidence", 1) }}</span>
+              </v-tooltip>
+            </div>
           </div>
         </div>
       </div>
@@ -724,8 +726,6 @@ export default {
         }, 300);
       } else {
         clearTimeout(this.timer);
-        let updatedNodes = structuredClone(this.nodes);
-        this.$store.commit("setSessionNodes", updatedNodes);
         this.handleOpenEditModal(node);
         this.clicks = 0;
         this.renderMap();

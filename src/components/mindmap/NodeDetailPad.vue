@@ -127,7 +127,7 @@ export default {
         "downward-triangle",
         "diamond",
       ],
-      commentType: "Passed",
+      commentType: "Comment",
       shape: "rectangle",
       tags: [],
       tag: "",
@@ -199,7 +199,7 @@ export default {
     },
     currentCommentType: {
       type: String,
-      default: () => "Passed",
+      default: () => "Comment",
     },
     currentId: {
       type: String,

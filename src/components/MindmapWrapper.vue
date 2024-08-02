@@ -309,8 +309,17 @@ export default {
     },
   },
   watch: {
+    sessionItems: {
+      async handler() {
+        this.items = structuredClone(this.sessionItems);
+        this.nodes = structuredClone(this.sessionNodes);
+        this.connections = structuredClone(this.sessionConnections);
+        await this.renderMap();
+      },
+    },
     sessionNodes: {
       async handler() {
+        this.items = structuredClone(this.sessionItems);
         this.nodes = structuredClone(this.sessionNodes);
         this.connections = structuredClone(this.sessionConnections);
         await this.renderMap();
@@ -318,6 +327,7 @@ export default {
     },
     sessionConnections: {
       async handler() {
+        this.items = structuredClone(this.sessionItems);
         this.nodes = structuredClone(this.sessionNodes);
         this.connections = structuredClone(this.sessionConnections);
         await this.renderMap();
@@ -335,6 +345,7 @@ export default {
   data() {
     return {
       simulation: null,
+      items: [],
       nodes: [],
       connections: [],
       itemToEdit: null,
@@ -494,21 +505,23 @@ export default {
     handleUpdateColor(data) {
       let currentNode = this.selectedNodes[0];
       if (currentNode) {
-        let items = structuredClone(this.sessionItems);
-        items.forEach((item) => {
+        this.items.forEach((item) => {
           if (item.id === currentNode.id) {
             item.color = data.color;
             item.fillType = data.type;
           }
         });
-        this.$store.commit("setSessionItems", items);
         currentNode.color = data.color;
         currentNode.fillType = data.type;
-        this.renderMap();
       } else {
         this.color = data.color;
         this.type = data.type;
       }
+      let updatedItems = structuredClone(this.items);
+      let updatedNodes = structuredClone(this.nodes);
+      this.$store.commit("setSessionItems", updatedItems);
+      this.$store.commit("setSessionNodes", updatedNodes);
+      this.renderMap();
     },
     /**
      * Get the shape of the node and update the shape
@@ -516,8 +529,7 @@ export default {
     handleUpdateShape(shape) {
       let currentNode = this.selectedNodes[0];
       if (currentNode) {
-        let items = structuredClone(this.sessionItems);
-        items.forEach((item) => {
+        this.items.forEach((item) => {
           if (item.id === currentNode.id) {
             item.shape = shape;
             if (shape === "rectangle") {
@@ -529,7 +541,6 @@ export default {
             }
           }
         });
-        this.$store.commit("setSessionItems", items);
         currentNode.shape = shape;
         if (shape === "rectangle") {
           currentNode.width = 200;
@@ -538,6 +549,10 @@ export default {
           currentNode.width = 100;
           currentNode.height = 100;
         }
+        let updatedItems = structuredClone(this.items);
+        let updatedNodes = structuredClone(this.nodes);
+        this.$store.commit("setSessionItems", updatedItems);
+        this.$store.commit("setSessionNodes", updatedNodes);
         this.renderMap();
       }
     },
@@ -547,19 +562,8 @@ export default {
      * @param shape shape of the node
      */
     handleAddNodeShape(shape) {
-      let currentNode = this.selectedNodes[0];
-      if (this.nodes.length > 0) {
-        this.addNewNode(
-          currentNode ? currentNode : this.nodes[this.nodes.length - 1],
-          "",
-          "Comment",
-          shape,
-          this.color,
-          this.type
-        );
-      } else {
-        this.addNewNode(null, "", "Comment", shape, this.color, this.type);
-      }
+      this.shape = shape;
+      this.addNewNode();
     },
     /**
      * Get the status of the node and update the status
@@ -567,14 +571,16 @@ export default {
     handleUpdateCommentType(commentType) {
       let currentNode = this.selectedNodes[0];
       if (currentNode) {
-        let items = structuredClone(this.sessionItems);
-        items.forEach((item) => {
+        this.items.forEach((item) => {
           if (item.id === currentNode.id) {
             item.comment.type = commentType;
           }
         });
-        this.$store.commit("setSessionItems", items);
         currentNode.comment.type = commentType;
+        let updatedItems = structuredClone(this.items);
+        let updatedNodes = structuredClone(this.nodes);
+        this.$store.commit("setSessionItems", updatedItems);
+        this.$store.commit("setSessionNodes", updatedNodes);
         this.renderMap();
       }
     },
@@ -585,14 +591,16 @@ export default {
     handleUpdateTags(tags) {
       let currentNode = this.selectedNodes[0];
       if (currentNode) {
-        let items = structuredClone(this.sessionItems);
-        items.forEach((item) => {
+        this.items.forEach((item) => {
           if (item.id === currentNode.id) {
             item.tags = tags;
           }
         });
-        this.$store.commit("setSessionItems", items);
         currentNode.tags = tags;
+        let updatedItems = structuredClone(this.items);
+        let updatedNodes = structuredClone(this.nodes);
+        this.$store.commit("setSessionItems", updatedItems);
+        this.$store.commit("setSessionNodes", updatedNodes);
         this.renderMap();
       }
     },
@@ -603,14 +611,16 @@ export default {
     handleUpdateAttachments(nodeId, attachments) {
       let currentNode = this.nodes.find((item) => item.id === nodeId);
       if (currentNode) {
-        let items = structuredClone(this.sessionItems);
-        items.forEach((item) => {
+        this.items.forEach((item) => {
           if (item.id === currentNode.id) {
             item.attachments = attachments;
           }
         });
-        this.$store.commit("setSessionItems", items);
         currentNode.attachments = attachments;
+        let updatedItems = structuredClone(this.items);
+        let updatedNodes = structuredClone(this.nodes);
+        this.$store.commit("setSessionItems", updatedItems);
+        this.$store.commit("setSessionNodes", updatedNodes);
         this.renderMap();
       }
     },
@@ -685,9 +695,6 @@ export default {
               props: {
                 node,
                 editable: self.editable,
-                onAdd: (content, status) =>
-                  self.addNewNode(node, content, status),
-                onSave: (content, status) => self.onSave(content, status),
                 onRemove: () => self.removeNode(node),
                 onConnect: () => self.connectNode(svg, node),
                 onClick: (isAltKeyPressed) =>
@@ -769,36 +776,21 @@ export default {
       }
     },
 
-    /**
-     * * add new nodes
-     */
-    addNewNode(target, content, commentType, shape, color, type) {
+    async addNewNode() {
       const nodeId = uuidv4();
-      let random_offset;
-      let tempItems = structuredClone(this.sessionItems);
-      for (let i = 0; i < this.nodes.length; i++) {
-        tempItems[i].fx = this.nodes[i].fx;
-        tempItems[i].fy = this.nodes[i].fy;
-      }
-      const updatedItems = [...tempItems];
-      let updatedNodes = structuredClone(this.nodes);
-      let updatedConnections = structuredClone(this.connections);
-      do {
-        random_offset = Math.floor(Math.random() * 400) - 200;
-      } while (random_offset >= -100 && random_offset <= 100);
       const newItem = {
         id: nodeId,
         stepID: nodeId,
-        content: content,
+        content: this.content,
         comment: {
-          text: content,
-          type: commentType,
-          content: "<p>" + content + "</p>",
+          text: this.content,
+          type: this.commentType,
+          content: "<p>" + this.content + "</p>",
         },
-        shape: shape,
-        color: color,
-        fillType: type,
-        width: shape === "rectangle" ? 200 : 100,
+        shape: this.shape,
+        color: this.color,
+        fillType: this.type,
+        width: this.shape === "rectangle" ? 200 : 100,
         height: 100,
         fileType: "text/plain",
         selected: false,
@@ -808,28 +800,69 @@ export default {
         createdAt: Date.now(),
         uploaded: false,
       };
-
-      if (updatedNodes.length == 0) {
+      let tempItems = structuredClone(this.sessionItems);
+      for (let i = 0; i < this.sessionNodes.length; i++) {
+        tempItems[i].fx = this.sessionNodes[i].fx;
+        tempItems[i].fy = this.sessionNodes[i].fy;
+      }
+      const updatedItems = [...tempItems];
+      let updatedNodes = [];
+      let updatedConnections = [...this.sessionConnections];
+      if (this.sessionNodes.length == 0) {
         newItem.fx = Math.floor(Math.random() * 1001) - 500;
         newItem.fy = Math.floor(Math.random() * 1001) - 500;
       } else {
-        newItem.fx = target.fx + random_offset;
-        newItem.fy = target.fy + random_offset;
-        updatedConnections.push({
-          source: target.id,
-          target: nodeId,
-        });
+        let random_offset_x, random_offset_y;
+        do {
+          random_offset_x = Math.floor(Math.random() * 800) - 400;
+          random_offset_y = Math.floor(Math.random() * 800) - 400;
+        } while (
+          (random_offset_x >= -200 && random_offset_x <= -100) ||
+          (random_offset_x >= 100 && random_offset_x <= 200)
+        );
+        newItem.fx =
+          this.sessionNodes[this.sessionNodes.length - 1].fx + random_offset_x;
+        newItem.fy =
+          this.sessionNodes[this.sessionNodes.length - 1].fy + random_offset_y;
       }
-      updatedNodes.push(newItem);
+
       updatedItems.push(newItem);
-      this.$store.commit("setSessionItems", [...updatedItems]);
-      this.$store.commit("setSessionNodes", [...updatedNodes]);
-      this.$store.commit("setSessionConnections", [...updatedConnections]);
-      this.renderMindmap();
-      if (this.autoSave) {
-        this.handleMindmap();
+      tempItems = updatedItems
+        .slice()
+        .filter((item) => item?.comment?.type !== "Summary");
+
+      tempItems.forEach((item) => {
+        item.id = item.stepID;
+        updatedNodes.push({ ...item, content: item.comment.text });
+      });
+
+      if (this.nodes.length > 0) {
+        if (this.selectedNodes.length) {
+          this.selectedNodes.forEach((node) => {
+            updatedConnections.push({
+              source: node.stepID,
+              target: newItem.stepID,
+            });
+          });
+        } else {
+          updatedConnections.push({
+            source: this.nodes[this.nodes.length - 1].stepID,
+            target: newItem.stepID,
+          });
+        }
       }
+      await this.$store.commit("setSessionItems", [...updatedItems]);
+      await this.$store.commit("setSessionNodes", [...updatedNodes]);
+      await this.$store.commit("setSessionConnections", [
+        ...updatedConnections,
+      ]);
+      this.$root.$emit("render-mindmap");
     },
+
+    /**
+     * * add new nodes
+     */
+
     /**
      * remove a node
      * todo: before remove nodes check all link
@@ -838,10 +871,17 @@ export default {
       if (!node && this.selectedNodes.length === 0) return;
       if (!node) node = this.selectedNodes[0];
 
+      this.items = this.items.filter((item) => item.id !== node.id);
       this.nodes = this.nodes.filter((item) => item.id !== node.id);
       this.connections = this.connections.filter(
         (item) => item.source.id !== node.id && item.target.id !== node.id
       );
+      let updatedItems = structuredClone(this.items);
+      let updatedNodes = structuredClone(this.nodes);
+      let updatedConnections = structuredClone(this.connections);
+      this.$store.commit("setSessionItems", updatedItems);
+      this.$store.commit("setSessionNodes", updatedNodes);
+      this.$store.commit("setSessionConnections", updatedConnections);
       this.renderMap();
       if (this.autoSave) {
         this.handleMindmap();
@@ -856,13 +896,8 @@ export default {
     },
 
     pasteNode(node) {
-      this.addNewNode(
-        node,
-        this.content,
-        this.commentType,
-        this.shape,
-        this.color
-      );
+      this.selectedNodes[0] = node;
+      this.addNewNode();
     },
 
     async handleActivateEditSession(id) {
