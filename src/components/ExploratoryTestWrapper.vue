@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container style="height: 100%">
     <div class="top">
       <v-btn
         class="text-capitalize pa-0 back-btn"
@@ -14,8 +14,8 @@
         {{ $tc("caption.back", 1) }}
       </v-btn>
     </div>
-    <v-row class="text-left">
-      <v-col cols="12">
+    <v-row class="text-left" style="height: 100%">
+      <v-col cols="12" style="height: 100%; overflow-y: auto">
         <div class="title title-text mb-4">
           {{ $tc("caption.exploratory_session", 1) }}
         </div>

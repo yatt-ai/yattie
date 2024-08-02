@@ -164,14 +164,44 @@ body {
   font-size: 13px;
 }
 
+.flex {
+  display: flex;
+}
 .control-btn {
   border: 1px solid #d1d5db;
   color: #6b7280;
   background-color: #fff;
 }
-
 .cursor-pointer {
   cursor: pointer;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.gap-xs {
+  gap: 5px;
+}
+
+.gap-sm {
+  gap: 10px;
+}
+
+.gap-md {
+  gap: 15px;
+}
+
+.gap-xl {
+  gap: 20px;
+}
+
+.gap-xxl {
+  gap: 30px;
 }
 
 .mindmap-control-btn {
@@ -179,9 +209,13 @@ body {
   color: #6b7280;
   padding: 10px;
   border-radius: 10px;
-  line-height: 0;
+  line-height: 1;
   background-color: #fff;
   box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
+}
+
+.fit-content {
+  width: fit-content;
 }
 // .v-input--selection-controls__input {
 //   width: 16px;
@@ -353,6 +387,10 @@ body {
 
 .reddit-emoji {
   border-radius: 50%;
+}
+
+.v-text-field__details {
+  display: none;
 }
 
 .theme--light {

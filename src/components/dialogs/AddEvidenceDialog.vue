@@ -473,12 +473,12 @@ export default {
 
     this.$root.$on("update-edit-item", this.updateEditItem);
     this.$root.$on("update-processing", this.updateProcessing);
-    this.$root.$on("save-data", () => {
-      this.saveData();
+    this.$root.$on("save-data", (data) => {
+      this.saveData(data);
     });
   },
   beforeDestroy() {
-    this.$root.$off("save-data");
+    // this.$root.$off("save-data");
   },
   watch: {
     itemData: function (val) {
@@ -608,7 +608,6 @@ export default {
       }
     },
     async handleSaveAndClose() {
-      console.log("Evidence Save");
       this.triggerSaveEvent = !this.triggerSaveEvent;
     },
     handleName() {
@@ -631,8 +630,8 @@ export default {
     removeEmoji(emoji) {
       this.emojis = this.emojis.filter((item) => item.data !== emoji.data);
     },
-    async saveData() {
-      const newItem = {
+    async saveData(data) {
+      let newItem = {
         ...this.item,
         comment: this.comment,
         tags: this.tags,
@@ -642,6 +641,8 @@ export default {
         createdAt: Date.now(),
         uploaded: false,
       };
+      if (data) newItem = { ...data, ...newItem };
+      console.log("Save Data", newItem);
       let tempItems = structuredClone(this.items);
       for (let i = 0; i < this.nodes.length; i++) {
         tempItems[i].fx = this.nodes[i].fx;

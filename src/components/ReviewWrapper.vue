@@ -27,7 +27,15 @@
       <AudioWrapper :item="editSessionItem" :trigger-save="triggerSaveEvent" />
     </div>
     <div v-else-if="getType(editSessionItem.fileType) === 'mindmap'">
-      <mindmap-editor
+      <!-- <mindmap-editor
+        :nodes-data="editSessionItem.content.nodes"
+        :connections-data="editSessionItem.content.connections"
+        :edit="true"
+        :trigger-save="triggerSaveEvent"
+        :auto-save="autoSaveEvent"
+        @submit-mindmap="handleMindmap"
+      /> -->
+      <new-mindmap-editor
         :nodes-data="editSessionItem.content.nodes"
         :connections-data="editSessionItem.content.connections"
         :edit="true"
@@ -47,7 +55,8 @@ import ImageEditor from "./ImageEditor.vue";
 import VideoWrapper from "./VideoWrapper.vue";
 import AudioWrapper from "./AudioWrapper.vue";
 import FileWrapper from "./FileWrapper.vue";
-import MindmapEditor from "./MindmapEditor.vue";
+// import MindmapEditor from "./MindmapEditor.vue";
+import NewMindmapEditor from "./NewMindmapEditor.vue";
 
 import { STATUSES, FILE_TYPES } from "../modules/constants";
 import { createMindmapImageForWeb } from "@/helpers/WebHelpers";
@@ -60,7 +69,8 @@ export default {
     VideoWrapper,
     AudioWrapper,
     FileWrapper,
-    MindmapEditor,
+    // MindmapEditor,
+    NewMindmapEditor,
   },
   props: {
     item: {

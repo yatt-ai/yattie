@@ -206,7 +206,7 @@ export const d3Drag = (
 /**
  * select the nodes by draging
  */
-export const d3Selection = (svg, nodes, callback) => {
+export const d3Selection = (svg, nodes) => {
   // Add the drag overlay
   const overlay = svg
     .append("rect")
@@ -297,7 +297,7 @@ export const d3Selection = (svg, nodes, callback) => {
         }
       });
 
-      callback(selectedNodes);
+      // callback(selectedNodes);
     }
   }
 

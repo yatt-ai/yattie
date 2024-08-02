@@ -57,22 +57,29 @@
         </div>
       </div>
     </div>
-    <div class="content-container">
+    <div
+      :class="
+        activeTab === `/main` && this.quickTest
+          ? 'content-container'
+          : 'content-container vh-full'
+      "
+    >
       <div
         :class="
           activeTab === `/main` && this.quickTest
             ? 'content w-400'
-            : 'content w-60'
+            : 'content h-full w-60'
         "
       >
         <v-tabs-items v-model="activeTab" style="height: 100%">
           <v-tab-item
             value="/main"
             :transition="false"
+            style="height: 100%"
             v-if="this.$store.state.session.status == 'pending'"
           >
             <QuickTestWrapper v-if="this.quickTest" />
-            <ExploratoryTestWrapper v-else />
+            <ExploratoryTestWrapper style="height: 100%" v-else />
             <CheckTaskWrapper
               v-if="showCheckList"
               :tasks="$store.state.session.preSessionTasks"
@@ -320,6 +327,12 @@ export default {
 }
 .w-60 {
   width: 60%;
+}
+.vh-full {
+  height: 100vh;
+}
+.h-full {
+  height: 100%;
 }
 .v-tabs {
   width: auto !important;
