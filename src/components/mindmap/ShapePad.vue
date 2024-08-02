@@ -74,7 +74,7 @@ export default {
   },
   methods: {
     handleShape(shape) {
-      this.$root.$emit("update:shape", shape);
+      this.$root.$emit("add-node:shape", shape);
     },
   },
 };

@@ -521,11 +521,9 @@ export default {
       this.$emit("close");
     },
     async handleSave() {
-      console.log("handle-save", this.item);
-      if (this.item.comment.type !== "Comment") {
+      if (this.item.comment.type === "Summary") {
         this.triggerSaveEvent = !this.triggerSaveEvent;
       } else {
-        console.log("save-data", this.item);
         await this.saveData(this.item);
       }
     },

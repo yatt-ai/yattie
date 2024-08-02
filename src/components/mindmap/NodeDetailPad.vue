@@ -79,20 +79,31 @@
       class="mindmap-control-btn mt-2"
       style="width: 350px; padding: 3px"
       v-if="openTags"
-      v-shortkey="tagsHotkey"
-      @shortkey="$hotkeyHelpers.focusField($refs, 'tags')"
     >
-      <vue-tags-input
-        ref="tags"
-        class="input-box"
-        v-model="tag"
-        :tags="tags"
-        :autocomplete-items="filteredTags"
-        :max-tags="10"
-        :maxlength="20"
-        @tags-changed="handleTags"
-        :placeholder="$t('message.insert_tag')"
-      />
+      <v-combobox
+        v-model="tags"
+        :items="filteredTags"
+        :label="$t('message.insert_tag')"
+        multiple
+        chips
+        solo
+        @change="handleTags"
+        prepend-icon="mdi-database-search"
+      >
+        <template v-slot:selection="data">
+          <v-chip
+            v-bind="data.attrs"
+            class="ma-2"
+            close
+            color="black"
+            label
+            outlined
+            @click:close="data.parent.selectItem(data.item)"
+          >
+            {{ data.item }}
+          </v-chip>
+        </template>
+      </v-combobox>
     </div>
   </div>
 </template>
@@ -100,7 +111,6 @@
 <script>
 import { mapGetters } from "vuex";
 import ColorPicker from "./ColorPicker.vue";
-import VueTagsInput from "@johmun/vue-tags-input";
 import { TEXT_TYPES } from "@/modules/constants";
 
 export default {
@@ -130,12 +140,11 @@ export default {
   },
   components: {
     ColorPicker,
-    VueTagsInput,
   },
   mounted() {
     this.commentType = this.currentCommentType;
     this.shape = this.currentShape;
-    this.tags = this.currentTags;
+    this.tags = this.currentTags.map((tag) => tag.text);
     this.id = this.currentId;
     this.attachments = this.currentAttachments;
     this.getAllTags();
@@ -149,13 +158,14 @@ export default {
       defaultTags: "config/defaultTags",
     }),
     filteredTags() {
-      return this.allTags
+      let allTags = this.allTags
         .filter((item) => {
           return item.toLowerCase().includes(this.tag.toLowerCase());
         })
         .map((item) => {
-          return { text: item };
+          return item;
         });
+      return allTags;
     },
     tagsHotkey() {
       return this.$hotkeyHelpers.findBinding("evidence.tags", this.hotkeys);
@@ -169,7 +179,7 @@ export default {
       this.shape = newValue;
     },
     currentTags: function (newValue) {
-      this.tags = newValue;
+      this.tags = newValue.map((tag) => tag.text);
     },
     currentAttachments: function (newValue) {
       this.attachments = newValue;
@@ -212,7 +222,10 @@ export default {
       this.$root.$emit("update:commentType", this.commentType);
     },
     handleTags(newTags) {
-      this.$root.$emit("update:tags", newTags);
+      let updatedTags = newTags.map((tag) => {
+        return { text: tag, tiClasses: ["ti-valid"] };
+      });
+      this.$root.$emit("update:tags", updatedTags);
     },
     handleFileUpload() {
       this.attachments.push(this.attachment);

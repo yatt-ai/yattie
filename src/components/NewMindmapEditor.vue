@@ -594,6 +594,18 @@ export default {
         .on("dbClick.zoom", null);
     },
 
+    onSave(content, status) {
+      this.selectedNodes.forEach((node) => {
+        if (content) {
+          node.content = content;
+        }
+        if (status) {
+          node.comment.type = status;
+        }
+      });
+      this.nodeDialog = false;
+    },
+
     onSelectedByDrag(selectedNodes) {
       this.selectedNodes = [...selectedNodes];
       // this.renderMap();
@@ -609,6 +621,8 @@ export default {
     resetZoom() {
       let svg = select(this.$refs.mountPoint);
       svg.transition().call(d3PanZoom(svg).scaleTo, 1);
+      this.selectedNodes = [];
+      this.renderMap();
     },
 
     handleActionClick(action) {
@@ -710,6 +724,8 @@ export default {
         }, 300);
       } else {
         clearTimeout(this.timer);
+        let updatedNodes = structuredClone(this.nodes);
+        this.$store.commit("setSessionNodes", updatedNodes);
         this.handleOpenEditModal(node);
         this.clicks = 0;
         this.renderMap();

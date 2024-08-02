@@ -412,7 +412,6 @@ const removeItemById = (id) => {
 const getItemById = (id) => {
   const session = dataDb.get("session");
   const item = session.items.find((item) => item.stepID === id);
-
   return item;
 };
 

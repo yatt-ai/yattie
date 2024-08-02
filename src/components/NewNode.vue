@@ -14,7 +14,7 @@
       @click="handleClick"
       @contextmenu.prevent="showContextMenu($event, node)"
     >
-      <div class="node-content">{{ node.content }}</div>
+      <div class="node-content">{{ nodeContent }}</div>
     </div>
     <div v-else>
       <svg width="100" height="100">
@@ -39,7 +39,7 @@
           font-size="13"
           font-weight="600"
         >
-          {{ node.content }}
+          {{ nodeContent }}
         </text>
         <polygon
           v-if="node.shape === 'downward-triangle'"
@@ -61,7 +61,7 @@
           font-size="13"
           font-weight="600"
         >
-          {{ node.content }}
+          {{ nodeContent }}
         </text>
         <polygon
           v-if="node.shape === 'diamond'"
@@ -83,9 +83,14 @@
           font-size="13"
           font-weight="600"
         >
-          {{ node.content }}
+          {{ nodeContent }}
         </text>
       </svg>
+    </div>
+    <div v-if="node.fileType !== 'text/plain'">
+      <v-chip x-small class="ma-2" color="white" label>
+        {{ node.fileName }}
+      </v-chip>
     </div>
     <div v-if="attachments.length > 0">
       <div class="node-attachments">
@@ -183,6 +188,13 @@ export default {
     },
     selectedColor() {
       return tinycolor(this.baseColor).darken(15).toString();
+    },
+    nodeContent() {
+      let content = this.node.content;
+      if (this.node.fileType !== "text/plain" && !content) {
+        content = this.node.fileType.split("/")[0];
+      }
+      return content;
     },
   },
   methods: {

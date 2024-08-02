@@ -305,7 +305,7 @@ export default {
     },
     autoSave: {
       type: Boolean,
-      default: () => true,
+      default: () => false,
     },
   },
   watch: {
@@ -356,6 +356,7 @@ export default {
       commentType: "",
       shape: "rectangle",
       color: "#e2e7fe",
+      type: "fill",
       menuX: 0,
       menuY: 0,
       currentNode: null,
@@ -433,6 +434,7 @@ export default {
   mounted() {
     this.$root.$on("update-color", this.handleUpdateColor);
     this.$root.$on("update:shape", this.handleUpdateShape);
+    this.$root.$on("add-node:shape", this.handleAddNodeShape);
     this.$root.$on("update:commentType", this.handleUpdateCommentType);
     this.$root.$on("update:tags", this.handleUpdateTags);
     this.$root.$on("update:attachments", this.handleUpdateAttachments);
@@ -502,8 +504,10 @@ export default {
         this.$store.commit("setSessionItems", items);
         currentNode.color = data.color;
         currentNode.fillType = data.type;
-        this.updateNodes();
         this.renderMap();
+      } else {
+        this.color = data.color;
+        this.type = data.type;
       }
     },
     /**
@@ -534,8 +538,27 @@ export default {
           currentNode.width = 100;
           currentNode.height = 100;
         }
-        this.updateNodes();
         this.renderMap();
+      }
+    },
+
+    /**
+     * Add new node with this shape
+     * @param shape shape of the node
+     */
+    handleAddNodeShape(shape) {
+      let currentNode = this.selectedNodes[0];
+      if (this.nodes.length > 0) {
+        this.addNewNode(
+          currentNode ? currentNode : this.nodes[this.nodes.length - 1],
+          "",
+          "Comment",
+          shape,
+          this.color,
+          this.type
+        );
+      } else {
+        this.addNewNode(null, "", "Comment", shape, this.color, this.type);
       }
     },
     /**
@@ -552,7 +575,6 @@ export default {
         });
         this.$store.commit("setSessionItems", items);
         currentNode.comment.type = commentType;
-        this.updateNodes();
         this.renderMap();
       }
     },
@@ -571,7 +593,6 @@ export default {
         });
         this.$store.commit("setSessionItems", items);
         currentNode.tags = tags;
-        this.updateNodes();
         this.renderMap();
       }
     },
@@ -590,7 +611,6 @@ export default {
         });
         this.$store.commit("setSessionItems", items);
         currentNode.attachments = attachments;
-        this.updateNodes();
         this.renderMap();
       }
     },
@@ -714,7 +734,7 @@ export default {
       svg
         .attr("viewBox", getViewBox(nodes.data()))
         .call(d3PanZoom(svg))
-        .on("dbClick.zoom", null);
+        .on("dblClick.zoom", null);
     },
 
     onSelectedByDrag(selectedNodes) {
@@ -732,6 +752,8 @@ export default {
     resetZoom() {
       let svg = select(this.$refs.mindmapWrapper);
       svg.transition().call(d3PanZoom(svg).scaleTo, 1);
+      this.selectedNodes = [];
+      this.renderMap();
     },
 
     handleActionClick(action) {
@@ -750,26 +772,60 @@ export default {
     /**
      * * add new nodes
      */
-    addNewNode(target, content, commentType) {
+    addNewNode(target, content, commentType, shape, color, type) {
       const nodeId = uuidv4();
       let random_offset;
+      let tempItems = structuredClone(this.sessionItems);
+      for (let i = 0; i < this.nodes.length; i++) {
+        tempItems[i].fx = this.nodes[i].fx;
+        tempItems[i].fy = this.nodes[i].fy;
+      }
+      const updatedItems = [...tempItems];
+      let updatedNodes = structuredClone(this.nodes);
+      let updatedConnections = structuredClone(this.connections);
       do {
         random_offset = Math.floor(Math.random() * 400) - 200;
       } while (random_offset >= -100 && random_offset <= 100);
-      this.nodes.push({
+      const newItem = {
         id: nodeId,
+        stepID: nodeId,
         content: content,
         comment: {
+          text: content,
           type: commentType,
+          content: "<p>" + content + "</p>",
         },
-        fx: target.fx + random_offset,
-        fy: target.fy + random_offset,
-      });
-      this.connections.push({
-        source: target.id,
-        target: nodeId,
-      });
-      this.renderMap();
+        shape: shape,
+        color: color,
+        fillType: type,
+        width: shape === "rectangle" ? 200 : 100,
+        height: 100,
+        fileType: "text/plain",
+        selected: false,
+        tags: [],
+        emoji: [],
+        followUp: false,
+        createdAt: Date.now(),
+        uploaded: false,
+      };
+
+      if (updatedNodes.length == 0) {
+        newItem.fx = Math.floor(Math.random() * 1001) - 500;
+        newItem.fy = Math.floor(Math.random() * 1001) - 500;
+      } else {
+        newItem.fx = target.fx + random_offset;
+        newItem.fy = target.fy + random_offset;
+        updatedConnections.push({
+          source: target.id,
+          target: nodeId,
+        });
+      }
+      updatedNodes.push(newItem);
+      updatedItems.push(newItem);
+      this.$store.commit("setSessionItems", [...updatedItems]);
+      this.$store.commit("setSessionNodes", [...updatedNodes]);
+      this.$store.commit("setSessionConnections", [...updatedConnections]);
+      this.renderMindmap();
       if (this.autoSave) {
         this.handleMindmap();
       }
@@ -819,6 +875,7 @@ export default {
      */
     clickNode(isAltKeyPressed, node) {
       this.currentNode = node;
+      console.log("Current node", this.currentNode);
       // Toggle the selection of the clicked node
       this.clicks++;
       if (this.clicks === 1) {
@@ -829,6 +886,7 @@ export default {
         }, 300);
       } else {
         clearTimeout(this.timer);
+        this.updateNodes();
         this.handleActivateEditSession(node.id);
         this.clicks = 0;
         this.renderMap();
