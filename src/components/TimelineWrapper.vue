@@ -1306,6 +1306,10 @@ export default {
   display: none !important;
 }
 
+.timeline-wrapper {
+  height: 65vh;
+  overflow: auto;
+}
 .node-text {
   cursor: default !important;
 }

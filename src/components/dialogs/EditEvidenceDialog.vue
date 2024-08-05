@@ -365,6 +365,7 @@ export default {
       credentials: "auth/credentials",
       defaultTags: "config/defaultTags",
       sessionItems: "sessionItems",
+      sessionConnections: "sessionConnections",
     }),
     filteredTags() {
       return this.allTags
@@ -421,7 +422,7 @@ export default {
     // }
     this.$root.$on("update-edit-item", this.updateEditItem);
     this.$root.$on("update-processing", this.updateProcessing);
-    this.$root.$on("save-data", this.saveData);
+    // this.$root.$on("save-data", this.saveData);
   },
   watch: {
     itemData: function () {
@@ -455,7 +456,7 @@ export default {
 
       // set templates
       this.item = { ...this.itemData };
-
+      console.log("item-data", this.item);
       const splitName = this.item?.fileName?.split(".") || [""];
       this.name = splitName.slice(0, -1).join(".");
 
@@ -520,7 +521,7 @@ export default {
       this.$emit("close");
     },
     async handleSave() {
-      if (this.item.sessionType !== "Note") {
+      if (this.item.comment.type === "Summary") {
         this.triggerSaveEvent = !this.triggerSaveEvent;
       } else {
         await this.saveData(this.item);
@@ -561,7 +562,6 @@ export default {
 
       await this.$store.commit("setSessionItems", [...updatedItems]);
       await this.$store.commit("setSessionNodes", [...updatedNodes]);
-
       this.$emit("close");
       this.$root.$emit("render-mindmap");
     },

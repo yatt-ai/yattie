@@ -105,6 +105,10 @@ const defaultConfig = {
       changeSource: ["ctrl", "o"],
       createIssue: ["ctrl", "i"],
       back: ["ctrl", "b"],
+      copy: ["alt", "c"],
+      paste: ["alt", "v"],
+      edit: ["alt", "e"],
+      delete: ["del"],
     }, // Dialogs on workspace use general.save and general.cancel
     evidence: {
       name: ["ctrl", "n"],
@@ -125,6 +129,12 @@ const defaultConfig = {
   },
   cache: {
     retentionPeriod: 7,
+  },
+  colors: {
+    shapeColor: "#101828",
+    markerColor: "#101828",
+    connectorColor: "#101828",
+    textColor: "#101828",
   },
 };
 
@@ -408,7 +418,6 @@ const removeItemById = (id) => {
 const getItemById = (id) => {
   const session = dataDb.get("session");
   const item = session.items.find((item) => item.stepID === id);
-
   return item;
 };
 

@@ -253,7 +253,7 @@ export default {
 }
 
 .selected {
-  background: #3df1e7 !important;
+  background: #b2b7ee !important;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
 }
 

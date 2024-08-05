@@ -151,7 +151,6 @@ export default {
         const imgURI = this.imageEditorInst.toDataURL();
         const { status, message, item } =
           await this.$electronService.updateImage(this.editSessionItem, imgURI);
-
         if (status === STATUSES.ERROR) {
           this.$root.$emit("set-snackbar", message);
         } else {

@@ -21,7 +21,7 @@
         </v-card-text>
         <v-select
           label="Status"
-          :items="['Passed', 'Failed', 'In Progress']"
+          :items="commentTypes"
           v-model="status"
         ></v-select>
         <v-card-actions>
@@ -56,6 +56,8 @@
 <script>
 import LogoWrapper from "../LogoWrapper.vue";
 import { mapGetters } from "vuex";
+import { TEXT_TYPES } from "@/modules/constants";
+
 export default {
   name: "NodeEditDialog",
   components: {
@@ -81,8 +83,11 @@ export default {
   },
   data() {
     return {
+      commentTypes: Object.keys(TEXT_TYPES).filter(
+        (item) => item !== "Summary"
+      ),
       text: "",
-      status: "",
+      status: "Comment",
       valid: false,
       textRules: [(v) => !!v || "Node title is required"],
     };

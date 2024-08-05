@@ -103,7 +103,7 @@
             </v-tiptap>
           </div>
           <div class="mindmap-wrapper" v-else>
-            <mindmap-editor
+            <new-mindmap-editor
               :nodesData="mindmap.nodes"
               :connectionsData="mindmap.connections"
               :edit="true"
@@ -332,7 +332,7 @@
 
 <script>
 import { VContainer, VRow, VCol, VTextField } from "vuetify/lib/components";
-import MindmapEditor from "./NewMindmapEditor.vue";
+import NewMindmapEditor from "./NewMindmapEditor.vue";
 import { debounce } from "lodash";
 
 import {
@@ -351,7 +351,7 @@ export default {
     VRow,
     VCol,
     VTextField,
-    MindmapEditor,
+    NewMindmapEditor,
   },
   props: {
     isMindmap: {
@@ -672,7 +672,6 @@ export default {
 }
 .mindmap-wrapper {
   border: 1px solid #d1d5db;
-  border-top: none;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
 }

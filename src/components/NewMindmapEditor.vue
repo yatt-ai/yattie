@@ -1,74 +1,224 @@
 <template>
-  <div class="wrapper">
-    <svg class="mindmap-svg" ref="mountPoint"></svg>
-    <div class="mindmap-btn-wrapper">
-      <div
-        class="mindmap-control-btn mx-1 cursor-pointer"
-        onClick="alert('compass')"
+  <div>
+    <div class="wrapper">
+      <svg class="mindmap-svg" ref="mountPoint"></svg>
+
+      <v-menu
+        v-model="showMenu"
+        :position-x="menuX"
+        :position-y="menuY"
+        absolute
       >
-        <img
-          :src="require('../assets/icon/compass.svg')"
-          width="24"
-          height="24"
-        />
-      </div>
-      <div class="mindmap-control-btn mx-1 mt-4">
-        <div class="zoom-control">
-          <div class="cursor-pointer" onClick="alert('zoom in')">
-            <img
-              :src="require('../assets/icon/zoom-in.svg')"
+        <v-list density="compact">
+          <v-list-item
+            v-for="(action, i) in contextMenuActions"
+            :key="i"
+            :value="action"
+            @click="handleActionClick(action)"
+            color="primary"
+            class="context-menu-item"
+            v-shortkey="action.key"
+            @shortkey="handleActionClick(action)"
+            :style="{ borderRadius: '4px', cursor: 'pointer' }"
+          >
+            <!-- <template v-slot:prepend> -->
+            <!-- <span @click="handleActionClick(action)" class="text-caption">{{
+                action.label
+              }}</span> -->
+            <!-- </template> -->
+            <!-- <img
+              :src="require('../assets/icon/' + action.icon + '.svg')"
               width="24"
               height="24"
-            />
-          </div>
-          <div class="cursor-pointer" onClick="alert('zoom out')">
-            <img
-              :src="require('../assets/icon/zoom-out.svg')"
-              width="24"
-              height="24"
+            /> -->
+            <strong>
+              <v-list-item-title
+                v-text="action.label"
+                class="ml-2 mr-8"
+              ></v-list-item-title>
+            </strong>
+            <v-list-item-title v-text="action.hotkey"></v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+      <div class="mindmap-detail-bar" v-if="selectedNodes.length > 0">
+        <div>
+          <div class="control-btns mx-1 mt-2 cursor-pointer">
+            <NodeDetailPad
+              :currentColor="currentNode.color ? currentNode.color : '#e2e7fe'"
+              :currentShape="
+                currentNode.shape ? currentNode.shape : 'rectangle'
+              "
+              :currentCommentType="
+                currentNode.comment.type ? currentNode.comment.type : ''
+              "
+              :currentTags="currentNode.tags ? currentNode.tags : []"
+              :currentId="currentNode.id ? currentNode.id : ''"
+              :currentAttachments="
+                currentNode.attachments ? currentNode.attachments : []
+              "
             />
           </div>
         </div>
       </div>
-    </div>
-    <div class="mindmap-control-btn-wrapper">
-      <div class="mindmap-control-btn control-btns mx-1 cursor-pointer">
-        <div class="mx-2">
-          <img
-            :src="require('../assets/icon/edit.svg')"
-            width="24"
-            height="24"
-          />
-        </div>
-        <div class="mx-2">
-          <img
-            :src="require('../assets/icon/rect.svg')"
-            width="24"
-            height="24"
-          />
-        </div>
-        <div class="mx-2">
-          <img
-            :src="require('../assets/icon/link.svg')"
-            width="24"
-            height="24"
-          />
-        </div>
-        <div class="mx-2">
-          <img
-            :src="require('../assets/icon/text.svg')"
-            width="24"
-            height="24"
-          />
-        </div>
-        <div class="mx-2">
-          <img
-            :src="require('../assets/icon/upload.svg')"
-            width="24"
-            height="24"
-          />
+      <div class="mindmap-control-btn-wrapper">
+        <div>
+          <div
+            class="detail-bar mindmap-control-btn control-btns mx-1 mt-2 cursor-pointer"
+            v-if="isDetail"
+          >
+            <ColorPicker :colorType="'shape'" />
+            <v-divider vertical></v-divider>
+            <ShapePad v-if="detailType === 'shape'" />
+            <MarkerPad v-if="detailType === 'marker'" />
+            <TextPad v-if="detailType === 'text'" />
+            <LinkPad v-if="detailType === 'link'" />
+          </div>
+          <div class="flex justify-center">
+            <div
+              class="mindmap-control-btn control-btns mx-1 mt-2 cursor-pointer fit-content"
+            >
+              <!-- <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <div
+                    class="mindmap-ctrl-btn"
+                    v-on="on"
+                    @click="handleSelect('marker')"
+                  >
+                    <img
+                      :src="require('../assets/icon/edit.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </div>
+                </template>
+                <span>{{ $tc("caption.marker", 1) }}</span>
+              </v-tooltip> -->
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <div
+                    class="mindmap-ctrl-btn"
+                    v-on="on"
+                    @click="handleSelect('shape')"
+                  >
+                    <img
+                      :src="require('../assets/icon/shape.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </div>
+                </template>
+                <span>{{ $tc("caption.shapes", 1) }}</span>
+              </v-tooltip>
+              <!-- 
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <div
+                    class="mindmap-ctrl-btn"
+                    v-on="on"
+                    @click="handleSelect('link')"
+                  >
+                    <img
+                      :src="require('../assets/icon/link.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </div>
+                </template>
+                <span>{{ $tc("caption.connector", 1) }}</span>
+              </v-tooltip> -->
+              <!-- <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <div
+                    class="mindmap-ctrl-btn"
+                    v-on="on"
+                    @click="handleSelect('text')"
+                  >
+                    <img
+                      :src="require('../assets/icon/text.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </div>
+                </template>
+                <span>{{ $tc("caption.text", 1) }}</span>
+              </v-tooltip> -->
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <div
+                    class="mindmap-ctrl-btn"
+                    v-on="on"
+                    @click="handleOpenAddModal()"
+                  >
+                    <img
+                      :src="require('../assets/icon/upload.svg')"
+                      width="24"
+                      height="24"
+                    />
+                  </div>
+                </template>
+                <span>{{ $tc("caption.upload_evidence", 1) }}</span>
+              </v-tooltip>
+            </div>
+          </div>
         </div>
       </div>
+
+      <div class="mindmap-btn-wrapper">
+        <v-tooltip right>
+          <template v-slot:activator="{ on }">
+            <div
+              class="mindmap-control-btn mx-1 cursor-pointer"
+              v-on="on"
+              @click="resetZoom()"
+            >
+              <img
+                :src="require('../assets/icon/compass.svg')"
+                width="24"
+                height="24"
+              />
+            </div>
+          </template>
+          <span>{{ $tc("caption.zoom_in_to_flow", 1) }}</span>
+        </v-tooltip>
+
+        <div class="mindmap-control-btn mx-1 mt-4">
+          <div class="zoom-control">
+            <v-tooltip right>
+              <template v-slot:activator="{ on }">
+                <div class="cursor-pointer" @click="zoomInOut(1.25)" v-on="on">
+                  <img
+                    :src="require('../assets/icon/zoom-in.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.zoom_in", 1) }}</span>
+            </v-tooltip>
+            <v-tooltip right>
+              <template v-slot:activator="{ on }">
+                <div class="cursor-pointer" @click="zoomInOut(0.8)" v-on="on">
+                  <img
+                    :src="require('../assets/icon/zoom-out.svg')"
+                    width="24"
+                    height="24"
+                  />
+                </div>
+              </template>
+              <span>{{ $tc("caption.zoom_out", 1) }}</span>
+            </v-tooltip>
+          </div>
+        </div>
+      </div>
+
+      <node-edit-dialog
+        v-model="nodeDialog"
+        :title="content"
+        :type="status"
+        @save="handleSubmit"
+        @cancel="nodeDialog = false"
+      />
     </div>
   </div>
 </template>
@@ -87,6 +237,13 @@ import {
 } from "d3";
 import { v4 as uuidv4 } from "uuid";
 import NewNode from "./NewNode.vue";
+import ColorPicker from "./mindmap/ColorPicker.vue";
+import ShapePad from "./mindmap/ShapePad.vue";
+import MarkerPad from "./mindmap/MarkerPad.vue";
+import TextPad from "./mindmap/TextPad.vue";
+import LinkPad from "./mindmap/LinkPad.vue";
+import NodeDetailPad from "./mindmap/NodeDetailPad.vue";
+import NodeEditDialog from "./dialogs/NodeEditDialog.vue";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import vuetify from "@/plugins/vuetify";
 import i18n from "@/i18n";
@@ -105,9 +262,20 @@ import {
 } from "../modules/mindmap/utils/d3";
 import { getViewBox } from "../modules/mindmap/utils/dimensions";
 import "../modules/mindmap/sass/mindmap.sass";
+import domtoimage from "dom-to-image-more";
+import { mapGetters } from "vuex";
 
 export default {
   name: "MindmapEditor",
+  components: {
+    ColorPicker,
+    ShapePad,
+    MarkerPad,
+    TextPad,
+    LinkPad,
+    NodeDetailPad,
+    NodeEditDialog,
+  },
   props: {
     nodesData: {
       type: Array,
@@ -121,10 +289,26 @@ export default {
       type: Boolean,
       default: true,
     },
+    triggerSave: {
+      type: Boolean,
+      default: () => false,
+    },
+    autoSave: {
+      type: Boolean,
+      default: () => true,
+    },
   },
   watch: {
     nodesData: function (newValue) {
       this.nodes = newValue;
+    },
+    selectedNodes: function (newValue) {
+      if (newValue.length === 0) this.isDetail = false;
+    },
+    triggerSave: function (newValue) {
+      if (newValue) {
+        this.handleMindmap(true);
+      }
     },
     connectionsData: function (newValue) {
       this.connections = newValue;
@@ -139,7 +323,61 @@ export default {
       editable: this.edit,
       selectedNodes: [],
       title: "",
+      isDetail: false,
+      detailType: "",
+      clicks: 0,
+      timer: null,
+      nodeDialog: false,
+      content: "",
+      status: "",
+      shape: "rectangle",
+      color: "#e2e7fe",
+      menuX: 0,
+      menuY: 0,
+      currentNode: null,
+      targetNode: null,
+      contextMenuActions: [
+        {
+          label: "Copy",
+          action: "copy",
+          hotkey: "Alt+C",
+          icon: "delete",
+        },
+        {
+          label: "Paste",
+          action: "paste",
+          hotkey: "Alt+V",
+          icon: "delete",
+        },
+        {
+          label: "Edit",
+          action: "edit",
+          hotkey: "Alt+E",
+          icon: "pencil",
+        },
+        {
+          label: "Delete",
+          action: "delete",
+          hotkey: "Delete",
+          icon: "delete",
+        },
+      ],
+      showMenu: false,
     };
+  },
+  computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+    }),
+    deleteHotkey() {
+      return this.$hotkeyHelpers.findBinding("workspace.delete", this.hotkeys);
+    },
+    copyHotkey() {
+      return this.$hotkeyHelpers.findBinding("workspace.copy", this.hotkeys);
+    },
+    pasteHotkey() {
+      return this.$hotkeyHelpers.findBinding("workspace.paste", this.hotkeys);
+    },
   },
   created() {
     // Create force simulation to position nodes that have
@@ -153,9 +391,20 @@ export default {
       .force("collide", forceCollide().radius(100));
   },
   mounted() {
-    this.nodes = [...this.nodesData];
-    this.connections = [...this.connectionsData];
+    this.$root.$on("update-color", this.handleUpdateColor);
+    this.$root.$on("update:shape", this.handleUpdateShape);
+    this.$root.$on("update:commentType", this.handleUpdateCommentType);
+    this.$root.$on("update:tags", this.handleUpdateTags);
+    this.$root.$on("update:attachments", this.handleUpdateAttachments);
+    this.nodes = structuredClone(this.nodesData);
+    this.connections = structuredClone(this.connectionsData);
     this.renderMap();
+    this.contextMenuActions.map((action) => {
+      action.key = this.$hotkeyHelpers.findBinding(
+        "workspace." + action.action,
+        this.hotkeys
+      );
+    });
   },
   updated() {
     zoom().transform(select(this.$refs.mountPoint), zoomIdentity);
@@ -167,13 +416,74 @@ export default {
       const render = (node) => {
         node.selected =
           this.selectedNodes.find((ele) => ele.id === node.id) !== undefined;
-        node.width = node.width ?? 150;
-        node.height = node.height ?? 75;
-        node.content = node.text ?? "";
+        node.width = node.width ?? 200;
+        node.height = node.height ?? 100;
       };
 
       this.nodes.forEach((node) => render(node));
     },
+    /**
+     * Get the color of the node and update the color
+     */
+
+    handleUpdateColor(data) {
+      let currentNode = this.selectedNodes[0];
+      if (currentNode) {
+        currentNode.color = data.color;
+        currentNode.fillType = data.type;
+        this.renderMap();
+      }
+    },
+    /**
+     * Get the shape of the node and update the shape
+     */
+    handleUpdateShape(shape) {
+      let currentNode = this.selectedNodes[0];
+      if (currentNode) {
+        currentNode.shape = shape;
+        if (shape === "rectangle") {
+          currentNode.width = 200;
+          currentNode.height = 100;
+        } else {
+          currentNode.width = 100;
+          currentNode.height = 100;
+        }
+        this.renderMap();
+      }
+    },
+    /**
+     * Get the status of the node and update the status
+     */
+    handleUpdateCommentType(status) {
+      let currentNode = this.selectedNodes[0];
+      if (currentNode) {
+        currentNode.comment.type = status;
+        this.renderMap();
+      }
+    },
+
+    /**
+     * Get the tags of the node and update the tags
+     */
+    handleUpdateTags(tags) {
+      let currentNode = this.selectedNodes[0];
+      if (currentNode) {
+        currentNode.tags = tags;
+        this.renderMap();
+      }
+    },
+
+    /**
+     * Get the attachments of the node and update the attachments
+     */
+    handleUpdateAttachments(nodeId, attachments) {
+      let currentNode = this.nodes.find((item) => item.id === nodeId);
+      if (currentNode) {
+        currentNode.attachments = attachments;
+        this.renderMap();
+      }
+    },
+
     /**
      * Add new class to nodes, attach drag behevior,
      * and start simulation.
@@ -241,6 +551,7 @@ export default {
                 onConnect: () => self.connectNode(svg, node),
                 onClick: (isAltKeyPressed) =>
                   self.clickNode(isAltKeyPressed, node),
+                onContextmenu: (x, y) => self.contextmenuNode(node, x, y),
               },
               vuetify,
               i18n,
@@ -285,10 +596,50 @@ export default {
         .on("dbClick.zoom", null);
     },
 
+    onSave(content, status) {
+      this.selectedNodes.forEach((node) => {
+        if (content) {
+          node.content = content;
+        }
+        if (status) {
+          node.comment.type = status;
+        }
+      });
+      this.nodeDialog = false;
+    },
+
     onSelectedByDrag(selectedNodes) {
       this.selectedNodes = [...selectedNodes];
+      // this.renderMap();
+    },
+    /**
+     * Zoom in and out the mind map using D3
+     */
+    zoomInOut(scale) {
+      let svg = select(this.$refs.mountPoint);
+      svg.transition().call(d3PanZoom(svg).scaleBy, scale);
+    },
+
+    resetZoom() {
+      let svg = select(this.$refs.mountPoint);
+      svg.transition().call(d3PanZoom(svg).scaleTo, 1);
+      this.selectedNodes = [];
       this.renderMap();
     },
+
+    handleActionClick(action) {
+      if (action.action === "copy") {
+        this.copyNode(this.targetNode);
+      } else if (action.action === "paste") {
+        this.pasteNode(this.targetNode);
+      } else if (action.action === "edit") {
+        this.handleOpenEditModal(this.targetNode);
+      } else if (action.action === "delete") {
+        if (this.showMenu) this.removeNode(this.targetNode);
+        else this.removeNode();
+      }
+    },
+
     /**
      * * add new nodes
      */
@@ -310,12 +661,18 @@ export default {
         target: nodeId,
       });
       this.renderMap();
+      if (this.autoSave) {
+        this.handleMindmap();
+      }
     },
     /**
      * remove a node
      * todo: before remove nodes check all link
      */
     removeNode(node) {
+      if (!node && this.selectedNodes.length === 0) return;
+      if (!node) node = this.selectedNodes[0];
+
       this.nodes = this.nodes.filter((item) => item.id !== node.id);
       this.connections = this.connections.filter(
         (item) => item.source.id !== node.id && item.target.id !== node.id
@@ -326,11 +683,53 @@ export default {
       }
     },
 
+    copyNode(node) {
+      this.content = node.content;
+      this.status = node.status;
+      this.shape = node.shape;
+      this.color = node.color;
+    },
+
+    pasteNode(node) {
+      this.addNewNode(node, this.content, this.status, this.shape, this.color);
+    },
+
+    async handleOpenEditModal(node) {
+      this.content = node.content;
+      this.status = node.status;
+      this.nodeDialog = true;
+    },
+    async handleOpenAddModal() {
+      this.content = "";
+      this.status = "";
+      this.nodeDialog = true;
+    },
+
+    handleSubmit(title, type) {
+      if (this.content) this.onSave(title, type);
+      else this.onAdd(title, type);
+      this.nodeEditDialog = false;
+    },
+
     /**
      * click on node
      */
     clickNode(isAltKeyPressed, node) {
+      this.currentNode = node;
       // Toggle the selection of the clicked node
+      this.clicks++;
+      if (this.clicks === 1) {
+        var self = this;
+        this.timer = setTimeout(function () {
+          self.clicks = 0;
+          self.renderMap();
+        }, 300);
+      } else {
+        clearTimeout(this.timer);
+        this.handleOpenEditModal(node);
+        this.clicks = 0;
+        this.renderMap();
+      }
       if (isAltKeyPressed) {
         const index = this.selectedNodes.indexOf(node);
         if (index === -1) {
@@ -338,13 +737,19 @@ export default {
         } else {
           this.selectedNodes.splice(index, 1);
         }
+        this.renderMap();
       } else {
         // If Ctrl/Cmd is not pressed, clear the selection and select only the clicked node
         this.selectedNodes = [node];
       }
-      this.renderMap();
     },
 
+    contextmenuNode(node, x, y) {
+      this.menuX = x;
+      this.menuY = y;
+      this.showMenu = true;
+      this.targetNode = node;
+    },
     /**
      * link on node
      */
@@ -371,6 +776,42 @@ export default {
       this.renderMap();
       d3Connector(svg, this.clicked[0]);
     },
+    handleAddNewNode(content, status) {
+      this.addNewNode(this.selectedNodes[0], content, status);
+    },
+    handleSelect(type) {
+      if (this.detailType !== type) {
+        this.detailType = type;
+        this.isDetail = true;
+      } else {
+        this.isDetail = false;
+        this.detailType = "";
+      }
+      if (type === "upload") this.isDetail = false;
+    },
+    async handleMindmap() {
+      var svgElement = document.querySelector(`.mindmap-svg`);
+      var mainDom = document.createElement("div");
+      // var importedNode = document.importNode(svgElement.cloneNode(true), true);
+      mainDom.append(svgElement.cloneNode(true));
+      document.getElementsByTagName("BODY")[0].append(mainDom);
+      const quality = 2;
+      const rect = svgElement.getBoundingClientRect();
+      const imageUrl = await domtoimage.toPng(mainDom, {
+        bgcolor: "#FAFAFA",
+        height: rect.height * quality,
+        width: rect.width * quality,
+      });
+      let new_nodes = structuredClone(this.nodes);
+      let new_connections = structuredClone(this.connections);
+
+      this.$emit("submit-mindmap", {
+        nodes: new_nodes,
+        connections: new_connections,
+        imgURI: imageUrl,
+      });
+      mainDom.remove();
+    },
   },
 };
 </script>
@@ -391,6 +832,11 @@ export default {
   bottom: 10px;
   right: 10px;
 }
+.mindmap-ctrl-btn {
+  background-color: #f9fafb;
+  margin-left: 8px;
+  margin-right: 8px;
+}
 .mindmap-control-btn-wrapper {
   width: 100%;
   display: flex;
@@ -398,6 +844,16 @@ export default {
   position: absolute;
   bottom: 10px;
   left: 10px;
+}
+.mindmap-detail-bar {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }
 .control-btns {
   display: flex !important;
@@ -412,5 +868,27 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 10px;
+}
+.context-menu-item {
+  cursor: pointer;
+}
+
+.context-menu-item:hover {
+  background-color: #f0f0f0;
+}
+.detail-bar,
+.mindmap-detail-bar,
+.mindmap-control-btn-wrapper {
+  animation: pop-in 0.5s;
+}
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 </style>

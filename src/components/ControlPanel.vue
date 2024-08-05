@@ -1763,6 +1763,7 @@ export default {
         emoji: data.emoji,
         followUp: data.followUp,
         timer_mark: this.timer,
+        color: "#e2e7fe",
         createdAt: Date.now(),
       };
       const updatedItems = [...this.items];
@@ -1786,8 +1787,10 @@ export default {
       }
       updatedItems.push(newItem);
       updatedItems.forEach((item) => {
-        item.id = item.stepID;
-        updatedNodes.push({ ...item, content: item.comment.text });
+        if (item.fileType === "text/plain") {
+          item.id = item.stepID;
+          updatedNodes.push({ ...item, content: item.comment.text });
+        }
       });
 
       if (this.nodes.length > 0) {
