@@ -411,6 +411,7 @@ const removeItemById = (id) => {
   let session = dataDb.get("session");
   const items = session.items;
   session.items = items.filter((item) => item.stepID !== id);
+  console.log(`Remove item by ID`);
   dataDb.set("session", session);
 };
 
@@ -433,6 +434,7 @@ module.exports.createNewSession = (state) => {
   //dataDb.set("caseID", state.case.caseID);
   //dataDb.set("sessionID", state.session.sessionID);
   //delete state.id;
+  console.log(`LOG: ${JSON.stringify(state.session)}`);
   let session = state.session;
   session.items = [];
   session.notes = {
@@ -498,6 +500,8 @@ module.exports.updateState = (state) => {
       session = session || {};
     }
 
+    console.log(`DATA SESSION1: ${ JSON.stringify(session) }`);
+    console.log(`DATA SESSION: ${ JSON.stringify(state.session) }`);
     dataDb.set("case", { ...cas, ...state.case });
     dataDb.set("session", { ...session, ...state.session });
   }
@@ -522,6 +526,7 @@ module.exports.addItem = (item) => {
     let items = session.items || [];
     items.push(item);
     session.items = items;
+    console.log(`ADD ITEM: ${JSON.stringify(addItem)}`);
     dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");
@@ -541,6 +546,7 @@ module.exports.updateItem = (newItem) => {
       return item;
     });
     session.items = items;
+    console.log(`UPDATE ITEM: ${JSON.stringify(session)}`);
     dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");
@@ -553,10 +559,12 @@ module.exports.updateItems = (items) => {
   try {
     let session = dataDb.get("session");
     if (!session) {
+      console.log(`UPDATE ITEMSSSS1`);
       dataDb.set("session", {});
       session = {};
     }
     session.items = items;
+    console.log(`UPDATE ITEMSSS2`);
     dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");
@@ -673,6 +681,7 @@ module.exports.updateNotes = (notes) => {
   try {
     let session = dataDb.get("session");
     session.notes = notes;
+    console.log(`UPDATE NOTES: ${JSON.stringify(session)}`);
     dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");
@@ -694,6 +703,7 @@ module.exports.updateNodes = (nodes) => {
   try {
     let session = dataDb.get("session");
     session.nodes = nodes;
+    console.log('UPDATE NODES');
     dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");
@@ -715,6 +725,7 @@ module.exports.updateConnections = (connections) => {
   try {
     let session = dataDb.get("session");
     session.connections = connections;
+    console.log('UPDATE CONNECTIONS');
     dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");
@@ -731,6 +742,7 @@ module.exports.resetData = () => {
       content: "",
       text: "",
     };
+    console.log('Reset Data');
     dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");

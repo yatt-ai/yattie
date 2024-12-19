@@ -38,9 +38,12 @@ async function createWindow() {
   const win = windowUtility.getMainWindow();
   browserUtility.setBrowserWindow(win);
   browserUtility.setViewMode(VIEW_MODE.NORMAL);
+  console.log(`Is dev: ${isDevelopment}`);
   if (isDevelopment) {
+  console.log(`Is dev: ${isDevelopment}`);
     win.webContents.openDevTools();
   }
+  console.log(`Is dev: ${isDevelopment}`);
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
