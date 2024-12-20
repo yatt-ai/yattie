@@ -45,7 +45,7 @@
                   : 'mdi-robot-outline'
                 : ''
             "
-            :value="newSessionName"
+            :value="sessionName"
             ref="titleTextField"
           >
             <template v-slot:progress>
@@ -119,6 +119,7 @@ export default {
       privacy: "Private",
       privacy_modes: ["Private", "Public"],
       resetConfirmDialog: false,
+      sessionName: "",
     };
   },
   computed: {
@@ -144,6 +145,14 @@ export default {
         return this.$vuetify.theme.themes.light;
       }
     },
+  },
+  watch: {},
+  created() {
+    if (!this.sessionName || this.sessionName.length < 1) {
+      this.sessionName = this.newSessionName();
+    }
+  },
+  methods: {
     newSessionName() {
       const currentDateTime = new Date();
       const sessionName = `Quick test ${currentDateTime.toLocaleDateString(
@@ -154,14 +163,12 @@ export default {
         minute: "2-digit",
         hour12: false,
       })}`;
+      console.log("Setting QT name");
       this.$store.commit("setCaseTitle", sessionName);
       return sessionName;
     },
-  },
-  watch: {},
-
-  methods: {
     startQuickTest() {
+      this.$store.commit("setCaseTitle", this.sessionName);
       this.$root.$emit("start-quick-test");
     },
     async back() {

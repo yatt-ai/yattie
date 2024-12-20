@@ -1177,7 +1177,6 @@ export default {
       }, 100);
     },
     startInterval() {
-      console.log("start interval");
       if (!this.interval) {
         this.interval = setInterval(() => {
           this.timer += 1;
@@ -1222,7 +1221,6 @@ export default {
       }
 
       if (this.status !== SESSION_STATUSES.START) {
-        console.log("start interval-2");
         this.status = SESSION_STATUSES.START;
         this.startInterval();
         this.changeSessionStatus(SESSION_STATUSES.START);
@@ -1276,7 +1274,6 @@ export default {
           } else {
             this.status = SESSION_STATUSES.START;
             this.timer = this.$store.state.session.timer;
-            console.log("start interval-3");
             this.startInterval();
           }
         });
@@ -1286,7 +1283,6 @@ export default {
         }
         this.status = SESSION_STATUSES.START;
         this.timer = this.$store.state.session.timer;
-        console.log("start interval-3");
         this.startInterval();
       }
     },
@@ -1697,7 +1693,6 @@ export default {
             d.deviceId != "communications" &&
             d.deviceId != "default"
         );
-        console.log("audio devices:", this.audioDevices);
         if (!this.audioDevices.length) {
           this.audioErrorDialog = true;
           return;
@@ -1965,18 +1960,7 @@ export default {
       }
     },
     getCurrentDateTime() {
-      const now = new Date();
-      const currentDateTime =
-        String(now.getHours()).padStart(2, "0") +
-        ":" +
-        String(now.getMinutes()).padStart(2, "0") +
-        " | " +
-        String(now.getMonth() + 1).padStart(2, "0") +
-        "-" +
-        String(now.getDate()).padStart(2, "0") +
-        "-" +
-        now.getFullYear();
-      return currentDateTime;
+      return new Date().toISOString();
     },
     changeSessionStatus(status) {
       if (this.$isElectron) {

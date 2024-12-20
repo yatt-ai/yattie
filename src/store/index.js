@@ -61,11 +61,9 @@ const store = new Vuex.Store({
   },
   mutations: {
     replaceAttachmentUrl(state, { attachmentID, url }) {
-      console.log("replaceAttachmentUrl");
       const uploadedAttachment = state.session.items.find(
         (item) => item.attachmentID === attachmentID
       );
-      console.log({ uploadedAttachment });
       uploadedAttachment.filePath = url;
       uploadedAttachment.uploaded = true;
     },
@@ -143,15 +141,19 @@ const store = new Vuex.Store({
     },
     setSessionNodes(state, payload) {
       state.session.nodes = payload;
-      if (Vue.prototype.$isElectron)
+      if (Vue.prototype.$isElectron) {
         this._vm.$storageService.updateNodes(payload);
-      else this._vm.$storageService.updateState(state);
+      } else {
+        this._vm.$storageService.updateState(state);
+      }
     },
     setSessionConnections(state, payload) {
       state.session.connections = payload;
-      if (Vue.prototype.$isElectron)
+      if (Vue.prototype.$isElectron) {
         this._vm.$storageService.updateConnections(payload);
-      else this._vm.$storageService.updateState(state);
+      } else {
+        this._vm.$storageService.updateState(state);
+      }
     },
     setSessionItemsFromExternalWindow(state, payload) {
       state.session.items = payload;

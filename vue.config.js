@@ -65,7 +65,7 @@ module.exports = {
           publish: [
             {
               provider: "github",
-              owner: "dacoaster",
+              owner: "testfiesta",
               repo: "YETTIE",
               releaseType: "prerelease",
             },
@@ -78,8 +78,8 @@ module.exports = {
           publish: [
             {
               provider: "github",
-              owner: "dacoaster",
-              repo: "PINATA",
+              owner: "testfiesta",
+              repo: "pinata",
               releaseType: "prerelease",
             },
           ],
@@ -97,8 +97,8 @@ module.exports = {
           publish: [
             {
               provider: "github",
-              owner: "dacoaster",
-              repo: "PINATA",
+              owner: "testfiesta",
+              repo: "pinata",
               releaseType: "prerelease",
             },
           ],
@@ -110,8 +110,8 @@ module.exports = {
           publish: [
             {
               provider: "github",
-              owner: "dacoaster",
-              repo: "PINATA",
+              owner: "testfiesta",
+              repo: "pinata",
               releaseType: "prerelease",
             },
           ],

@@ -434,7 +434,7 @@ module.exports.createNewSession = (state) => {
   //dataDb.set("caseID", state.case.caseID);
   //dataDb.set("sessionID", state.session.sessionID);
   //delete state.id;
-  console.log(`LOG: ${JSON.stringify(state.session)}`);
+  console.log(`create new: ${JSON.stringify(state.session)}`);
   let session = state.session;
   session.items = [];
   session.notes = {
@@ -488,22 +488,26 @@ module.exports.getState = () => {
   }
 };
 
+// You must pass the entire state to use this.
 module.exports.updateState = (state) => {
   if (dataDb) {
-    let session, cas;
+    let session, cse;
     try {
-      cas = dataDb.get("case");
+      cse = dataDb.get("case");
       session = dataDb.get("session");
     } catch (error) {
       console.log(error);
-      cas = cas || {};
+      cse = cse || {};
       session = session || {};
     }
 
-    console.log(`DATA SESSION1: ${ JSON.stringify(session) }`);
-    console.log(`DATA SESSION: ${ JSON.stringify(state.session) }`);
-    dataDb.set("case", { ...cas, ...state.case });
-    dataDb.set("session", { ...session, ...state.session });
+    console.log('.');
+    console.log('.');
+    console.trace('.');
+    console.log(`Update state - passed: ${ JSON.stringify(session) }`);
+    console.log(`Update state - state: ${ JSON.stringify(state.session) }`);
+    dataDb.set("case", { ...cse, ...state.case });
+    dataDb.set("session", session);
   }
 };
 
@@ -526,7 +530,6 @@ module.exports.addItem = (item) => {
     let items = session.items || [];
     items.push(item);
     session.items = items;
-    console.log(`ADD ITEM: ${JSON.stringify(addItem)}`);
     dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");
@@ -546,7 +549,6 @@ module.exports.updateItem = (newItem) => {
       return item;
     });
     session.items = items;
-    console.log(`UPDATE ITEM: ${JSON.stringify(session)}`);
     dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");
@@ -559,12 +561,10 @@ module.exports.updateItems = (items) => {
   try {
     let session = dataDb.get("session");
     if (!session) {
-      console.log(`UPDATE ITEMSSSS1`);
       dataDb.set("session", {});
       session = {};
     }
     session.items = items;
-    console.log(`UPDATE ITEMSSS2`);
     dataDb.set("session", session);
     browserWindow = browserUtility.getBrowserWindow();
     browserWindow.webContents.send("DATA_CHANGE");

@@ -416,7 +416,9 @@ export default {
     async handleQuickTest() {
       console.log("quickTest");
       this.$store.commit("clearState");
+      console.log("state cleared");
       this.$store.commit("setSessionQuickTest", true);
+      console.log("set quicktest");
       // if (this.$router.history.current.path === "/") {
       await this.$router.push("/main");
       // }

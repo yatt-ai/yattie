@@ -373,6 +373,7 @@ export default {
   },
   methods: {
     actualUpdateTitle(title) {
+      console.log("SETTING");
       this.$store.commit("setCaseTitle", title);
     },
     updateTitle(title) {
