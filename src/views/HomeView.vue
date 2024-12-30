@@ -387,7 +387,6 @@ export default {
       this.$store.commit("config/setFullConfig", config);
     },
     async newSession() {
-      console.log("newSession");
       this.$store.commit("clearState");
       this.$store.commit("setSessionQuickTest", false);
       if (this.$router.history.current.path === "/") {
@@ -414,11 +413,8 @@ export default {
       }
     },
     async handleQuickTest() {
-      console.log("quickTest");
       this.$store.commit("clearState");
-      console.log("state cleared");
       this.$store.commit("setSessionQuickTest", true);
-      console.log("set quicktest");
       // if (this.$router.history.current.path === "/") {
       await this.$router.push("/main");
       // }

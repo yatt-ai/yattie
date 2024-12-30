@@ -1721,7 +1721,7 @@ export default {
         createdAt: Date.now(),
       };
       const updatedItems = [...this.items];
-      let updatedNodes = [];
+      let updatedNodes = [...this.nodes];
       let updatedConnections = [...this.connections];
 
       if (this.nodes.length == 0) {

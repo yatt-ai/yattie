@@ -66,7 +66,7 @@ module.exports = {
             {
               provider: "github",
               owner: "testfiesta",
-              repo: "YETTIE",
+              repo: "pinata",
               releaseType: "prerelease",
             },
           ],

@@ -49,7 +49,6 @@ module.exports.createImage = ({ url, isPoster }) => {
   const fileType = DEFAULT_FILE_TYPES["image"].type;
   const imageType = isPoster ? "poster" : "image";
   const { stepID, attachmentID, fileName } = generateIDAndName(imageType);
-  console.log(`SESSION ID: ${persistenceUtility.getSessionID()}`);
   const filePath = path.join(
     configDir,
     "sessions",

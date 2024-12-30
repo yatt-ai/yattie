@@ -45,7 +45,7 @@
                   : 'mdi-robot-outline'
                 : ''
             "
-            :value="sessionName"
+            v-model="sessionName"
             ref="titleTextField"
           >
             <template v-slot:progress>
@@ -146,7 +146,6 @@ export default {
       }
     },
   },
-  watch: {},
   created() {
     if (!this.sessionName || this.sessionName.length < 1) {
       this.sessionName = this.newSessionName();
@@ -163,7 +162,6 @@ export default {
         minute: "2-digit",
         hour12: false,
       })}`;
-      console.log("Setting QT name");
       this.$store.commit("setCaseTitle", sessionName);
       return sessionName;
     },
