@@ -55,6 +55,7 @@
     "signup_test_app": "Sign up to test apps",
     "back": "Back",
     "sign_in": "Sign in",
+    "log_in": "Log in",
     "signin_yatt": "Sign in with YATT",
     "signin_jira": "Sign in with JIRA",
     "signin_testrail": "Sign in with TestRail",

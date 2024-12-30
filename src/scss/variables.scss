@@ -2,7 +2,34 @@ body {
   font-size: 13px;
   margin: 0;
 }
-
+.theme--light.v-application {
+  background-color: #F2F4F7 !important;
+}
+.fs-30 {
+  font-size: 30px !important;
+}
+.fs-14 {
+  font-size: 14px !important;
+}
+.font-weight-semibold {
+  font-weight: 600;
+}
+.app-height-global {
+  min-height: calc(100vh - 24px);
+  height: 100%;
+}
+.position-relative {
+  position: relative;
+}
+.opacity-50 {
+  opacity: 0.5;
+}
+.invisible {
+  visibility: hidden;
+}
+.visible {
+  visibility: visible;
+}
 /* width */
 ::-webkit-scrollbar {
   width: 8px;
