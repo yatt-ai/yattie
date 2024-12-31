@@ -146,6 +146,7 @@ jobs:
       run: npm run publish
 
   notify:
+    runs-on: ubuntu-latest
     steps:
       - name: Discord notification
         env:
