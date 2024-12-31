@@ -10,20 +10,21 @@
   <a href="#about"><strong>Explore the screenshots »</strong></a>
   <br />
   <br />
-  <a href="https://github.com/dacoaster/pinata/issues/new?assignees=&labels=bug&template=01_BUG_REPORT.md&title=bug%3A+">Report a Bug</a>
+  <a href="https://github.com/testfiesta/pinata/issues/new?assignees=&labels=bug&template=01_BUG_REPORT.md&title=bug%3A+">Report a Bug</a>
   ·
-  <a href="https://github.com/dacoaster/pinata/issues/new?assignees=&labels=enhancement&template=02_FEATURE_REQUEST.md&title=feat%3A+">Request a Feature</a>
+  <a href="https://github.com/testfiesta/pinata/issues/new?assignees=&labels=enhancement&template=02_FEATURE_REQUEST.md&title=feat%3A+">Request a Feature</a>
   .
-  <a href="https://github.com/dacoaster/pinata/issues/new?assignees=&labels=question&template=04_SUPPORT_QUESTION.md&title=support%3A+">Ask a Question</a>
+  <a href="https://github.com/testfiesta/pinata/issues/new?assignees=&labels=question&template=04_SUPPORT_QUESTION.md&title=support%3A+">Ask a Question</a>
 </div>
 
 <div align="center">
 <br />
 
-[![Project license](https://img.shields.io/github/license/dacoaster/pinata.svg?style=flat-square)](LICENSE)
+[![Project license](https://img.shields.io/github/license/testfiesta/pinata.svg?style=flat-square)](LICENSE)
 
-[![Pull Requests welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg?style=flat-square)](https://github.com/dacoaster/pinata/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
-[![code with love by dacoaster](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-dacoaster-ff1414.svg?style=flat-square)](https://github.com/dacoaster)
+[![Pull Requests welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg?style=flat-square)](https://github.com/testfiesta/pinata/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
+
+[![code with love by dacoaster](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-testfiesta-ff1414.svg?style=flat-square)](https://github.com/testfiesta)
 
 </div>
 
@@ -58,7 +59,7 @@ Piñata exists to help make tester's lives easier. Ideally, it should remove fri
 
 Our view is that testing is an art as varied and complex as those who undertake it. So our goal is to create a flexible, extensible toolset to raise the bar for what each member of the testing community can accomplish.
 
-If you have an idea about how we can better meet that goal, please let us know by [requesting a feature](https://github.com/dacoaster/pinata/labels/enhancement) or, better yet, [put in a pull request!](docs/CONTRIBUTING.md).
+If you have an idea about how we can better meet that goal, please let us know by [requesting a feature](https://github.com/testfiesta/pinata/labels/enhancement) or, better yet, [put in a pull request!](docs/CONTRIBUTING.md).
 
 <details>
 <summary>Screenshots</summary>
@@ -91,7 +92,7 @@ Many thanks to all of the testers and developers who have contributed to Piñata
 
 If you looking to contribute - please checkout the [contributing guidelines](docs/CONTRIBUTING.md).
 
-If you're just looking to take it for a spin, check out the pre-built [packages](https://testfiesta.com/downloads) and find the one built for your platform. Can't find the platform you're looking for? Let us know you'd like a new one supported by submitting a [feature requests](https://github.com/dacoaster/pinata/labels/enhancement)!
+If you're just looking to take it for a spin, check out the pre-built [packages](https://github.com/testfiesta/pinata/releases) and find the one built for your platform. Can't find the platform you're looking for? Let us know you'd like a new one supported by submitting a [feature requests](https://github.com/dacoaster/pinata/labels/enhancement)!
 
 ### Installation
 
@@ -113,27 +114,26 @@ To allow Piñata taking screenshots and record your screen please make sure you 
 
 ## Roadmap
 
-See the [open issues](https://github.com/dacoaster/pinata/issues) for a list of known issues.
-See the [open feature requests](https://github.com/dacoaster/pinata/labels/enhancement) for a list of current feature requests.
+See the [open issues](https://github.com/testfiesta/pinata/issues) for a list of known issues.
+See the [open feature requests](https://github.com/testfiesta/pinata/labels/enhancement) for a list of current feature requests.
 
-- [Top Feature Requests](https://github.com/dacoaster/pinata/labels/enhancement) (Add your votes using the a thumbs up or down!)
-- [Top Bugs](https://github.com/dacoaster/pinata/issues?q=is%3Aissue+is%3Aopen+label%3Abug+sort%3Areactions-%2B1-desc) (Add your votes using the 👍 reaction)
-- [Newest Bugs](https://github.com/dacoaster/pinata/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
+- [Top Feature Requests](https://github.com/testfiesta/pinata/labels/enhancement) (Add your votes using the a thumbs up or down!)
+- [Top Bugs](https://github.com/testfiesta/pinata/issues?q=is%3Aissue+is%3Aopen+label%3Abug+sort%3Areactions-%2B1-desc) (Add your votes using the 👍 reaction)
+- [Newest Bugs](https://github.com/testfiesta/pinata/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
 
 ## Support
 
 Reach out to the maintainer at one of the following places:
 
-- [GitHub issues](https://github.com/dacoaster/pinata/issues/new?assignees=&labels=question&template=04_SUPPORT_QUESTION.md&title=support%3A+)
+- [GitHub issues](https://github.com/testfiesta/pinata/issues/new?assignees=&labels=question&template=04_SUPPORT_QUESTION.md&title=support%3A+)
 - Contact options listed on [this GitHub profile](https://github.com/dacoaster)
 
 ## Project assistance
 
 If you want to say **thank you** or/and support active development of Piñata:
 
-- Add a [GitHub Star](https://github.com/dacoaster/pinata) to the project.
+- Add a [GitHub Star](https://github.com/testfiesta/pinata) to the project.
 - Tweet about Piñata.
-- Fill out our [user survey](https://testfiesta.com/pinata-survey) so we can improve Piñata!
 - Write interesting articles about the project on [Dev.to](https://dev.to/), [Medium](https://medium.com/) or your personal blog.
 
 Together, we can make Piñata **better**!
@@ -148,7 +148,7 @@ Please read [our contribution guidelines](docs/CONTRIBUTING.md), and thank you f
 
 The original setup of this repository is by [David Acosta](https://github.com/dacoaster).
 
-For a full list of all authors and contributors, see [the contributors page](https://github.com/dacoaster/pinata/contributors).
+For a full list of all authors and contributors, see [the contributors page](https://github.com/testfiesta/pinata/contributors).
 
 ## Security
 
