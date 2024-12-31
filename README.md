@@ -5,7 +5,7 @@
 </h1>
 
 <div align="center">
-  Pinata
+  Piñata
   <br />
   <a href="#about"><strong>Explore the screenshots »</strong></a>
   <br />
@@ -52,9 +52,9 @@
 
 ## About
 
-**BETA** - _Pinata is just getting started - please report any and all bugs you find. Likewise, contributions to the code to fix issues are always appreciated!_
+**BETA** - _Piñata is just getting started - please report any and all bugs you find. Likewise, contributions to the code to fix issues are always appreciated!_
 
-Pinata exists to help make tester's lives easier. Ideally, it should remove friction from the exploratory process - everywhere from gathering evidence to submitting reports.
+Piñata exists to help make tester's lives easier. Ideally, it should remove friction from the exploratory process - everywhere from gathering evidence to submitting reports.
 
 Our view is that testing is an art as varied and complex as those who undertake it. So our goal is to create a flexible, extensible toolset to raise the bar for what each member of the testing community can accomplish.
 
@@ -72,7 +72,7 @@ If you have an idea about how we can better meet that goal, please let us know b
 
 ### Contributors
 
-Many thanks to all of the testers and developers who have contributed to Pinata via bug reports, code, ideas, and more!
+Many thanks to all of the testers and developers who have contributed to Piñata via bug reports, code, ideas, and more!
 
 [@parwalrahul](https://github.com/parwalrahul)
 [@narkhedeshubham](https://github.com/narkhedeshubham)
@@ -99,10 +99,10 @@ TODO - This section could use some love (and screenshots!)
 
 ### MacOS settings to allow screen recording and screenshots
 
-To allow Pinata taking screenshots and record your screen please make sure you allowed the app to do that by doing next steps:
+To allow Piñata taking screenshots and record your screen please make sure you allowed the app to do that by doing next steps:
 
 - Choose Apple menu > System Settings, then click Privacy & Security in the sidebar. (You may need to scroll down.)
-- Click Screen Recording on the right. Turn screen recording on for Pinata
+- Click Screen Recording on the right. Turn screen recording on for Piñata
 
   \*We are working on the solution to make screenshots work also on a dev build. This manual will be updated as soon we will have a solution
 
@@ -129,14 +129,14 @@ Reach out to the maintainer at one of the following places:
 
 ## Project assistance
 
-If you want to say **thank you** or/and support active development of Pinata:
+If you want to say **thank you** or/and support active development of Piñata:
 
 - Add a [GitHub Star](https://github.com/dacoaster/pinata) to the project.
-- Tweet about Pinata.
-- Fill out our [user survey](https://testfiesta.com/pinata-survey) so we can improve Pinata!
+- Tweet about Piñata.
+- Fill out our [user survey](https://testfiesta.com/pinata-survey) so we can improve Piñata!
 - Write interesting articles about the project on [Dev.to](https://dev.to/), [Medium](https://medium.com/) or your personal blog.
 
-Together, we can make Pinata **better**!
+Together, we can make Piñata **better**!
 
 ## Contributing
 
@@ -152,8 +152,8 @@ For a full list of all authors and contributors, see [the contributors page](htt
 
 ## Security
 
-Pinata follows good practices of security, but 100% security cannot be assured.
-Pinata is provided **"as is"** without any **warranty**. Use at your own risk.
+Piñata follows good practices of security, but 100% security cannot be assured.
+Piñata is provided **"as is"** without any **warranty**. Use at your own risk.
 
 _For more information and to report security issues, please refer to our [security documentation](docs/SECURITY.md)._
 
