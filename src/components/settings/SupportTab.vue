@@ -9,24 +9,15 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   name: "SupportTab",
   components: {},
-  props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-  },
-  data() {
-    return {
-      config: this.configItem,
-    };
+  computed: {
+    ...mapGetters({
+      config: "config/fullConfig",
+    }),
   },
   methods: {
     handleConfig() {
@@ -69,7 +60,7 @@ export default {
   font-weight: 500;
   font-size: 14px;
   line-height: 20px;
-  color: #6d28d9;
+  color: #0a26c3;
   text-decoration: none;
 }
 .border-bottom {

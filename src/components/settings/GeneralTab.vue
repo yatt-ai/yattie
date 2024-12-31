@@ -1,7 +1,7 @@
 <template>
   <v-container class="content-wrapper">
     <v-row>
-      <v-col cols="12" class="pa-4">
+      <v-col v-if="$isElectron" cols="12" class="pa-4">
         <p class="body-1">{{ $tc("caption.app_settings", 1) }}</p>
         <v-btn
           class="text-capitalize font-weight-regular"
@@ -20,7 +20,7 @@
           {{ $tc("caption.share_config", 1) }}
         </p>
       </v-col>
-      <v-col cols="12" class="border-bottom pa-4">
+      <v-col v-if="$isElectron" cols="12" class="pa-4">
         <v-btn
           class="text-capitalize font-weight-regular"
           fill
@@ -45,12 +45,43 @@
           </a>
         </p>
       </v-col>
+      <v-col v-if="$isElectron" cols="12" class="border-bottom pa-4">
+        <div class="d-flex align-center">
+          <DeleteConfirmDialog
+            v-model="deleteConfirmDialog"
+            ref="deleteConfirmDialog"
+            :text="$t('message.confirm_clear_cache')"
+            :configItem="config"
+            @confirm="deleteSessions"
+            @cancel="deleteConfirmDialog = false"
+          />
+          <v-btn
+            class="text-capitalize font-weight-regular"
+            fill
+            small
+            color="primary"
+            :height="30"
+            @click="handleDeleteConfirmDialog"
+          >
+            {{ $tc("caption.clear_cache", 1) }}
+          </v-btn>
+          <v-responsive v-if="config.cache" class="mx-auto" max-width="344">
+            <v-text-field
+              class="ml-8"
+              label="Retention Period"
+              :value="config.cache.retentionPeriod"
+              suffix="Days"
+              @input="updateRetentionPeriod"
+            ></v-text-field>
+          </v-responsive>
+        </div>
+      </v-col>
       <v-col cols="12" class="border-bottom pa-4 theme-mode-section">
         <p class="body-1" :style="{ color: currentTheme.default }">
-          {{ $tc("caption.appearance", 1) }}
+          {{ $tc("caption.theme", 1) }}
         </p>
         <v-radio-group
-          v-model="config.apperance"
+          v-model="config.theme"
           row
           class="ma-0 pa-0 radio-control"
           dense
@@ -206,17 +237,14 @@
 
 <script>
 import { TEXT_TYPES, STATUSES } from "@/modules/constants";
+import DeleteConfirmDialog from "../dialogs/DeleteConfirmDialog.vue";
 import ShareOAuthDialog from "@/components/dialogs/ShareOAuthDialog.vue";
 import { mapGetters } from "vuex";
 export default {
   name: "GeneralTab",
-  components: { ShareOAuthDialog },
+  components: { ShareOAuthDialog, DeleteConfirmDialog },
   props: {
     metadata: {
-      type: Object,
-      default: () => {},
-    },
-    configItem: {
       type: Object,
       default: () => {},
     },
@@ -224,9 +252,6 @@ export default {
   watch: {
     metadata: function (newValue) {
       this.meta = newValue;
-    },
-    configItem: function (newValue) {
-      this.config = newValue;
     },
     color: function (newValue, oldValue) {
       if (newValue === oldValue) return;
@@ -237,6 +262,7 @@ export default {
   },
   computed: {
     ...mapGetters({
+      config: "config/fullConfig",
       credentials: "auth/credentials",
     }),
     serverOAuthCredentials() {
@@ -271,16 +297,16 @@ export default {
   },
   data() {
     return {
+      deleteConfirmDialog: false,
       shareOauthDialog: false,
       meta: this.metadata,
-      config: this.configItem,
       comment: {
         type: "Comment",
         content: "",
         text: "",
       },
       menu: false,
-      color: this.configItem.defaultColor,
+      color: this.config?.defaultColor,
       commentTypes: Object.keys(TEXT_TYPES).filter(
         (item) => item !== "Summary"
       ),
@@ -289,6 +315,11 @@ export default {
   methods: {
     handleConfig() {
       this.$emit("submit-config", this.config);
+    },
+    updateRetentionPeriod(value) {
+      let configToChange = structuredClone(this.config);
+      configToChange.cache.retentionPeriod = value ? parseInt(value) : value;
+      this.$emit("submit-config", configToChange);
     },
     async openConfigFile() {
       if (this.$isElectron) {
@@ -306,6 +337,19 @@ export default {
         }
       }
     },
+    async deleteSessions() {
+      if (this.$isElectron) {
+        const { message } = await this.$electronService.deleteSession("all");
+        this.$root.$emit("set-snackbar", message);
+      }
+      this.deleteConfirmDialog = false;
+    },
+    handleDeleteConfirmDialog() {
+      this.deleteConfirmDialog = true;
+      setTimeout(() => {
+        this.$refs.deleteConfirmDialog.$refs.confirmBtn.$el.focus();
+      }, 100);
+    },
     async showOAuthDialog() {
       this.shareOauthDialog = true;
     },
@@ -314,7 +358,6 @@ export default {
 </script>
 <style scoped>
 .content-wrapper {
-  height: 100vh;
   width: 100%;
   overflow-y: auto;
 }
@@ -359,5 +402,8 @@ export default {
 }
 .theme--light .border-bottom {
   border-color: #e5e7eb;
+}
+.align-center {
+  align-items: center;
 }
 </style>

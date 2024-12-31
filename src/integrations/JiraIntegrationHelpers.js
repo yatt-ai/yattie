@@ -449,7 +449,7 @@ export default {
       credentials.jira = [formattedData];
     }
 
-    window.ipc.invoke(IPC_HANDLERS.DATABASE, {
+    window.ipc.invoke(IPC_HANDLERS.PERSISTENCE, {
       func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
       data: credentials,
     });
@@ -560,7 +560,7 @@ export default {
       refreshToken: data.refreshToken,
       clientId: data.clientId,
       clientSecret: data.clientSecret,
-      yattOauthTokenId: data.yattOauthTokenId,
+      testfiestaOauthTokenId: data.testfiestaOauthTokenId,
       expiresAt: data.expiresAt,
       type: data.type,
       loggedInAt: data.loggedInAt,

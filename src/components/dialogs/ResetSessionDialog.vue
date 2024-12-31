@@ -12,6 +12,7 @@
             ref="confirmBtn"
             :color="currentTheme.primary"
             class="text-capitalize btn"
+            :style="{ color: currentTheme.white }"
             v-shortkey="confirmHotkey"
             @shortkey="handleConfirm()"
             @click="handleConfirm()"

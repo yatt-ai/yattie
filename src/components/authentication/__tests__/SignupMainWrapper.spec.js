@@ -36,9 +36,9 @@ describe("SignupMainWrapper.vue", () => {
     ).toBe(true);
   });
 
-  test('trigger the click event of "signup with yattie" button', () => {
+  test('trigger the click event of "signup with pinata" button', () => {
     const event = jest.fn();
-    const button = wrapper.find(".v-btn.yattie");
+    const button = wrapper.find(".v-btn.pinata");
 
     button.vm.$on("click", event);
     button.trigger("click");

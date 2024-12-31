@@ -45,6 +45,7 @@
             class="text-capitalize"
             small
             :color="currentTheme.background"
+            :style="{ color: currentTheme.secondary }"
             v-shortkey="cancelHotkey"
             @shortkey="handleClose()"
             @click="handleClose()"
@@ -54,7 +55,8 @@
           <v-btn
             class="text-capitalize"
             small
-            color="primary"
+            :color="currentTheme.primary"
+            :style="{ color: currentTheme.white }"
             :disabled="!activeSource"
             v-shortkey="confirmHotkey"
             @shortkey="handleSelect()"

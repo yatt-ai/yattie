@@ -19,10 +19,16 @@
             ></v-text-field>
           </v-form>
         </v-card-text>
+        <v-select
+          label="Status"
+          :items="commentTypes"
+          v-model="status"
+        ></v-select>
         <v-card-actions>
           <v-btn
             small
-            color="currentTheme.primary"
+            :color="currentTheme.primary"
+            :style="{ color: currentTheme.white }"
             class="text-capitalize"
             v-shortkey="confirmHotkey"
             @shortkey="handleSave()"
@@ -32,7 +38,8 @@
           </v-btn>
           <v-btn
             small
-            color="currentTheme.background"
+            :color="currentTheme.background"
+            :style="{ color: currentTheme.secondary }"
             class="text-capitalize"
             v-shortkey="cancelHotkey"
             @shortkey="handleCancel()"
@@ -49,6 +56,8 @@
 <script>
 import LogoWrapper from "../LogoWrapper.vue";
 import { mapGetters } from "vuex";
+import { TEXT_TYPES } from "@/modules/constants";
+
 export default {
   name: "NodeEditDialog",
   components: {
@@ -59,15 +68,26 @@ export default {
       type: String,
       default: () => "",
     },
+    type: {
+      type: String,
+      default: () => "",
+    },
   },
   watch: {
     title: function () {
       this.text = this.title;
     },
+    type: function () {
+      this.status = this.type;
+    },
   },
   data() {
     return {
+      commentTypes: Object.keys(TEXT_TYPES).filter(
+        (item) => item !== "Summary"
+      ),
       text: "",
+      status: "Comment",
       valid: false,
       textRules: [(v) => !!v || "Node title is required"],
     };
@@ -96,7 +116,7 @@ export default {
     },
     handleSave() {
       if (this.$refs.form.validate()) {
-        this.$emit("save", this.text);
+        this.$emit("save", this.text, this.status);
         this.$refs.form.reset();
       }
     },

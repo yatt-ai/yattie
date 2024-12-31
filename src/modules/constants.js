@@ -1,17 +1,18 @@
 export const IPC_HANDLERS = {
   BROWSER: "browser",
   CAPTURE: "capture",
-  DATABASE: "database",
+  PERSISTENCE: "persistence",
   FILE_SYSTEM: "fileSystem",
   STORE: "store",
   MENU: "menu",
   WINDOW: "window",
   SERVER: "server",
+  SYSTEMINFO: "systemInfo",
 };
 
 export const IPC_FUNCTIONS = {
+  GET_SYSTEM_INFO: "getSystemInfo",
   GET_MEDIA_SOURCE: "getMediaSource",
-  SAVE_NOTE: "saveNote",
   CREATE_IMAGE: "createImage",
   UPDATE_IMAGE: "updateImage",
   CREATE_VIDEO: "createVideo",
@@ -24,29 +25,25 @@ export const IPC_FUNCTIONS = {
   DROP_FILE: "dropFile",
 
   SET_DEV_MODE: "setDevMode",
-  OPEN_ADD_WINDOW: "openAddWindow",
-  CLOSE_ADD_WINDOW: "closeAddWindow",
-  OPEN_EDIT_WINDOW: "openEditWindow",
-  CLOSE_EDIT_WINDOW: "closeEditWindow",
   OPEN_SETTING_WINDOW: "openSettingWindow",
   CLOSE_SETTING_WINDOW: "closeSettingWindow",
-  OPEN_MINIMIZE_WINDOW: "openMinimizeWindow",
-  CLOSE_MINIMIZE_WINDOW: "closeMinimizeWindow",
+  OPEN_LOWPROFILE_WINDOW: "openLowProfileWindow",
+  CLOSE_LOWPROFILE_WINDOW: "closeLowProfileWindow",
   CLOSE_SESSION_AND_MINIIMIZED_WINDOW: "closeSessionAndMinimizedWindow",
   OPEN_MODAL_WINDOW: "openModalWindow",
   CLOSE_MODAL_WINDOW: "closeModalWindow",
   SET_WINDOW_SIZE: "setWindowSize",
   SET_APPEARANCE: "setAppearance",
-  OPEN_NOTES_WINDOW: "openNotesWindow",
-  CLOSE_NOTES_WINDOW: "closeNotesWindow",
   MOVE_WINDOW: "moveWindow",
 
   INITIALIZE_SESSION: "initializeSession",
   GET_SESSION_ID: "getSessionID",
+  GET_CASE_ID: "getCaseID",
   GET_STATE: "getState",
   UPDATE_STATE: "updateState",
   ADD_ITEM: "addItem",
   GET_ITEMS: "getItems",
+  UPDATE_ITEM: "updateItem",
   UPDATE_ITEMS: "updateItems",
   DELETE_ITEMS: "deleteItems",
   GET_ITEM_BY_ID: "getItemById",
@@ -61,16 +58,22 @@ export const IPC_FUNCTIONS = {
   UPDATE_NOTES: "updateNotes",
   RESET_DATA: "resetData",
 
+  GET_NODES: "getNotes",
+  UPDATE_NODES: "updateNotes",
+  GET_CONNECTIONS: "getConnections",
+  UPDATE_CONNECTIONS: "updateConnections",
+
   EXPORT_ITEMS: "exportItems",
   CREATE_NEW_SESSION: "createNewSession",
   SAVE_SESSION: "saveSession",
+  RESET_SESSION: "resetSession",
   OPEN_SESSION: "openSession",
   EXPORT_SESSION: "exportSession",
+  DELETE_SESSION: "deleteSession",
   OPEN_CONFIG_FILE: "openConfigFile",
   OPEN_CREDENTIALS_FILE: "openCredentialsFile",
   DRAG_ITEM: "dragItem",
   OPEN_EXTERNAL_LINK: "openExternalLink",
-
   CHANGE_MENUITEM_STATUS: "changeMenuItemStatus",
 
   START_SERVER: "startServer",
@@ -104,15 +107,6 @@ export const SESSION_STATUSES = {
   END: "end",
 };
 
-export const SESSION_TYPES = [
-  "Screenshot",
-  "Video",
-  "Audio",
-  "Note",
-  "File",
-  "Mindmap",
-];
-
 export const HOTKEY_PAGES = [
   "general",
   "home",
@@ -126,10 +120,51 @@ export const VIEW_MODE = {
   MINI: "minimized",
 };
 
+export const DEFAULT_FILE_TYPES = {
+  image: {
+    type: "image/png",
+    suffix: "png",
+  },
+  video: {
+    type: "video/mp4",
+    suffix: "mp4",
+  },
+  audio: {
+    type: "audio/mp3",
+    suffix: "mp3",
+  },
+  text: {
+    type: "text/plain",
+    suffix: "txt",
+  },
+  mindmap: {
+    type: "application/json",
+    suffix: "mindmap",
+  },
+};
+
+export const FILE_TYPES = {
+  "image/png": "image",
+  "image/jpeg": "image",
+  "image/bmp": "image",
+  "image/gif": "image",
+  "image/svg+xml": "image",
+  "image/webp": "image",
+  "video/mp4": "video",
+  "video/mpeg": "video",
+  "video/webm": "video",
+  "video/x-msvideo": "video",
+  "audio/mp3": "audio",
+  "audio/mpeg": "audio",
+  "audio/wav": "audio",
+  "audio/webm": "audio",
+  "application/json": "mindmap",
+};
+
 export const TEXT_TYPES = {
   Comment: {
     icon: "fa-solid fa-comment",
-    fill: "#6D28D9",
+    fill: "#0C2FF3",
   },
   Problem: {
     icon: "fa-solid fa-triangle-exclamation",
@@ -182,14 +217,24 @@ export const VIDEO_RESOLUTION = [
 export const DEFAULT_CHARTER_MAP_NODES = [
   {
     id: "5e274797-4db7-4fe8-a983-8b8abf8771c5",
-    text: "System Under Test",
-    url: "https://features.yattie.ai",
+    content: "System Under Test",
+    fileType: "text/plain",
+    comment: {
+      type: "Problem",
+      content: "The system is not working as expected",
+    },
+    url: "https://features.testfiesta.com",
     fx: -210.9125181819311,
     fy: -583.1010883631283,
   },
   {
     id: "4763495c-62b7-4625-9083-2d40045b6550",
-    text: "Feature #1",
+    content: "Feature #1",
+    fileType: "text/plain",
+    comment: {
+      type: "Idea",
+      content: "This feature is important for the system to work",
+    },
     fx: 99.1983655368465,
     fy: -582.6407249084972,
   },
@@ -205,16 +250,42 @@ export const DEFAULT_CHARTER_MAP_CONNECTIONS = [
 export const DEFAULT_MAP_NODES = [
   {
     id: "5e274797-4db7-4fe8-a983-8b8abf8771c5",
-    text: "Mind Map",
-    url: "https://features.yattie.ai",
+    content: "Mind Map",
+    fileType: "text/plain",
+    comment: {
+      type: "Problem",
+      content: "The Mindmap is not working as expected",
+    },
+    url: "https://features.testfiesta.com",
     fx: -210.9125181819311,
     fy: -583.1010883631283,
+    status: "Passed",
   },
   {
     id: "4763495c-62b7-4625-9083-2d40045b6550",
-    text: "First Node",
+    content: "First Node",
+    fileType: "text/plain",
+    comment: {
+      type: "Idea",
+      content: "This first node is important for the system to work",
+    },
     fx: 99.1983655368465,
     fy: -582.6407249084972,
+    status: "Failed",
+    url: "https://features.testfiesta.com",
+  },
+  {
+    id: "4763495c-62b7-4525-9083-2d40045b6550",
+    content: "Second Node",
+    fileType: "text/plain",
+    comment: {
+      type: "Question",
+      content: "What is the second node?",
+    },
+    fx: 199.1983655368465,
+    fy: -382.6407249084972,
+    status: "In Progress",
+    url: "https://features.testfiesta.com",
   },
 ];
 
@@ -222,6 +293,10 @@ export const DEFAULT_MAP_CONNECTIONS = [
   {
     source: "5e274797-4db7-4fe8-a983-8b8abf8771c5",
     target: "4763495c-62b7-4625-9083-2d40045b6550",
+  },
+  {
+    source: "4763495c-62b7-4625-9083-2d40045b6550",
+    target: "4763495c-62b7-4525-9083-2d40045b6550",
   },
 ];
 

@@ -173,6 +173,7 @@
               class="input-box"
               v-model="tagText"
               :tags="tags"
+              :autocomplete-items="filteredTags"
               label="Tags"
               :max-tags="10"
               :maxlength="20"
@@ -331,7 +332,12 @@ import ReviewWrapper from "@/components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { TEXT_TYPES, STATUSES, AI_ENABLED_FIELDS } from "@/modules/constants";
+import {
+  TEXT_TYPES,
+  STATUSES,
+  AI_ENABLED_FIELDS,
+  FILE_TYPES,
+} from "@/modules/constants";
 
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
 import { mapGetters } from "vuex";
@@ -351,12 +357,15 @@ export default {
       type: Object,
       default: () => {},
     },
+    selectedNodes: {
+      type: Array,
+      default: () => [],
+    },
   },
   data() {
     return {
       createJiraTicket: false,
       issueCreateDestinationMenu: false,
-      items: [],
       item: null,
       comment: {
         type: "",
@@ -383,6 +392,7 @@ export default {
       triggerJiraSaveTicket: false,
       jiraTicketSaved: false,
       autoSaveEvent: false,
+      allTags: [],
     };
   },
   created() {
@@ -392,10 +402,24 @@ export default {
   },
   computed: {
     ...mapGetters({
+      items: "sessionItems",
+      nodes: "sessionNodes",
+      connections: "sessionConnections",
       hotkeys: "config/hotkeys",
       config: "config/fullConfig",
       credentials: "auth/credentials",
+      defaultTags: "config/defaultTags",
+      sessionItems: "sessionItems",
     }),
+    filteredTags() {
+      return this.allTags
+        .filter((item) => {
+          return item.toLowerCase().includes(this.tagText.toLowerCase());
+        })
+        .map((item) => {
+          return { text: item };
+        });
+    },
     nameHotkey() {
       return this.$hotkeyHelpers.findBinding("evidence.name", this.hotkeys);
     },
@@ -436,17 +460,25 @@ export default {
     },
   },
   mounted() {
+    this.getAllTags();
     if (this.$isElectron) {
       // this.$electronService.onActiveSession(this.activeSession);
-      this.activeSession();
+      // this.activeSession();
     }
+
+    this.activeSession();
 
     // Focus on comment
     this.$refs.comment.editor.commands.focus();
 
-    this.$root.$on("update-session", this.updateSession);
+    this.$root.$on("update-edit-item", this.updateEditItem);
     this.$root.$on("update-processing", this.updateProcessing);
-    this.$root.$on("save-data", this.saveData);
+    this.$root.$on("save-data", (data) => {
+      this.saveData(data);
+    });
+  },
+  beforeDestroy() {
+    // this.$root.$off("save-data");
   },
   watch: {
     itemData: function (val) {
@@ -464,6 +496,21 @@ export default {
     },
   },
   methods: {
+    getAllTags() {
+      const defaultTagTexts = this.defaultTags
+        .filter((tag) => tag.text !== "")
+        .map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      this.allTags = [...new Set([...defaultTagTexts, ...sessionTagTexts])];
+    },
     async activeSession() {
       // set theme mode
       const isDarkMode = this.config.apperance === "dark";
@@ -487,11 +534,11 @@ export default {
         this.comment.type = this.config.commentType;
       }
       // set templates by config
-      this.config.templates.map((item) => {
-        let temp = Object.assign({}, item);
-        if (temp.type === this.item.sessionType) {
-          this.comment.content = temp.precondition.content;
-          this.comment.text = temp.precondition.text;
+      Object.keys(this.config.templates).map((key) => {
+        let temp = Object.assign({}, this.config.templates[key]);
+        if (key === FILE_TYPES[this.item.fileType]) {
+          this.comment.content = temp.content;
+          this.comment.text = temp.text;
         }
       });
     },
@@ -506,7 +553,10 @@ export default {
       input.focus();
     },
     async fetchItems() {
-      this.items = await this.$storageService.getItems();
+      if (this.$isElectron) {
+        const sessionItems = await this.$storageService.getItems();
+        this.$store.commit("setSessionItemsFromExternalWindow", sessionItems);
+      }
     },
     async getConfig() {
       const config = await this.$storageService.getConfig();
@@ -536,7 +586,7 @@ export default {
       const regex = /(<([^>]+)>)/gi;
       this.comment.text = this.comment.content.replace(regex, "");
     },
-    updateSession(value) {
+    updateEditItem(value) {
       this.item = value;
     },
     updateProcessing(value) {
@@ -580,9 +630,8 @@ export default {
     removeEmoji(emoji) {
       this.emojis = this.emojis.filter((item) => item.data !== emoji.data);
     },
-    async saveData() {
-      console.log("save data from AddEvidence");
-      const newItem = {
+    async saveData(data) {
+      let newItem = {
         ...this.item,
         comment: this.comment,
         tags: this.tags,
@@ -590,11 +639,66 @@ export default {
         followUp: this.followUp,
         timer_mark: this.item.timer_mark,
         createdAt: Date.now(),
+        uploaded: false,
       };
-      this.items.push(newItem);
+      if (data) newItem = { ...data, ...newItem };
+      console.log("Save Data", newItem);
+      let tempItems = structuredClone(this.items);
+      for (let i = 0; i < this.nodes.length; i++) {
+        tempItems[i].fx = this.nodes[i].fx;
+        tempItems[i].fy = this.nodes[i].fy;
+      }
+      const updatedItems = [...tempItems];
+      let updatedNodes = [];
+      let updatedConnections = [...this.connections];
+      if (this.nodes.length == 0) {
+        newItem.fx = Math.floor(Math.random() * 1001) - 500;
+        newItem.fy = Math.floor(Math.random() * 1001) - 500;
+      } else {
+        let random_offset_x, random_offset_y;
+        do {
+          random_offset_x = Math.floor(Math.random() * 800) - 400;
+          random_offset_y = Math.floor(Math.random() * 800) - 400;
+        } while (
+          (random_offset_x >= -200 && random_offset_x <= -100) ||
+          (random_offset_x >= 100 && random_offset_x <= 200)
+        );
+        newItem.fx = this.nodes[this.nodes.length - 1].fx + random_offset_x;
+        newItem.fy = this.nodes[this.nodes.length - 1].fy + random_offset_y;
+      }
 
-      await this.$storageService.updateItems(this.items);
+      updatedItems.push(newItem);
+      tempItems = updatedItems
+        .slice()
+        .filter((item) => item?.comment?.type !== "Summary");
+
+      tempItems.forEach((item) => {
+        item.id = item.stepID;
+        updatedNodes.push({ ...item, content: item.comment.text });
+      });
+
+      if (this.nodes.length > 0) {
+        if (this.selectedNodes.length) {
+          this.selectedNodes.forEach((node) => {
+            updatedConnections.push({
+              source: node.stepID,
+              target: newItem.stepID,
+            });
+          });
+        } else {
+          updatedConnections.push({
+            source: this.nodes[this.nodes.length - 1].stepID,
+            target: newItem.stepID,
+          });
+        }
+      }
+      await this.$store.commit("setSessionItems", [...updatedItems]);
+      await this.$store.commit("setSessionNodes", [...updatedNodes]);
+      await this.$store.commit("setSessionConnections", [
+        ...updatedConnections,
+      ]);
       this.$emit("close");
+      this.$root.$emit("render-mindmap");
     },
     handleClear() {
       this.comment = {

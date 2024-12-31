@@ -13,7 +13,7 @@
           </div>
           <div class="flex-grow-0">
             <v-switch
-              :value="config.ai.enabled"
+              v-model="config.ai.enabled"
               inset
               hide-details
               dense
@@ -33,7 +33,7 @@
             solo
             :rules="[rules.rightLength, rules.noAsterisk]"
             :errorMessages="customErrors"
-            :disabled="!config.ai.enabled"
+            :disabled="!config?.ai?.enabled"
             @focus="emptyKeyOnFocus"
           >
           </v-text-field>
@@ -84,22 +84,16 @@ export default {
       type: Object,
       default: () => {},
     },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
   },
   watch: {
     metadata: function (newValue) {
       this.meta = newValue;
     },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
   },
   computed: {
     ...mapGetters({
       config: "config/fullConfig",
+      credentials: "auth/credentials",
     }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
@@ -113,14 +107,13 @@ export default {
     return {
       meta: this.metadata,
       configToChange: null,
-      credentials: this.credentialItems,
       rules: {
         noAsterisk: (value) =>
           !value.includes("*") || this.$tc("caption.invalid_openai_key", 1),
         rightLength: (value) =>
           value.length === 51 || this.$tc("caption.invalid_openai_key", 1),
       }, // TODO - more advanced validation
-      openAIKey: this.sanitizeOpenAIKey(this.credentialItems),
+      openAIKey: this.sanitizeOpenAIKey(this.credentials),
       customErrors: [],
     };
   },
@@ -129,6 +122,7 @@ export default {
   },
   methods: {
     handleConfig() {
+      this.configToChange.ai.enabled = this.config.ai.enabled;
       if (this.configToChange.ai.enabled) {
         this.configToChange.ai.openai = DEFAULT_OPENAI_CONFIGS;
       } else {
@@ -152,7 +146,7 @@ export default {
         );
 
         let validate = await openAIIntegrationHelper.testCredential(
-          this.credentials.openai
+          this.credentials?.openai
         );
         if (validate) {
           this.openAIKey = this.sanitizeOpenAIKey(this.credentials);
@@ -176,7 +170,7 @@ export default {
       this.value = "";
     },
     sanitizeOpenAIKey(credentials) {
-      let creds = credentials.openai;
+      let creds = credentials?.openai;
       if (creds?.accessToken) {
         return creds.accessToken.replace(/.{46}/g, "********");
       }
@@ -187,7 +181,6 @@ export default {
 </script>
 <style scoped>
 .content-wrapper {
-  height: 100vh;
   width: 100%;
   overflow-y: auto;
 }

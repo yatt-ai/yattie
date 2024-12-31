@@ -233,7 +233,6 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100vh;
   padding: 25px;
 }
 .tab-bar {
@@ -255,7 +254,7 @@ export default {
   background-color: transparent !important;
   border: 0;
   outline: 0;
-  color: #6d28d9;
+  color: #0a26c3;
   margin-top: 15px;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -360,6 +359,6 @@ export default {
   line-height: 1.2;
 }
 .v-tab.v-tab--active {
-  color: #6d28d9 !important;
+  color: #0c2ff3 !important;
 }
 </style>

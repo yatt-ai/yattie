@@ -243,40 +243,26 @@ import axios from "axios";
 import dayjs from "dayjs";
 import uuidv4 from "uuid";
 import { Buffer } from "buffer";
-import yattIntegrationHelper from "../../integrations/YattIntegrationHelpers";
+import testfiestaIntegrationHelper from "../../integrations/TestfiestaIntegrationHelpers";
 import integrationHelper from "../../integrations/IntegrationHelpers";
 import jiraIntegrationHelper from "../../integrations/JiraIntegrationHelpers";
+import { mapGetters } from "vuex";
+
 export default {
   name: "SigninJiraWrapper",
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
     prevRoute: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
     prevRoute: function (newValue) {
       this.previousRoute = newValue;
     },
   },
   data() {
     return {
-      config: this.configItem,
-      credentials: this.credentialItems,
       previousRoute: this.prevRoute,
       connectWithCloudOAuth: true,
       connectWithApi: false,
@@ -338,6 +324,9 @@ export default {
     }
   },
   computed: {
+    ...mapGetters({
+      credentials: "auth/credentials",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -436,9 +425,9 @@ export default {
       if (isValid) {
         this.loading = true;
         this.$root.$emit("overlay", true);
-        const yattURL = `${process.env.VUE_APP_YATT_API_URL}`;
+        const testfiestaURL = `${process.env.VUE_APP_TESTFIESTA_API_URL}`;
         const scopes = "read:jira-work write:jira-work read:me offline_access";
-        const redirectURL = `${yattURL}/app/oauth/jira`;
+        const redirectURL = `${testfiestaURL}/app/oauth/jira`;
         const clientId = `${process.env.VUE_APP_JIRA_OAUTH_KEY}`;
         const serverURL = "https://auth.atlassian.com";
         const tokenId = uuidv4();
@@ -457,11 +446,14 @@ export default {
 
         const pollForToken = async (creds) => {
           await wait(3500);
-          const tokenURL = `${yattURL}/app/oauth/jira/token/${tokenId}`;
+          const tokenURL = `${testfiestaURL}/app/oauth/jira/token/${tokenId}`;
           let header = {};
-          if (creds?.yatt?.length > 0 && creds?.yatt[0]?.accessToken) {
+          if (
+            creds?.testfiesta?.length > 0 &&
+            creds?.testfiesta[0]?.accessToken
+          ) {
             header.headers = {
-              Authorization: `Bearer ${creds.yatt[0].accessToken}`,
+              Authorization: `Bearer ${creds.testfiesta[0].accessToken}`,
               Accept: "application/json",
             };
           }
@@ -492,20 +484,20 @@ export default {
             : this.$tc("caption.log_in_failed", 1);
         } else {
           if (finalResponse?.data?.jira) {
-            finalResponse.data.jira.yattOauthTokenId = tokenId;
+            finalResponse.data.jira.testfiestaOauthTokenId = tokenId;
             finalResponse.data.jira.type = "oauth";
           }
-          if (finalResponse?.data?.yatt) {
-            finalResponse.data.yatt.oauthTokenIds = [tokenId];
+          if (finalResponse?.data?.testfiesta) {
+            finalResponse.data.testfiesta.oauthTokenIds = [tokenId];
           } else {
-            // If we don't get any YATT data back, then we must have used an
+            // If we don't get any TestFiesta data back, then we must have used an
             //   API key for access, so just update our current creds with the
             //   new oauth token ID and pass them along to be saved.
             let tempCredentials = this.credentials;
-            if (tempCredentials.yatt[0].oauthTokenIds) {
-              tempCredentials.yatt[0].oauthTokenIds.push(tokenId);
+            if (tempCredentials.testfiesta[0].oauthTokenIds) {
+              tempCredentials.testfiesta[0].oauthTokenIds.push(tokenId);
             } else {
-              tempCredentials.yatt[0].oauthTokenIds = [tokenId];
+              tempCredentials.testfiesta[0].oauthTokenIds = [tokenId];
             }
             await this.$storageService.updateCredentials(tempCredentials);
           }
@@ -525,17 +517,17 @@ export default {
       });
     },
     async postLogin(data) {
-      if (data.yatt) {
+      if (data.testfiesta) {
         const date = dayjs().format("YYYY-MM-DD HH:mm:ss");
-        const yattData = {
-          ...data.yatt,
+        const testfiestaData = {
+          ...data.testfiesta,
           type: "bearer",
           loggedInAt: date,
         };
 
-        this.credentials = yattIntegrationHelper.saveCredentials(
+        testfiestaIntegrationHelper.saveCredentials(
           this.credentials,
-          yattData
+          testfiestaData
         );
       }
 
@@ -577,7 +569,7 @@ export default {
                         profile: user.data,
                       };
 
-                      this.credentials = jiraIntegrationHelper.saveCredentials(
+                      jiraIntegrationHelper.saveCredentials(
                         this.credentials,
                         jiraData
                       );
@@ -635,7 +627,7 @@ export default {
                     },
                   };
 
-                  this.credentials = jiraIntegrationHelper.saveCredentials(
+                  jiraIntegrationHelper.saveCredentials(
                     this.credentials,
                     jiraData
                   );
@@ -674,7 +666,7 @@ export default {
                   },
                 };
 
-                this.credentials = jiraIntegrationHelper.saveCredentials(
+                jiraIntegrationHelper.saveCredentials(
                   this.credentials,
                   jiraData
                 );
