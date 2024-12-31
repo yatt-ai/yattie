@@ -88,7 +88,13 @@
       </svg>
     </div>
     <div v-if="node.fileType !== 'text/plain'">
-      <v-chip x-small class="ma-2" color="white" label>
+      <v-chip
+        x-small
+        class="ma-2"
+        color="white"
+        label
+        @click="handleAttachmentClick"
+      >
         {{ node.fileName }}
       </v-chip>
     </div>
@@ -148,6 +154,9 @@ export default {
     onClick: {
       type: Function,
     },
+    onAttachmentClick: {
+      type: Function,
+    },
     onContextmenu: {
       type: Function,
     },
@@ -167,7 +176,6 @@ export default {
       tags: this.node.tags ?? [],
       attachments: this.node.attachments ?? [],
       // border colors map with status as key
-      nodeEditDialog: false,
       content: "",
       status: "",
       shape: "rectangle",
@@ -209,12 +217,10 @@ export default {
       e.stopPropagation();
       this.content = "";
       this.status = "";
-      this.nodeEditDialog = true;
     },
     handleSubmit(title, type) {
       if (this.content) this.onSave(title, type);
       else this.onAdd(title, type);
-      this.nodeEditDialog = false;
     },
     handleRemove(e) {
       e.stopPropagation();
@@ -228,11 +234,13 @@ export default {
       e.stopPropagation();
       this.content = this.node.content;
       this.status = this.node.status;
-      if (!e.altKey) this.nodeEditDialog = true;
       this.onClick(e.altKey, e.clientX, e.clientY);
     },
+    handleAttachmentClick(e) {
+      e.stopPropagation();
+      this.onAttachmentClick(e.altKey, e.clientX, e.clientY);
+    },
     handleContextMenu(e) {
-      alert("Context menu");
       e.preventDefault();
       e.stopPropagation();
       this.onContextmenu();

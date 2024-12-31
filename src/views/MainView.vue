@@ -26,7 +26,7 @@
           </v-tab>
         </v-tabs>
       </div>
-      <div class="avatar">
+      <div class="avatar" style="display: none">
         <div v-if="isAuthenticated">
           <MenuPopover />
         </div>

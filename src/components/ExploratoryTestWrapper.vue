@@ -50,7 +50,7 @@
                 :color="currentTheme.primary"
                 :style="{ color: currentTheme.white }"
                 :height="30"
-                @click="continueToMindMap"
+                @click="startNewSession"
               >
                 {{ $tc("caption.continue", 1) }}
               </v-btn>

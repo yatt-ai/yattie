@@ -722,17 +722,19 @@ module.exports.updateConnections = (connections) => {
 };
 
 module.exports.resetData = () => {
-  try {
-    let session = dataDb.get("session");
-    session.items = [];
-    session.notes = {
-      content: "",
-      text: "",
-    };
-    dataDb.set("session", session);
-    browserWindow = browserUtility.getBrowserWindow();
-    browserWindow.webContents.send("DATA_CHANGE");
-  } catch (error) {
-    console.log(error);
+  if (fs.existsSync(metaDb.get("sessionDataPath"))) {
+    try {
+      let session = dataDb.get("session");
+      session.items = [];
+      session.notes = {
+        content: "",
+        text: "",
+      };
+      dataDb.set("session", session);
+      browserWindow = browserUtility.getBrowserWindow();
+      browserWindow.webContents.send("DATA_CHANGE");
+    } catch (error) {
+      console.log(error);
+    }
   }
 };

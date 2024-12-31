@@ -699,6 +699,8 @@ export default {
                 onConnect: () => self.connectNode(svg, node),
                 onClick: (isAltKeyPressed) =>
                   self.clickNode(isAltKeyPressed, node),
+                onAttachmentClick: (isAltKeyPressed) =>
+                  self.clickNodeAttachment(isAltKeyPressed, node),
                 onContextmenu: (x, y) => self.contextmenuNode(node, x, y),
               },
               vuetify,
@@ -910,7 +912,6 @@ export default {
      */
     clickNode(isAltKeyPressed, node) {
       this.currentNode = node;
-      console.log("Current node", this.currentNode);
       // Toggle the selection of the clicked node
       this.clicks++;
       if (this.clicks === 1) {
@@ -936,6 +937,23 @@ export default {
         this.renderMap();
       } else {
         // If Ctrl/Cmd is not pressed, clear the selection and select only the clicked node
+        this.selectedNodes = [node];
+      }
+    },
+
+    /**
+     * click on node attachment chip
+     */
+    clickNodeAttachment(isAltKeyPressed, node) {
+      if (isAltKeyPressed) {
+        this.clickNode(isAltKeyPressed, node);
+      } else {
+        this.currentNode = node;
+        clearTimeout(this.timer);
+        this.updateNodes();
+        this.handleActivateEditSession(node.id);
+        this.clicks = 0;
+        this.renderMap();
         this.selectedNodes = [node];
       }
     },

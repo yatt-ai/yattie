@@ -3,17 +3,17 @@
     <div class="tab-bar">
       <v-tabs :height="26" centered hide-slider>
         <v-tab
-          class="mindmap-tab"
-          @click="currentTab = 'mindmap'"
+          class="tree-tab"
+          @click="currentTab = 'tree'"
           :style="{ color: currentTheme.secondary }"
         >
-          Mindmap
+          Test Tree
         </v-tab>
 
-        <v-tab class="notes-tab" @click="currentTab = 'notes'"> Notes </v-tab>
         <v-tab class="timeline-tab" @click="currentTab = 'timeline'">
           Timeline
         </v-tab>
+        <v-tab class="notes-tab" @click="currentTab = 'notes'"> Notes </v-tab>
       </v-tabs>
     </div>
     <div class="tab-content">
@@ -32,7 +32,7 @@
             :event-type="eventName"
           />
         </v-tab-item>
-        <v-tab-item value="mindmap" :transition="false">
+        <v-tab-item value="tree" :transition="false">
           <MindmapWrapper
             :items="itemLists"
             :selectedItems="selected"
@@ -90,7 +90,7 @@ export default {
     return {
       selected: this.selectedItems,
       eventName: this.eventType,
-      currentTab: "mindmap",
+      currentTab: "tree",
     };
   },
   methods: {

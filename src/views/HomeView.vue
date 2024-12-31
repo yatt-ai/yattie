@@ -4,7 +4,7 @@
       <div class="logo mb-4">
         <LogoWrapper :height="34" :width="120" />
       </div>
-      <div class="avatar">
+      <div class="avatar" style="display: none">
         <div v-if="isAuthenticated">
           <MenuPopover />
         </div>
@@ -78,6 +78,7 @@
             {{ $tc("caption.scripted_test_session", 1) }}
           </v-btn>
         </div>
+        <!--
         <div class="open-section">
           <v-btn
             class="text-capitalize"
@@ -324,7 +325,7 @@
               <strong>Add Integration</strong>
             </div>
           </div>
-        </div>
+        </div>-->
       </div>
     </div>
   </v-container>

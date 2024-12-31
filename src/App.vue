@@ -5,7 +5,7 @@
     </component>
     <ResetSessionDialog
       v-if="renderRestoreSessionDialog"
-      :text="$t('message.confirm_reset_session')"
+      :text="$t('message.continue_last_session')"
       v-model="showRestoreSessionDialog"
       @confirm="restoreSession"
       @cancel="clearSession"
