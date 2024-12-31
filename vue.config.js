@@ -29,7 +29,7 @@ module.exports = {
         "src/modules/ServerUtility.js",
       ],
       builderOptions: {
-        productName: "Piñata",
+        productName: "Pinata",
         appId: "com.testfiesta.pinata",
         directories: {
           output: "release",
