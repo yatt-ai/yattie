@@ -92,7 +92,8 @@ module.exports = {
         win: {
           icon: "icons/icon.ico",
           signingHashAlgorithms: ["sha256"],
-          sign: "./build/signWindows.js",
+          //sign: "./build/signWindows.js",
+          signAndEditExecutable: false,
           target: ["nsis"],
           publish: [
             {
