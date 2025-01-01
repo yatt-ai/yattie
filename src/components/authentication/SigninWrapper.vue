@@ -36,11 +36,11 @@
           }"
         >
           <v-btn
-            class="mb-4 outline-btn jira"
+            class="mb-4 text-capitalize btn_signup rounded-lg white--text"
+            :color="btnBg"
             block
-            outlined
             height="40px"
-            color="white"
+            depressed
             @click="signinJira"
           >
             <div class="d-flex align-center justify-center">
@@ -54,11 +54,11 @@
             </div>
           </v-btn>
           <v-btn
-            class="mb-4 outline-btn jira"
+            class="mb-4 text-capitalize btn_signup rounded-lg white--text"
+            :color="btnBg"
             block
-            outlined
             height="40px"
-            color="white"
+            depressed
             @click="signinTestRail"
           >
             <div class="d-flex align-center justify-center">
@@ -148,6 +148,9 @@ export default {
     mainBg() {
       return this.$vuetify.theme.dark ? "#374151" : this.currentTheme.white;
     },
+    btnBg() {
+      return this.$vuetify.theme.dark ? "#4B5563" : "#F2F4F7";
+    },
   },
   mounted() {},
   methods: {
@@ -181,9 +184,6 @@ export default {
   width: 100%;
   overflow-y: auto;
   max-width: 450px;
-}
-.w-full {
-  width: 100%;
 }
 .header {
   display: flex;
@@ -223,14 +223,6 @@ export default {
   border: none;
   border-radius: 6px;
   text-transform: none !important;
-}
-.theme--light .outline-btn {
-  background-color: #f2f4f7;
-  border: 0;
-}
-.theme--dark .outline-btn {
-  background-color: #4b5563;
-  border: 0;
 }
 .outline-btn .btn-text {
   flex-grow: 1;
