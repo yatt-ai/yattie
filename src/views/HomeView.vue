@@ -49,14 +49,14 @@
         class="d-flex justify-center align-center flex-column pa-6 rounded-lg home-wrapper mt-16 w-full"
         :style="{ backgroundColor: mainBg }"
       >
-        <div class="logo mb-4">
-          <router-link to="/">
-            <img :src="pinataLogo" alt="logo" />
-          </router-link>
+        <div class="logo mb-6 w-full">
+          <div class="fs-30 font-weight-semibold text-left">
+            {{ $tc("caption.create_test_session") }}
+          </div>
         </div>
         <div class="new-section">
           <v-btn
-            class="mb-4 text-capitalize rounded-lg white--text"
+            class="mb-4 text-capitalize rounded-lg white--text font-weight-semibold"
             :color="btnBg"
             block
             height="40px"
@@ -69,13 +69,13 @@
               class="btn-text fs-14"
               :style="{ color: currentTheme.secondary }"
             >
-              {{ $tc("caption.quick_test", 1) }}
+              {{ $tc("caption.quick_test_session", 1) }}
             </div>
           </v-btn>
         </div>
         <div class="open-section">
           <v-btn
-            class="mb-4 text-capitalize rounded-lg white--text"
+            class="mb-4 text-capitalize rounded-lg white--text font-weight-semibold"
             :color="btnBg"
             block
             height="40px"
@@ -88,11 +88,11 @@
               class="btn-text fs-14"
               :style="{ color: currentTheme.secondary }"
             >
-              {{ $tc("caption.new_exploratory_session", 1) }}
+              {{ $tc("caption.exploratory_session", 1) }}
             </div>
           </v-btn>
           <v-btn
-            class="mb-4 text-capitalize rounded-lg white--text"
+            class="mb-4 text-capitalize rounded-lg white--text font-weight-semibold"
             :color="btnBg"
             block
             height="40px"
@@ -522,7 +522,6 @@ export default {
 }
 .open-section {
   width: 100%;
-  padding: 20px 0;
 }
 .theme--dark .open-section {
   border-color: rgba(255, 255, 255, 0.15);

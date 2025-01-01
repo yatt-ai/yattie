@@ -1,62 +1,71 @@
 <template>
   <v-container class="wrapper" fluid>
-    <div class="header">
-      <div class="logo mb-4">
-        <LogoWrapper :height="34" :width="120" />
-      </div>
-      <div class="tabs">
-        <v-tabs
-          class="tabs"
-          centered
-          v-model="activeTab"
-          color="primary"
-          background-color="transparent"
-          :height="26"
-          hide-slider
-        >
-          <v-tab class="test-tab" to="/main" exact>
-            {{ $tc("caption.test", 1) }}
-          </v-tab>
-          <v-tab
-            class="workspace-tab"
-            :disabled="this.status === 'pending'"
-            to="/main/workspace"
+    <v-app-bar
+      :color="mainBg"
+      class="px-4 app-navbar"
+      max-height="80px"
+      height="80px"
+      elevation="0"
+      rounded="lg"
+    >
+      <div class="d-flex justify-space-between align-center w-full">
+        <router-link to="/">
+          <img :src="pinataLogo" alt="logo" />
+        </router-link>
+        <div class="tabs" style="display: none">
+          <v-tabs
+            class="tabs"
+            centered
+            v-model="activeTab"
+            color="primary"
+            background-color="transparent"
+            :height="26"
+            hide-slider
           >
-            {{ $tc("caption.workspace", 1) }}
-          </v-tab>
-        </v-tabs>
-      </div>
-      <div class="avatar" style="display: none">
-        <div v-if="isAuthenticated">
-          <MenuPopover />
+            <v-tab class="test-tab" to="/main" exact>
+              {{ $tc("caption.test", 1) }}
+            </v-tab>
+            <v-tab
+              class="workspace-tab"
+              :disabled="this.status === 'pending'"
+              to="/main/workspace"
+            >
+              {{ $tc("caption.workspace", 1) }}
+            </v-tab>
+          </v-tabs>
         </div>
-        <div v-else>
-          <v-menu :nudge-width="100" bottom z-index="99999" offset-y>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                fab
-                small
-                color="primary"
-                height="32"
-                width="32"
-                v-bind="attrs"
-                v-on="on"
-              >
-                <v-icon dark> mdi-account </v-icon>
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item link to="/authentication/signin">
-                <v-list-item-title>Log In</v-list-item-title>
-              </v-list-item>
-              <!--<v-list-item link to="/authentication/signupMain">
+        <div class="avatar" style="display: none">
+          <div v-if="isAuthenticated">
+            <MenuPopover />
+          </div>
+          <div v-else>
+            <v-menu :nudge-width="100" bottom z-index="99999" offset-y>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  fab
+                  small
+                  color="primary"
+                  height="32"
+                  width="32"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon dark> mdi-account </v-icon>
+                </v-btn>
+              </template>
+              <v-list>
+                <v-list-item link to="/authentication/signin">
+                  <v-list-item-title>Log In</v-list-item-title>
+                </v-list-item>
+                <!--<v-list-item link to="/authentication/signupMain">
                 <v-list-item-title>Register</v-list-item-title>
               </v-list-item>-->
-            </v-list>
-          </v-menu>
+              </v-list>
+            </v-menu>
+          </div>
         </div>
       </div>
-    </div>
+    </v-app-bar>
     <div
       :class="
         activeTab === `/main` && this.quickTest
@@ -132,12 +141,10 @@ import MenuPopover from "@/components/MenuPopover.vue";
 
 import { SESSION_STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
-import LogoWrapper from "@/components/LogoWrapper.vue";
 
 export default {
   name: "MainView",
   components: {
-    LogoWrapper,
     VContainer,
     VBtn,
     VTabs,
@@ -204,6 +211,24 @@ export default {
         this.$store.state.session.status === SESSION_STATUSES.PENDING &&
         this.checklistPresessionStatus
       );
+    },
+    pinataLogo() {
+      return this.$vuetify.theme.dark
+        ? "/pinata-logo-white.svg"
+        : "/pinata-logo.svg";
+    },
+    currentTheme() {
+      if (this.$vuetify.theme.dark) {
+        return this.$vuetify.theme.themes.dark;
+      } else {
+        return this.$vuetify.theme.themes.light;
+      }
+    },
+    btnBg() {
+      return this.$vuetify.theme.dark ? "#4B5563" : "#F2F4F7";
+    },
+    mainBg() {
+      return this.$vuetify.theme.dark ? "#374151" : this.currentTheme.white;
     },
   },
   methods: {
@@ -309,9 +334,8 @@ export default {
 }
 .content {
   overflow: auto;
-  min-width: 400px;
-  box-shadow: -10px 12px 34px 0px rgba(48, 98, 254, 0.15);
-  border-radius: 15px;
+  min-width: 408px;
+  border-radius: 8px;
 }
 .footer {
   width: 100%;
