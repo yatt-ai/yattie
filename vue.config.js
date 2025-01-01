@@ -29,8 +29,8 @@ module.exports = {
         "src/modules/ServerUtility.js",
       ],
       builderOptions: {
-        productName: "YATTIE",
-        appId: "ai.yatt.yattie",
+        productName: "Pinata",
+        appId: "com.testfiesta.pinata",
         directories: {
           output: "release",
           buildResources: "public",
@@ -40,6 +40,10 @@ module.exports = {
           {
             from: "server",
             to: "server",
+          },
+          {
+            from: "src/modules/migrations",
+            to: "migrations",
           },
         ],
         dmg: {
@@ -61,8 +65,8 @@ module.exports = {
           publish: [
             {
               provider: "github",
-              owner: "dacoaster",
-              repo: "YATTIE",
+              owner: "testfiesta",
+              repo: "pinata",
               releaseType: "prerelease",
             },
           ],
@@ -74,8 +78,8 @@ module.exports = {
           publish: [
             {
               provider: "github",
-              owner: "dacoaster",
-              repo: "YATTIE",
+              owner: "testfiesta",
+              repo: "pinata",
               releaseType: "prerelease",
             },
           ],
@@ -93,8 +97,8 @@ module.exports = {
           publish: [
             {
               provider: "github",
-              owner: "dacoaster",
-              repo: "YATTIE",
+              owner: "testfiesta",
+              repo: "pinata",
               releaseType: "prerelease",
             },
           ],
@@ -106,8 +110,8 @@ module.exports = {
           publish: [
             {
               provider: "github",
-              owner: "dacoaster",
-              repo: "YATTIE",
+              owner: "testfiesta",
+              repo: "pinata",
               releaseType: "prerelease",
             },
           ],

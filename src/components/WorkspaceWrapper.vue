@@ -1,12 +1,16 @@
 <template>
-  <v-container class="workspace">
+  <v-container class="workspace" fluid>
     <div class="tab-bar">
       <v-tabs :height="26" centered hide-slider>
         <v-tab
-          class="timeline-tab"
-          @click="currentTab = 'timeline'"
+          class="tree-tab"
+          @click="currentTab = 'tree'"
           :style="{ color: currentTheme.secondary }"
         >
+          Test Tree
+        </v-tab>
+
+        <v-tab class="timeline-tab" @click="currentTab = 'timeline'">
           Timeline
         </v-tab>
         <v-tab class="notes-tab" @click="currentTab = 'notes'"> Notes </v-tab>
@@ -19,14 +23,20 @@
             :items="itemLists"
             :selectedItems="selected"
             :event-type="eventName"
-            @submit-session="updateActiveSession"
           />
         </v-tab-item>
         <v-tab-item value="notes" :transition="false">
           <NotesWrapper
             :items="itemLists"
             :selectedItems="selected"
-            @submit-session="updateActiveSession"
+            :event-type="eventName"
+          />
+        </v-tab-item>
+        <v-tab-item value="tree" :transition="false">
+          <MindmapWrapper
+            :items="itemLists"
+            :selectedItems="selected"
+            :event-type="eventName"
           />
         </v-tab-item>
       </v-tabs-items>
@@ -34,12 +44,17 @@
   </v-container>
 </template>
 <script>
+import { mapGetters } from "vuex";
 import NotesWrapper from "./NotesWrapper.vue";
 import TimelineWrapper from "./TimelineWrapper.vue";
+import MindmapWrapper from "./MindmapWrapper.vue";
 
 export default {
   name: "WorkspaceWrapper",
   computed: {
+    ...mapGetters({
+      itemLists: "sessionItems",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -51,12 +66,9 @@ export default {
   components: {
     NotesWrapper,
     TimelineWrapper,
+    MindmapWrapper,
   },
   props: {
-    items: {
-      type: Array,
-      default: () => [],
-    },
     selectedItems: {
       type: Array,
       default: () => [],
@@ -67,9 +79,6 @@ export default {
     },
   },
   watch: {
-    items: function (newValue) {
-      this.itemLists = newValue;
-    },
     selectedItems: function (newValue) {
       this.selected = newValue;
     },
@@ -79,15 +88,14 @@ export default {
   },
   data() {
     return {
-      itemLists: this.items,
       selected: this.selectedItems,
       eventName: this.eventType,
-      currentTab: "timeline",
+      currentTab: "tree",
     };
   },
   methods: {
-    updateActiveSession(data) {
-      this.$emit("submit-session", data);
+    handleAdd(content) {
+      console.log(content);
     },
   },
 };
@@ -106,10 +114,13 @@ export default {
 .theme--dark .v-tab {
   border-color: #4b5563;
 }
+.workspace {
+  height: 100%;
+}
 .workspace .theme--light.v-tabs .v-tabs-bar .v-tab--active,
 .workspace .theme--light.v-tabs .v-tabs-bar .v-tab:not(.v-tab--disabled) {
   font-weight: bold;
-  border: 1px solid #6d28d9;
+  border: 1px solid #0a26c3;
 }
 .workspace .theme--light.v-tabs .v-tabs-bar .v-tab--disabled,
 .workspace .theme--light.v-tabs .v-tabs-bar .v-tab:not(.v-tab--active) {

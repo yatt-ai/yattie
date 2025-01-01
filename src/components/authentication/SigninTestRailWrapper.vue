@@ -126,37 +126,23 @@
 import axios from "axios";
 import dayjs from "dayjs";
 import testrailIntegrationHelper from "../../integrations/TestRailIntegrationHelpers";
+import { mapGetters } from "vuex";
+
 export default {
   name: "SigninTestRailWrapper",
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
     prevRoute: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
     prevRoute: function (newValue) {
       this.previousRoute = newValue;
     },
   },
   data() {
     return {
-      config: this.configItem,
-      credentials: this.credentialItems,
       previousRoute: this.prevRoute,
       username: "",
       apiKey: "",
@@ -195,6 +181,9 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      credentials: "auth/credentials",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -261,7 +250,7 @@ export default {
             }, //TODO - We format this here and in the integration helper. We
           }; //         need to simplify across all integrations.
 
-          this.credentials = testrailIntegrationHelper.saveCredentials(
+          testrailIntegrationHelper.saveCredentials(
             this.credentials,
             testrailData
           );

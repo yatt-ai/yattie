@@ -1,7 +1,13 @@
 <template>
-  <v-container fluid style="min-height: 100vh" class="d-flex">
-    <v-row>
-      <v-col cols="auto" class="pa-0">
+  <v-container
+    fluid
+    :style="{
+      'min-height': $isElectron ? '100vh' : '800px',
+    }"
+    class="settings-wrapper"
+  >
+    <v-row style="height: 100vh">
+      <v-col cols="auto" style="height: 100%">
         <v-tabs
           class="settings-menu"
           color="primary"
@@ -12,7 +18,7 @@
           <v-tab
             v-for="tab of tabs"
             :key="tab.id"
-            :to="tab.route"
+            v-bind="$isElectron ? { to: tab.route } : {}"
             :style="{ color: currentTheme.secondary }"
             exact
           >
@@ -20,21 +26,31 @@
           </v-tab>
         </v-tabs>
       </v-col>
-      <v-divider vertical></v-divider>
-      <v-col cols class="content pa-0">
-        <v-tabs-items v-model="activeTab">
+      <v-col cols class="content">
+        <v-tabs-items v-model="activeTab" class="active-tab">
           <v-tab-item
             v-for="tab of tabs"
             :key="tab.id"
-            :value="tab.route"
+            class="settings-component"
+            v-bind="$isElectron ? { value: tab.route } : {}"
             :transition="false"
           >
             <router-view
+              v-if="$isElectron"
               :metadata="metadata"
               :configItem="config"
               :credentialItems="credentials"
               @submit-config="updateConfig"
-            ></router-view>
+            />
+            <component
+              v-else
+              :is="tab.component"
+              :metadata="metadata"
+              :configItem="config"
+              :credentialItems="credentials"
+              @submit-config="updateConfig"
+            >
+            </component>
           </v-tab-item>
         </v-tabs-items>
       </v-col>
@@ -43,10 +59,37 @@
 </template>
 
 <script>
+import GeneralTab from "@/components/settings/GeneralTab.vue";
+import ConnectionsTab from "@/components/settings/ConnectionsTab.vue";
+import TemplateTab from "@/components/settings/TemplateTab.vue";
+import ConfigCheckListTab from "@/components/settings/ConfigCheckListTab.vue";
+import ReportsTab from "@/components/settings/ReportsTab.vue";
+import AddonsTab from "@/components/settings/AddonsTab.vue";
+import HotkeysTab from "@/components/settings/HotkeysTab.vue";
+import TagsTab from "@/components/settings/TagsTab.vue";
+import LogoWrapper from "@/components/LogoWrapper.vue";
+import { VContainer, VBtn } from "vuetify/lib/components";
+import { mapGetters } from "vuex";
 export default {
   name: "SettingView",
-  components: {},
+  components: {
+    LogoWrapper,
+    VBtn,
+    VContainer,
+    GeneralTab,
+    ConnectionsTab,
+    TemplateTab,
+    ConfigCheckListTab,
+    ReportsTab,
+    AddonsTab,
+    HotkeysTab,
+    TagsTab,
+    MenuPopover: () => import("@/components/MenuPopover.vue"),
+  },
   computed: {
+    ...mapGetters({
+      isAuthenticated: "auth/isAuthenticated",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -59,36 +102,53 @@ export default {
     return {
       activeTab: "/settings",
       tabs: [
-        { id: 1, name: this.$tc("caption.general", 1), route: `/settings` },
+        {
+          id: 1,
+          name: this.$tc("caption.general", 1),
+          route: `/settings`,
+          component: GeneralTab,
+        },
         {
           id: 2,
           name: this.$tc("caption.connections", 1),
           route: `/settings/connections`,
+          component: ConnectionsTab,
         },
         {
           id: 3,
           name: this.$tc("caption.templates", 1),
           route: `/settings/template`,
+          component: TemplateTab,
         },
         {
           id: 4,
           name: this.$tc("caption.checklists", 1),
           route: `/settings/checklist`,
+          component: ConfigCheckListTab,
         },
         {
           id: 5,
           name: this.$tc("caption.reports", 1),
           route: `/settings/reports`,
+          component: ReportsTab,
         },
         {
           id: 6,
           name: this.$tc("caption.addons", 1),
           route: `/settings/addons`,
+          component: AddonsTab,
         },
         {
           id: 7,
           name: this.$tc("caption.hotkeys", 1),
           route: `/settings/hotkeys`,
+          component: HotkeysTab,
+        },
+        {
+          id: 8,
+          name: this.$tc("caption.tags_tab", 1),
+          route: `/settings/tabs`,
+          component: TagsTab,
         },
         // { id: 8, name: this.$tc("caption.support", 1), route: `/settings/support` },
       ],
@@ -98,37 +158,41 @@ export default {
     };
   },
   created() {
-    this.getMetadata();
+    if (this.$isElectron) {
+      this.getMetadata();
+    }
     this.getConfig();
     this.getCredentials();
   },
   mounted() {
-    this.$root.$on("change-meta", () => {
-      this.getMetadata();
-      this.getConfig().then(() => this.updateConfig(this.config));
-      this.getCredentials().then(() =>
-        this.updateCredentials(this.credentials)
-      );
-    });
+    if (this.$isElectron) {
+      this.$root.$on("change-meta", () => {
+        this.getMetadata();
+        this.getConfig().then(() => this.updateConfig(this.config));
+        this.getCredentials().then(() =>
+          this.updateCredentials(this.credentials)
+        );
+      });
+    }
   },
   methods: {
     async getMetadata() {
       this.metadata = await this.$storageService.getMetaData();
     },
     async getConfig() {
-      const config = await this.$storageService.getConfig();
-      this.$store.commit("config/setFullConfig", config);
+      this.config = await this.$storageService.getConfig();
+      this.$store.commit("config/setFullConfig", this.config);
     },
     updateConfig(value) {
       this.config = value;
       this.$storageService.updateConfig(this.config);
 
-      const isDarkMode = this.config.apperance === "dark";
+      const isDarkMode = this.config.theme === "dark";
       this.$vuetify.theme.dark = isDarkMode;
       localStorage.setItem("isDarkMode", isDarkMode.toString());
 
       if (this.$isElectron) {
-        this.$electronService.setAppearance(this.config.apperance);
+        this.$electronService.setAppearance(this.config.theme);
       }
     },
     async getCredentials() {
@@ -145,12 +209,47 @@ export default {
 </script>
 
 <style scoped>
+.settings-menu {
+  background-color: #ffffff;
+  box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
+  border-radius: 15px;
+  height: 80%;
+}
+.active-tab {
+  background-color: #ffffff;
+  box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
+  border-radius: 15px;
+  width: 70%;
+  height: 100%;
+}
+.settings-component {
+  background-color: #ffffff;
+  box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
+  border-radius: 15px;
+  height: 100%;
+}
 .content {
   display: flex;
-  flex-direction: column;
-  height: 100vh;
+  flex-direction: row;
+  justify-content: center;
   width: 100%;
+  height: 100%;
   overflow-y: auto;
+}
+.settings-wrapper {
+  background-color: #f2f4f7;
+}
+.header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 15px;
+  padding: 15px;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
+  border-radius: 15px;
+  margin-bottom: 15px;
 }
 .v-tab {
   font-size: 14px;
@@ -160,5 +259,9 @@ export default {
   text-transform: capitalize;
   padding: 10px 35px;
   justify-content: flex-start;
+}
+.v-tab--active {
+  background-color: aliceblue;
+  color: #0c2ff3;
 }
 </style>

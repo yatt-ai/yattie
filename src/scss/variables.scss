@@ -78,7 +78,9 @@ body {
   display: none !important;
 }
 
-.tui-image-editor-container.top.tui-image-editor-top-optimization .tui-image-editor-controls ul {
+.tui-image-editor-container.top.tui-image-editor-top-optimization
+  .tui-image-editor-controls
+  ul {
   text-align: center !important;
 }
 
@@ -114,7 +116,7 @@ body {
 
 .v-timeline::before {
   left: calc(16px - 1px) !important;
-  background: #6d28d9 !important;
+  background: #0c2ff3 !important;
   -webkit-print-color-adjust: exact !important;
 }
 
@@ -141,6 +143,10 @@ body {
   font-weight: 500;
   color: #111827;
   line-height: 1.5rem;
+}
+
+.title-text {
+  font-size: 30px;
 }
 
 .date-text {
@@ -200,12 +206,59 @@ body {
   font-size: 13px;
 }
 
+.flex {
+  display: flex;
+}
 .control-btn {
   border: 1px solid #d1d5db;
   color: #6b7280;
   background-color: #fff;
 }
+.cursor-pointer {
+  cursor: pointer;
+}
 
+.justify-center {
+  justify-content: center;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.gap-xs {
+  gap: 5px;
+}
+
+.gap-sm {
+  gap: 10px;
+}
+
+.gap-md {
+  gap: 15px;
+}
+
+.gap-xl {
+  gap: 20px;
+}
+
+.gap-xxl {
+  gap: 30px;
+}
+
+.mindmap-control-btn {
+  position: relative;
+  color: #6b7280;
+  padding: 10px;
+  border-radius: 10px;
+  line-height: 1;
+  background-color: #fff;
+  box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
+}
+
+.fit-content {
+  width: fit-content;
+}
 // .v-input--selection-controls__input {
 //   width: 16px;
 //   height: 16px;
@@ -276,9 +329,8 @@ body {
     background-color: #fff;
     border: 3px solid #bb199a;
     border-radius: 15px;
-    margin-top: 30px;
-    min-height: 60px;
-    min-width: 125px;
+    // min-height: 200px;
+    // min-width: 125px;
     padding: 5px 10px;
 
     .options {
@@ -315,7 +367,7 @@ body {
       text-align: center;
       text-decoration: none;
       transition: background-color 0.2s, color 0.2s ease-out;
-  
+
       &:hover {
         cursor: pointer;
       }
@@ -342,10 +394,9 @@ body {
 .mindmap-node--editable {
   cursor: all-scroll;
 
-  &>a {
+  & > a {
     pointer-events: none;
   }
-
 }
 
 .mindmap-subnode-group {
@@ -357,11 +408,10 @@ body {
 
   a {
     color: #212121;
-    font-family: 'Raleway';
+    font-family: "Raleway";
     font-size: 16px;
     padding: 2px 5px;
   }
-
 }
 
 .mindmap-connection {
@@ -381,8 +431,15 @@ body {
   border-radius: 50%;
 }
 
+.v-text-field__details {
+  display: none;
+}
+
 .theme--light {
-  .v-tabs > .v-tabs-bar .v-tab:not(.v-tab--active), .v-tabs > .v-tabs-bar .v-tab:not(.v-tab--active) > .v-icon, .v-tabs > .v-tabs-bar .v-tab:not(.v-tab--active) > .v-btn, .v-tabs > .v-tabs-bar .v-tab--disabled {
+  .v-tabs > .v-tabs-bar .v-tab:not(.v-tab--active),
+  .v-tabs > .v-tabs-bar .v-tab:not(.v-tab--active) > .v-icon,
+  .v-tabs > .v-tabs-bar .v-tab:not(.v-tab--active) > .v-btn,
+  .v-tabs > .v-tabs-bar .v-tab--disabled {
     color: rgba(255, 255, 255, 0.6);
   }
 }
@@ -390,8 +447,8 @@ body {
   .v-text-field,
   .v-text-field--solo {
     .v-input__control > .v-input__slot {
-      background-color: #6B7280;
-      border-color: #6B7280;
+      background-color: #6b7280;
+      border-color: #6b7280;
     }
   }
   .v-icon {
@@ -406,12 +463,11 @@ body {
     }
     .v-input__control > .v-input__slot {
       header {
-        background-color: #6B7280!important;
+        background-color: #6b7280 !important;
       }
       .ProseMirror {
-        background-color: #4B5563;
+        background-color: #4b5563;
       }
     }
   }
 }
-

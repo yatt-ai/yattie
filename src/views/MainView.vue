@@ -1,20 +1,9 @@
 <template>
-  <v-container class="wrapper pa-0">
-    <div class="top" v-if="this.status === 'pending' || $store.state.quickTest">
-      <v-btn
-        class="text-capitalize pa-0 back-btn"
-        plain
-        rounded
-        solid
-        v-shortkey="backHotkey"
-        @shortkey="back()"
-        @click="back()"
-      >
-        <v-icon class="ma-0">mdi-chevron-left</v-icon>
-        {{ $tc("caption.back", 1) }}
-      </v-btn>
-    </div>
+  <v-container class="wrapper" fluid>
     <div class="header">
+      <div class="logo mb-4">
+        <LogoWrapper :height="34" :width="120" />
+      </div>
       <div class="tabs">
         <v-tabs
           class="tabs"
@@ -37,7 +26,7 @@
           </v-tab>
         </v-tabs>
       </div>
-      <div class="avatar">
+      <div class="avatar" style="display: none">
         <div v-if="isAuthenticated">
           <MenuPopover />
         </div>
@@ -68,36 +57,58 @@
         </div>
       </div>
     </div>
-    <v-divider style="z-index: 100" />
-    <div class="content">
-      <v-tabs-items v-model="activeTab">
-        <v-tab-item value="/main" :transition="false">
-          <TestWrapper />
-          <CheckTaskWrapper
-            v-if="showCheckList"
-            :tasks="$store.state.preSessionTasks"
-            @taskToggle="handleTaskCheck"
-          />
-        </v-tab-item>
-        <v-tab-item value="/main/workspace" :transition="false">
-          <WorkspaceWrapper
-            :items="items"
-            :selectedItems="selected"
-            event-type="dblclick"
-            @submit-session="updateActiveSession"
-          />
-        </v-tab-item>
-      </v-tabs-items>
+    <div
+      :class="
+        activeTab === `/main` && this.quickTest
+          ? 'content-container'
+          : 'content-container vh-full'
+      "
+    >
+      <div
+        :class="
+          activeTab === `/main` && this.quickTest
+            ? 'content w-400'
+            : 'content h-full w-60'
+        "
+      >
+        <v-tabs-items v-model="activeTab" style="height: 100%">
+          <v-tab-item
+            value="/main"
+            :transition="false"
+            style="height: 100%"
+            v-if="this.$store.state.session.status == 'pending'"
+          >
+            <QuickTestWrapper v-if="this.quickTest" />
+            <ExploratoryTestWrapper style="height: 100%" v-else />
+            <CheckTaskWrapper
+              v-if="showCheckList"
+              :tasks="$store.state.session.preSessionTasks"
+              @taskToggle="handleTaskCheck"
+            />
+          </v-tab-item>
+          <v-tab-item
+            value="/main/workspace"
+            :transition="false"
+            style="height: 65vh"
+          >
+            <WorkspaceWrapper
+              :items="items"
+              :selectedItems="selected"
+              event-type="dblclick"
+            />
+          </v-tab-item>
+        </v-tabs-items>
+      </div>
     </div>
     <div class="footer">
       <ControlPanel
-        :items="items"
         @add-item="addItem"
+        @update-item="updateItem"
         :selectedItems="selected"
         :preSessionRequirementsMet="presessionValid"
         view-mode="normal"
       />
-      <TimeCounter v-if="$store.state.status !== 'pending'" />
+      <TimeCounter v-if="$store.state.session.status !== 'pending'" />
     </div>
   </v-container>
 </template>
@@ -109,8 +120,10 @@ import {
   VTab,
   VTabsItems,
   VTabItem,
+  VBtn,
 } from "vuetify/lib/components";
-import TestWrapper from "../components/TestWrapper.vue";
+import ExploratoryTestWrapper from "../components/ExploratoryTestWrapper.vue";
+import QuickTestWrapper from "@/components/QuickTestWrapper.vue";
 import WorkspaceWrapper from "../components/WorkspaceWrapper.vue";
 import ControlPanel from "../components/ControlPanel.vue";
 import TimeCounter from "../components/TimeCounter.vue";
@@ -119,16 +132,20 @@ import MenuPopover from "@/components/MenuPopover.vue";
 
 import { SESSION_STATUSES } from "../modules/constants";
 import { mapGetters } from "vuex";
+import LogoWrapper from "@/components/LogoWrapper.vue";
 
 export default {
   name: "MainView",
   components: {
+    LogoWrapper,
     VContainer,
+    VBtn,
     VTabs,
     VTab,
     VTabsItems,
     VTabItem,
-    TestWrapper,
+    QuickTestWrapper,
+    ExploratoryTestWrapper,
     WorkspaceWrapper,
     ControlPanel,
     TimeCounter,
@@ -138,9 +155,7 @@ export default {
   data() {
     return {
       activeTab: "/main",
-      items: [],
       selected: [],
-      activeSession: {},
       showTaskError: false,
       showMenu: false,
     };
@@ -152,7 +167,6 @@ export default {
     this.setInitialPreSession();
     this.setInitialPostSession();
     this.$root.$on("update-selected", this.updateSelected);
-    this.$root.$on("save-session", this.saveSession);
     this.$root.$on("new-session", () => {
       this.setInitialPreSession();
       this.setInitialPostSession();
@@ -161,16 +175,19 @@ export default {
     if (this.$isElectron) {
       this.$electronService.onDataChange(this.fetchItems);
       this.$electronService.onMetaChange(this.fetchItems);
-    }
+    } else this.getCurrentExecution();
   },
+
   computed: {
     ...mapGetters({
+      items: "sessionItems",
       hotkeys: "config/hotkeys",
       checklistPresessionStatus: "config/checklistPresessionStatus",
       checklistPresessionTasks: "config/checklistPresessionTasks",
       checklistPostsessionTasks: "config/checklistPostsessionTasks",
       isAuthenticated: "auth/isAuthenticated",
       credentials: "auth/credentials",
+      quickTest: "sessionQuickTest",
     }),
     presessionValid() {
       if (!this.checklistPresessionStatus) {
@@ -179,15 +196,12 @@ export default {
         return this.$store.getters.requiredPreSessionTasksChecked;
       }
     },
-    backHotkey() {
-      return this.$hotkeyHelpers.findBinding("workspace.back", this.hotkeys);
-    },
     status() {
-      return this.$store.state.status;
+      return this.$store.state.session.status;
     },
     showCheckList() {
       return (
-        this.$store.state.status === SESSION_STATUSES.PENDING &&
+        this.$store.state.session.status === SESSION_STATUSES.PENDING &&
         this.checklistPresessionStatus
       );
     },
@@ -216,32 +230,36 @@ export default {
       );
     },
     async fetchItems() {
-      console.log("fetchItems from Main View");
-      this.items = await this.$storageService.getItems();
+      if (this.$isElectron) {
+        const sessionItems = await this.$storageService.getItems();
+        this.$store.commit("setSessionItemsFromExternalWindow", sessionItems);
+      }
+    },
+    async getCurrentExecution() {
+      let currentPath = this.$route.path;
+      const executionId = currentPath.split("/").pop();
+
+      if (executionId !== "" && executionId !== "workspace") {
+        const currentExecution = await this.$storageService.getState(
+          executionId
+        );
+        const data = currentExecution.custom_fields;
+        this.$store.commit("updateSession", data);
+        this.$store.commit("setSessionItems", data.items);
+        this.$store.commit("setSessionNodes", data.nodes);
+        this.$store.commit("setSessionConnections", data.connections);
+        await this.$router.push({ path: "/main/workspace" });
+      }
     },
     addItem(newItem) {
-      this.items.push(newItem);
-      this.saveSession(this.items);
+      console.log("Add");
+      this.$store.commit("addSessionItem", newItem);
     },
-    saveSession(items) {
-      this.$storageService.updateItems(items);
+    updateItem(newItem) {
+      this.$store.commit("updateSessionItem", newItem);
     },
     updateSelected(value) {
       this.selected = value;
-    },
-    updateActiveSession(value) {
-      this.activeSession = value;
-      this.openEditWindow(this.activeSession);
-    },
-    openEditWindow(data) {
-      // todo we want to replace electron window with the vuetify dialog instead to make it work for both electron & web
-      if (this.$isElectron) {
-        this.$electronService.openEditWindow(data);
-      }
-    },
-    back() {
-      this.$store.commit("resetState");
-      this.$router.push("/");
     },
   },
 };
@@ -253,7 +271,7 @@ export default {
   flex-direction: column;
   height: 100vh;
   width: 100%;
-  max-width: 600px;
+  background: #f2f4f7;
   overflow-y: auto;
   border-left: 1px solid rgba(0, 0, 0, 0.12);
   border-right: 1px solid rgba(0, 0, 0, 0.12);
@@ -265,6 +283,10 @@ export default {
   justify-content: center;
   column-gap: 15px;
   padding: 15px;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 34px 0px rgba(0, 0, 0, 0.16);
+  border-radius: 15px;
+  margin-bottom: 10px;
 }
 .header .tabs {
   flex-grow: 1;
@@ -278,10 +300,18 @@ export default {
   justify-content: center;
   align-items: center;
 }
+.content-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
 .content {
-  flex-grow: 1;
   overflow: auto;
-  padding: 0 5px;
+  min-width: 400px;
+  box-shadow: -10px 12px 34px 0px rgba(48, 98, 254, 0.15);
+  border-radius: 15px;
 }
 .footer {
   width: 100%;
@@ -290,6 +320,19 @@ export default {
   justify-content: center;
   align-items: center;
   padding: 0;
+}
+.w-400 {
+  width: 400px;
+  margin-top: 200px;
+}
+.w-60 {
+  width: 60%;
+}
+.vh-full {
+  height: 100vh;
+}
+.h-full {
+  height: 100%;
 }
 .v-tabs {
   width: auto !important;
@@ -306,8 +349,8 @@ export default {
   font-weight: 500;
 }
 .v-tab.v-tab--active {
-  background: #6d28d9;
-  border: 1px solid #6d28d9;
+  background: #0a26c3;
+  border: 1px solid #586af3;
   color: #fff;
 }
 .v-tab.test-tab {
@@ -320,8 +363,8 @@ export default {
 }
 .theme--light.v-tabs .v-tabs-bar .v-tab--disabled,
 .theme--light.v-tabs .v-tabs-bar .v-tab:not(.v-tab--active) {
-  color: #6d28d9;
-  border: 1px solid #6d28d9;
+  color: #0a26c3;
+  border: 1px solid #596def;
 }
 .theme--dark.v-tabs .v-tabs-bar .v-tab--disabled,
 .theme--dark.v-tabs .v-tabs-bar .v-tab:not(.v-tab--active) {

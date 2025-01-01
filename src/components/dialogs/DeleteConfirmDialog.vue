@@ -11,6 +11,7 @@
             small
             ref="confirmBtn"
             :color="currentTheme.primary"
+            :style="{ color: currentTheme.white }"
             class="text-capitalize btn"
             v-shortkey="confirmHotkey"
             @shortkey="handleConfirm()"
@@ -20,7 +21,8 @@
           </v-btn>
           <v-btn
             small
-            color="currentTheme.background"
+            :color="currentTheme.background"
+            :style="{ color: currentTheme.secondary }"
             class="text-capitalize btn"
             v-shortkey="cancelHotkey"
             @shortkey="handleCancel()"
@@ -35,6 +37,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import LogoWrapper from "../LogoWrapper.vue";
 export default {
   name: "DeleteConfirmDialog",
@@ -42,35 +45,21 @@ export default {
     LogoWrapper,
   },
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
     title: String,
     text: String,
   },
   data() {
-    return {
-      config: this.configItem,
-    };
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
+    return {};
   },
   computed: {
+    ...mapGetters({
+      hotkeys: "config/hotkeys",
+    }),
     confirmHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.save",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.save", this.hotkeys);
     },
     cancelHotkey() {
-      return this.$hotkeyHelpers.findBinding(
-        "general.cancel",
-        this.config.hotkeys
-      );
+      return this.$hotkeyHelpers.findBinding("general.cancel", this.hotkeys);
     },
     currentTheme() {
       if (this.$vuetify.theme.dark) {

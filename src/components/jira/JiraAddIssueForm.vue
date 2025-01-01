@@ -345,6 +345,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import jiraIntegrationHelper from "../../integrations/JiraIntegrationHelpers";
 
 export default {
@@ -358,14 +359,6 @@ export default {
       type: Boolean,
       default: () => false,
     },
-    credentialItems: {
-      type: Array,
-      default: () => [],
-    },
-    items: {
-      type: Array,
-      default: () => [],
-    },
     selected: {
       type: Array,
       default: () => [],
@@ -375,20 +368,12 @@ export default {
     triggerSave: function () {
       this.handleSave();
     },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
-    items: function (newValue) {
-      this.itemLists = newValue;
-    },
     selected: function (newValue) {
       this.selectedIds = newValue;
     },
   },
   data() {
     return {
-      credentials: this.credentialItems,
-      itemLists: this.items,
       selectedIds: this.selected ? this.selected : [],
       loading: false,
       userLoading: false,
@@ -418,6 +403,10 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      credentials: "auth/credentials",
+      itemLists: "sessionItems",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -561,8 +550,9 @@ export default {
     },
     async showDialog() {
       this.loading = true;
+      console.log(this.credentials);
       let response = await jiraIntegrationHelper.getAllProjects(
-        this.credentials
+        this.credentials.jira
       );
 
       this.projects = response.projects;

@@ -10,7 +10,7 @@ import { VIEW_MODE } from "./modules/constants";
 let isDevelopment = process.env.NODE_ENV !== "production";
 
 const browserUtility = require("./modules/BrowserWindowUtility");
-const databaseUtility = require("./modules/DatabaseUtility");
+const persistenceUtility = require("./modules/PersistenceUtility");
 const windowUtility = require("./modules/WindowUtility");
 const serverUtility = require("./modules/ServerUtility");
 
@@ -19,11 +19,11 @@ import { session } from "electron";
 require("./modules/IpcHandlers");
 
 // initialize session
-databaseUtility.initializeSession();
+persistenceUtility.initializeSession();
 
 // Check for enabling dev mode
-const startupConfig = databaseUtility.getConfig();
-if (startupConfig.devMode) {
+const startupConfig = persistenceUtility.getConfig();
+if (startupConfig.debugMode) {
   isDevelopment = true;
   windowUtility.setDevMode({ enabled: true });
 }
@@ -77,7 +77,7 @@ app.on("activate", () => {
 app.on("ready", async () => {
   // Changing the User-Agent is required for JIRA token integration to work.
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
-    details.requestHeaders["User-Agent"] = "YATTIE";
+    details.requestHeaders["User-Agent"] = "PINATA";
     callback({ cancel: false, requestHeaders: details.requestHeaders });
   });
   if (isDevelopment && !process.env.IS_TEST) {

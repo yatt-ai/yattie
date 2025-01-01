@@ -58,7 +58,7 @@ const createMenu = (win) => {
         {
           label: i18n.tc("menu.take_survey", 1),
           click() {
-            open("https://yatt.ai/yattie-survey/", (err) => {
+            open("https://testfiesta.com/pinata-survey/", (err) => {
               console.log(err);
             });
           },
@@ -109,7 +109,7 @@ const createMenu = (win) => {
         {
           label: i18n.t("menu.online_doc"),
           click() {
-            open("https://docs.yattie.ai/", (err) => {
+            open("https://docs.testfiesta.com/", (err) => {
               console.log(err);
             });
           },
@@ -117,7 +117,7 @@ const createMenu = (win) => {
         {
           label: i18n.t("menu.get_support"),
           click() {
-            open("https://github.com/dacoaster/yattie/issues/", (err) => {
+            open("https://github.com/dacoaster/pinata/issues/", (err) => {
               console.log(err);
             });
           },

@@ -179,7 +179,7 @@
                       <div v-for="(item, i) in selectedAttachments" :key="i">
                         <div
                           class="image-wrapper"
-                          @click="handleItemClick(item.id)"
+                          @click="handleItemClick(item.stepID)"
                         >
                           <img
                             class="screen-img"
@@ -249,6 +249,7 @@
 <script>
 import axios from "axios";
 import dayjs from "dayjs";
+import { mapGetters } from "vuex";
 export default {
   name: "TestRailExportSession",
   components: {},
@@ -257,26 +258,12 @@ export default {
       type: String,
       default: () => "",
     },
-    credentialItems: {
-      type: Array,
-      default: () => [],
-    },
-    items: {
-      type: Array,
-      default: () => [],
-    },
     selected: {
       type: Array,
       default: () => [],
     },
   },
   watch: {
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
-    items: function (newValue) {
-      this.itemLists = newValue;
-    },
     selected: function (newValue) {
       this.selectedIds = newValue;
     },
@@ -292,8 +279,6 @@ export default {
       testLoading: true,
       resultLoading: true,
       dialog: false,
-      credentials: this.credentialItems,
-      itemLists: this.items,
       selectedIds: this.selected ? this.selected : [],
       search: "",
       projects: [],
@@ -309,6 +294,10 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      itemLists: "sessionItems",
+      credentials: "auth/credentials",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -377,8 +366,8 @@ export default {
       if (this.selectedIds.length > 0) {
         this.itemLists.map((item) => {
           if (
-            item.sessionType !== "Summary" &&
-            this.selectedIds.includes(item.id)
+            item?.comment?.type !== "Summary" &&
+            this.selectedIds.includes(item.stepID)
           ) {
             selectedAttachments.push(item);
           }
@@ -405,7 +394,7 @@ export default {
       let first = true;
       for (const [i, credential] of Object.entries(this.credentials)) {
         let url, authHeader;
-        // TODO - build headers in an IntegrationsHelper function
+        // TODO - build headers in TestRailIntegrationHelper function
         url = `https://${credential.url}/index.php?/api/v2/get_projects`;
         authHeader = `Basic ${credential.accessToken}`;
         const headers = {
@@ -481,7 +470,6 @@ export default {
             ? error.message
             : this.$tc("message.api_error", 1);
         });
-      //this.selectedItem = item;
     },
     async handleSelectRun(item) {
       this.resetResults("test");
@@ -514,6 +502,7 @@ export default {
             : this.$tc("message.api_error", 1);
         });
       this.selectedItem = item;
+      // TODO - rename "selectedItem" with what it actually is
     },
     async handleAddResult(item) {
       this.resetResults("result");
@@ -557,7 +546,9 @@ export default {
 
       let attachmentComments = "";
       this.selectedIds.map(async (id, i) => {
-        const item = this.selectedAttachments.find((item) => item.id === id);
+        const item = this.selectedAttachments.find(
+          (item) => item.stepID === id
+        );
         attachmentComments += item.comment.type + ": " + item.comment.text;
         if (i !== this.selectedIds.length - 1) {
           attachmentComments += "\n";
@@ -672,11 +663,11 @@ export default {
 }
 
 .issue-wrapper .issue-list .issue-item.active .issue-icon {
-  color: #6d28d9;
+  color: #0c2ff3;
 }
 
 .issue-wrapper .issue-list .issue-item.active .issue-desc .issue-summary {
-  color: #6d28d9 !important;
+  color: #0c2ff3 !important;
 }
 
 .issue-wrapper .issue-list .issue-item .issue-desc {

@@ -20,21 +20,8 @@
       <div class="fs-30 font-weight-semibold mt-4 mb-6">
         {{ $tc("caption.log_in") }}
       </div>
-      <div class="w-full position-relative">
-        <div class="loading-wrapper" v-if="loading">
-          <v-progress-circular
-            :size="70"
-            :width="7"
-            color="#0C2FF3"
-            indeterminate
-          ></v-progress-circular>
-        </div>
-        <div
-          class="d-flex flex-column w-full"
-          :class="{
-            'opacity-50': loading,
-          }"
-        >
+      <v-row>
+        <v-col cols="12">
           <v-btn
             class="mb-4 text-capitalize btn_signup rounded-lg white--text"
             :color="btnBg"
@@ -71,8 +58,82 @@
               </div>
             </div>
           </v-btn>
-        </div>
-      </div>
+          <v-btn
+            class="mb-4 outline-btn jira"
+            block
+            outlined
+            color="white"
+            @click="signinXray"
+          >
+            <img :src="require('../../assets/icon/xray-logo.png')" width="12" />
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_xray", 1) }}
+            </div>
+          </v-btn>
+          <v-btn
+            class="mb-4 outline-btn jira"
+            block
+            outlined
+            color="white"
+            @click="signinZephyrSquad"
+          >
+            <img
+              :src="require('../../assets/icon/zephyr-squad.png')"
+              width="16"
+            />
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_zephyr_squad", 1) }}
+            </div>
+          </v-btn>
+          <v-btn
+            class="mb-4 outline-btn jira"
+            block
+            outlined
+            color="white"
+            @click="signinZephyrScale"
+          >
+            <img
+              :src="require('../../assets/icon/zephyr-scale.png')"
+              width="16"
+            />
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_zephyr_scale", 1) }}
+            </div>
+          </v-btn>
+          <!--<v-btn class="mb-4 outline-btn" block outlined color="white">
+            <img :src="require('../../assets/icon/qtest.png')" />
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_qtest", 1) }}
+            </div>
+          </v-btn>
+          <v-btn class="mb-4 outline-btn" block outlined color="white">
+            <img :src="require('../../assets/icon/practitest.png')" />
+            <div class="btn-text" :style="{ color: currentTheme.secondary }">
+              {{ $tc("caption.signin_practitest", 1) }}
+            </div>
+          </v-btn>-->
+        </v-col>
+      </v-row>
+      <!-- <v-row>
+        <v-col cols="12" class="divider">
+          <span></span>
+          <div class="divider-text">Or</div>
+          <span></span>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="12" class="d-flex justify-center align-center">
+          <div class="text-center signup-text">Don't have an account?</div>
+          <v-btn
+            class="text-capitalize pa-0 signup-btn"
+            color="primary"
+            plain
+            to="/authentication/signupMain"
+          >
+            {{ $tc("caption.sign_up", 1) }}
+          </v-btn>
+        </v-col>
+      </v-row> -->
     </div>
 
     <v-snackbar v-model="snackBar.enabled" timeout="3000">
@@ -96,34 +157,18 @@ export default {
   name: "SigninWrapper",
   components: {},
   props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-    credentialItems: {
-      type: Object,
-      default: () => {},
-    },
     prevRoute: {
       type: Object,
       default: () => {},
     },
   },
   watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
-    credentialItems: function (newValue) {
-      this.credentials = newValue;
-    },
     prevRoute: function (newValue) {
       this.previousRoute = newValue;
     },
   },
   data() {
     return {
-      config: this.configItem,
-      credentials: this.credentialItems,
       previousRoute: this.prevRoute,
       loading: false,
       snackBar: {
@@ -161,14 +206,23 @@ export default {
 
       this.$router.back();
     },
-    signinYatt() {
-      this.$router.push({ path: "/authentication/signinYatt" });
+    signinTestfiesta() {
+      this.$router.push({ path: "/authentication/signinTestfiesta" });
     },
     signinJira() {
       this.$router.push({ path: "/authentication/signinJira" });
     },
     signinTestRail() {
       this.$router.push({ path: "/authentication/signinTestRail" });
+    },
+    signinXray() {
+      this.$router.push({ path: "/authentication/signinXray" });
+    },
+    signinZephyrSquad() {
+      this.$router.push({ path: "/authentication/signinZephyrSquad" });
+    },
+    signinZephyrScale() {
+      this.$router.push({ path: "/authentication/signinZephyrScale" });
     },
   },
 };
@@ -262,7 +316,7 @@ export default {
   font-size: 13px;
   font-style: normal;
   font-weight: 500;
-  color: #6d28d9;
+  color: #0a26c3;
 }
 
 .loading-wrapper {

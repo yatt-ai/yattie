@@ -99,6 +99,7 @@
             </div>
           </div>
           <div
+            v-if="getType(item.fileType) !== undefined"
             v-shortkey="nameHotkey"
             @shortkey="$hotkeyHelpers.focusField($refs, 'nameTextField')"
           >
@@ -235,6 +236,7 @@
               class="input-box"
               v-model="tag"
               :tags="item.tags"
+              :autocomplete-items="filteredTags"
               :max-tags="10"
               :maxlength="20"
               @tags-changed="handleTags"
@@ -309,7 +311,7 @@ import ReviewWrapper from "@/components/ReviewWrapper.vue";
 import VueTagsInput from "@johmun/vue-tags-input";
 import { VEmojiPicker } from "v-emoji-picker";
 
-import { TEXT_TYPES, AI_ENABLED_FIELDS } from "@/modules/constants";
+import { TEXT_TYPES, AI_ENABLED_FIELDS, FILE_TYPES } from "@/modules/constants";
 
 import openAIIntegrationHelper from "../../integrations/OpenAIIntegrationHelpers";
 import { mapGetters } from "vuex";
@@ -345,22 +347,35 @@ export default {
       ),
       processing: false,
       triggerSaveEvent: false,
+      allTags: [],
     };
   },
   created() {
     this.fetchItems();
     this.getConfig();
     this.getCredentials();
-    if (this.$isElectron) {
-      this.activeSession();
-    }
+    // if (this.$isElectron) {
+    this.activeSession();
+    // }
   },
   computed: {
     ...mapGetters({
       hotkeys: "config/hotkeys",
       config: "config/fullConfig",
       credentials: "auth/credentials",
+      defaultTags: "config/defaultTags",
+      sessionItems: "sessionItems",
+      sessionConnections: "sessionConnections",
     }),
+    filteredTags() {
+      return this.allTags
+        .filter((item) => {
+          return item.toLowerCase().includes(this.tag.toLowerCase());
+        })
+        .map((item) => {
+          return { text: item };
+        });
+    },
     nameHotkey() {
       return this.$hotkeyHelpers.findBinding("evidence.name", this.hotkeys);
     },
@@ -388,7 +403,7 @@ export default {
     fileSuffix() {
       let splitName = [];
       if (this.item?.fileName) {
-        splitName = this.item?.fileName.split(".");
+        splitName = this.item?.fileName?.split(".");
       }
       return splitName.length > 1 ? "." + splitName[splitName.length - 1] : "";
     },
@@ -401,12 +416,13 @@ export default {
     },
   },
   mounted() {
+    this.getAllTags();
     // if (this.$isElectron) {
     //   this.activeSession();
     // }
-    this.$root.$on("update-session", this.updateSession);
+    this.$root.$on("update-edit-item", this.updateEditItem);
     this.$root.$on("update-processing", this.updateProcessing);
-    this.$root.$on("save-data", this.saveData);
+    // this.$root.$on("save-data", this.saveData);
   },
   watch: {
     itemData: function () {
@@ -414,6 +430,24 @@ export default {
     },
   },
   methods: {
+    getType(type) {
+      return FILE_TYPES[type];
+    },
+    getAllTags() {
+      const defaultTagTexts = this.defaultTags
+        .filter((tag) => tag.text !== "")
+        .map((tag) => tag.text);
+      let sessionTagTexts = [];
+      if (this.sessionItems.length > 0) {
+        this.sessionItems.forEach((item) => {
+          if (item.tags && item.tags.length > 0) {
+            const tagTexts = item.tags.map((tag) => tag.text);
+            sessionTagTexts = sessionTagTexts.concat(tagTexts);
+          }
+        });
+      }
+      this.allTags = [...new Set([...defaultTagTexts, ...sessionTagTexts])];
+    },
     activeSession() {
       // set theme mode
       const isDarkMode = this.config.apperance === "dark";
@@ -422,8 +456,8 @@ export default {
 
       // set templates
       this.item = { ...this.itemData };
-
-      const splitName = this.item?.fileName.split(".") || [""];
+      console.log("item-data", this.item);
+      const splitName = this.item?.fileName?.split(".") || [""];
       this.name = splitName.slice(0, -1).join(".");
 
       this.processing = false;
@@ -439,9 +473,13 @@ export default {
       input.focus();
     },
     async fetchItems() {
-      this.items = await this.$storageService.getItems();
+      if (this.$isElectron) {
+        this.items = await this.$storageService.getItems();
+      } else {
+        this.items = structuredClone(this.$store.state.session.items);
+      }
     },
-    updateSession(value) {
+    updateEditItem(value) {
       this.item = value;
     },
     updateProcessing(value) {
@@ -483,7 +521,7 @@ export default {
       this.$emit("close");
     },
     async handleSave() {
-      if (this.item.sessionType !== "Note") {
+      if (this.item.comment.type === "Summary") {
         this.triggerSaveEvent = !this.triggerSaveEvent;
       } else {
         await this.saveData(this.item);
@@ -506,14 +544,26 @@ export default {
 
       this.items = this.items.map((item) => {
         let temp = Object.assign({}, item);
-        if (temp.id === this.item.id) {
+        if (temp.stepID === this.item.stepID) {
           temp = this.item;
         }
         return temp;
       });
+      const updatedItems = [...this.items];
+      let updatedNodes = [];
+      let tempItems = updatedItems
+        .slice()
+        .filter((item) => item?.comment?.type !== "Summary");
 
-      await this.$storageService.updateItems(this.items);
+      tempItems.forEach((item) => {
+        item.id = item.stepID;
+        updatedNodes.push({ ...item, content: item.comment.text });
+      });
+
+      await this.$store.commit("setSessionItems", [...updatedItems]);
+      await this.$store.commit("setSessionNodes", [...updatedNodes]);
       this.$emit("close");
+      this.$root.$emit("render-mindmap");
     },
     async handleAISuggestion(field, event) {
       if (

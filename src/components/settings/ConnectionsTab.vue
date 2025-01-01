@@ -5,21 +5,130 @@
         <p class="body-1" :style="{ color: currentTheme.default }">
           {{ $tc("caption.external_connection", 1) }}
         </p>
-        <a
-          class="jira-link"
-          @click="signinTestRail"
-          :style="{ color: currentTheme.secondary }"
-        >
-          {{ $t("message.connect_to_testrail") }}
-        </a>
-        <p></p>
-        <a
-          class="jira-link"
-          @click="signinJira"
-          :style="{ color: currentTheme.secondary }"
-        >
-          {{ $t("message.connect_to_jira") }}
-        </a>
+
+        <v-col cols="12">
+          <div class="avatar" v-if="credentials.testrail">
+            <ConnectionPanel connectionType="testrail" />
+          </div>
+          <div v-else>
+            <v-btn
+              class="m-4 outline-btn jira justify-start"
+              block
+              outlined
+              color="white"
+              @click="signinTestRail"
+            >
+              <img :src="require('../../assets/icon/testrail.png')" />
+              <div
+                class="btn-text ml-4"
+                :style="{ color: currentTheme.secondary }"
+              >
+                {{ $t("message.connect_to_testrail") }}
+              </div>
+            </v-btn>
+          </div>
+
+          <p></p>
+
+          <div class="avatar" v-if="credentials.xray">
+            <ConnectionPanel connectionType="xray" />
+          </div>
+          <div v-else>
+            <v-btn
+              class="m-4 outline-btn jira justify-start"
+              block
+              outlined
+              color="white"
+              @click="signinXray"
+            >
+              <img
+                :src="require('../../assets/icon/xray-logo.png')"
+                width="12"
+              />
+              <div
+                class="btn-text ml-4"
+                :style="{ color: currentTheme.secondary }"
+              >
+                {{ $t("message.connect_to_xray") }}
+              </div>
+            </v-btn>
+          </div>
+
+          <p></p>
+
+          <div class="avatar" v-if="credentials.zephyrSquad">
+            <ConnectionPanel connectionType="zephyrSquad" />
+          </div>
+          <div v-else>
+            <v-btn
+              class="m-4 outline-btn jira justify-start"
+              block
+              outlined
+              color="white"
+              @click="signinZephyrSquad"
+            >
+              <img
+                :src="require('../../assets/icon/zephyr-squad.png')"
+                width="16"
+              />
+              <div
+                class="btn-text ml-4"
+                :style="{ color: currentTheme.secondary }"
+              >
+                {{ $t("message.connect_to_zephyr_squad") }}
+              </div>
+            </v-btn>
+          </div>
+
+          <p></p>
+
+          <div class="avatar" v-if="credentials.zephyrScale">
+            <ConnectionPanel connectionType="zephyrScale" />
+          </div>
+          <div v-else>
+            <v-btn
+              class="m-4 outline-btn jira justify-start"
+              block
+              outlined
+              color="white"
+              @click="signinZephyrScale"
+            >
+              <img
+                :src="require('../../assets/icon/zephyr-scale.png')"
+                width="16"
+              />
+              <div
+                class="btn-text ml-4"
+                :style="{ color: currentTheme.secondary }"
+              >
+                {{ $t("message.connect_to_zephyr_scale") }}
+              </div>
+            </v-btn>
+          </div>
+
+          <p></p>
+
+          <div class="avatar" v-if="credentials.jira">
+            <ConnectionPanel connectionType="jira" />
+          </div>
+          <div v-else>
+            <v-btn
+              class="m-4 outline-btn jira justify-start"
+              block
+              outlined
+              color="white"
+              @click="signinJira"
+            >
+              <img :src="require('../../assets/icon/jira.png')" />
+              <div
+                class="btn-text ml-4"
+                :style="{ color: currentTheme.secondary }"
+              >
+                {{ $t("message.connect_to_jira") }}
+              </div>
+            </v-btn>
+          </div>
+        </v-col>
       </v-col>
       <v-col cols="12" class="border-bottom pa-4 app-role-section">
         <div class="d-flex align-start">
@@ -50,7 +159,7 @@
           class="subtitle-1 mb-4"
           :style="{ color: currentTheme.secondary }"
         >
-          {{ $tc("caption.yatt", 1) }}
+          {{ $tc("caption.testfiesta", 1) }}
         </p>
         <p class="body-1" :style="{ color: currentTheme.default }">
           {{ $tc("caption.add_color", 1) }}
@@ -129,23 +238,15 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   name: "ConnectionsTab",
-  components: {},
-  props: {
-    configItem: {
-      type: Object,
-      default: () => {},
-    },
-  },
-  watch: {
-    configItem: function (newValue) {
-      this.config = newValue;
-    },
+  components: {
+    ConnectionPanel: () => import("../ConnectionPanel.vue"),
   },
   data() {
     return {
-      config: this.configItem,
       row: null,
       color: "#1976D2FF",
       mask: "!#XXXXXXXX",
@@ -164,6 +265,10 @@ export default {
         transition: "border-radius 200ms ease-in-out",
       };
     },
+    ...mapGetters({
+      config: "config/fullConfig",
+      credentials: "auth/credentials",
+    }),
     currentTheme() {
       if (this.$vuetify.theme.dark) {
         return this.$vuetify.theme.themes.dark;
@@ -178,6 +283,15 @@ export default {
     },
     signinTestRail() {
       this.$router.push({ path: "/authentication/signinTestRail" });
+    },
+    signinXray() {
+      this.$router.push({ path: "/authentication/signinXray" });
+    },
+    signinZephyrSquad() {
+      this.$router.push({ path: "/authentication/signinZephyrSquad" });
+    },
+    signinZephyrScale() {
+      this.$router.push({ path: "/authentication/signinZephyrScale" });
     },
   },
 };
