@@ -1,39 +1,41 @@
 <template>
-  <v-container style="height: 100%">
+  <div class="pa-6" style="height: 100%">
     <div class="top">
       <v-btn
         class="text-capitalize pa-0 back-btn"
         plain
-        rounded
+        color="#475467"
         solid
         v-shortkey="backHotkey"
         @shortkey="handleResetConfirmDialog"
         @click="handleResetConfirmDialog"
       >
-        <v-icon class="ma-0">mdi-chevron-left</v-icon>
-        {{ $tc("caption.back", 1) }}
+        <div class="d-flex justify-center align-center">
+          <v-icon class="ma-0">mdi-chevron-left</v-icon>
+          <span class="font-weight-semibold">{{ $tc("caption.back", 1) }}</span>
+        </div>
       </v-btn>
     </div>
-    <v-row class="text-left" style="height: 100%">
-      <v-col cols="12" style="height: 100%; overflow-y: auto">
-        <div class="title title-text mb-4">
+    <div class="text-left" style="height: 100%">
+      <div style="height: 100%; overflow-y: auto">
+        <div class="fs-30 font-weight-semibold mt-4 mb-6">
           {{ $tc("caption.exploratory_session", 1) }}
         </div>
-        <v-tabs
-          class="charter-tab"
-          hide-slider
-          :background-color="currentTheme.primary"
-          :color="currentTheme.white"
-          :height="32"
-        >
+        <v-tabs class="charter-tab mb-5" hide-slider :height="40">
           <v-tab
-            ripple
-            class="text-capitalize"
+            plain
+            link
+            class="text-capitalize font-weight-semibold fs-16"
             @click="activeTab = 'textDescription'"
           >
             {{ $tc("caption.text_description", 1) }}
           </v-tab>
-          <v-tab ripple class="text-capitalize" @click="activeTab = 'mindMap'">
+          <v-tab
+            plain
+            link
+            class="text-capitalize font-weight-semibold fs-16"
+            @click="activeTab = 'mindMap'"
+          >
             {{ $tc("caption.mind_map", 1) }}
           </v-tab>
         </v-tabs>
@@ -75,8 +77,8 @@
             </v-col>
           </v-tab-item>
         </v-tabs-items>
-      </v-col>
-    </v-row>
+      </div>
+    </div>
     <ResetConfirmDialog
       v-model="resetConfirmDialog"
       ref="resetConfirmDialog"
@@ -84,11 +86,11 @@
       @confirm="back"
       @cancel="resetConfirmDialog = false"
     />
-  </v-container>
+  </div>
 </template>
 
 <script>
-import { VContainer, VRow, VCol } from "vuetify/lib/components";
+import { VCol } from "vuetify/lib/components";
 import TestSettingWrapper from "./TestSettingWrapper.vue";
 import { mapGetters } from "vuex";
 import ResetConfirmDialog from "./dialogs/ResetConfirmDialog.vue";
@@ -96,8 +98,6 @@ import ResetConfirmDialog from "./dialogs/ResetConfirmDialog.vue";
 export default {
   name: "ExploratoryTestWrapper",
   components: {
-    VContainer,
-    VRow,
     VCol,
     ResetConfirmDialog,
     TestSettingWrapper,
@@ -185,5 +185,15 @@ export default {
   border-top: none;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
+}
+.charter-tab .v-tab {
+  color: #667085 !important;
+}
+.charter-tab .v-tab.v-tab--active {
+  color: #0a26c3 !important;
+  border-bottom: solid 2px #0a26c3;
+}
+.charter-tab {
+  border-bottom: solid 1px #eaecf0;
 }
 </style>
