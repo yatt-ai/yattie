@@ -1,42 +1,44 @@
 <template>
-  <v-container class="quick_test_wrapper">
+  <v-container class="quick_test_wrapper pa-6">
     <div class="top">
       <v-btn
         class="text-capitalize pa-0 back-btn"
         plain
-        rounded
+        color="#475467"
         solid
         v-shortkey="backHotkey"
         @shortkey="handleResetConfirmDialog"
         @click="handleResetConfirmDialog"
       >
-        <v-icon class="ma-0">mdi-chevron-left</v-icon>
-        {{ $tc("caption.back", 1) }}
+        <div class="d-flex justify-center align-center">
+          <v-icon class="ma-0">mdi-chevron-left</v-icon>
+          <span class="font-weight-semibold">{{ $tc("caption.back", 1) }}</span>
+        </div>
       </v-btn>
     </div>
     <v-row class="text-left">
       <v-col cols="12">
-        <div class="title">
+        <div>
           <div
-            class="title-text mb-4"
+            class="fs-30 font-weight-semibold mt-4 mb-6"
             :style="{ color: currentTheme.secondary }"
             v-shortkey="titleHotkey"
             @shortkey="$hotkeyHelpers.focusField($refs, 'titleTextField')"
           >
             {{ $tc("caption.quick_test", 1) }}
           </div>
-          <div
-            class="label-text mb-4"
-            :style="{ color: currentTheme.secondary }"
-          >
+          <div class="d-flex fs-14 text-theme-label mb-1 font-weight-medium">
             {{ $tc("caption.session_name", 1) }}
           </div>
           <v-text-field
             :placeholder="$t('message.enter_brief_charter_name')"
             autofocus
-            outlined
+            class="rounded-lg"
+            :background-color="inputBg"
             dense
-            :height="35"
+            height="40px"
+            flat
+            solo
             :color="currentTheme.secondary"
             :append-icon="
               isAiAssistEnabled
@@ -60,7 +62,7 @@
         </div>
       </v-col>
       <v-col cols="12">
-        <div class="label-text mb-4" :style="{ color: currentTheme.secondary }">
+        <div class="d-flex fs-14 text-theme-label mb-1 font-weight-medium">
           {{ $tc("caption.privacy", 1) }}
         </div>
         <v-select
@@ -68,21 +70,23 @@
           color="secondary"
           v-model="privacy"
           :placeholder="$tc('caption.comment_type')"
+          background-color="#F9F9FB"
+          height="40px"
           solo
-          dense
+          flat
+          append-icon="mdi-chevron-down"
+          :menu-props="{ offsetY: true }"
           hide-details="true"
         ></v-select>
       </v-col>
       <v-col cols="12" class="">
         <v-btn
           id="btn_new_quick_test"
-          class="text-capitalize font-weight-regular"
-          fill
-          small
+          class="text-capitalize rounded-lg font-weight-regular white--text"
+          color="#0C2FF3"
           block
-          :color="currentTheme.primary"
-          :style="{ color: currentTheme.white }"
-          :height="30"
+          depressed
+          height="40px"
           @click="startQuickTest"
         >
           {{ $tc("caption.start_quick_test", 1) }}
@@ -144,6 +148,15 @@ export default {
       } else {
         return this.$vuetify.theme.themes.light;
       }
+    },
+    mainBg() {
+      return this.$vuetify.theme.dark ? "#374151" : this.currentTheme.white;
+    },
+    btnBg() {
+      return this.$vuetify.theme.dark ? "#4B5563" : "#F2F4F7";
+    },
+    inputBg() {
+      return this.$vuetify.theme.dark ? "#4B5563" : "#F9F9FB";
     },
   },
   created() {

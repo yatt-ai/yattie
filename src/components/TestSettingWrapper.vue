@@ -1,10 +1,10 @@
 <template>
-  <v-container>
-    <v-row class="text-left">
-      <v-col cols="12">
-        <div class="title">
+  <div>
+    <div class="text-left">
+      <div>
+        <div>
           <div
-            class="subtitle-2 label-text"
+            class="d-flex fs-14 text-theme-label mb-1 font-weight-medium"
             :style="{ color: currentTheme.secondary }"
             v-shortkey="titleHotkey"
             @shortkey="$hotkeyHelpers.focusField($refs, 'titleTextField')"
@@ -14,9 +14,12 @@
           <v-text-field
             :placeholder="$tc('caption.session_name', 1)"
             autofocus
-            outlined
+            class="rounded-lg"
+            :background-color="inputBg"
             dense
-            :height="35"
+            height="40px"
+            flat
+            solo
             :color="currentTheme.secondary"
             :loading="titleLoading"
             :append-icon="
@@ -44,12 +47,12 @@
         </div>
         <div class="mt-4">
           <div
-            class="subtitle-2 label-text"
+            class="d-flex fs-14 text-theme-label mb-1 font-weight-medium"
             :style="{ color: currentTheme.secondary }"
             v-shortkey="charterHotkey"
             @shortkey="$hotkeyHelpers.focusField($refs, 'charter')"
           >
-            {{ $tc("caption.charter", 1) }}
+            {{ $tc("caption.charter_description", 1) }}
           </div>
           <div v-if="!isMindmap">
             <v-card v-if="charterLoading" class="loading-wrapper" outlined flat>
@@ -61,6 +64,7 @@
               ></v-progress-circular>
             </v-card>
             <v-tiptap
+              class="tiptap-theme"
               v-else
               :value="charter.content"
               :placeholder="$t('message.describe_test_charter')"
@@ -217,15 +221,16 @@
             hide-details="true"
           />
         </div>
-      </v-col>
-    </v-row>
-  </v-container>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import { VContainer, VRow, VCol, VTextField } from "vuetify/lib/components";
+import { VTextField } from "vuetify/lib/components";
 import NewMindmapEditor from "./NewMindmapEditor.vue";
 import { debounce } from "lodash";
+import theme from "../mixins/theme";
 
 import {
   DEFAULT_CHARTER_MAP_NODES,
@@ -239,9 +244,6 @@ import { mapGetters } from "vuex";
 export default {
   name: "TestSettingWrapper",
   components: {
-    VContainer,
-    VRow,
-    VCol,
     VTextField,
     NewMindmapEditor,
   },
@@ -251,6 +253,7 @@ export default {
       default: () => false,
     },
   },
+  mixins: [theme],
   data() {
     return {
       title: this.$store.state.case.title,

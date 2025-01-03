@@ -2,7 +2,69 @@ body {
   font-size: 13px;
   margin: 0;
 }
-
+.theme--light.v-application {
+  background-color: #F2F4F7 !important;
+}
+.fs-30 {
+  font-size: 30px !important;
+}
+.fs-14 {
+  font-size: 14px !important;
+}
+.font-weight-semibold {
+  font-weight: 600;
+}
+.text-theme-label {
+  color: #344054 !important;
+}
+.fs-16 {
+  font-size: 16px !important;
+}
+.fs-18 {
+  font-size: 18px !important;
+}
+.fs-24 {
+  font-size: 24px !important;
+}
+.tiptap-theme .v-card {
+  border: none !important;
+}
+.tiptap-theme .tiptap.ProseMirror {
+  background: #f9f9fb;
+  min-height: 80px;
+}
+.tiptap-theme header.v-toolbar {
+  border-top-left-radius: 8px !important;
+  border-top-right-radius: 8px !important;
+}
+.tiptap-theme header.v-toolbar.grey.lighten-4 {
+  background-color: transparent !important;
+}
+.font-weight-medium {
+  font-weight: 500;
+}
+.text-theme-primary {
+  color: #0C2FF3 !important;
+}
+.w-full {
+  width: 100%;
+}
+.app-height-global {
+  min-height: calc(100vh - 24px);
+  height: 100%;
+}
+.position-relative {
+  position: relative;
+}
+.opacity-50 {
+  opacity: 0.5;
+}
+.invisible {
+  visibility: hidden;
+}
+.visible {
+  visibility: visible;
+}
 /* width */
 ::-webkit-scrollbar {
   width: 8px;
